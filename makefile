@@ -124,6 +124,8 @@ dist-zip: $(DISTFILES)
 
 dist-check:
 	if [ -f !* ]; then echo !*; false; fi
+	test `sed -n '/^#define _version_.*(\(.*\)).*/s//\1/p' < main.cpp` \
+	   = `date +%Y%j`
 	grep $(D_VER) INSTALL
 	grep $(D_VER) CHANGES
 	d=`(cat INSTALL | sed -n -e '/contents/,/---/!d' \

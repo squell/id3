@@ -27,12 +27,14 @@ zip:
 ############################################################################
 
 id3.exe: main.o sedit.o varexp.o ffindexp.o charconv.o \
-	 set_base.o setid3.o setid3v2.o setfname.o \
+         set_base.o setid3.o setid3v2.o setfname.o setecho.o \
+         getid3.o getid3v2.o \
 	 id3v1.o id3v2.o fileops.o
 	$(CC) $(LDFLAGS) -o $@ $+
 
 id3l.exe: mainl.o sedit.o varexp.o ffindexp.o charconv.o \
-	 set_base.o setid3.o setfname.o \
+         set_base.o setid3.o setfname.o setecho.o \
+         getid3.o \
 	 id3v1.o
 	$(CC) $(LDFLAGS)  -o $@ $+
 
@@ -59,10 +61,11 @@ varexp.o: varexp.cpp varexp.h
 ffindexp.o: ffindexp.cpp varexp.h auto_dir.h ffindexp.h
 charconv.o: charconv.cpp charconv.h
 set_base.o: set_base.cpp set_base.h sedit.h
-setid3.o: setid3.cpp setid3.h set_base.h sedit.h id3v1.h
+setid3.o: setid3.cpp setid3.h set_base.h sedit.h id3v1.h charconv.h
 setid3v2.o: setid3v2.cpp setid3v2.h set_base.h sedit.h id3v1.h id3v2.h \
- fileops.h
-setfname.o: setfname.cpp setfname.h set_base.h sedit.h
+ fileops.h charconv.h
+setfname.o: setfname.cpp setfname.h set_base.h sedit.h charconv.h
+setecho.o: setecho.cpp setecho.h set_base.h sedit.h charconv.h
 fileops.o: fileops.c fileops.h
 id3v1.o: id3v1.c id3v1.h
 id3v2.o: id3v2.c fileops.h id3v2.h
