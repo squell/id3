@@ -18,10 +18,10 @@ install: checkroot build
 	rm -rf debian/tmp
 	make prefix=./debian/tmp/usr mandir='$$(datadir)'/man \
 		docdir='$$(datadir)/doc/'$(package) install-full
-	
+
 binary: binary-arch
 
-binary-indep: checkroot build     # do nothing
+binary-indep: checkroot build	# do nothing
 
 TMPPKGDOC=debian/tmp/usr/share/doc/$(package)
 
@@ -34,6 +34,8 @@ binary-arch: checkroot build install
 	ln -s CHANGES.gz $(TMPPKGDOC)/changelog.gz
 	rm -f $(TMPPKGDOC)/COPYING
 	cd $(TMPPKGDOC) && gzip -9v CHANGES README changelog.Debian
+	cd debian/tmp && md5sum `\
+	  find -name DEBIAN -prune -or -type f -printf '%P\n'` > DEBIAN/md5sums
 	dpkg-shlibdeps debian/tmp/usr/bin/*
 	dpkg-gencontrol -isp
 	chown -R root.root debian/tmp
@@ -43,7 +45,7 @@ binary-arch: checkroot build install
 define checkdir
 	test -f main.cpp -a -f debian/rules
 endef
-	
+
 checkroot:
 	$(checkdir)
 	test $$(id -u) = 0
