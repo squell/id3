@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <ctype.h>
+#include <errno.h>
 #include <limits.h>
 #include "id3v2.h"
 
@@ -16,7 +17,6 @@
 
 typedef unsigned long ulong;
 typedef unsigned char uchar;
-typedef unsigned int  uint;
 
 enum ID3_hdr_flag {
     UNSYNC = 0x80,
@@ -52,7 +52,7 @@ struct raw_frm {
 
 /* ==================================================== */
 
-static int copyfile(FILE *dest, FILE *src)
+static int fcopy(FILE *dest, FILE *src)
 {
     char buffer[0x4000];                              /* 16kb buffer */
     size_t r, w;
@@ -66,7 +66,7 @@ static int copyfile(FILE *dest, FILE *src)
     return feof(src);
 }
 
-static int paddfile(FILE *dest, char c, size_t len)
+static int fpadd(FILE *dest, char c, size_t len)
 {
     char buffer[0x4000];                              /* 16kb buffer */
     size_t w;
@@ -82,6 +82,23 @@ static int paddfile(FILE *dest, char c, size_t len)
     w = fwrite(buffer, 1, len, dest);
 
     return w == len;
+}
+
+/* ==================================================== */
+
+int cpfile(const char *srcnam, const char *dstnam)
+{
+    FILE *src, *dst;
+    int result = 0;
+
+    if(src = fopen(srcnam, "rb")) {
+        if(dst = fopen(dstnam, "wb")) {
+            result = fcopy(dst, src);
+            fclose(dst);
+        }
+        fclose(src);
+    }
+    return result;
 }
 
 /* ==================================================== */
@@ -224,6 +241,8 @@ abort:                                   /* close file and return failure */
     return 0;
 }
 
+int (*ID3_wfail)(const char *srcname, const char *dstname) = cpfile;
+
 int ID3_writef(const char *fname, void *src)
 {
     struct raw_hdr new_h = { "ID3", 3, 0, 0, 0 };
@@ -233,7 +252,7 @@ int ID3_writef(const char *fname, void *src)
 
     FILE *f = fopen(fname, "rb+");
 
-    if( !f ) return 0;
+    if(!f) return 0;
 
     fread(&rh, sizeof(struct raw_hdr), 1, f);
 
@@ -250,7 +269,7 @@ int ID3_writef(const char *fname, void *src)
             rewind(f);
             fwrite(&new_h, sizeof new_h, 1, f);   /* i don't check these */
             fwrite(src, size, 1, f);
-            paddfile(f, 0, orig-size);
+            fpadd(f, 0, orig-size);
             fclose(f);
             return 1;
         }
@@ -272,15 +291,18 @@ int ID3_writef(const char *fname, void *src)
             setsize(&new_h, nsize);
             ok = fwrite(&new_h, sizeof new_h, 1, nf) == 1
               && fwrite(src, size, 1, nf)            == 1
-              && paddfile(nf, 0, nsize-size)
-              && copyfile(nf, f);
+              && fpadd(nf, 0, nsize-size)
+              && fcopy(nf, f);
         } else {
-            ok = copyfile(nf, f);               /* remove ID3v2 tag only */
+            ok = fcopy(nf, f);                  /* remove ID3v2 tag only */
         }
         fclose(f);
         fclose(nf);
-        if(ok && remove(fname)==0) {
-            rename(tmp, fname);
+        if(ok && remove(fname) == 0) {
+            if( rename(tmp, fname) != 0 && !ID3_wfail(tmp, fname) ) {
+                printf("%s -> %s: %s\n", tmp, fname, strerror(errno));
+                exit(255);                                  /* sayonara! */
+            }
         } else {
             remove(tmp);                                      /* failure */
             return 0;
@@ -288,7 +310,7 @@ int ID3_writef(const char *fname, void *src)
     }
     return 1;
 
-abort:                                   /* close file and return failure */
+abort:                                  /* close file and return failure */
     fclose(f);
     return 0;
 }
