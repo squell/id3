@@ -90,13 +90,15 @@ DISTFILES = INSTALL $(docdata) makefile makefile.dj makefile.bcc \
 	$(foreach f, control rules copyright changelog, debian/$(f))
 
 D_VER = `sed -n "/_version_/{s:[^0-9]*\([^ ]*\).*:\1:p;q;}" main.cpp`
-D_TMP = rm -rf .tmp; mkdir .tmp
 
 D_PKG = pkg=id3-$(D_VER); \
 	rm -f $${pkg}; \
 	ln -s `pwd` $${pkg}
 
 D_FIL = `echo $(DISTFILES) | sed "s:[^ ]*:$${pkg}/&:g"`
+
+D_TMP = rm -rf .tmp; mkdir .tmp && \
+	tar c $(DISTFILES) | tar xC .tmp
 
 dist: $(DISTFILES)
 	$(D_PKG) && $(TAR) chofz $${pkg}.tar.gz $(D_FIL); rm -f $${pkg}
@@ -114,19 +116,18 @@ dist-check:
 	  -e	       's:^ \([^ ]*\).*:\1:p'; \
 	    echo $(DISTFILES)) | tr ' ' '\n' | sort | uniq -u` && \
 	echo "$${d}"; test -z "$${d}"
-	$(D_TMP) && ln $(DISTFILES) .tmp
-	make -C .tmp all && mv .tmp/id3 .tmp/id3l `pwd`
+	$(D_TMP) && make -C .tmp all && mv .tmp/id3 .tmp/id3l `pwd`
 	-rm -rf .tmp
 	@echo all release checks okay
 
 dist-clean:
-	$(D_TMP) &&  cp -l --parents $(DISTFILES) .tmp
+	$(D_TMP)
 	-rm -rf *
 	mv .tmp/* `pwd`
 	-rm -rf .tmp
 
 diff:
-	$(D_TMP) && ln -s `pwd` .tmp/{current}
+	rm -rf .tmp; mkdir .tmp && ln -s `pwd` .tmp/{current}
 	tar Cxfz .tmp `pwd`.tar.gz
 	diff -x '.*' -durN .tmp/* | gzip -9 > `pwd`-$(D_VER).diff.gz
 	-rm -rf .tmp
