@@ -26,7 +26,7 @@ struct ID3v1 {                                   // ID3 v1.1 tag structure
     unsigned char genre;
 };
 
-typedef ID3v1_is_128bytes_check [sizeof(struct ID3v1)==128 ? 1 : -1];
+typedef int ID3v1_is_128bytes_check [sizeof(struct ID3v1)==128 ? 1 : -1];
 
 #endif
 

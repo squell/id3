@@ -51,8 +51,8 @@ struct raw_frm {
     uchar flags[2];
 };
 
-typedef raw_hdr_size_check [sizeof(struct raw_hdr)==10 ? 1 : -1];
-typedef raw_frm_size_check [sizeof(struct raw_frm)==10 ? 1 : -1];
+typedef int raw_hdr_size_check [sizeof(struct raw_hdr)==10 ? 1 : -1];
+typedef int raw_frm_size_check [sizeof(struct raw_frm)==10 ? 1 : -1];
 
 /* ==================================================== */
 

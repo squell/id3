@@ -22,6 +22,10 @@
 
 using namespace std;
 
+#if !defined(_XOPEN_UNIX)                       // readlink dummy define
+#    define readlink(path, buf, n) (-1)
+#endif
+
 namespace fileexp {
 
 struct filefind : record {
