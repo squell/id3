@@ -32,11 +32,12 @@ id3l.exe: mainl.o sedit.o varexp.o ffindexp.o charconv.o \
 	 id3v1.o
 	$(CC) $(LDFLAGS)  -o $@ $+
 
-main.o: main.cpp ffindexp.h auto_dir.h set_base.h sedit.h setid3.h \
-  setid3v2.h
+main.o: main.cpp ffindexp.h auto_dir.h sedit.h set_base.h setid3.h \
+  setfname.h setid3v2.h
 	$(CC) $(CFLAGS) -c main.cpp
 
-mainl.o: main.cpp ffindexp.h auto_dir.h set_base.h sedit.h setid3.h
+mainl.o: main.cpp ffindexp.h auto_dir.h sedit.h set_base.h setid3.h \
+  setfname.h
 	$(CC) $(CFLAGS) -DNO_V2 -o $@ -c main.cpp
 
 %.o : %.cpp %.h
@@ -47,24 +48,18 @@ mainl.o: main.cpp ffindexp.h auto_dir.h set_base.h sedit.h setid3.h
 
 ## dependencies -MM ########################################################
 
+fileops.o: fileops.c fileops.h
+id3v1.o: id3v1.c id3v1.h
+id3v2.o: id3v2.c fileops.h id3v2.h
 charconv.o: charconv.cpp charconv.h
-ffindexp.o: ffindexp.cpp varexp.h \
- auto_dir.h ffindexp.h
-main.o: main.cpp ffindexp.h auto_dir.h \
- sedit.h set_base.h setid3.h setid3v2.h setfname.h
+ffindexp.o: ffindexp.cpp varexp.h auto_dir.h ffindexp.h
 sedit.o: sedit.cpp charconv.h sedit.h
-set_base.o: set_base.cpp set_base.h \
- sedit.h
-setfname.o: setfname.cpp setfname.h \
- set_base.h sedit.h
-setid3.o: setid3.cpp setid3.h set_base.h \
- sedit.h id3v1.h
-setid3v2.o: setid3v2.cpp setid3v2.h \
- set_base.h sedit.h id3v1.h id3v2.h fileops.h
+set_base.o: set_base.cpp set_base.h sedit.h
+setfname.o: setfname.cpp setfname.h set_base.h sedit.h
+setid3.o: setid3.cpp setid3.h set_base.h sedit.h id3v1.h
+setid3v2.o: setid3v2.cpp setid3v2.h set_base.h sedit.h id3v1.h id3v2.h \
+  fileops.h
 varexp.o: varexp.cpp varexp.h
 
 ############################################################################
-
-getid3.o: getid3.cpp c:/coding/djgpp/lib/djgpp.ver getid3.h set_base.h \
- sedit.h id3v1.h
 

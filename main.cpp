@@ -114,7 +114,7 @@ struct safe {
     safe(const vector<string>& v) : vec(v) { }
     inline const string& operator[](size_t i) const
     {
-        if(i >= vec.size());
+        if(i >= vec.size())
             throw out_of_range("variable index out of range");
         return vec[i];
     }

@@ -1,6 +1,6 @@
 Changelog for 'id3'.
 
-2004-176 (W26):
+2004-176 (W26):                                ---------[v0.74]-----------
   main.cpp: [BUGFIX] ARGH! Since 0.72, id3 crashed on invalid %indexes. I
     had carefully   placed range checks in the original varexp, but due to
     later mod's, the original varexp [] didn't get called anymore. #$()*#
@@ -147,10 +147,7 @@ Changelog for 'id3'.
 
 Todo list:
 
-  - autocounter
-  - "-rT???"
-  - local filenames?
-
+  - Autocounter
   - More things:
     + Support for Ogg Vorbis
     + Support for APEv2
