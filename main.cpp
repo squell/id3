@@ -1,6 +1,8 @@
 #include <cstdlib>
 #include <cstdio>
+#include <cstdarg>
 #include <cstring>
+#include <cctype>
 #include <ctime>
 #include <stdexcept>
 #include <string>
@@ -29,14 +31,17 @@ using namespace std;
 
  // exitcodes: 0 - ok, 1 - syntax, 2 - errors, 3 - fatal errors
 
-static int exitc = 0;
+static int   exitc = 0;
+static char* name  = "id3";
 
- // file handle to dump errors to
-
-static inline FILE* err()
+static void eprintf(const char* msg, ...)
 {
     exitc = 2;
-    return stderr;
+    va_list args;
+    va_start(args, msg);
+    fprintf  (stderr, "%s: ", name);
+    vfprintf (stderr, msg, args);
+    va_end(args);
 }
 
  // all verbose mode functionality goes here
@@ -45,12 +50,10 @@ struct verbose_t {
     bool    show;
     clock_t time;
 
-    void on()
-    {   show = true;   }
-
     verbose_t() : show(false), time(clock()) { }
+    void on()                                { show = true; }
 
-    ~verbose_t()
+   ~verbose_t()
     {
         time = clock() - time;
         if(show) {
@@ -66,9 +69,12 @@ struct verbose_t {
             printf("\t%s\n", sep?sep+1:s);
         }
     }
+
     void reportd(const char* s)                     // reporting a dir
-    {   if(show && *s) printf("%s\n", s);   }
-} verbose;
+    {
+        if(show && *s) printf("%s\n", s);
+    }
+} static verbose;
 
 /* ====================================================== */
 
@@ -134,25 +140,22 @@ void mass_tag::process()
 {
     verbose.reportf(path);
     if(! modify(path, var) )
-        return (void) fprintf(err(), "id3: could not edit tag in %s\n", path);
+        return (void) eprintf("could not edit tag in %s\n", path);
 }
 
 void mass_tag::operator()(const char* spec)
 {
     if(! filefindexp::operator()(spec) )
-        fprintf(err(), "id3: no %s matching %s\n",
-                edir? "files" : "directories", spec);
+        eprintf("no %s matching %s\n", edir? "files" : "directories", spec);
 }
 
 /* ====================================================== */
 
-namespace {
-
-void help(const char* argv0)
+static void help()
 {
     printf(
 #ifdef __ZF_SETID3V2
-        "id3 " _version_ "\n"
+        "%s " _version_ "\n"
         "usage: %s [-1 -2] [OPTIONS] filespec ...\n"
 #else
         "usage: %s [OPTIONS] filespec ...\n"
@@ -178,52 +181,52 @@ void help(const char* argv0)
         "the portion of the actual filename matched by the i'th \"*\" wildcard, where i\n"
         "is a digit in the range [1..9,0].\n\n"
         "Report bugs to <squell@alumina.nl>.\n",
-        argv0
+        name,
+        name
     );
     exit(exitc=1);
 }
 
-void Copyright()
+static void Copyright()
 {
  //      |=======================64 chars wide==========================|
     printf(
-        "id3 " _version_ ", Copyright (C) 2003, 04 Marc R. Schoolderman\n"
+        "%s " _version_ ", Copyright (C) 2003, 04 Marc R. Schoolderman\n"
         "This program comes with ABSOLUTELY NO WARRANTY.\n\n"
         "This is free software, and you are welcome to redistribute it\n"
         "under certain conditions; see the file named COPYING in the\n"
-        "source distribution for details.\n"
+        "source distribution for details.\n",
+        name
     );
     exit(exitc=1);
 }
 
-void shelp()
+static void shelp()
 {
-    fprintf(err(), "Try `id3 -h' for more information.\n");
+    fprintf(stderr, "Try `%s -h' for more information.\n", name);
     exit(exitc=1);
 }
 
-long argtol(const char* arg)                   // convert argument to long
+static long argtol(const char* arg)            // convert argument to long
 {
     char* endp;
     long n = strtol(arg, &endp, 0);
     if(*endp != '\0') {
-        fprintf(err(), "id3: invalid argument `%s'\n", arg);
+        eprintf("invalid argument `%s'\n", arg);
         exit(exitc=1);
     }
     return n;
 }
 
-#if 0
-inline void argpath(char* arg) { }             // dummy
-#else
-void argpath(char* arg)                        // convert backslashes
+#if defined(__MSDOS__) || defined(__WIN32__)
+static void argpath(char* arg)                 // convert backslashes
 {
     for(char* p = arg; *p; ++p)
         if(*p == '\\') *p = '/';
 }
+#else
+static inline void argpath(char* arg) { }      // dummy
 #endif
-
-}
 
 /* ====================================================== */
 
@@ -262,7 +265,7 @@ int main_(int argc, char *argv[])
                 if(w)                          // no-op check
                     tag( argv[i] );
                 else
-                    fprintf(err(), "id3: nothing to do with %s\n", argv[i]);
+                    eprintf("nothing to do with %s\n", argv[i]);
             } else {
                 switch( *opt++ ) {             // param is an option
                 case 'v': verbose.on(); break;
@@ -299,10 +302,10 @@ int main_(int argc, char *argv[])
                         opt = "";
                         break;
                     }
-                    fprintf(err(), "id3: specify tag before -%c\n", opt[-1]);
+                    eprintf("specify tag before -%c\n", opt[-1]);
                     shelp();
 #endif
-                case 'h': help(argv[0]);
+                case 'h': help();
                 case 'V': Copyright();
                 case '-':
                     if(opt == argv[i]+2 && *opt == '\0') {
@@ -310,7 +313,7 @@ int main_(int argc, char *argv[])
                        break;
                     }
                 default:
-                    fprintf(err(), "id3: unrecognized switch: -%c\n", opt[-1]);
+                    eprintf("unrecognized switch: -%c\n", opt[-1]);
                     shelp();
                 }
             }
@@ -323,7 +326,7 @@ int main_(int argc, char *argv[])
         case set_rename:
             argpath(argv[i]);
             if(! with<filename>(tag).rename(argv[i]) ) {
-                fprintf(err(), "id3: will not rename across directories\n");
+                eprintf("will not rename across directories\n");
                 shelp();
             }
             if(!chosen)
@@ -339,7 +342,7 @@ int main_(int argc, char *argv[])
 
         case customfield:                      // v2 - write a custom field
             if(! chosen->set(fieldID, argv[i]) ) {
-                fprintf(err(), "id3: cannot write frame `%s'\n", fieldID.c_str());
+                eprintf("cannot write frame `%s'\n", fieldID.c_str());
                 shelp();
             }
             break;
@@ -350,7 +353,7 @@ int main_(int argc, char *argv[])
     }
 
     if(scan)
-        fprintf(err(), "id3: missing file arguments\n");
+        eprintf("missing file arguments\n");
     if(scan || !w)
         shelp();
 
@@ -362,17 +365,25 @@ int main_(int argc, char *argv[])
 
 int main(int argc, char *argv[])
 {
-    argpath(argv[0]);
+    argpath(name=argv[0]);                    // set up program name
+    if(char* p = strrchr(argv[0], '/')) name = p+1;
+
+#if defined(__MSDOS__) || defined(__WIN32__)
+    char* end = strchr(name, '\0');           // make "unixy" in appearance
+    for(char* p = name; p != end; ++p) *p = tolower(*p);
+    if(end-name > 4 && strcmp(end-4, ".exe") == 0) end[-4] = '\0';
+#endif
+
     try {
         return main_(argc, argv);
     } catch(const set_tag::failure& f) {
-        fprintf(err(), "id3: %s\n", f.what());
+        eprintf("%s\n", f.what());
     } catch(const out_of_range& x) {
-        fprintf(err(), "id3: %s\n", x.what());
+        eprintf("%s\n", x.what());
     } catch(const exception& exc) {
-        fprintf(err(), "id3: unhandled exception: %s\n", exc.what());
+        eprintf("unhandled exception: %s\n", exc.what());
     } catch(...) {
-        fprintf(err(), "id3: unexpected unhandled exception\n");
+        eprintf("unexpected unhandled exception\n");
     }
     return 3;
 }

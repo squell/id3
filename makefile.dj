@@ -34,10 +34,10 @@ id3l.exe: mainl.o sedit.o varexp.o ffindexp.o charconv.o \
 
 main.o: main.cpp ffindexp.h auto_dir.h set_base.h sedit.h setid3.h \
   setid3v2.h
-	$(CC) $(CFLAGS) -DDOS_DIRSEP -c main.cpp
+        $(CC) $(CFLAGS) -c main.cpp
 
 mainl.o: main.cpp ffindexp.h auto_dir.h set_base.h sedit.h setid3.h
-	$(CC) $(CFLAGS) -DDOS_DIRSEP -DNO_V2 -o $@ -c main.cpp
+        $(CC) $(CFLAGS) -DNO_V2 -o $@ -c main.cpp
 
 %.o : %.cpp %.h
 	$(CC) $(CFLAGS) -c $<
