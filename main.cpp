@@ -40,7 +40,7 @@ void write_mp3s(const char* fspec, smartID3& tag)
     if(!dir)
         return (void) printf("err: could not read %s\n", path);
 
-    bool m = false;                             // idle warning check
+    bool m = false;                             // idle flag
 
     while( dirent* fn = readdir(dir) ) {
         varexp match(fspec, fn->d_name);
@@ -94,7 +94,7 @@ int main(int argc, char *argv[])
     bool   w = false;            // check against no-ops
 #ifdef __ZF_SETID3V2
     bool aux = false;            // check for -1 & -2 commands
-    string frmID;                // v2
+    string fieldID;
     smartID3v2 tag(true,false);  // default: write ID3v1, not v2
 #else
     smartID3 tag;
@@ -102,9 +102,9 @@ int main(int argc, char *argv[])
 
     for(int i=1; i < argc; i++) {
 #ifdef __ZF_SETID3V2
-        if(!frmID.empty()) {     // v2 - write raw frame
-            tag.set(frmID, argv[i]);
-            frmID.erase();
+        if(!fieldID.empty()) {     // v2 - write raw frame
+            tag.set(fieldID, argv[i]);
+            fieldID.erase();
             w = true;
         } else
 #endif
@@ -126,11 +126,11 @@ int main(int argc, char *argv[])
                 switch( toupper(argv[i][1]) ) {
 #ifdef __ZF_SETID3V2
                 case 'D':
-                    if( frmID.assign(argv[i]+2) == "" )
+                    if( fieldID.assign(argv[i]+2) == "" )
                         tag.clear();
                     else
-                        tag.rm(frmID);
-                    frmID.erase();
+                        tag.rm(fieldID);
+                    fieldID.erase();
                     w = true;
                     break;
 #else
@@ -144,7 +144,7 @@ int main(int argc, char *argv[])
                 case 'G': t = genre;  break;
                 case 'N': t = track;  break;
 #ifdef __ZF_SETID3V2
-                case 'W': frmID.assign(argv[i]+2); break;
+                case 'W': fieldID.assign(argv[i]+2); break;
                 case '2': tag.opt(aux++,true); break;
                 case '1': tag.opt(true,aux++); break;
 #endif

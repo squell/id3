@@ -30,6 +30,7 @@ Changelog for 'id3'.
 
 Todo list:
 
+  Better foolproof
   Support for Ogg Vorbis
   Options for forcing re-packing id3v2
   Command stacking    ("-nat 1 art tit == -n 1 -a art -t tit")
