@@ -17,12 +17,26 @@
 
 namespace set_tag {
 
-bool filename::vmodify(const char* fname, const base_container& v) const
+    // checks if a character is a member of the portable set
+
+namespace {
+    const char allowed[] = " ._-()";
+    bool portable_fn(char c)
+    {
+        return isalnum(c) || (c & 0x80) || strchr(allowed, c);
+    }
+}
+
+bool filename::vmodify(const char* fname, const subst& v) const
 {
     if(!ftemplate)
         return false;
 
     std::string name = edit(ftemplate, v);
+
+    for(std::string::iterator p = name.begin(); p != name.end(); ) {
+        p = portable_fn(*p)? ++p : name.erase(p);
+    }
 
     if(const char* psep = strrchr(fname, '/')) {      // copy path prefix
         name.insert(0, fname, psep-fname+1);
@@ -36,8 +50,6 @@ bool filename::vmodify(const char* fname, const base_container& v) const
     if(std::rename(fname, newfn) != 0)
         throw failure("could not rename ", fname);
 }
-
- // that's all folks! :)
 
 }
 

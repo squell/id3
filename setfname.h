@@ -35,7 +35,7 @@ public:
     bool rename(const char* fname)
     { return enabled=ftemplate=(strchr(fname,'/')? 0 : fname); }
 
-    virtual bool vmodify(const char*, const base_container&) const;
+    virtual bool vmodify(const char*, const subst&) const;
 
   // standard set - dummies
 
