@@ -33,7 +33,7 @@ _>\/| |(_)|_)_>\/_>
  _ .__|_o _ ._  _
 (_)|_)|_|(_)| |_>
 ~~~|~~~~~~~~~~~~~
-       The options are processed in the order specified.
+       Order of the options is only important where specified.
 
        filespec ...
             specifies the file(s) to be affected by the command.
@@ -44,7 +44,7 @@ _>\/| |(_)|_)_>\/_>
             if your shell performs this function.
 
             The  shell  pattern  matching can be applied to both
-            filenames  and  directory  names.
+            filenames and directory names.
 
        -h   show commandline help
 
@@ -52,14 +52,12 @@ _>\/| |(_)|_)_>\/_>
 
        -v   be verbose
 
-       -1
-            write ID3 v1 tags (default). See `-2'.
-       -2
-            write  ID3 v2 tags. If both -1 and -2 are specified,
+       -1   write ID3 v1 tags (default). See `-2'.
+
+       -2   write  ID3 v2 tags. If both -1 and -2 are specified,
             both tag formats will be written.
 
-       -d
-            do  not  re-use  existing  tag  data.  If no new tag
+       -d   do  not  re-use  existing  tag  data.  If no new tag
             information  is  specified in conjunction with this,
             all selected tags will be removed.
 
@@ -72,13 +70,32 @@ _>\/| |(_)|_)_>\/_>
        -g "genre"
             add/replace  the  specified  fields  in all selected
             tags with the values given. Field values are scanned
-            for substitution commands, see `SUBSTITUTION' below.
+            for substitution commands, see SUBSTITUTION below.
 
             Genres  can  be  specified  either  directly or with
             their assigned number, regardless of tag format.
 
+       -q "format"
+            for each file encountered, `format' will get scanned
+            for  substitution  commands, and written to standard
+            output.
+
+       -f "filename-template"
+            rename     files     encountered     according    to
+            `filename-template'.  The  argument  is  scanned for
+            substitution  commands,  and empty variables will by
+            default  get  replaced  with  the  string "Unknown".
+            Trying  to  rename  to an already existing file will
+            cause an error.
+
        The  following  options  only  operate  on  the  last tag
        selected, and only have meaning where relevant.
+
+       -!   fill  all  standard tag fields with information from
+            the   source   tag.   This  is  similar  to  writing
+            `-talnygc  %t  %a %l %n %y %g %c', but only operates
+            on  the  last tag. It is possible for the source and
+            destination tag to be the same.
 
        -s size
             try  to  write a new tag using exactly `size' bytes,
@@ -121,24 +138,52 @@ _>|_||_)_> |_| |_|_||_|(_)| |
             the Nth `*' wildcard in the file specification. 0 is
             taken to mean 10.
 
-            Available <modifiers>:
+      `%<modifiers>c' where c <- [a..z]
+            replaced by values according to the following table:
 
-            "+" (plus sign)
-                        Capitalize the substituted value
-            "-" (minus sign)
-                        Convert all characters to lowercase
-            "_" (underscore)
-                        Do not replace underscores with spaces,
-                        and do not compress empty space.
+            %t title
+            %a artist
+            %g genre
+            %n track number
+            %l album title
+            %y year
+            %c comment field
+            %f filename
+            %x auto-increasing counter
+
+            All  values  get  read  (where  applicable) from the
+            source  tag,  which  is  specified  by the left-most
+            specified  tag  format  on  the  command  line,  and
+            reflect   the   state   of   the   file  before  any
+            modifications  were  made. Similarly, `%f' is always
+            the original filename. The `%x' value gets increased
+            each  time  it is substituted, and is intended to be
+            used for auto-numbering.
 
       `%%'  replaced with a single `%'
 
       `%,'  replaced with the newline ('\n') character
-            (intended for use with -wFRAME)
 
-      '%@'
-      `%:'  replaced with the null (`\0') character
-            (intended for use with -wFRAME)
+       Available <modifiers> (optional):
+
+       "+" (plus sign)
+                   Capitalize the substituted value
+       "-" (minus sign)
+                   Convert all characters to lowercase
+       "_" (underscore)
+                   Do  not  replace underscores with spaces, and
+                   do not compress empty space.
+       "#" (hash or pound sign)
+                   Prefix a zero before the substituted value to
+                   pad it out, if necessary. Multiple hash signs
+                   can be stacked for more padding. Intended for
+                   numeric fields only.
+       "|fallback|"
+                   If  substitution  would yield an empty value,
+                   substitute     with    `fallback'    instead.
+                   `fallback'    itself    may   contain   other
+                   substitutions,  but no other | (pipe) symbols
+                   or fallbacks.
 
  _    _.._ _ ._ | _  _
 (/_><(_|| | ||_)|(/__>
@@ -150,19 +195,34 @@ _>|_||_)_> |_| |_|_||_|(_)| |
        $ id3 -d *.mp3
             Removes all ID3v1 tags from all mp3's.
 
+       $ id3 -2 -1! fs_song.mp3
+            Copy  ID3v2  tag  to  ID3v1  tag  in  selected file.
+
        $ id3 -a "TAFKAT" -n "%1" -t "%c2" "*. *.mp3"
             Sets tag fields correspondingly:
              01. my_song.mp3  [=>] "01" "My Song"
-             02. untitled.mp3 [=>] "02" "Untitled"    etc..
+             02. untitled.mp3 [=>] "02" "Untitled" etc..
+
+       $ id3 -2 -f "%a - %t.mp3" blaet.mp3
+            Rename  file  to  a  standard  format,  using  ID3v2
+            values.
 
        $ id3 -2 -rAPIC -s 0 *.mp3
             Removes embedded images and padding from all mp3's.
 
+       $ id3 -2 -!d *.mp3
+            Rewrite ID3v2 tag, removing spaces, keeping only the
+            basic fields.
+
        $ id3 -2 -wUSLT "foo, bar%,lalala!%," blaet.mp3
             Adds an ID3v2 lyric frame to blaet.mp3.
 
-       $ id3 -v -alnt "The Author" %1 %2 %3 "Author - */*. *.mp3"
+       $ id3 -v -g alt-rock -alnt "The Author" %1 %2 %3 "Author - */(*) *.mp3"
             Process multiple directories at once.
+
+       $ id3 -1 -2! -c "Was: %f" -f "%|TAFKAT|a - %|Untitled (%x)|t.mp3" "*.mp3"
+            More  advanced rename. Save previous filename in the
+            comment field, and copies ID3v1 to ID3v2.
 
 ._  __|_ _  _
 | |(_)|_(/__>
@@ -225,9 +285,3 @@ _>|_||_)_> |_| |_|_||_|(_)| |
 (_||_||_| |(_)|_>
 ~~~~~~~~~~~~~~~~~
        squell ^ zf! (squell@goth.net, squell@alumina.nl)
-
- _. __|_ _|
-(_|(_)|_(_|
-~~|~~~~~~~~
-       Don't let THEM immanentize the Eschaton.
-

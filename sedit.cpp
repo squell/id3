@@ -62,6 +62,19 @@ namespace {
         return s;
     }
 
+#ifdef GROUP_EXT
+    string::size_type findclose(const string& s, string::size_type i)
+    {
+        int n = 1;
+        while(n && i < s.length())
+            switch(s[i++]) {
+            case '>': --n; break;
+            case '<': ++n; break;
+            }
+        return n==0? --i : string::npos;
+    }
+
+#endif
 }
 
  // Capitalize A Text-string Like This.
@@ -78,12 +91,13 @@ string capitalize(string s)
 
 /* ====================================================== */
 
-cvtstring string_parm::edit(const cvtstring& fmt, const subst& var, const char* fallback)
+cvtstring string_parm::edit(const cvtstring& fmt, const subst& var, const char* fallback, bool atomic)
 {
     const cvtstring::xlat conv = &cvtstring::latin1;
 
     string::size_type pos = 0;
     string s = (fmt.*conv)();
+    bool err = false;             // keeps track if all substitutions worked
 
     while( (pos=s.find(VAR, pos)) != string::npos ) {
         bool   raw  = false;
@@ -104,7 +118,7 @@ cvtstring string_parm::edit(const cvtstring& fmt, const subst& var, const char* 
             case '-': caps = lowr; continue;
             case '#': ++npad;      continue;
             case '|': {                                        // alt string
-                     int t = s.find('|',pos+n);
+                     int t = s.find('|', pos+n);
                      if(t == string::npos) {
                          s.replace(pos++, n, 1, '|');
                          break;
@@ -114,6 +128,21 @@ cvtstring string_parm::edit(const cvtstring& fmt, const subst& var, const char* 
                      n   = t+1 - pos;
                      continue;
                 }
+#ifdef GROUP_EXT
+            case '<': {                                        // grouping
+                     int t = findclose(s, pos+n);
+                     if(t == string::npos) {
+                         s.replace(pos++, n, 1, '|');
+                         break;
+                     }
+                     n  += pos;
+                     svar= edit(s.substr(n, t-n),var,fallback,true);
+                     alt = "";
+                     raw = true;
+                     n   = t+1 - pos;
+                     goto substitute;
+                }
+#endif
             case '0': if(!ZERO_BASED) c += 10;
             case '1':
             case '2':
@@ -133,8 +162,10 @@ cvtstring string_parm::edit(const cvtstring& fmt, const subst& var, const char* 
                 } else
                     svar = var.alpha(c);
             substitute:
-                if(svar.empty())
+                if(svar.empty()) {
                     svar = edit(alt, var);
+                    err = raw = true;
+                }
                 string tmp = stylize((svar.*conv)(), caps);
                 if(!raw) {                                     // remove gunk
                     replace_if(tmp.begin(), tmp.end(), control_char(), ' ');
@@ -152,6 +183,6 @@ cvtstring string_parm::edit(const cvtstring& fmt, const subst& var, const char* 
 
     }
 
-    return cvtstring::latin1(s);
+    return cvtstring::latin1(err&&atomic?"":s);
 }
 

@@ -9,7 +9,7 @@
 
 /*
 
-  (c) 2003 squell ^ zero functionality!
+  (c) 2003-2005 squell ^ zero functionality!
   see the file 'COPYING' for license conditions
 
   NOTE! Unsynchronization is only supported for reading

@@ -22,7 +22,7 @@
 
 /*
 
-  (c) 2004 squell ^ zero functionality!
+  (c) 2004, 2005 squell ^ zero functionality!
   see the file 'COPYING' for license conditions
 
 */
@@ -84,8 +84,10 @@ struct verbose_t {
 
 namespace {
 
-    using set_tag::ID3;
+#ifndef NO_V2
     using set_tag::ID3v2;
+#endif
+    using set_tag::ID3;
     using set_tag::filename;
 
    // this template class:
@@ -265,10 +267,11 @@ static void help()
         " -v\t\t"          "give verbose output\n"
         " -V\t\t"          "print version info\n"
 #ifndef NO_V2
-        "Only when -2:\n"
+        "Only on last selected tag:\n"
         " -rXXXX\t\terase all XXXX frames\n"
         " -wXXXX <data>\twrite a XXXX frame\n"
         " -s <size>\tforce size of final tag\n"
+        " -!\t\t"          "force rewrite of tag\n"
 #endif
         "\nAny occurences of the form \"%%i\" in an ID3 field value will be substituted by\n"
         "the portion of the actual filename matched by the i'th \"*\" wildcard, where i\n"
