@@ -1,0 +1,246 @@
+.TH ID3 1 id3-0.72
+.SH NAME
+id3 \- a commandline mass tagger
+.SH SYNOPSIS
+.HP 2
+.B id3
+.RB [ \-v ]
+.RB [ \-12 ]
+.RB [ \-d ]
+.RB [ \-t
+.IR title ]
+.RB [ \-a
+.IR artist ]
+.RB [ \-g
+.IR genre ]
+.br
+.RB [ \-n
+.IR tracknr ]
+.RB [ \-l
+.IR album ]
+.RB [ \-y
+.IR year ]
+.RB [ \-c
+.IR comment ]
+.br
+.RB [ \-r\fIFRAME ]
+.RB [ \-w\fIFRAME
+.IR data ]
+.RI [ " \*(lqfilespec\*(rq
+\& ... ]
+
+.SH DESCRIPTION
+id3 is  a  mass tagger for audio files. This means it is intended to be used
+for  non-interactively performing operations  on  the meta-data in a number of
+files with just a single command.
+.PP
+Operations  performed  might consist of replacing certain fields,  or adding,
+replacing, or removing all meta-data present in an audio file.
+.PP
+To  take  advantage  of  this,  it has the ability to use portions of the
+filenames to fill in portions of the tag.
+.PP
+id3  currently  supports  the  old-style  ID3 format with track-number
+extension  (ID3  v1.1), as well as the more complicated  ID3v2  (ID3 v2.3.0)
+format. This also means use  is  pretty  much  limited  to  audio files which
+use these formats, e.g, MPEG-1 Layer III.
+
+.SH OPTIONS
+The options are processed in the order specified.
+
+.TP
+.B filespec ...
+specifies the file(s) to be affected by the command.
+
+If  you  use wildcards, it is recommended to enclose the specification  in
+double  quotes (""). id3 has internal  shell pattern matching which will not
+work if your shell performs this function.
+
+The  shell  pattern  matching can be applied to both filenames  and  directory
+names.
+
+.TP
+.B \-h
+show commandline help
+
+.TP
+.B \-v
+be verbose
+
+.TP
+.B \-1
+write ID3 v1 tags (default). See `-2'.
+
+.TP
+.B \-2
+write  ID3 v2 tags. If both -1 and -2 are specified, both tag formats will be
+written.
+
+.TP
+.B \-d
+do  not  re-use  existing  tag  data.  If no new tag information  is specified
+in conjunction with this, all selected tags will be removed.
+
+.PP
+.BI \-t " title
+.br
+.BI \-a " artist
+.br
+.BI \-l " album
+.br
+.BI \-y " year
+.br
+.BI \-c " comment
+.br
+.BI \-g " genre
+.br
+.BI \-n " tracknr
+.IP
+add/replace  the  specified  fields  with the values given.  Field  values
+are scanned for substitution commands, see
+.B SUBSTITUTION
+below.
+
+Genres  can  be  specified  either  directly or with
+their assigned number, regardless of tag format.
+
+.TP
+.B \-r\fIFRAME
+remove all occurrences of frames named \fIFRAME\fR. This is  meaningless
+on  tag formats that do not have a notion  of frames,  such  as
+ID3v1.  Consult the format documentation for valid \fIFRAME\fR names.
+
+.TP
+.BI \-w\fIFRAME " data
+add  / update a frame named \fIFRAME\fR with raw \fIdata\fR. For
+experts  only. Substitutions are performed, but \fIdata\fR is NOT
+checked  or  parsed  for semantic correctness  or  conformance.
+You're   on  your own. Again, consult the format documentation.
+
+Individual  options  can  be stacked in a single argument
+for more convenience. For example, running
+
+   id3 -2 -dalt "Artist" "Album" "Title" *.mp3
+
+is equivalent to:
+
+   id3 -2 -d -a "Artist" -l "Album" -t "Title" *.mp3
+
+.SH SUBSTITUTION
+id3  can perform \*(lqprintf-like\*(rq substitution on the values prior
+to writing them to a tag. Note that if you want to use  pattern matching,
+you HAVE TO enclose the wildcard specification  on  the  commandline
+in double quotes to prevent your shell from expanding any wildcards.
+
+.TP
+.BI % <modifiers>n
+.SM where \fIn\fR <- [0..9]
+
+replaced  with  the portion of the filename matching
+the \fIn\fRth \*(lq*\*(rq wildcard in the file specification. 0 is
+taken to mean 10.
+
+.RS
+Available \fI<modifiers>\fR:
+.TP
+.BR + " (plus\ sign)
+Capitalize the substituted value
+.TP
+.BR - " (minus\ sign)
+Convert all characters to lowercase
+.TP
+.BR _ " (underscore)
+Do not replace underscores with spaces, and do not compress empty space.
+.RE
+
+.TP
+.B %%
+replaced with a single \*(lq%\*(rq
+
+.SS Intended for use with \-wFRAME:
+
+.TP
+.B %,
+replaced with the newline (\*(lq\en\*(rq) character
+
+.TP
+.B %@ " %:
+replaced with the null (\*(lq\e0\*(rq) character
+
+.SH EXAMPLES
+
+Here are some examples of using id3:
+.PP
+
+.TP
+\fBid3 -a "Stallman" -t "Free Software Song" fs_song.mp3"
+Add a simple tag to a file.
+
+.TP
+\fBid3 -d *.mp3
+Removes all ID3v1 tags from all mp3's.
+
+.TP
+\fBid3 -a "TAFKAT" -n "%1" -t "%c2" "*. *.mp3"
+Sets tag fields correspondingly:
+  01. my_song.mp3  [=>] "01" "My Song"
+  02. untitled.mp3 [=>] "02" "Untitled"    etc..
+
+.TP
+\fBid3 -2 -rAPIC *.mp3
+Removes all embedded pictures from all mp3 files.
+
+.TP
+\fBid3 -2 -wUSLT "%@englyrics%@foo, bar%,lalala!%," blaet.mp3
+Adds an ID3v2 lyric frame to blaet.mp3.
+
+.TP
+\fBid3 -v -g alt-rock -alnt "The Author" %1 %2 %3 "Author - */*. *.mp3"
+Process multiple directories at once.
+
+.SH NOTES
+
+The internal pattern matching emulates the normal pattern
+matching of \*(lqsh\*(rq. It supports ?, * and [].
+
+A shell pattern will never match a forward slash (\*(lq/\*(rq) or
+a  dot  (\*(lq.\*(rq) beginning a filename. Wildcards can be used
+for  directories  as well (to arbitrary depths), in which
+case a search will be performed.
+
+In  an  ambiguous  situation,  the  pattern  matcher will
+always  resolve  a  \*(lq*\*(rq wildcard to the shortest possible
+sequence  of  tokens.  This  differs  from  the  standard
+behavior of regular expressions, however it tends to make
+sense in the context of filenames.
+
+Do  NOT  add ID3 tags to files for which it does not make
+sense,  i.e,  add  them only to MP3 files. In particular,
+do  not  add  ID3v2  tags  to Ogg files, since ID3v2 tags
+start  at  the  beginning  of the file, thereby resulting
+in  corrupted  Ogg  files.
+
+.SH COMPATIBILITY
+id3  has a built-in genre list of 148 genres. If you pass
+the  -g parameter a string instead of a number when using
+ID3v1,  id3  tries  to  find  the specified genre in this
+list,  and  selects  the closest possible match (if any).
+For  the  genre numbers and exact spelling, see \*(lqid3v1.c\*(rq
+in  the source distribution. An empty or invalid genre is
+assigned the number 0.
+
+id3  does not support ID3v2 v2.0 or earlier, neither does
+it  support  the  new ID3v2 v4.0 (yet?). It also does not
+support ID3v2 features as compression, encryption, ...
+
+.SH AUTHOR
+Written by squell ^ zf!
+
+.SH COPYRIGHT
+This is free software; see the source for copying conditions. There is
+NO  warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR
+PURPOSE.
+
+.SH SEE ALSO
+Program homepage: http://home.wanadoo.nl/squell/id3.html
+
