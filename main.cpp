@@ -124,17 +124,17 @@ public:
     { return with<Tag>(*this).active(true); }
 };
 
+inline const string& mass_tag::operator[](size_t i) const
+{
+    if(i >= var.size())
+        throw out_of_range("variable index out of range");
+    return var[i];
+}
+
 void mass_tag::entered()
 {
     verbose.reportd(path);
     edir = true;
-}
-
-const string& mass_tag::operator[](size_t i) const
-{
-    if(i >= vec.size())
-        throw out_of_range("variable index out of range");
-    return vec[i];
 }
 
 void mass_tag::process()

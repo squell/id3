@@ -67,3 +67,4 @@ varexp.o: varexp.cpp varexp.h
 
 getid3.o: getid3.cpp c:/coding/djgpp/lib/djgpp.ver getid3.h set_base.h \
  sedit.h id3v1.h
+
