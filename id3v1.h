@@ -21,7 +21,7 @@ struct ID3v1 {                                   // ID3 v1.1 tag structure
     char album [30];
     char year  [4];
     char cmnt  [28];
-    char __;
+    char zero;
     unsigned char track;
     unsigned char genre;
 };

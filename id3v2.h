@@ -11,11 +11,13 @@
 
   reads ID3v2 tag from fname to memory, storing the tag size (w/o padding) in
   *tagsize (if != NULL). returns pointer on success, NULL on failure
+  stores non-zero value in *tagsize if dangerous ID3v2 tag caused failure
 
       int ID3_writef(const char *fname, void *buf);
 
   writes in-memory tag pointed to by buf to fname. returns true / false on
-  success / failure. in-memory tag needs to be zero-terminated
+  success / failure. in-memory tag needs to be zero-terminated.
+  doesnt check consistency of fname (use ID3_readf first)!
 
       void ID3_free(void *buf)
 

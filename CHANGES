@@ -1,5 +1,11 @@
 Changelog for 'id3'.
 
+2004-144 (W21):
+  setid3.cpp: now upgrades old ID3v1.0 tags
+  id3v2.c:186: fixed (rare) leak, added check to see if padding is zeroed,
+  setid3v2.cpp:127: added checking and prevention against malformed tags
+  main.cpp: added "-V" version information
+
 2004-093 (W14):
   main.cpp: Added "--" option (stops scanning for more options)
 
@@ -113,10 +119,6 @@ Changelog for 'id3'.
   Bolted together (private) `id3' & (private) ID3v2 sources
 
 Todo list:
-
-  ? Malformed ID3v2 tags
-  ? error (rollback/inconsistent/success)
-  ? ID3v1.0
 
   - More things:
     + Support for Ogg Vorbis

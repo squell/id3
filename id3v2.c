@@ -160,7 +160,7 @@ void *ID3_readf(const char *fname, size_t *tagsize)
 
     buf = malloc(size+4);                          /* over-alloc 4 chars */
     if(!buf)                                         /* ohhhhhhh.. crap. */
-        goto abort;
+        goto abort_mem;
 
     buf[size] = 0;       /* make sure we have a pseudoframe to terminate */
 
@@ -192,6 +192,7 @@ void *ID3_readf(const char *fname, size_t *tagsize)
     return buf;
 
 abort_mem:                     /* de-alloc, close file and return failure */
+    if(tagsize) *tagsize = (size_t)-1;                  /* evil ID3v2 tag */
     free(buf);
 abort:                                   /* close file and return failure */
     fclose(f);

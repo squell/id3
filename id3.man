@@ -227,7 +227,7 @@ ID3v2 v4.0 (yet?). It also does not support ID3v2 features as compression,
 encryption, ...
 
 .SH AUTHOR
-Written by M. Roland Schoolderman (squell ^ zf!)
+Written by Marc R. Schoolderman (squell)
 
 .SH COPYRIGHT
 This is free software; see the source for copying conditions. There is NO

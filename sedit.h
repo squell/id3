@@ -21,6 +21,15 @@
    "%@" -> \0
    "%," -> \n
 
+  Restrictions:
+
+  The only requirements of the container type is that it has a [] operator
+  defined, and that it contains data that can be converted into a std:string.
+  A standard C "array-of-char*" will do, as will std::vector<string>.
+
+  If the container type does not perform bounds checking on the [] operator,
+  the results of using an out-of-bounds %x substitution is undefined.
+
   Example:
 
       sedit ed("%2%1");

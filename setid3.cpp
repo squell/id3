@@ -3,8 +3,8 @@
 #include <cstdlib>
 #include <cctype>
 #include <string>
-#include <map>
 #include <algorithm>
+#include <map>
 #include <new>
 #include "setid3.h"
 #include "sedit.h"
@@ -100,54 +100,64 @@ const struct genre_map : map<string,int,bool (*)(const string&,const string&)> {
 
 /* ====================================================== */
 
-int ID3::vmodify(const char* fn, const base_container& v) const
+bool ID3::vmodify(const char* fn, const base_container& v) const
 {
     if(!enabled)
-        return set_tag::OK;
+        return true;
 
     ID3v1 tag = { { 0 } };                    // duct tape
 
     if( FILE* f = fopen(fn, "rb+") ) {
         fseek(f, -128, SEEK_END);
-        fread(&tag, 128, 1, f);
+        fread(&tag, 1, 128, f);
         fseek(f,    0, SEEK_CUR);             // * BUG * annotated below
+
+        if( ferror(f) ) {
+            fclose(f);
+            return false;
+        }
 
         if( memcmp(tag.TAG, "TAG", 3) == 0 )
             fseek(f, -128, SEEK_END);         // overwrite existing tag
         else
             tag = synth_tag;                  // create new tag
 
-        if(fresh) tag = synth_tag;
+        if( fresh ) tag = synth_tag;
 
         const char* txt;                      // reading aid
+        int n = 0;                            // count number of set fields
 
         if(txt = mod[title])
-            strncpy(tag.title,  edit(txt,v).c_str(), sizeof tag.title);
+            ++n, strncpy(tag.title,  edit(txt,v).c_str(), sizeof tag.title);
 
         if(txt = mod[artist])
-            strncpy(tag.artist, edit(txt,v).c_str(), sizeof tag.artist);
+            ++n, strncpy(tag.artist, edit(txt,v).c_str(), sizeof tag.artist);
 
         if(txt = mod[album])
-            strncpy(tag.album,  edit(txt,v).c_str(), sizeof tag.album);
+            ++n, strncpy(tag.album,  edit(txt,v).c_str(), sizeof tag.album);
 
         if(txt = mod[year])
-            strncpy(tag.year,   edit(txt,v).c_str(), sizeof tag.year);
+            ++n, strncpy(tag.year,   edit(txt,v).c_str(), sizeof tag.year);
 
-        if(txt = mod[cmnt])
-            strncpy(tag.cmnt,   edit(txt,v).c_str(), sizeof tag.cmnt);
-
-        if(txt = mod[track])
-            tag.track = atoi( edit(txt,v).c_str() );
-
+        if(txt = mod[cmnt]) {
+            ++n, strncpy(tag.cmnt,   edit(txt,v).c_str(), sizeof tag.cmnt);
+            if(tag.zero != '\0')                     
+                tag.track = tag.zero = 0;               // ID3 v1.0 -> v1.1
+        }
+        if(txt = mod[track]) {
+            ++n, tag.track = atoi( edit(txt,v).c_str() );
+            tag.zero = '\0';
+        }
         if(txt = mod[genre]) {
             unsigned int    x = atoi(txt) - 1;
             genre_map::iter g = ID3_genre.find( capitalize(edit(txt,v)) );
-            tag.genre = (g==ID3_genre.end() ? x : g->second);
+            tag.genre = (g==ID3_genre.end()? x : g->second);
+            ++n;
         }
 
         bool err;
 
-        if( fresh && count(mod.begin(),mod.end(),(char*)0) == 7 ) {
+        if( fresh && n == 0 ) {
             err = ftrunc(f) != 0;
         } else {
             err = fwrite(&tag, 1, 128, f) != 128;
@@ -160,10 +170,10 @@ int ID3::vmodify(const char* fn, const base_container& v) const
             throw failure(emsg + fn);
         }
 
-        return set_tag::OK;
+        return true;
     };
 
-    return set_tag::syserr;
+    return false;
 }
 
 /*

@@ -119,15 +119,20 @@ template<void clean(void*)> struct voidp {          // auto-ptr like
    ~voidp()          { clean(data); }
 };
 
-int ID3v2::vmodify(const char* fn, const base_container& v) const
+bool ID3v2::vmodify(const char* fn, const base_container& v) const
 {
     if(!enabled)
-        return set_tag::OK;
+        return true;
 
-    voidp<ID3_free>
-          src ( fresh ? (void*)0 : ID3_readf(fn, 0) );
-    w_ptr dst ( 0x1000 );
-    db    cmod( mod );
+    size_t check;
+    void* buf = ID3_readf(fn, &check);
+
+    if(!buf && check != 0)                          // evil ID3 tag
+        return false;
+
+    voidp<ID3_free> src ( fresh? (void*)0 : buf );
+    w_ptr           dst ( 0x1000 );
+    db              cmod( mod );
 
     char* out = (char*) ID3_put(dst,0,0,0);         // initialize
 
@@ -158,6 +163,6 @@ int ID3v2::vmodify(const char* fn, const base_container& v) const
     bool res = ID3_writef(fn, dst);
     w_fail::raise();
 
-    return res? (set_tag::OK) : (set_tag::syserr);
+    return res;
 }
 
