@@ -1,6 +1,7 @@
 #include <string>
 #include <vector>
 #include <cstdio>
+#include <cstring>
 #include "getid3.h"
 #include "charconv.h"
 
@@ -30,25 +31,24 @@ ID3::ID3(const char* fn) : tag()
 
 cvtstring ID3::operator[](ID3field field) const
 {
-    const char fmt[] = "%.*s";
     char buf[31]     = { 0, };         // enough to hold largest ID3 field+1
 
     if(*tag.TAG)
         switch( field ) {
         case title:
-            sprintf(buf, fmt, sizeof tag.title,  tag.title);
+            strncpy(buf, tag.title,  sizeof tag.title);
             break;
         case artist:
-            sprintf(buf, fmt, sizeof tag.artist, tag.artist);
+            strncpy(buf, tag.artist, sizeof tag.artist);
             break;
         case album:
-            sprintf(buf, fmt, sizeof tag.album,  tag.album);
+            strncpy(buf, tag.album,  sizeof tag.album);
             break;
         case year:
-            sprintf(buf, fmt, sizeof tag.year,   tag.year);
+            strncpy(buf, tag.year,   sizeof tag.year);
             break;
         case cmnt:
-            sprintf(buf, fmt, sizeof tag.cmnt + (tag.zero?2:0), tag.cmnt);
+            strncpy(buf, tag.cmnt,   sizeof tag.cmnt + (tag.zero?2:0));
             break;
         case track:
             if(tag.zero == 0 && tag.track != 0)
@@ -56,7 +56,7 @@ cvtstring ID3::operator[](ID3field field) const
             break;
         case genre:
             if(tag.genre < ID3v1_numgenres)
-                return ID3v1_genre[tag.genre];
+                return cvtstring::latin1(ID3v1_genre[tag.genre]);
         }
     return cvtstring::latin1(buf);
 }
