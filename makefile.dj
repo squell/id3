@@ -1,7 +1,7 @@
 ## id3 makefile for DJGPP v2 ###############################################
 
 CC	= gxx
-CFLAGS	= -g -O2 -fno-rtti
+CFLAGS  = -g -O2
 LDFLAGS =
 
 ############################################################################
@@ -31,6 +31,10 @@ id3l.exe: mainl.o sedit.o varexp.o ffindexp.o charconv.o \
 	 setid3.o \
 	 id3v1.o
 	$(CC) $(LDFLAGS)  -o $@ $+
+
+main.o: main.cpp ffindexp.h auto_dir.h set_base.h sedit.h setid3.h \
+  setid3v2.h
+	$(CC) $(CFLAGS) -c main.cpp
 
 mainl.o: main.cpp ffindexp.h auto_dir.h set_base.h sedit.h setid3.h
 	$(CC) $(CFLAGS) -DNO_V2 -o $@ -c main.cpp
