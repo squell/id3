@@ -171,7 +171,7 @@ static int checkid(const char ID[])
 
 /* ==================================================== */
 
-void *ID3_readf(const char *fname, unsigned long *tagsize)
+void *ID3_readf(const char *fname, size_t *tagsize)
 {
     struct raw_hdr rh;
     uchar *buf;
@@ -246,10 +246,10 @@ int ID3_writef(const char *fname, void *src)
 
         orig = getsize(&rh);
 
-        if( size && size <= orig ) {            /* enough reserved space */
+        if( size > 0 && size <= orig ) {        /* enough reserved space */
             setsize(&new_h, orig);
             rewind(f);
-            fwrite(&new_h, sizeof new_h, 1, f);
+            fwrite(&new_h, sizeof new_h, 1, f);   /* i don't check these */
             fwrite(src, size, 1, f);
             paddfile(f, 0, orig-size);
             fclose(f);
@@ -259,9 +259,9 @@ int ID3_writef(const char *fname, void *src)
     } else {
         rewind(f);
     }
-
+                                                        /* file rewriter */
     {
-        char *tmp   = tmpnam(0);
+        char *tmp   = tmpnam(0);                       /* i know, i know */
         FILE *nf    = fopen(tmp, "wb");
         ulong nsize = ((size+sizeof new_h+0x1FF) & ~0x1FF) - sizeof new_h;
         int ok;                                      /* rnd to 512 bytes */
@@ -280,8 +280,8 @@ int ID3_writef(const char *fname, void *src)
         }
         fclose(f);
         fclose(nf);
-        if(ok) {
-            if(remove(fname) == 0) rename(tmp, fname);
+        if(ok && remove(fname)==0) {
+            rename(tmp, fname);
         } else {
             remove(tmp);                                      /* failure */
             return 0;

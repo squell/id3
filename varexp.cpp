@@ -51,7 +51,7 @@ bool varexp::match(const char* mask, const char* test)
 }
 
  /*
-     auxiliary code to detect character ranges in expressions
+     auxilliary code to detect character ranges in expressions
  */
 
 int varexp::in_set(char c, const char* set, const char* test)
@@ -63,7 +63,7 @@ int varexp::in_set(char c, const char* set, const char* test)
         ++set;
     }
     for(prev = 0; (m = *set++); prev = m)
-        if(m=='-' && prev && *set && *set!=']') {
+        if(m=='-' && prev && *set!='\0' && *set!=']') {
             t |= (c >= prev) && (c <= *set);
         } else {
             if(m==']')
@@ -95,6 +95,3 @@ int match(const char *mask, const char *test)
 }
 
 */
-
-
-

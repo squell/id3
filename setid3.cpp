@@ -116,7 +116,7 @@ string smartID3::edit(string s, const base_container& v)
                 pos += tmp.length();
                 break;
             }
-            break;
+            break;         // turn switch-breaks into while-breaks
         }
     }
     return s;

@@ -7,31 +7,34 @@
 
   Usage (brief?):
 
-  - ID3_readf() tries to read an ID3v2 tag from the file pointed to by
-    fname into memory, and (if tagsize != NULL) writes the number of bytes
-    read (excluding padding) in the integer pointed to by tagsize. It
-    returns NULL on failure, a pointer to a region of memory holding
-    the entire ID3v2 tag otherwise.
+      void *ID3_readf(const char *fname, size_t *tagsize)
 
-  - ID3_free() is used to clean up the pointer return by ID3_readf()
+  reads ID3v2 tag from fname to memory, storing the tag size (w/o padding) in
+  *tagsize (if != NULL). returns pointer on success, NULL on failure
 
-  - ID3_start() initializes f to be a iterator-like structure of the
-    ID3v2 tag loaded into memory pointed to by buf. Call ID3_frame()
-    afterwards to retrieve the first frame.
+      int ID3_writef(const char *fname, void *buf);
 
-  - ID3_frame() moves the iterator & reports on the status (returns 0
-    if there were no more frames to be read, 1 if there was.)
+  writes in-memory tag pointed to by buf to fname. returns true / false on
+  success / failure. in-memory tag needs to be zero-terminated
 
-  - ID3_writef() writes the ID3v2 data pointed to by buf to the file
-    pointed to by fname. Returns 1 on success, 0 on failure. The memory
-    data pointed to by buf needs to have a terminating zero.
+      void ID3_free(void *buf)
 
-  - ID3_put() writes a frame of type ID to the memory location pointed to
-    by dest, with contents pointed to by src, of length len, and returns
-    an updated pointer pointing to a memory location where to write the
-    next frame (if any). It takes care of terminating zeroes.
+  frees pointer obtained by ID3_readf()
 
-    If ID is invalid or src is NULL, ID3_put is equivalent to "*dest = 0".
+      void ID3_start(ID3FRAME f, void *buf)
+
+  initializes frame-iterator for stepping through tag pointed to by buf
+
+      int ID3_frame(ID3FRAME f)
+
+  steps through a tag using iterator f. returns 0 if no more frames.
+
+      void *ID3_put(void *dest, const char ID[4], const void *src, size_t len)
+
+  writes a frame of type ID with contents *src (with size len) to the
+  in-memory tag location pointed to by dest. returns the next memory
+  location to write the next frame to. automatically adds zero-bytes.
+  if ID is invalid or src == NULL, performs *(char*)dest = 0
 
   Example (reading a tag):
 
@@ -46,22 +49,14 @@
 
   Example (writing a tag):
 
-    void *buf, *out;
+    char buf[10000], *out;
     int i;
 
     out = ID3_put(buf, 0, 0, 0);
-
-    for(i = 0; i < NUM; i++)
-        out = ID3_put(out, frameid[i], data[i], size[i]);
+    for( .. frames to write .. )
+        out = ID3_put(out, ..id, ..&data, ..sizeof data);
 
     ID3_writef("filename", buf);
-
-  Example (copying a tag):
-
-    void *buf;
-    if( (buf = ID3_readf("filename",0)) ) {
-        ID3_writef("filename", buf);
-    }
 
 */
 #ifndef __ZF_ID3V2_H
@@ -74,9 +69,9 @@ extern "C" {                           /* whole heaps of errors otherwise */
 #endif
 
 typedef struct _ID3FRAME {
-    char *data;
-    unsigned long size;
-    char ID[5];
+    char *data;                           /* pointer to contents of frame */
+    unsigned long size;                   /* length of frame contents     */
+    char ID[5];                           /* ID of frame                  */
     int tag_volit  : 1;
     int file_volit : 1;
     int readonly   : 1;
@@ -85,7 +80,7 @@ typedef struct _ID3FRAME {
     int grouped    : 1;
 } ID3FRAME[1];
 
-extern void   *ID3_readf(const char *fname, unsigned long *tagsize);
+extern void   *ID3_readf(const char *fname, size_t *tagsize);
 extern int     ID3_writef(const char *fname, void *buf);
 extern void    ID3_free(void *buf);
 

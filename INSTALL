@@ -7,6 +7,7 @@ the contents of the source distribution:
  copying        - license
  install        - ... ? :)
  readme         - program documentation
+ changes        - changelog
 
  makefile       - generic (gnu) makefile
  makefile.dj    - makefile for djgpp2
@@ -39,7 +40,7 @@ which should be included in this source distribution.
 | building it on your system
 -------------------------------------------------------------
 
-Successfully compiled with (x86 platforms only so far):
+Successfully compiled with:
 
  - GCC 2.95.3       (DJGPP, GNU/Linux)
  - GCC 3.x          (DJGPP, GNU/Linux, MinGW)
