@@ -4,6 +4,8 @@
 #include "charconv.h"
 #include "sedit.h"
 
+#include <cstdio>                                 // for bandaid
+
 /*
 
   (c) 2004 squell ^ zero functionality!
