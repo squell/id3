@@ -88,7 +88,7 @@ void help(const char* argv0)
 
 /* ====================================================== */
 
-int main(int argc, char *argv[])
+int main_(int argc, char *argv[])
 {
     ID3set t = ID3;
     bool   w = false;            // check against no-ops
@@ -159,3 +159,19 @@ int main(int argc, char *argv[])
     if(!w) help(argv[0]);
 }
 
+
+ // function-try blocks are not supported on some compilers,
+ // so this little de-tour is necessary
+
+int main(int argc, char *argv[])
+{
+    try {
+        main_(argc, argv);
+    } catch(const smartID3::failure& f) {
+        printf("id3: %s\n", f.what());
+    } catch(const exception& exc) {
+        printf("id3: unhandled exception: %s\n", exc.what());
+    } catch(...) {
+        printf("id3: unexpected unhandled exception\n");
+    }
+}
