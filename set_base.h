@@ -65,8 +65,12 @@ public:
     virtual bool vmodify(const char*, const subst&) const = 0;
 
     template<class T, class U>
-      bool modify(const char* fn, const T& vars, const U& table) const
+      bool modify(const char* fn, T& vars, U& table) const
     { return vmodify(fn, container<T,U>(vars, table)); }
+
+    template<class T, class U>
+      bool modify(const char* fn, const T& vars, const U& table) const
+    { return vmodify(fn, container<const T, const U>(vars, table)); }
 
     template<class T>
       bool modify(const char* fn, const T& vars) const

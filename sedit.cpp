@@ -21,9 +21,9 @@ namespace {
         { return isspace(a) && isspace(b); }
     };
 
-    struct control_char {
+    struct filtered_char {
         bool operator()(char c)
-        { return iscntrl(c); }
+        { return c == '_' || iscntrl(c); }
     };
 
     struct to_lower {
@@ -82,6 +82,26 @@ string capitalize(string s)
         new_w = isspace(*p) || !isalnum(*p) && new_w;
     }
     return s;
+}
+
+ // padnumeric("(300/4)=75", 4) -> "0300/0004=0075"
+
+string padnumeric(string s, int pad)
+{
+    const char digits[] = "0123456789";
+    string::size_type p, q = 0;
+    do {
+        p = s.find_first_of    (digits, q);
+        q = s.find_first_not_of(digits, p);
+        string::size_type l = ((q==string::npos)? s.length() : q) - p;
+        if(q == p)
+             return s;
+        if(l < pad) {
+             s.insert(p, pad-l, '0');
+             l = pad;
+        }
+        q = p + l;
+    } while(1);
 }
 
 /* ====================================================== */
@@ -163,13 +183,10 @@ cvtstring string_parm::edit(const cvtstring& fmt, const subst& var, const char* 
                 }
                 string tmp = stylize((svar.*conv)(), caps);
                 if(!raw) {                                     // remove gunk
-                    replace_if(tmp.begin(), tmp.end(), control_char(), ' ');
-                    replace(tmp.begin(), tmp.end(), '_', ' ');
+                    replace_if(tmp.begin(), tmp.end(), filtered_char(), ' ');
                     compress(tmp);
                 }
-                if(npad > 1 && tmp.length() < npad)
-                    tmp.insert(string::size_type(0), npad-tmp.length(), '0');
-                s.replace(pos, n, tmp);
+                s.replace(pos, n, padnumeric(tmp, npad));
                 pos += tmp.length();
             }
 

@@ -1,15 +1,29 @@
 Changelog for 'id3'.
 
-2005-035 (W26):
+2005-039 (W05):
+  sedit.cpp:89: [CLI] "#" prefixes in vars get processed better now: only
+    numbers found inside the string will get padded. E.g. [1/5] -> [01/05]
+  setid3[v2].cpp: regression: setting dupe fields overrides again
+  main.cpp: added some foolproof code for "-!"
+  ffindexp.cpp:95: optimized speed for cases where the shell has handled
+    wildcards (saves sorting and scanning a whole dir for each file)
+  ffindexp.cpp:117: [CLI] added -R for recursive directory search
+
+2005-037 (W05):
+  main.cpp:326: [CLI] added -m switch for 'pattern' shorthand. For example,
+    id3 -m "%a - %t.mp3" is identical to id3 -a %1 -t %2 "* - *.mp3". Only
+    works on recognized variables, so for ex., id3 -m "%s.mp3" is illegal.
+
+2005-035 (W05):
   code cleanup.
   setid3.h: now owns the data it receives trough 'set'.
 
-2005-034 (W26):                                ---------[v0.75]-----------
+2005-034 (W05):                                ---------[v0.75]-----------
   updated documentation
   getid3.cpp: fixed localization bug
 
 2005-033 (W05):
-  setid3[v2].cpp: setting genre by number now works through substituion
+  setid3[v2].cpp: setting genre by number now works through substitution
   setid3[v2].cpp: setting a dupe field won't override an earlier one anymore
   setfname.cpp: empty vars get substituted by 'Unknown' (by default)
   id3v2.c:129: [BUGFIX] out of bounds access on illegal id3v2 tags
@@ -137,7 +151,7 @@ Changelog for 'id3'.
 2003-262 (W38):
   (Resumed development)
   main.cpp: [CLI CHANGE!] implemented command stacking, so
-    '-nat Tr Art Tit' == '-n Tr -a Art -t Tit'
+    '-nat Track Artist Title' == '-n Track -a Artist -t Title'
 
 2003-218 (W32):                                ---------[v0.70]-----------
   id3v2.c:ID3_writef: [BUGFIX] Serious. tmpnam() does not guarantee to

@@ -30,10 +30,12 @@ id3 \- a commandline mass tagger
 .RB [ \-w\fIFRAME
 .IR data ]
 .br
-.RB [ \-q
-.IR string ]
 .RB [ \-f
 .IR filename ]
+.RB [ \-m
+.IR pattern ]
+.RB [ \-q
+.IR string ]
 .RI [ " \*(lqfilespec\*(rq
 \& ... ]
 .SH DESCRIPTION
@@ -106,24 +108,31 @@ below.
 Genres can be specified either directly or with their assigned number,
 regardless of tag format.
 .TP
-.BI \-q " format
-for each file encountered, \fIformat\fR will get scanned for substitution
-commands, and written to standard output.
-.TP
 .BI \-f " filename-template
 rename files encountered according to \fIfilename-template\fR.
 The argument is scanned for substitution commands, and empty variables will
 by default get replaced with the string \*(lqUnknown\*(rq. Trying to rename
 to an already existing file will cause an error.
+.TP
+.BI \-m " filename-template
+the reverse of -f; process all files that match \fIfilename-template\fR,
+setting the tag accordingly. For example, `-m\ "%a\ -\ %t.mp3"' is
+shorthand for `-a\ %1\ -t\ %2\ "*\ -\ *.mp3"'
+.B SUBSTITUTION
+below.
+.TP
+.BI \-q " format
+for each file encountered, \fIformat\fR will get scanned for substitution
+commands, and written to standard output.
 .PP
-The  following  options  only  operate  on  the  last tag format selected on
-the command line, and only have meaning where relevant.
+The following options operate on the last tag selected before them, and only
+have meaning where relevant.
 .TP
 .BI \-!
 fill all standard tag fields with information from the source tag. This is
-similar to writing \*(lq-talnygc %t %a %l %n %y %g %c\*(rq, but only operates
-on the last tag. It is possible for the source and destination tag to be the
-same.
+similar to writing `-talnygc %t %a %l %n %y %g %c', but only operates
+on the most recent tag. It is possible for the source and destination tag to
+be the same.
 .TP
 .BI \-s " size
 try to write a new tag using exactly \fIsize\fR bytes, adding / removing
@@ -134,9 +143,9 @@ remove all occurrences of frames named \fIFRAME\fR from the  tag. Consult the
 format documentation for valid \fIFRAME\fR names.
 .TP
 .BI \-w\fIFRAME " data
-add / update  a frame named \fIFRAME\fR with \fIdata\fR in the  tag.  Again,
-consult the format documentation. See \fICOMPATIBILITY\fR for more
-information.
+add / update  a frame named \fIFRAME\fR with \fIdata\fR in the  tag.
+\fIdata\fR is scanned for substitution commands. Again, consult the format
+documentation. See \fICOMPATIBILITY\fR for more information.
 .PP
 Individual options can be stacked in a single argument for more convenience.
 For example, running

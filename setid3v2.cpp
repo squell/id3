@@ -46,10 +46,10 @@ namespace {
 
        ~writer()           { free(base); }
 
-        char* put(const char* ID, const void* src, size_t len);
+        void put(const char* ID, const void* src, size_t len);
     };
 
-    char* writer::put(const char* ID, const void* src, size_t len)
+    void writer::put(const char* ID, const void* src, size_t len)
     {
         static size_t factor = 0x1000;      // start reallocing in 4k blocks
 
@@ -63,7 +63,7 @@ namespace {
         }
 
         avail -= (len+10);
-        return (char*) ID3_put(dest,ID,src,len);
+        dest = (char*) ID3_put(dest, ID, src, len);
     }
 
 /* ===================================== */
@@ -167,7 +167,7 @@ bool ID3v2::set(std::string field, std::string s)
         if(!isalnum(field[n] = toupper(field[n])))
             return false;
     if( binarize(field, "0").length() != 0 ) {      // test a dummy string
-        mod.insert( db::value_type(field, s) );     // was: mod[field] = s
+        mod[field] = s;                             // was: mod.insert
         return true;
     }
     return false;
@@ -214,9 +214,9 @@ bool ID3v2::vmodify(const char* fn, const subst& v) const
             if(p == table.end())
                 tag.put(f->ID, f->data, f->size);
             else
-                if(p->second != "") {               // else: erase frames
+                if(!p->second.empty()) {            // else: erase frames
                     string s = binarize(p->first, edit(p->second, v));
-                    tag.put(f->ID, s.c_str(), s.length());
+                    tag.put(f->ID, s.data(), s.length());
                     table.erase(p);
                 }
         }
@@ -225,7 +225,7 @@ bool ID3v2::vmodify(const char* fn, const subst& v) const
     for(db::iterator p = table.begin(); p != table.end(); ++p) {
         if(p->second != "") {
             string s = binarize(p->first, edit(p->second, v));
-            tag.put(p->first.c_str(), s.c_str(), s.length());
+            tag.put(p->first.c_str(), s.data(), s.length());
         }
     }
 

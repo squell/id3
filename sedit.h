@@ -46,12 +46,15 @@
 #include <string>
 #include "charconv.h"
 
-extern std::string capitalize(std::string s);
+extern std::string capitalize(std::string);
+extern std::string padnumeric(std::string, int);
 
 template<class T>
   inline std::string sedit(const std::string&, const T&);
 template<class T, class U>
   inline std::string sedit(const std::string&, const T&, const U&);
+template<class T, class U>
+  inline std::string sedit(const std::string&, T&, U&);
 
   //
 
@@ -67,10 +70,10 @@ protected:
 
     template<class T, class U>                // templatized wrapper
     struct container : subst {
-        const T& num;
-        const U& chr;
+        T& num;
+        U& chr;
 
-        container(const T& t, const U& u) : num(t), chr(u) { }
+        container(T& t, U& u) : num(t), chr(u) { }
 
         virtual cvtstring numeric(unsigned x) const { return num[x]; }
         virtual cvtstring alpha  (char x)     const { return chr[x]; }
@@ -86,7 +89,7 @@ protected:
     template<class T>
       friend std::string sedit(const std::string&, const T&);
     template<class T, class U>
-      friend std::string sedit(const std::string&, const T&, const U&);
+      friend std::string sedit(const std::string&, T&, U&);
 };
 
   // little excuse for making this a useful header :)
@@ -99,6 +102,13 @@ template<class T>
 
 template<class T, class U>
   inline std::string sedit(const std::string& fmt, const T& vars, const U& table)
+{
+    return string_parm::edit(fmt,
+      string_parm::container<const T, const U>(vars, table)).local();
+}
+
+template<class T, class U>
+  inline std::string sedit(const std::string& fmt, T& vars, U& table)
 {
     return string_parm::edit(fmt,
       string_parm::container<T,U>(vars, table)).local();

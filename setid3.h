@@ -41,7 +41,7 @@ public:
   // standard set
 
     ID3& set(ID3field i, const char* m)     // set ID3 field i to value m
-    { if(i < FIELDS && !mod[i]) mod[i] = m; return *this; }
+    { if(i < FIELDS) mod[i] = m; return *this; }
 
     ID3& clear()
     { fresh = true; return *this; }

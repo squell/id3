@@ -148,7 +148,7 @@ private:
     const set_tag::handler*  tag;
     const set_tag::provider* info;
     virtual void entered();
-    virtual void process();
+    virtual void process(const char*);
     bool edir;
 };
 
@@ -196,9 +196,9 @@ void mass_tag::entered()
     edir = true;
 }
 
-void mass_tag::process()
+void mass_tag::process(const char* name)
 {
-    verbose.reportf(path);
+    verbose.reportf(name);
     if(! tag->modify(path, r_vector(var), substvars(*info,path)) )
 	return (void) eprintf("could not edit tag in %s\n", path);
 }
