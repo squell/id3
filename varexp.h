@@ -68,6 +68,7 @@ private:
     bool                     result;
 
     bool match(const char* mask, const char* test);
+    int in_set(char c, const char* set, const char* test);
 };
 
 inline std::string varexp::operator[](unsigned idx) const
