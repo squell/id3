@@ -34,8 +34,8 @@ using namespace std;
  // exitcodes: 0 - ok, 1 - syntax, 2 - errors, 3 - fatal errors
 
 static char*     name  = "id3";
-static verbose_t verbose;
-static int&      exitc = verbose.exitc;
+static int       exitc = 0;
+static verbose_t verbose(exitc);
 
 static void eprintf(const char* msg, ...)
 {
