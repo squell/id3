@@ -56,7 +56,7 @@ void write_mp3s(const char* fspec, smartID3& tag)
 
 /* ====================================================== */
 
-const char shelp[] = "For help, type id3 -h\n";
+const char shelp[] = "Try `id3 -h' for more information.\n";
 
 void help(const char* argv0)
 {
