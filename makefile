@@ -21,7 +21,8 @@ man1dir  = $(mandir)/man$(manext)
 
 binary	 = id3
 
-docdir	 = $(prefix)/share/doc/id3
+datadir  = $(prefix)/share
+docdir	 = $(datadir)/doc/id3
 docdata  = README CHANGES COPYING
 
 INSTALL       = install
@@ -84,17 +85,16 @@ DISTFILES = INSTALL $(docdata) makefile makefile.dj makefile.bcc \
 
 D_PKG = pkg=id3-`sed -n -e "/_version_/{s:^[^0-9]*\([^ ]*\).*$$:\1:p;q}" \
 		main.cpp`; \
-	rm -f ../$${pkg}; \
-	ln -s `pwd` ../$${pkg}; \
-	cd ..
+	rm -f $${pkg}; \
+	ln -s `pwd` $${pkg}
 
 D_FIL = `echo $(DISTFILES) | sed -e "s:[^ ]*:$${pkg}/&:g"`
 
 dist: $(DISTFILES)
-	$(D_PKG); $(TAR) cfhz $${pkg}/$${pkg}.tar.gz $(D_FIL); rm -f $${pkg}
+	$(D_PKG); $(TAR) cfhz $${pkg}.tar.gz $(D_FIL); rm -f $${pkg}
 
 dist-zip: $(DISTFILES)
-	$(D_PKG); zip -9l $${pkg}/$${pkg//.}s.zip $(D_FIL); rm -f $${pkg}
+	$(D_PKG); zip -9l $${pkg//.}s.zip $(D_FIL); rm -f $${pkg}
 
 ## dependencies ############################################################
 
