@@ -47,7 +47,7 @@
 #include "charconv.h"
 
 extern std::string capitalize(std::string);
-extern std::string padnumeric(std::string, int);
+extern std::string padnumeric(std::string, unsigned);
 
 template<class T>
   inline std::string sedit(const std::string&, const T&);

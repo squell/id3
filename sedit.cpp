@@ -86,7 +86,7 @@ string capitalize(string s)
 
  // padnumeric("(300/4)=75", 4) -> "0300/0004=0075"
 
-string padnumeric(string s, size_t pad)
+string padnumeric(string s, unsigned pad)
 {
     const char digits[] = "0123456789";
     string::size_type p, q = 0;

@@ -45,21 +45,21 @@ int fpadd(FILE *dest, char c, size_t len)
     return w == len;
 }
 
-FILE *ftemp(char *template, const char *mode)
+FILE *ftemp(char *templ, const char *mode)
 {
     FILE *f;
 #ifndef _XOPEN_UNIX
     FILE *fc;
-    if(mktemp(template) && (fc = fopen(template, "wb+"))) {
+    if(mktemp(templ) && (fc = fopen(templ, "wb+"))) {
         if(f = freopen(0, mode, fc)) return f;
         fclose(fc);
 #else
-    int fd = mkstemp(template);
+    int fd = mkstemp(templ);
     if(fd >= 0) {
         if(f = fdopen(fd, mode)) return f;
         close(fd);
 #endif
-        unlink(template);
+        unlink(templ);
     } 
     return 0;
 }

@@ -26,7 +26,7 @@
   writes len times the character c to the file opened as dest.
   returns success or failure
 
-      FILE *ftemp(char *template, const char *mode)
+      FILE *ftemp(char *templ, const char *mode)
 
   behaves like mk(s)temp, but returns a stream opened in mode
 
@@ -43,7 +43,7 @@ extern "C" {
 
 extern int   fcopy(FILE *dest, FILE *src);
 extern int   fpadd(FILE *dest, char c, size_t len);
-extern FILE *ftemp(char *template, const char *mode);
+extern FILE *ftemp(char *templ, const char *mode);
 
 extern FILE *opentemp(const char *hint, char **name);
 
