@@ -20,6 +20,8 @@ typedef map<string,string> db;
 
 /* ===================================== */
 
+/* ===================================== */
+
  // extra hairyness to prevent buffer overflows by re-allocating on the fly
  // overkill, but i had to do a runtime check anyway, so.
 
@@ -86,15 +88,15 @@ bool smartID3v2::vmodify(const char* fn, const base_container& v) const
     if(!v2)
         return v1 && smartID3::vmodify(fn, v);
 
+    voidp<ID3_free>
+          src ( fresh ? (void*)0 : ID3_readf(fn, 0) );
     w_ptr dst ( 0x1000 );
     db    cmod( mod2 );
 
     char* out = (char*) ID3_put(dst,0,0,0);         // initialize
 
-    if(!fresh && src) {                             // update existing tags
-        voidp<ID3_free> src( ID3_readf(fn, 0) );
+    if( src ) {                                     // update existing tags
         ID3FRAME f;
-
         ID3_start(f, src);
 
         while(ID3_frame(f)) {
