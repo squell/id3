@@ -264,7 +264,7 @@ static void help()
         " -g <genre>\t"    "\n"
         " -c <comment>\t"  "\n"
         " -f <filename>\t" "set filename\n"
-        " -q <format>\t"   "print string\n"
+        " -q <string>\t"   "print string on stdout\n"
         " -v\t\t"          "give verbose output\n"
         " -V\t\t"          "print version info\n"
 #ifndef NO_V2
