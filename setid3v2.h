@@ -25,20 +25,19 @@ class smartID3v2 : public smartID3 {
 
     static char* put(char*, const map_ptr&, const base_container&);
 
-    static const char xlat[][5];
+//  static const char xlat[][5];
 
 protected:
-        virtual bool vmodify(const char*, const base_container&);
+    virtual bool vmodify(const char*, const base_container&);
 
 public:
-        smartID3v2()
-        { }
+    smartID3v2()
+    { }
 
-        smartID3v2& set(const char* i, const char* m)            // set ID3v2 frame
-        { mod2[i] = m; return *this; }
+    smartID3v2& set(const char* i, string m)             // set ID3v2 frame
+    { mod2[i] = m; return *this; }
 
-    smartID3v2& set(ID3set i, const char* m)
-    { if(i<ID3) mod2[xlat[i]] = m; return *this; }
+//  smartID3v2& set(ID3set i, const char* m);
 };
 
 #endif

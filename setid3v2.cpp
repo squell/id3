@@ -14,6 +14,17 @@ const char smartID3v2::xlat[][5] = {
     "TIT2", "TPE1", "TALB", "TYER", "COMM", "TCON", "TRCK"
 };
 
+/*
+smartID3v2& smartID3v2::set(ID3set i, const char* m);
+{
+    if(i<ID3) {
+        mod2[xlat[i]] = m;
+        smartID3::set(i, m);                      // update ID3v1 info also
+    }
+    return *this;
+}
+*/
+
 char* smartID3v2::put(char* out, const map_ptr& p, const base_container& v)
 {
     string s = edit(p->second, v);
@@ -39,19 +50,19 @@ bool smartID3v2::vmodify(const char* fn, const base_container& v)
 
     *out = 0;
 
-    if(!fresh) {				 // update existing tags
-	ID3FRAME f;
-	ID3_start(f, src);
+    if(!fresh) {                                 // update existing tags
+        ID3FRAME f;
+        ID3_start(f, src);
 
-	while(ID3_frame(f)) {
-	    map_ptr p = mod.find(f->ID);
-	    if(p == mod.end())
+        while(ID3_frame(f)) {
+            map_ptr p = mod.find(f->ID);
+            if(p == mod.end())
                 out = (char*) ID3_put(out, f->ID, f->data, f->size);
-	    else {
+            else {
                 out = put(out, p, v);
-		mod.erase(p);
-	    }
-	}
+                mod.erase(p);
+            }
+        }
     }
 
     for(map_ptr p = mod.begin(); p != mod.end(); p++)
