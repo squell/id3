@@ -76,10 +76,8 @@ void w_fail::raise()
 {
     string emsg(err);
     err.erase();
-    if(!emsg.empty()) {
-        smartID3::failure e(emsg);
-        throw e;
-    }
+    if(!emsg.empty())
+        throw smartID3::failure(msg);
 }
 
 extern "C" int w_handler(const char* oldn, const char* newn)

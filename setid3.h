@@ -39,6 +39,8 @@
   smartID3 only supports ID3v1 tags. It should not be hard to write a
   derivative class that handles ID3v2, though - redefine vmodify().
 
+  The failure class should be used only to report errors.
+
   Example:
 
   int main(int argc, char* argv[])
@@ -107,9 +109,10 @@ public:
 };
 
 class smartID3::failure : public std::exception {
-    auto_ptr<char> txt;
+    mutable auto_ptr<char> txt;
 public:
-    failure(const std::string&);
+    explicit failure(const std::string&);
+    failure(const failure& other) : txt( other.txt ) { }
     virtual const char* what() const throw()
     { return txt.get() ? txt.get() : "<null>"; }
 };
