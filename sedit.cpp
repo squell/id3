@@ -29,9 +29,10 @@ struct sedit_deprecation_warning {
     };
 } sedit_depr = { false, false };
 
+namespace {
+
  // some predicates and transformers to feed to STL algo's
 
-namespace {
     struct both_space {
         bool operator()(char a, char b)
         { return isspace(a) && isspace(b); }
@@ -46,6 +47,17 @@ namespace {
         bool operator()(char c)
         { return !isspace(c); }
     };
+
+ // remove extraneous spaces in a string
+
+    inline void compress(string& s)
+    {
+        string::reverse_iterator t( unique(s.begin(), s.end(), both_space()) );
+        if(t != s.rend() && isspace(*t)) ++t;
+        s.erase(t.base(), s.end());
+        if(s.length() > 0 && isspace(s[0]))
+            s.erase(s.begin());
+    }
 }
 
  // Capitalize A Text-string Like This.
@@ -58,17 +70,6 @@ string capitalize(string s)
         new_w = isspace(*p) || !isalnum(*p) && new_w;
     }
     return s;
-}
-
- // remove extraneous spaces in a string
-
-inline void compress(string& s)
-{
-    string::reverse_iterator t( unique(s.begin(), s.end(), both_space()) );
-    if(t != s.rend() && isspace(*t)) ++t;
-    s.erase(t.base(), s.end());
-    if(s.length() > 0 && isspace(s[0]))
-        s.erase(s.begin());
 }
 
 /* ====================================================== */
@@ -112,7 +113,7 @@ string svar::edit(string s, const base_container& v)
                 string tmp = v[c-'1' +ZERO_BASED];
                 if(!raw) {                                  // remove gunk
                     replace(tmp.begin(), tmp.end(), '_', ' ');
-                    tmp = compress(tmp);
+                    compress(tmp);
                 }
                 switch(caps) {
                 case name:
