@@ -1,16 +1,16 @@
 ## generic GNU makefile ####################################################
 
 CC	 = gcc
-CFLAGS	 = -g -O2
+CFLAGS   = -g -O2
 
-CXX	 = g++
+CXX      = g++
 
 ############################################################################
 
 id3: main.o setid3.o setid3v2.o varexp.o id3v1.o id3v2.o id3_fmt.o
-	$(CC) -o $@ $+
+	$(CXX) -o $@ $+
 
-id3l: main.o setid3.o varexp.o id3v1.o
+id3l: mainl.o setid3.o varexp.o id3v1.o
 	$(CXX) -o $@ $+
 
 all  : id3 id3l
@@ -37,6 +37,9 @@ setid3v2.o: id3v2.h setid3.h
 setid3.o  : id3v1.h
 
 %.o  : %.cpp %.h
+	$(CC) $(CFLAGS) -c $<
+
+%.o  : %.c %.h
 	$(CC) $(CFLAGS) -c $<
 
 ############################################################################
