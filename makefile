@@ -95,10 +95,10 @@ uninstall:
 
 ## distribution ############################################################
 
-SRC_CPP    += sedit varexp ffindexp charconv
+SRC_CPP     = sedit varexp ffindexp charconv
 SRC_CPP    += set_base setid3 setid3v2 setfname
-SRC_C	   += fileops id3v1 id3v2
-DIR_DEBIAN += control rules copyright changelog
+SRC_C	    = fileops id3v1 id3v2
+DIR_DEBIAN  = control rules copyright changelog
 
 DISTFILES = INSTALL $(docdata) makefile makefile.dj makefile.bcc \
 	main.cpp auto_dir.h $(SRC_CPP:=.h) $(SRC_C:=.h) \
