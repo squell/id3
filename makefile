@@ -79,7 +79,7 @@ uninstall:
 DISTFILES = INSTALL $(docdata) makefile makefile.dj makefile.bcc \
 	main.cpp auto_dir.h \
 	$(foreach f, sedit varexp ffindexp setid3 setid3v2, $(f).h $(f).cpp) \
-	$(foreach f, fileops id3v1 id3v2, $(f).c) \
+	$(foreach f, fileops id3v1 id3v2, $(f).h $(f).c) \
 	id3.man
 
 D_PKG = pkg=id3-`sed -n -e "/_version_/{s:^[^0-9]*\([^ ]*\).*$$:\1:p;q}" \
