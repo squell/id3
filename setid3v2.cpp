@@ -74,11 +74,11 @@ smartID3v2& smartID3v2::set(ID3set i, const char* m)
     return *this;
 }
 
-struct safe3 {                                       // auto-ptr like
+template<void clean(void*)> struct voidp {          // auto-ptr like
     void* data;
     operator void*() { return data; }
-    safe3(void* p)   { data = p; }
-   ~safe3()          { ID3_free(data); }
+    voidp(void* p)   { data = p; }
+   ~voidp()          { clean(data); }
 };
 
 bool smartID3v2::vmodify(const char* fn, const base_container& v) const
@@ -87,7 +87,8 @@ bool smartID3v2::vmodify(const char* fn, const base_container& v) const
         return smartID3::vmodify(fn, v);
 
     size_t temp;
-    safe3 src ( ID3_readf(fn, &temp) );
+    voidp<ID3_free>
+          src ( ID3_readf(fn, &temp) );
     w_ptr dst ( temp+0x1000 );
     db    cmod( mod2 );
 
