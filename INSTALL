@@ -58,6 +58,7 @@ Successfully compiled with:
  - GCC 2.95.x       (GNU/Linux, FreeBSD, DJGPP, MinGW)
  - Intel C++ 7.1    (GNU/Linux)
  - Borland C++ 5.5  (Win32)
+ - Compaq C++ 6.5   (Alpha)
 
 This program is mostly written in 100% portable ISO C/C++, so basically all
 you need is a modern, standards-compliant C/C++ compiler.
@@ -136,10 +137,10 @@ you can replace it with whatever you want by changing the 'VAR' constant.
 (Win32) MinGW 2.0:
   http://www.mingw.org/
 
-(Linux, Win32) Intel C++ 8.0:       (30 day evaluation/non-commercial only)
+(Linux, Win32) Intel C++ 8.0:         (30 day evaluation/non-commercial only)
   http://www.intel.com/software/products/compilers/
 
-(Win32 -> DOS extender)             (Use Win32 compilers to create DOS apps)
+(Win32 -> DOS extender)               (Use Win32 compilers to create DOS apps)
   http://michael.tippach.bei.t-online.de/wdosx/
 
 ---------------------------------------------------------------
