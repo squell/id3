@@ -97,14 +97,8 @@ extern "C" int w_handler(const char* oldn, const char* newn)
 
  // checks if a given field is valid
 
-bool ID3v2::check_field(string& field, string& s)
+string binarize(string field, string s)
 {
-    if(field.length() != 4)
-        return false;
-    for(int n = 0; n < 4; ++n)
-        if(!isalnum(field[n] = toupper(field[n])))
-            return false;
-
     if(field[0] == 'T' || field == "IPLS" || field == "WXXX") {
         bool t = (field[1]=='X' && field[2]=='X' && field[3]=='X');
         s.insert(string::size_type(0), 1+t, '\0');
@@ -120,9 +114,9 @@ bool ID3v2::check_field(string& field, string& s)
         s.push_back(t >>  8 & 0xFF);
         s.push_back(t       & 0xFF);
     } else {
-        return false;
+        s.erase();
     }
-    return true;
+    return s;
 }
 
 /* ===================================== */
@@ -151,7 +145,12 @@ ID3v2& ID3v2::reserve(size_t n)
 
 bool ID3v2::set(std::string field, std::string s)
 {
-    if( check_field(field, s) ) {
+    if(field.length() != 4)
+        return false;
+    for(int n = 0; n < 4; ++n)
+        if(!isalnum(field[n] = toupper(field[n])))
+            return false;
+    if( binarize(field, "0").length() != 0 ) {      // test a dummy string
         mod[field] = s;
         return true;
     }
@@ -195,7 +194,7 @@ bool ID3v2::vmodify(const char* fn, const subst& v) const
                 out = dst.put(out, f->ID, f->data, f->size);
             else
                 if(p->second != "") {               // else: erase frames
-                    string s = edit(p->second, v);
+                    string s = binarize(p->first, edit(p->second, v));
                     out = dst.put(out, f->ID, s.c_str(), s.length());
                     cmod.erase(p);
                 }
@@ -204,7 +203,7 @@ bool ID3v2::vmodify(const char* fn, const subst& v) const
 
     for(db::iterator p = cmod.begin(); p != cmod.end(); ++p) {
         if(p->second != "") {
-            string s = edit(p->second, v);
+            string s = binarize(p->first, edit(p->second, v));
             out = dst.put(out, p->first.c_str(), s.c_str(), s.length());
         }
     }

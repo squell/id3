@@ -44,7 +44,6 @@ class ID3v2 : public single_tag {
     std::map<std::string,std::string> mod;
     size_t resize;
 
-    bool check_field(std::string&, std::string&);
 public:
     ID3v2(bool f = true) : single_tag(f), mod(), resize(0) { }
 

@@ -1,5 +1,9 @@
 Changelog for 'id3'.
 
+2005-025 (W04):
+  setid3v2.cpp: [bugfix] tag contents weren't written if using a user
+    specified locale. Also -wPCNT listens to vars now.
+
 2004-196 (W27):
   debian/*: automation of building .deb packages via dpkg-buildpackage -b
   makefile: added 'wget-orig' and 'fetch-orig' (get latest source tarball)
