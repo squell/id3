@@ -102,7 +102,7 @@ const char xlat[][5] = {
 ID3v2& ID3v2::set(ID3field i, const char* m)
 {
     if(i < FIELDS) {
-        const string prefix("\0eng\0", i!=cmnt? 1 : 5);
+        const string prefix("\0xxx\0", i!=cmnt? 1 : 5);
         if(i == genre) {
             unsigned int x = atoi(m)-1;             // is portable
             if(x < ID3v1_numgenres) m = ID3v1_genre[x];

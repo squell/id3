@@ -167,7 +167,8 @@ void help(const char* argv0)
 #ifdef __ZF_SETID3V2
         "Only when -2:\n"
         " -rXXXX\t\terase all XXXX frames\n"
-        " -wXXXX <data>\tdirectwrite an XXXX frame\n"
+        " -wXXXX <data>\twrite a XXXX frame\n"
+        " -s <size>\tforce size of final tag\n"
 #endif
         "\nAny occurences of the form \"%%i\" in an ID3 field value will be substituted by\n"
         "the portion of the actual filename matched by the i'th \"*\" wildcard, where i\n"

@@ -23,9 +23,9 @@ clean:
 ############################################################################
 
 id3.exe: main.o sedit.o varexp.o ffindexp.o charconv.o \
-	 set_base.o setid3.o setid3v2.o \
-	 id3v1.o id3v2.o fileops.o \
-	 setfname.o
+	 set_base.o setid3.o setid3v2.o setfname.o \
+         getid3.o \
+         id3v1.o id3v2.o fileops.o
 	$(CC) $(LDFLAGS) -o $@ $+
 
 id3l.exe: mainl.o sedit.o varexp.o ffindexp.o charconv.o \
@@ -66,3 +66,5 @@ varexp.o: varexp.cpp varexp.h
 
 ############################################################################
 
+getid3.o: getid3.cpp c:/coding/djgpp/lib/djgpp.ver getid3.h set_base.h \
+ sedit.h id3v1.h

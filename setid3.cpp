@@ -7,6 +7,7 @@
 #include <map>
 #include <new>
 #include "setid3.h"
+#include "getid3.h"
 #include "sedit.h"
 #include "id3v1.h"
 
@@ -102,8 +103,8 @@ const struct genre_map : map<string,int,bool (*)(const string&,const string&)> {
 
 set_tag::reader* ID3::read(const char* fn)
 {
-//.  return new read_tag::ID3(fn);
-     return 0;
+//  return new read::ID3(fn);
+    return 0;
 }
 
 bool ID3::vmodify(const char* fn, const base_container& v) const

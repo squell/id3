@@ -26,9 +26,10 @@
 
 #include <cstring>
 #include <string>
+#include <utility>
+#include <vector>
 #include <exception>
 #include <new>
-#include <vector>
 #include "sedit.h"
 
 namespace set_tag {
@@ -87,7 +88,10 @@ public:
 
 class set_tag::reader {
 public:
+    typedef std::vector< std::pair<std::string, std::string> > array;
+
     virtual std::string operator[](ID3field) const = 0;
+    virtual array       listing() const = 0;
     virtual ~reader() { };
 };
 
