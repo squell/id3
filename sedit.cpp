@@ -50,7 +50,7 @@ namespace {
 
  // Capitalize A Text-string Like This.
 
-string capitalize(string s)
+inline string capitalize(string s)
 {
     bool new_w = true;
     for(string::iterator p = s.begin(); p != s.end(); p++) {
@@ -62,7 +62,7 @@ string capitalize(string s)
 
  // remove extraneous spaces in a string
 
-void compress(string& s)
+inline void compress(string& s)
 {
     string::reverse_iterator t( unique(s.begin(), s.end(), both_space()) );
     if(t != s.rend() && isspace(*t)) ++t;
