@@ -1,5 +1,7 @@
 ## generic GNU makefile ####################################################
 
+SHELL	 = /bin/sh
+
 CC	 = gcc
 CFLAGS	 = -g -O2
 
