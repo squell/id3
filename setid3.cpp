@@ -32,8 +32,8 @@ struct ID3v1 {                                   // ID3 v1.1 tag structure
     char year[4];
     char cmnt[28];
     char __;
-    char track;
-    char genre;
+    unsigned char track;
+    unsigned char genre;
 };
 
 const ID3v1 synth_tag = {
@@ -72,7 +72,9 @@ static string capitalize(string s)
 
 #include "genres"                               // ID3v1_genres list
 
-static struct genre_map : map<string,int> {
+const struct genre_map : map<string,int> {
+    typedef const_iterator iter;                // shorthand
+
     genre_map()                                 // initialize associative map
     {
         for(int i=0; i < sizeof ID3v1_genres/sizeof *ID3v1_genres; i++) {
@@ -174,8 +176,10 @@ bool smartID3::vmodify(const char* fn, const base_container& v)
         if(txt = mod[track])
             tag.track = atoi( edit(txt,v).c_str() );
 
-        if(txt = mod[genre])
-            tag.genre = ID3_genre[capitalize(edit(txt,v))];
+        if(txt = mod[genre]) {
+            genre_map::iter g = ID3_genre.find( capitalize(edit(txt,v)) );
+            tag.genre = (g==ID3_genre.end() ? 255 : g->second);
+        }
 
         if( fresh && count(mod.begin(),mod.end(),(char*)0) == 7 ) {
             ftrunc(f);
