@@ -55,7 +55,7 @@ also means use is pretty much limited to audio files which use these formats,
 e.g, MPEG-1 Layer III.
 
 .SH OPTIONS
-The options are processed in the order specified.
+The order of the options is only important where specified.
 
 .TP
 .B filespec ...
@@ -82,11 +82,11 @@ be verbose
 
 .TP
 .B \-1
-write ID3v1 tags (default). See `-2'.
+process ID3v1 tags (default). See `-2'.
 
 .TP
 .B \-2
-write ID3v2 tags. If both -1 and -2 are specified, both tag formats will be
+process ID3v2 tags. If both -1 and -2 are specified, both tag formats will be
 written.
 
 .TP
@@ -119,7 +119,7 @@ regardless of tag format.
 
 .TP
 .BI \-q " format
-for each file encounted, \fIformat\fR will get scanned for substitution
+for each file encountered, \fIformat\fR will get scanned for substitution
 commands, and written to standard output.
 
 .TP
@@ -130,27 +130,29 @@ by default get replaced with the string \*(lqUnknown\*(rq. Trying to rename
 to an already existing file will cause an error.
 
 .PP
-The  following  options  only  operate  on  the  last tag selected, and only
-have meaning where relevant.
+The  following  options  only  operate  on  the  last tag format selected on
+the command line, and only have meaning where relevant.
 
 .TP
 .BI \-!
 fill all standard tag fields with information from the source tag. This is
-similar to writing \*(lq-talnygc %t %a %l %n %y %g %c\*(rq, but only operates on the last tag.
+similar to writing \*(lq-talnygc %t %a %l %n %y %g %c\*(rq, but only operates
+on the last tag. It is possible for the source and destination tag to be the
+same.
 
 .TP
 .BI \-s " size
-try  to  write a new tag using exactly \fIsize\fR bytes, adding / removing
+try to write a new tag using exactly \fIsize\fR bytes, adding / removing
 padding as necessary.
 
 .TP
 .B \-r\fIFRAME
-remove  all occurrences of frames named \fIFRAME\fR from the  tag. Consult the
+remove all occurrences of frames named \fIFRAME\fR from the  tag. Consult the
 format documentation for valid \fIFRAME\fR names.
 
 .TP
 .BI \-w\fIFRAME " data
-add  /  update  a frame named \fIFRAME\fR with \fIdata\fR in the  tag.  Again,
+add / update  a frame named \fIFRAME\fR with \fIdata\fR in the  tag.  Again,
 consult the format documentation. See \fICOMPATIBILITY\fR for more
 information.
 
@@ -202,11 +204,11 @@ replace by values according to the following table:
 .br
 .BR %x " auto-increasing\ counter 
 .PP
-All values get read (where applicable) from the left-most specified tag format
-on the command line, and reflect the state of the file before any modifications
-were made. Similarly, \fI%f\fR is always the original filename. The \fI%x\fR 
-value gets increased each time it is substituted, and is intended to be used 
-for auto-numbering.
+All values get read (where applicable) from the source tag, which is specified
+by the left-most specified tag format on the command line, and reflect the
+state of the file before any modifications were made. Similarly, \fI%f\fR is
+always the original filename. The \fI%x\fR value gets increased each time it
+is substituted, and is intended to be used for auto-numbering.
 .RE
 
 .TP
@@ -271,6 +273,10 @@ Rename file to a standard format, using ID3v2 values.
 Removes embedded images and padding from all mp3's.
 
 .TP
+\fBid3 -2 -!d *.mp3
+Rewrite ID3v2 tag, removing spaces, keeping only the basic fields.
+
+.TP
 \fBid3 -2 -wUSLT "foo, bar%,lalala!%," blaet.mp3
 Adds an ID3v2 lyric frame to blaet.mp3.
 
@@ -281,10 +287,6 @@ Process multiple directories at once.
 .TP
 \fbid3 -1 -2! -c "Was: %f" -f "%|TAFKAT|a - %|Untitled (%x)|t.mp3" "*.mp3"
 More advanced rename. Save previous filename in the comment field, and copies ID3v1 to ID3v2.
-
-.TP
-\fbid3 -2 -q "[%###x] %1/%f:% %|No ID3v2!|<%, %<%a - >%t>" "*/*.mp3" 
-Generate a simple playlist from the present two-level directory hierarchy.
 
 .SH NOTES
 The internal pattern matching emulates the normal pattern matching of
