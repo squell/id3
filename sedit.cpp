@@ -1,14 +1,11 @@
 #include <string>
 #include <cctype>
 #include <algorithm>
-#include "charconv.h"
 #include "sedit.h"
-
-#include <cstdio>                                 // for bandaid
 
 /*
 
-  (c) 2004 squell ^ zero functionality!
+  (c) 2004, 2005 squell ^ zero functionality!
   see the file 'COPYING' for license conditions
 
 */
@@ -22,6 +19,11 @@ namespace {
     struct both_space {
         bool operator()(char a, char b)
         { return isspace(a) && isspace(b); }
+    };
+
+    struct control_char {
+        bool operator()(char c)
+        { return iscntrl(c); }
     };
 
     struct to_lower {
@@ -60,6 +62,16 @@ namespace {
         return s;
     }
 
+ // remove gunk
+
+    unraw(string& s)
+    {
+        replace_if(s.begin(), s.end(), control_char(), ' ');
+        replace(s.begin(), s.end(), '_', ' ');
+        compress(s);
+
+    }
+
 }
 
  // Capitalize A Text-string Like This.
@@ -76,19 +88,12 @@ string capitalize(string s)
 
 /* ====================================================== */
 
- // this is just a placeholder until sedit is fully wide-character aware
-
-inline void convert_to_latin1(string& s)
+cvtstring string_parm::edit(const cvtstring& fmt, const subst& var)
 {
-     string tmp = latin1::conv(s);
-     s.swap(tmp);
-}
+    const cvtstring::xlat conv = &cvtstring::latin1;
 
-/* ====================================================== */
-
-string string_parm::edit(string s, const subst& var)
-{
     string::size_type pos = 0;
+    string s = (fmt.*conv)();
 
     while( (pos=s.find(VAR, pos)) != string::npos ) {
         bool  raw  = false;
@@ -116,11 +121,8 @@ string string_parm::edit(string s, const subst& var)
             case '8':
             case '9': if(!ZERO_BASED) --c;
                 {
-                    string tmp = stylize(var.numeric(c-'0'), caps);
-                    if(!raw) {                                 // remove gunk
-                        replace(tmp.begin(), tmp.end(), '_', ' ');
-                        compress(tmp);
-                    }
+                    string tmp = stylize((var.numeric(c-'0').*conv)(), caps);
+                    if(!raw) unraw(tmp);
                     s.replace(pos, n+1, tmp);
                     pos += tmp.length();
                     break;
@@ -129,10 +131,8 @@ string string_parm::edit(string s, const subst& var)
                 if(!isalpha(c)) {
                     s.replace(pos++, n+1, 1, '?'); break;
                 } else {
-                    string tmp = stylize(var.alpha(c), caps);
-                    if(raw)
-                        replace(tmp.begin(), tmp.end(), ' ', '_');
-                    compress(tmp);
+                    string tmp = stylize((var.alpha(c).*conv)(), caps);
+                    if(!raw) unraw(tmp);
                     s.replace(pos, n+1, tmp);
                     pos += tmp.length();
                     break;
@@ -142,7 +142,6 @@ string string_parm::edit(string s, const subst& var)
         }
     }
 
-    convert_to_latin1(s);
-    return s;
+    return cvtstring::latin1(s);
 }
 
