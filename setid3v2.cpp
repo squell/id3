@@ -12,13 +12,15 @@
   (c) 2003 squell ^ zero functionality!
   see the file 'COPYING' for license conditions
 
+  Note: I'm devoting quite a bit of code to glue the interface from C to C++,
+  and I'm not entirely happy about it. I'm a bit confused as to the reasons I
+  didn't chose to write id3v2.c in C++. :(
+
 */
 
 using namespace std;
 
 typedef map<string,string> db;
-
-/* ===================================== */
 
 /* ===================================== */
 
@@ -54,6 +56,40 @@ char* w_ptr::put(char* dst, const char* ID, const void* src, size_t len)
 
     avail -= (len+10);
     return (char*) ID3_put(dst,ID,src,len);
+}
+
+/* ===================================== */
+
+ // convert C handler to a C++ exception at program startup
+
+extern "C" int w_handler(const char*, const char*);
+
+struct w_fail {
+    w_fail()            { ID3_wfail = w_handler; }
+    static string err;
+    static void raise();
+} w_fail_inst;
+
+string w_fail::err;
+
+void w_fail::raise()
+{
+    string emsg(err);
+    err.erase();
+    if(!emsg.empty()) {
+        smartID3::failure e(emsg);
+        throw e;
+    }
+}
+
+extern "C" int w_handler(const char* oldn, const char* newn)
+{
+    if(! cpfile(oldn, newn) ) {
+    {
+        string emsg(" lost, new contents still in ");
+        w_fail::err = newn + emsg + oldn;
+    }
+    return 1;
 }
 
 /* ===================================== */
@@ -120,6 +156,7 @@ bool smartID3v2::vmodify(const char* fn, const base_container& v) const
     }
 
     bool res = ID3_writef(fn, dst);
+    w_fail::raise();
 
     return res && (!v1 || smartID3::vmodify(fn, v));
 }
