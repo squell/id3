@@ -6,7 +6,6 @@
 */
 
 #include <vector>
-#include <algorithm>    ////////////////////
 #include "set_base.h"
 
 using namespace std;

@@ -9,12 +9,12 @@
 
 #include "set_base.h"
 #include "setid3.h"
+#include "setfname.h"
 #ifndef NO_V2
 #  include "setid3v2.h"
-#  include "setfname.h"
 #endif
 
-#define _version_ "0.74-alpha (2004167)"
+#define _version_ "0.74-beta (2004176)"
 
 /*
 
@@ -97,7 +97,11 @@ namespace {
 
 #ifdef __ZF_SETID3V2
 
-struct metadata : uses<ID3v2>, uses<ID3>, uses<set_tag::filename> { };
+#  ifdef NO_FN
+struct metadata : uses<ID3v2>, uses<ID3> { };
+#  else
+struct metadata : uses<ID3v2>, uses<ID3>, uses<filename> { };
+#  endif
 
 #else
 
@@ -209,7 +213,7 @@ long argtol(const char* arg)                   // convert argument to long
     return n;
 }
 
-#ifndef DOS_DIRSEP
+#if 0
 inline void argpath(char* arg) { }             // dummy
 #else
 void argpath(char* arg)                        // convert backslashes
@@ -272,24 +276,31 @@ int main_(int argc, char *argv[])
                 case 'n': field = set_tag::track;  cmd = stdfield; break;
                 case 'f': cmd = set_rename; break;
 #ifdef __ZF_SETID3V2
-                case 's':
-                    cmd = suggest_size; break;
-                case 'w':
-                    fieldID.assign(opt); cmd = customfield;
-                    opt = "";
-                    break;
-                case 'r':
-                    if(chosen) {
-                        chosen->rm(opt); w = true;
-                    }
-                    opt = "";
-                    break;
                 case '1':
                     chosen = &tag.enable<ID3>();
                     break;
                 case '2':
                     chosen = &tag.enable<ID3v2>();
                     break;
+
+                case 's':                      // tag specific options
+                    if(chosen) {
+                        cmd = suggest_size; break;
+                    }
+                case 'w':
+                    if(chosen) {
+                        fieldID.assign(opt); cmd = customfield;
+                        opt = "";
+                        break;
+                    }
+                case 'r':
+                    if(chosen) {
+                        chosen->rm(opt); w = true;
+                        opt = "";
+                        break;
+                    }
+                    fprintf(err(), "id3: specify tag before -%c\n", opt[-1]);
+                    shelp();
 #endif
                 case 'h': help(argv[0]);
                 case 'V': Copyright();
@@ -312,7 +323,7 @@ int main_(int argc, char *argv[])
         case set_rename:
             argpath(argv[i]);
             if(! with<filename>(tag).rename(argv[i]) ) {
-                fprintf(err(), "id3: cannot rename across directories\n");
+                fprintf(err(), "id3: will not rename across directories\n");
                 shelp();
             }
             if(!chosen)
@@ -320,21 +331,18 @@ int main_(int argc, char *argv[])
             break;
 
 #ifdef __ZF_SETID3V2
-        case suggest_size:                     // v2 - suggest size
-            long l; l = argtol(argv[i]);
-            if(chosen) {
+        case suggest_size: {                   // v2 - suggest size
+                long l = argtol(argv[i]);
                 chosen->reserve(l);
-                break;
             }
+            break;
 
         case customfield:                      // v2 - write a custom field
-            if(chosen) {
-                chosen->set(fieldID, argv[i]);
-                break;
+            if(! chosen->set(fieldID, argv[i]) ) {
+                fprintf(err(), "id3: cannot write frame `%s'\n", fieldID.c_str());
+                shelp();
             }
-
-            cmd = no_value;                    // no-op fallthrough
-            continue;
+            break;
 #endif
         };
         cmd = no_value;

@@ -76,10 +76,10 @@ public:
 
   // free-form set methods (optional - default to no-op)
 
-    virtual handler& set(std::string, std::string)
-    { return *this; }
-    virtual handler& rm(std::string)
-    { return *this; }
+    virtual bool set(std::string, std::string)
+    { return false; }
+    virtual bool rm(std::string)
+    { return false; }
 };
 
   ///////////////////////////////////////////////////////

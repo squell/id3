@@ -19,8 +19,8 @@ namespace set_tag {
 
 bool filename::vmodify(const char* fname, const base_container& v) const
 {
-    if(!enabled)
-        return true;
+    if(!ftemplate)
+        return false;
 
     std::string name = edit(ftemplate, v);
 

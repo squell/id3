@@ -33,7 +33,7 @@ public:
     filename(bool f = true) : single_tag(f) { }
 
     bool rename(const char* fname)
-    { return enabled = ftemplate = strchr(fname,'/') ? 0 : fname; }
+    { return enabled=ftemplate=(strchr(fname,'/')? 0 : fname); }
 
     virtual bool vmodify(const char*, const base_container&) const;
 

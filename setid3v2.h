@@ -44,6 +44,7 @@ class ID3v2 : public single_tag {
     std::map<std::string,std::string> mod;
     size_t resize;
 
+    bool check_field(std::string&, std::string&);
 public:
     ID3v2(bool f = true) : single_tag(f), mod(), resize(0) { }
 
@@ -54,8 +55,8 @@ public:
 
   // extended set
 
-    ID3v2& set(std::string field, std::string s); // set ID3v2 frame
-    ID3v2& rm(std::string field);                 // remove ID3v2 frame
+    bool set(std::string field, std::string s); // set ID3v2 frame
+    bool rm(std::string field);                 // remove ID3v2 frame
 };
 
 }

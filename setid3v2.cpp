@@ -95,6 +95,38 @@ extern "C" int w_handler(const char* oldn, const char* newn)
 
 /* ===================================== */
 
+ // checks if a given field is valid
+
+bool ID3v2::check_field(string& field, string& s)
+{
+    if(field.length() != 4)
+        return false;
+    for(int n = 0; n < 4; ++n)
+        if(!isalnum(field[n] = toupper(field[n])))
+            return false;
+
+    if(field[0] == 'T' || field == "IPLS" || field == "WXXX") {
+        bool t = field[1]=='X' && field[2]=='X' && field[3]=='X';
+        s.insert(string::size_type(0), 1+t, '!');
+    } else if(field[0] == 'W') {
+        //
+    } else if(field == "COMM" || field == "USLT" || field == "USER") {
+        s.insert(string::size_type(0), "!xxx!", 4 + (field[3]!='R'));
+    } else if(field == "PCNT") {
+        unsigned long t = strtol(s.c_str(), 0, 0);
+        s.erase();
+        s.push_back(t >> 24 & 0xFF);
+        s.push_back(t >> 16 & 0xFF);
+        s.push_back(t >>  8 & 0xFF);
+        s.push_back(t       & 0xFF);
+    } else {
+        return false;
+    }
+    return true;
+}
+
+/* ===================================== */
+
 const char xlat[][5] = {
     "TIT2", "TPE1", "TALB", "TYER", "COMM", "TRCK", "TCON"
 };
@@ -112,22 +144,25 @@ ID3v2& ID3v2::set(ID3field i, const char* m)
     return *this;
 }
 
-ID3v2& ID3v2::set(std::string field, std::string s)
-{
-    mod[field] = s;
-    return *this;
-}
-
 ID3v2& ID3v2::reserve(size_t n)
 {
     resize = n? n : 1;
     return *this;
 }
 
-ID3v2& ID3v2::rm(std::string field)
+bool ID3v2::set(std::string field, std::string s)
+{
+    if( check_field(field, s) ) {
+        mod[field] = s;
+        return true;
+    }
+    return false;
+}
+
+bool ID3v2::rm(std::string field)
 {
     mod[field].erase();
-    return *this;
+    return true;
 }
 
 template<void clean(void*)> struct voidp {          // auto-ptr like

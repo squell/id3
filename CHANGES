@@ -1,6 +1,15 @@
 Changelog for 'id3'.
 
+2004-171 (W25):
+  sedit.cpp: [BUG] conversion to latin1 gets called at the proper place now
+  sedit.cpp: removed deprecated stuff
+
+2004-170 (W25):
+  setid3v2.cpp: [CLI] free form id3v2 tags get processed now
+    knows T???, W???, COMM, IPLS, USLT, USER and PCNT frames
+
 2004-167 (W25):
+  setfname: created file rename implementation
   set_base.h: streamlining
 
 2004-162 (W24):

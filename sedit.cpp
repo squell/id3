@@ -15,21 +15,6 @@
 
 using namespace std;
 
- // band-aid. the notice will be removed in the future too! ;)
-
-struct sedit_deprecation_warning {
-    bool flag1;
-    bool flag2;
-   ~sedit_deprecation_warning()
-    {   if(flag1)
-            printf("id3: note: %%c modifier will be removed in the future, "
-                   "use %%+ instead.\n");
-        if(flag2)
-            printf("id3: note: %%n token will be removed in the future, "
-                   "use %%, instead.\n");
-    };
-} sedit_depr = { false, false };
-
 namespace {
 
  // some predicates and transformers to feed to STL algo's
@@ -91,8 +76,6 @@ string string_parm::edit(string s, const base_container& v)
 
     string::size_type pos = 0;
 
-    convert_to_latin1(s);
-
     while( (pos=s.find(VAR, pos)) != string::npos ) {
         bool  raw  = false;
         style caps = as_is;
@@ -105,11 +88,9 @@ string string_parm::edit(string s, const base_container& v)
             case '@':
             case ':': s.erase(pos, 1); s[pos++] = '\0'; break;
             case VAR: s.erase(pos, 1);   pos++;         break; // "%%" -> "%"
-            case 'N': sedit_depr.flag2 = true;              // TO BE REMOVED
             case ',': s[pos++] = '\r'; s[pos++] = '\n'; break;
 
             case '_': raw  = true; ++n; continue;
-            case 'C': sedit_depr.flag1 = true;              // TO BE REMOVED
             case '+': caps = name; ++n; continue;
             case '-': caps = lowr; ++n; continue;
 
@@ -141,6 +122,8 @@ string string_parm::edit(string s, const base_container& v)
             break;         // turn switch-breaks into while-breaks
         }
     }
+
+    convert_to_latin1(s);
     return s;
 }
 
