@@ -49,6 +49,8 @@ bool filename::vmodify(const char* fname, const subst& v) const
 
     if(std::rename(fname, newfn) != 0)
         throw failure("could not rename ", fname);
+
+    return true;
 }
 
 }
