@@ -64,7 +64,7 @@ void help(const char* argv0)
         "\tset ID3 fields\n\n"
         "Any occurences of the form \"%%i\" in an ID3 field value will be substituted by\n"
         "the portion of the actual filename matched by the i'th \"*\" wildcard, where i\n"
-        "is a digit in the range [0..9].\n",
+        "is a digit in the range [1..9,0].\n",
         argv0
     );
     exit(0);

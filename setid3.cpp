@@ -83,26 +83,57 @@ static struct genre_map : map<string,int> {
 
 /* ====================================================== */
 
+const char VAR = '%';             // character signifying a replacement code
+
 string smartID3::edit(string s, const base_container& v)
 {
     int pos = 0;
-    int i;
 
-    while( (pos=s.find('%', pos)) >= 0 && pos+1 < s.length() ) {
-        bool c = toupper(s[pos+1]) == 'C';              // caps modifier flag
-
-        if(c && pos+2 >= s.length()) break;             // bounds check
-
-        if(i = s[pos+1+c], i>='0' && i<='9') {          // replace %0 .. %9
-            const string& tmp = c ? capitalize(v[i-'0']) : v[i-'0'];
-            s.replace(pos, 2+c, tmp);
-            pos += tmp.length();
-        } else if(s[pos+1] = '%') {                     // "%%" -> "%"
-            s.erase(pos,1);
-            ++pos;
-       }
+    while( (pos=s.find(VAR, pos)) >= 0 ) {
+        bool und = false;
+        bool cap = false;
+        int n = 1;
+        while( pos+n < s.length() ) {
+            switch( char c = toupper(s[pos+n]) ) {
+            default:
+                s.erase(pos, n);
+                break;
+            case ':':
+                s.erase(pos, 1);
+                s[pos++] = '\0';
+                break;
+            case VAR:       // "%%" -> "%"
+                s.erase(pos++, 1);
+                break;
+            case '_':
+                und = true;
+                ++n;
+                continue;
+            case 'C':
+                cap = true;
+                ++n;
+                continue;
+            case '0':
+                c += 10;      // so it'll turn up as 9 when we subtract '1'
+            case '1':
+            case '2':
+            case '3':
+            case '4':
+            case '5':
+            case '6':
+            case '7':
+            case '8':
+            case '9':
+                string tmp = v[c-'1'];
+                if(cap) tmp = capitalize(tmp);
+                if(!und) replace(tmp.begin(), tmp.end(), '_', ' ');
+                s.replace(pos, n+1, tmp);
+                pos += tmp.length();
+                break;
+            }
+            break;
+        }
     }
-    replace(s.begin(), s.end(), '_', ' ');              // remove _'s
     return s;
 }
 

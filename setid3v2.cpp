@@ -10,11 +10,11 @@
 
 using namespace std;
 
+/*
 const char smartID3v2::xlat[][5] = {
     "TIT2", "TPE1", "TALB", "TYER", "COMM", "TCON", "TRCK"
 };
 
-/*
 smartID3v2& smartID3v2::set(ID3set i, const char* m);
 {
     if(i<ID3) {
