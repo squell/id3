@@ -1,0 +1,40 @@
+---------------------------------------------------------------
+| id3 v0.60
+-------------------------------------------------------------
+
+the contents of the DOS/Win32 binary distribution:
+
+ file_id.diz    - short descriptive file
+ 
+ copying        - license
+ files          - ... ? :)
+ readme         - program documentation
+ changes        - changelog
+
+ id3.exe        - program file - `%' as escape char
+
+---------------------------------------------------------------
+| (c) squell 2003 - copyright notice
+-------------------------------------------------------------
+
+All files in this package are copyrighted. This is NOT public domain software.
+
+This software has a Cryptix/BSD style license, which (in short) means you can
+pretty much do with it as you please (including redistribution under another
+license such as the GNU GPL), as long as copyright is acknowledged.
+
+It also means you can't sue me if anything terrible happens.
+
+For the actual licensing conditions you should read the file 'COPYING',
+which should be included in this source distribution.
+
+---------------------------------------------------------------
+| links
+-------------------------------------------------------------
+
+Program homepage:
+  http://home.wanadoo.nl/squell/id3.html
+
+---------------------------------------------------------------
+| contact: (pri.) squell@xms.ms, (alt.) squell@goth.net
+-------------------------------------------------------------
