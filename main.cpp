@@ -16,7 +16,7 @@
 #  include "setid3v2.h"
 #endif
 
-#define _version_ "0.74 (2004177)"
+#define _version_ "0.75-dev (2004177)"
 
 /*
 
@@ -57,8 +57,8 @@ struct verbose_t {
     {
         time = clock() - time;
         if(show) {
-            if(exitc!=0) printf("Errors were encountered\n");
-            if(exitc!=1) printf("(%.3fs) done\n", double(time) / CLOCKS_PER_SEC);
+            if(exitc!=0) fprintf(stderr, "Errors were encountered\n");
+            if(exitc!=1) fprintf(stderr, "(%.3fs) done\n", double(time) / CLOCKS_PER_SEC);
         }
     }
 
@@ -66,13 +66,13 @@ struct verbose_t {
     {
         if(show) {
             const char* sep = strrchr(s, '/');
-            printf("\t%s\n", sep?sep+1:s);
+            fprintf(stderr, "\t%s\n", sep?sep+1:s);
         }
     }
 
     void reportd(const char* s)                     // reporting a dir
     {
-        if(show && *s) printf("%s\n", s);
+        if(show && *s) fprintf(stderr, "%s\n", s);
     }
 } static verbose;
 
@@ -105,7 +105,8 @@ struct metadata :
 #ifndef NO_V2
    uses<ID3v2>,
 #endif
-   uses<ID3> //, uses<filename>
+   uses<ID3>,
+   uses<filename>
 { };
 
 /* ====================================================== */
@@ -121,6 +122,8 @@ struct safe {
 private:
     const vector<string>& vec;
 };
+
+/* ====================================================== */
 
 class mass_tag : filefindexp, public metadata {
     virtual void process();
@@ -173,7 +176,7 @@ static void help()
         " -y <year>\t"     "\n"
         " -g <genre>\t"    "\n"
         " -c <comment>\t"  "\n"
- //     " -f <filename>\t" "set filename\n"         disabled in 0.74
+        " -f <filename>\t" "set filename\n"
         " -v\t\t"          "give verbose output\n"
         " -V\t\t"          "print version info\n"
 #ifndef NO_V2
@@ -329,7 +332,7 @@ int main_(int argc, char *argv[])
             break;
 
         case set_rename:
-#if 0
+#if 1
             argpath(argv[i]);
             if(! with<filename>(tag).rename(argv[i]) ) {
                 eprintf("will not rename across directories\n");

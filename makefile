@@ -89,6 +89,7 @@ DISTFILES = INSTALL $(docdata) makefile makefile.dj makefile.bcc \
 	id3.man
 
 D_VER = `sed -n "/_version_/{s:[^0-9]*\([^ ]*\).*:\1:p;q;}" main.cpp`
+D_TMP = rm -rf .tmp; mkdir .tmp
 
 D_PKG = pkg=id3-$(D_VER); \
 	rm -f $${pkg}; \
@@ -111,19 +112,19 @@ dist-check:
 	  -e           's:^ \([^ ]*\).*:\1:p'; \
 	    echo $(DISTFILES)) | tr ' ' '\n' | sort | uniq -u` && \
 	echo "$${d}"; test -z "$${d}"
-        rm -rf .tmp; mkdir .tmp && ln $(DISTFILES) .tmp
+        $(D_TMP) && ln $(DISTFILES) .tmp
 	make -C .tmp all && mv .tmp/id3 .tmp/id3l `pwd`
 	-rm -rf .tmp
 	@echo all release checks okay
 
 dist-clean:
-        rm -rf .tmp; mkdir .tmp && ln $(DISTFILES) .tmp
+        $(D_TMP) && ln $(DISTFILES) .tmp
 	-rm -rf * 
 	mv .tmp/* `pwd`
 	-rm -rf .tmp
 
 diff:
-        rm -rf .tmp; mkdir .tmp && ln -s `pwd` .tmp/{current}
+        $(D_TMP) && ln -s `pwd` .tmp/{current}
 	tar Cxfz .tmp `pwd`.tar.gz
 	diff -x '.*' -durN .tmp/* | gzip -9 > `pwd`-$(D_VER).diff.gz
 	-rm -rf .tmp
@@ -131,7 +132,7 @@ diff:
 URL_PREFIX=http://home.wanadoo.nl/squell
 
 fetch-orig:
-	curl -O $(URL_PREFIX)/`curl $(URL_PREFIX)/id3.html 2> /dev/null | \
+	wget $(URL_PREFIX)/`wget -q -O - $(URL_PREFIX)/id3.html | \
 	  sed -n 's/^.*href="\([[:alnum:]/_.-]*[.]tar[.]gz\)".*$$/\1/p'`
 
 ## build rules #############################################################
