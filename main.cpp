@@ -18,7 +18,7 @@
 #    include "setid3v2.h"
 #endif
 
-#define _version_ "0.75-dev (2004177)"
+#define _version_ "0.75rc1 (2005034)"
 
 /*
 
@@ -358,6 +358,7 @@ int main_(int argc, char *argv[])
     char* opt  = "";                           // used for command stacking
     bool  scan = true;                         // check for no-file args
     bool  w    = false;                        // check against no-ops args
+    bool  ren  = false;                        // check for file renaming
     bool  ro   = false;                        // check for read-only ops
 
     for(int i=1; i < argc; i++) {
@@ -372,8 +373,10 @@ int main_(int argc, char *argv[])
                 scan = false;
                 if(w && !ro)                   // no-op check
                     apply(tag, argv[i], *source);
+                else if(ren && !ro)
+                    apply(with<filename>(tag), argv[i], *source);
                 else if(ro)                    // reading?
-                    if(!w) {
+                    if(!w && !ren) {
                         apply(display, argv[i], *source);
                     } else {
                         eprintf("incompatible operation requested\n");
@@ -479,7 +482,9 @@ int main_(int argc, char *argv[])
             } else {
                 argpath(argv[i]);
                 tag.enable<filename>()->rename(argv[i]);
-                break;
+                cmd = no_value;
+                ren = true;
+                continue;
             }
             shelp();
 

@@ -1,5 +1,8 @@
 Changelog for 'id3'.
 
+2005-034 (W26):                                ---------[v0.75]-----------
+  updated documentation
+
 2005-033 (W05):
   setid3[v2].cpp: setting genre by number now works through substituion
   setid3[v2].cpp: setting a dupe field won't override an earlier one anymore
