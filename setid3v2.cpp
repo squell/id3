@@ -14,6 +14,8 @@
 
 using namespace std;
 
+typedef std::map<std::string,std::string> db;
+
 /* ===================================== */
 
  // extra hairyness to prevent buffer overflows by re-allocating on the fly
@@ -24,16 +26,13 @@ struct w_ptr {
     char*         data;
 };
 
- // employs a 'hint' system. if 4kb extra isn't enough, it'll try 8kb,
- // then 16kb, etc. next time, it'll immediately try 16kb again, etc.
-
 char* put(char* dst, const char* ID, const void* src, size_t len, w_ptr& base)
 {
     static unsigned long factor = 0x1000;  // start reallocing in 4k blocks
 
     if(len+10 > base.avail) {
         while(len+10 > factor) factor *= 2;
-        int size   = dst-base.data;
+        int size   = dst - base.data;
         base.avail = factor;
         base.data  = (char*) realloc(base.data, size+factor);
         dst        = base.data + size;     // translate current pointer

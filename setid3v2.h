@@ -69,8 +69,7 @@ protected:
     virtual bool vmodify(const char*, const base_container&) const;
 
 private:
-    typedef std::map<std::string,std::string> db;
-    db mod2;
+    std::map<std::string,std::string> mod2;
 };
 
 #endif
