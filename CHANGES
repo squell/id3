@@ -173,19 +173,19 @@ Changelog for 'id3'.
 
 Todo list:
 
+  - Shorthand Wildcards (-m "%n. %t.mp3" == -n %1 -t %2 "*. *.mp3")
   - Conditional expressions
   - More things:
     + Support for Ogg Vorbis
     + Support for APEv2
     + Support for Lyrics3 v2.0 (?)
   - Internationalization (Unicode)
-    + Locale interaction
+    + Add support for UTF16 in ID3v2
     + Enable multibyte encodings for varexp (?)
+  - Cross-directory renaming/moving
   - Tag handling(/removal) for ID3v2 prior 3
-  - Fetch default data ("-j filename")
-  - Shorthand Wildcards ("%n. %t.mp3" == -n %1 -t %2 "*. *.mp3")
-  - Options for re-using existing tag values ("%a, %t ..")
   - Extend substitution capabilities (i/o? slice?)
+  - Fetch default data ("-j filename")
 
 Thanks go out to everybody who has responded with questions, suggestions,
 and bug reports!
