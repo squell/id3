@@ -89,10 +89,10 @@ namespace {
 
     // next function acts like a cast operator on the above
 
-    template<class T> inline T* with(T& obj)                   { return &obj; }
-    template<class T> inline T* with(uses<T>& box)             { return &box.object; }
-    template<class T> inline const T* with(const T& obj)       { return &obj; }
-    template<class T> inline const T* with(const uses<T>& box) { return &box.object; }
+    template<class T> inline T& with(T& obj)                   { return obj; }
+    template<class T> inline T& with(uses<T>& box)             { return box.object; }
+    template<class T> inline const T& with(const T& obj)       { return obj; }
+    template<class T> inline const T& with(const uses<T>& box) { return box.object; }
 }
 
 #ifdef __ZF_SETID3V2
@@ -116,8 +116,8 @@ public:
     mass_tag() : edir(false) { }
     void operator()(const char* spec);
 
-    template<class Tag> single_tag* enable()
-    { return &with<Tag>(*this)->active(true); }
+    template<class Tag> single_tag& enable()
+    { return with<Tag>(*this).active(true); }
 };
 
 void mass_tag::entered()
@@ -284,10 +284,10 @@ int main_(int argc, char *argv[])
                     opt = "";
                     break;
                 case '1':
-                    chosen = tag.enable<ID3>();
+                    chosen = &tag.enable<ID3>();
                     break;
                 case '2':
-                    chosen = tag.enable<ID3v2>();
+                    chosen = &tag.enable<ID3v2>();
                     break;
 #endif
                 case 'h': help(argv[0]);
@@ -310,12 +310,12 @@ int main_(int argc, char *argv[])
 
         case set_rename:
             argpath(argv[i]);
-            if(! with<filename>(tag)->rename(argv[i]) ) {
+            if(! with<filename>(tag).rename(argv[i]) ) {
                 fprintf(err(), "id3: cannot rename across directories\n");
                 shelp();
             }
             if(!chosen)
-                chosen = with<filename>(tag);
+                chosen = &with<filename>(tag);
             break;
 
 #ifdef __ZF_SETID3V2
