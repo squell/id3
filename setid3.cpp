@@ -90,8 +90,11 @@ string smartID3::edit(string s, const base_container& v)
                 s.erase(pos, n);
                 break;
             case ':': s.erase(pos, 1); s[pos++] = '\0'; break;
-            case 'R': s.erase(pos, 1); s[pos++] = '\r'; break;
+#ifdef NO_CRLF
             case 'N': s.erase(pos, 1); s[pos++] = '\n'; break;
+#else
+            case 'N': s[pos++] = '\r'; s[pos++] = '\n'; break;
+#endif
             case VAR: s.erase(pos, 1); pos++;           break; // "%%" -> "%"
             case '_': und = true; ++n; continue;
             case 'C': cap = true; ++n; continue;

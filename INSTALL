@@ -91,6 +91,10 @@ to CFLAGS in your makefile) if you would like to start counting wildcards
 in the commandline parameters at 0 instead of 1, making the range %0..%9 map
 to the 1st .. 10th wildcard (instead of having %0 match the 10th wildcard)
 
+Also in setid3.cpp: %n emits a CR/LF pair, to conform to Winamp behaviour,
+even though ID3v2 documents mandate LF only. #define NO_CRLF or add -DNO_CRLF
+to CFLAGS if you want strict behaviour.
+
 If you, for some reason, happen to dislike having '%' as a special character,
 you can replace it with whatever you want by changing the 'VAR' constant
 in the definition of smartID3 in setid3.h.
