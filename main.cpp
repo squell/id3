@@ -72,14 +72,19 @@ struct write_mp3s : take_action {
     { return tag.modify(path, vars); }
 };
 
+#ifdef __ZF_SETID3V2
 #include "id3_scm.h"
 
 struct view_mp3s : take_action {
-    mutable id3_scheme prn;
+    id3_print& prn;
+
+    view_mp3s(id3_print& prn) : prn(prn) { }
 
     bool operator()(const char* path, varexp&) const
     { return prn(path), true; }
 };
+
+#endif
 
 /* ====================================================== */
 

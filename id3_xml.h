@@ -18,8 +18,8 @@
 #include "id3v2.h"
 
 struct id3_xml : id3_print {
-      id3_xml();
-     ~id3_xml();
+     void before(void);
+     void after (void);
 
      void file_beg(const char *fname);
      void file_end(void);
@@ -28,11 +28,11 @@ struct id3_xml : id3_print {
      void unparse_v2(void *src);
 };
 
-inline id3_xml::id3_xml()
+inline void id3_xml::before(void)
 {   std::printf("<?xml version=\"1.0\" encoding=\"ISO-8859-1\" ?>\n");
     std::printf("<Directory>\n");   }
 
-inline id3_xml::~id3_xml()
+inline void id3_xml::after(void)
 {   std::printf("</Directory>\n"); }
 
 inline void id3_xml::file_beg(const char *fname)

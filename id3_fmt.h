@@ -17,7 +17,10 @@
 struct id3_print {
      virtual ~id3_print()                    { }
 
-     int operator()(const char *fname);
+     id3_print& operator()(const char *fname);
+
+     virtual void before(void)               { }
+     virtual void after (void)               { }
 
      virtual void file_beg(const char *)     { }
      virtual void file_end(void)             { }

@@ -16,13 +16,11 @@
 
 #include "id3_fmt.h"
 
-int id3_print::operator()(const char *fname)
+id3_print& id3_print::operator()(const char *fname)
 {
     struct ID3v1 tag = { { 0 } };
     FILE *f   = fopen(fname, "rb");
     void *src;
-
-    if(!f) return 0;
 
     file_beg(fname);
 
@@ -40,6 +38,6 @@ int id3_print::operator()(const char *fname)
     }
 
     file_end();
-    return 1;
+    return *this;
 }
 

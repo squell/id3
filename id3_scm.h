@@ -19,8 +19,8 @@
 #include "id3v2.h"
 
 struct id3_scheme : id3_print {
-      id3_scheme()                    { std::printf("(define directory '("); }
-     ~id3_scheme()                    { std::printf("))\n"); }
+     void before(void)                { std::printf("(define directory '("); }
+     void after (void)                { std::printf("))\n"); }
 
      void file_beg(const char *fname) { std::printf("\n(\"%s\"", fname); }
      void file_end(void)              { std::printf(")"); }
