@@ -89,22 +89,11 @@ string smartID3::edit(string s, const base_container& v)
             default:
                 s.erase(pos, n);
                 break;
-            case ':':
-                s.erase(pos, 1);
-                s[pos++] = '\0';
-                break;
-            case VAR:       // "%%" -> "%"
-                s.erase(pos, 1);
-                ++pos;
-                break;
-            case '_':
-                und = true;
-                ++n;
-                continue;
-            case 'C':
-                cap = true;
-                ++n;
-                continue;
+            case ':': s.erase(pos, 1); s[pos++] = '\0'; break;
+            case 'n': s.erase(pos, 1); s[pos++] = '\n'; break;
+            case VAR: s.erase(pos, 1); pos++;           break; // "%%" -> "%"
+            case '_': und = true; ++n; continue;
+            case 'C': cap = true; ++n; continue;
             case '0':
 #if !ZERO_BASED
                 c += 10;      // so it'll turn up as 9 when we subtract '1'

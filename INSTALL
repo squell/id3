@@ -90,6 +90,10 @@ to CFLAGS in your makefile) if you would like to start counting wildcards
 in the commandline parameters at 0 instead of 1, making the range %0..%9 map
 to the 1st .. 10th wildcard (instead of having %0 match the 10th wildcard)
 
+If you, for some reason, happen to dislike having '%' as a special character,
+you can replace it with whatever you want by changing the 'VAR' constant
+in the definition of smartID3 in setid3.h.
+
 ---------------------------------------------------------------
 | links
 -------------------------------------------------------------

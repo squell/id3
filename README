@@ -77,8 +77,10 @@ _>\/| |(_)|_)_>\/_>
 
        -wFRAME data
             add  / update a frame named `FRAME' with raw `data'.
-            For  experts  only.  `data' is NOT checked or parsed
-            for semantic correctness or conformance. See above.
+            For  experts  only. Substitutions are performed, but
+            `data'   is  NOT  checked  or  parsed  for  semantic
+            correctness  or  conformance.  You're  on  your own.
+            Again, consult the format documentation.
 
  _   |_  __|_o_|_  _|_o _ ._
 _>|_||_)_> |_| |_|_||_|(_)| |
@@ -99,10 +101,13 @@ _>|_||_)_> |_| |_|_||_|(_)| |
             c    Capitalize the substituted value
             _    Do not replace underscores with spaces
 
-      `%:'  replaced  with  the  null (`\0') character (intended
-            for use with -wFRAME on ID3v2 tags)
-
       `%%'  replaced with a single `%'.
+
+      `%n'  replaced with the newline ('\n') character
+            (intended for use with -wFRAME)
+
+      `%:'  replaced with the null (`\0') character
+            (intended for use with -wFRAME)
 
  _    _.._ _ ._ | _  _
 (/_><(_|| | ||_)|(/__>
@@ -114,14 +119,16 @@ _>|_||_)_> |_| |_|_||_|(_)| |
        $ id3 -d *.mp3
             Removes all tags from all mp3's.
 
-       $ id3 -2 -dAPIC *.mp3
-            Removes all embedded pictures from all mp3 files.
-
        $ id3 -a "TAFKAT" -n "%1" -t "%c2" "*. *.mp3"
             Sets id3 fields in correspondence with the files:
              01. my_song.mp3  [=>] "01" "My Song"
-             02. untitled.mp3 [=>] "02" "Untitled"
-            etc.
+             02. untitled.mp3 [=>] "02" "Untitled"    etc..
+
+       $ id3 -2 -dAPIC *.mp3
+            Removes all embedded pictures from all mp3 files.
+
+       $ id3 -2 -wUSLT "%:englyrics%:foo, bar%nlalala!%n" blaet.mp3
+            Adds an ID3v2 lyric frame to blaet.mp3.
 
 ._  __|_ _  _
 | |(_)|_(/__>
@@ -153,7 +160,7 @@ _>|_||_)_> |_| |_|_||_|(_)| |
 
        ID3v2  goes  way  beyond the demands of simple meta-data,
        and  tries  to  support embedding general purpose data in
-       places where it shouldn't be. Do not use it for this.
+       places where it shouldn't be. Do not use it this way.
 
  _ _ ._ _ ._  _._|_o|_ o|o_|_
 (_(_)| | ||_)(_| |_||_)||| |_\/
