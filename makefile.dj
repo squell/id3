@@ -20,6 +20,9 @@ clean:
 	del id3l
 	del id3l.exe
 
+zip:
+	pkzip -exP distrib * debian/*
+
 ############################################################################
 
 id3.exe: main.o sedit.o varexp.o ffindexp.o charconv.o \
