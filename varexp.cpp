@@ -4,7 +4,7 @@
 
 /*
 
-  (c) 2003 squell ^ zero functionality!
+  (c) 2003,2004 squell ^ zero functionality!
   see the file 'COPYING' for license conditions
 
   an adapted version of a smaller, simpler wildcard match routine to
@@ -51,6 +51,7 @@ bool varexp::match(const char* mask, const char* test)
 
  /*
      auxilliary code to detect character ranges in expressions
+     uses plain value comparison to detect ranges
  */
 
 int varexp::in_set(char c, const char* set, const char* test)

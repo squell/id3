@@ -89,13 +89,13 @@ conjunction with this, all selected tags will be removed.
 .br
 .BI \-l " album
 .br
+.BI \-n " tracknr
+.br
 .BI \-y " year
 .br
 .BI \-c " comment
 .br
 .BI \-g " genre
-.br
-.BI \-n " tracknr
 .IP
 add/replace the specified fields with the values given. Field values are
 scanned for substitution commands, see
@@ -227,7 +227,7 @@ ID3v2 v4.0 (yet?). It also does not support ID3v2 features as compression,
 encryption, ...
 
 .SH AUTHOR
-Written by squell ^ zf!
+Written by M. Roland Schoolderman (squell ^ zf!)
 
 .SH COPYRIGHT
 This is free software; see the source for copying conditions. There is NO

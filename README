@@ -64,10 +64,10 @@ _>\/| |(_)|_)_>\/_>
        -t "title"
        -a "artist"
        -l "album"
+       -n "tracknr"
        -y "year"
        -c "comment"
        -g "genre"
-       -n "tracknr"
             add/replace  the  specified  fields  with the values
             given.  Field  values  are  scanned for substitution
             commands, see `SUBSTITUTION' below.
