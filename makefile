@@ -1,12 +1,14 @@
-## generic unix id3 makefile ###############################################
+## generic GNU makefile ####################################################
 
-CC     = gcc
-CFLAGS = -g -O2
+CC	 = gcc
+CFLAGS	 = -g -O2
+
+CXX	 = g++
 
 ############################################################################
 
 id3: main.o setid3.o varexp.o id3v1.o
-	$(CC) $(CFLAGS) -o $@ $+
+	$(CXX) -o $@ $+
 
 final: id3
 	strip $<
@@ -20,9 +22,13 @@ dist :	main.cpp varexp.cpp varexp.h setid3.cpp setid3.h \
 clean:
 	rm *.o id3
 
+############################################################################
+
+main.o: main.cpp setid3.h varexp.h id3v1.h
+	$(CC) $(CFLAGS) -c $<
+
 %.o  : %.cpp %.h
 	$(CC) $(CFLAGS) -c $<
 
-%.o  : %.c %.h
-	$(CC) $(CFLAGS) -c $<
+############################################################################
 

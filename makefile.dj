@@ -1,12 +1,12 @@
 ## id3 makefile for DJGPP v2 ###############################################
 
-CC     = gxx
-CFLAGS = -g -O2
+CC	 = gxx
+CFLAGS	 = -g -O2
 
 ############################################################################
 
 id3: main.o setid3.o varexp.o id3v1.o
-	$(CC) $(CFLAGS) -o $@ $+
+	$(CC) -o $@ $+
 
 final: id3
 	upx --best -f -oID3.EXE $<
@@ -24,9 +24,13 @@ clean:
 	del id3
 	del id3.exe
 
+############################################################################
+
+main.o: main.cpp setid3.h varexp.h id3v1.h
+	$(CC) $(CFLAGS) -c $<
+
 %.o  : %.cpp %.h
 	$(CC) $(CFLAGS) -c $<
 
-%.o  : %.c %.h
-	$(CC) $(CFLAGS) -c $<
+############################################################################
 
