@@ -1,11 +1,11 @@
 
-       id3 - a commandline ID3 mass tagger     _)      | __ /
-                                                |   _` |  _ \
-                                               _| \__,_| ___/
+       id3 - a commandline ID3 mass tagger        _)      | __ /
+                                                   |   _` |  _ \
+                                                  _| \__,_| ___/
  _  ._  _ ._  _   _
 _>\/| |(_)|_)_>\/_>
 ~~/~~~~~~~|~~~~/~~~
-        id3 [-12] [-d] [-t title] [-a artist] [-g genre]
+       id3 [-12] [-d] [-t title] [-a artist] [-g genre]
         [-n tracknr] [-l album] [-y year] [-c comment]
         [-dFRAME] [-wFRAME data] [ "filespec" ... ]
 
