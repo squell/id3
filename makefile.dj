@@ -1,5 +1,9 @@
+## id3 makefile for DJGPP v2 ###############################################
+
 CC     = gxx
 CFLAGS = -g -O2
+
+############################################################################
 
 id3: main.o setid3.o varexp.o id3v1.o
 	$(CC) $(CFLAGS) -o $@ $+
@@ -24,8 +28,5 @@ clean:
 	$(CC) $(CFLAGS) -c $<
 
 %.o  : %.c %.h
-	$(CC) $(CFLAGS) -c $<
-
-main.o: main.cpp varexp.h setid3.h
 	$(CC) $(CFLAGS) -c $<
 
