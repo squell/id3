@@ -110,6 +110,16 @@ struct metadata :
 
 /* ====================================================== */
 
+struct safe {
+    vector<string>& vec;
+    safe(vector<string>& v) : vec(v) { }
+    string operator[](size_t i) const
+    {   if(i >= vec.size())
+            throw out_of_range("variable index out of range");
+        return vec[i];
+    }
+};
+
 class mass_tag : filefindexp, public metadata {
     virtual void process();
     virtual void entered();
@@ -132,7 +142,7 @@ void mass_tag::entered()
 void mass_tag::process()
 {
     verbose.reportf(path);
-    if(! modify(path, var) )
+    if(! modify(path, safe(var)) )
         return (void) eprintf("could not edit tag in %s\n", path);
 }
 
@@ -295,7 +305,7 @@ int main_(int argc, char *argv[])
                         opt = "";
                         break;
                     }
-                    eprintf("specify tag before -%c\n", opt[-1]);
+                    eprintf("specify tag format before -%c\n", opt[-1]);
                     shelp();
 #endif
                 case 'h': help();
@@ -327,7 +337,7 @@ int main_(int argc, char *argv[])
                 chosen = &with<filename>(tag);
             break;
 #else
-            eprintf("%s: argument ignored", argv[i]);
+            eprintf("%s: argument ignored\n", argv[i]);
             cmd = no_value;
             continue;
 #endif
