@@ -183,6 +183,6 @@ cvtstring string_parm::edit(const cvtstring& fmt, const subst& var, const char* 
 
     }
 
-    return cvtstring::latin1(err&&atomic?"":s);
+    return !(err&&atomic)? cvtstring::latin1(s) : cvtstring();
 }
 
