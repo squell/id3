@@ -63,8 +63,8 @@ namespace {
    // - delegates it into a most-derived-shared combined object
 
     template<class T> struct uses : virtual set_tag::combined {
-        uses(bool on = false) : object(on)
-        { delegate(object); }
+        uses(bool on = false)
+        { delegate(object.active(false)); }
 
         T object;
     };
