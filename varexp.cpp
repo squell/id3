@@ -42,7 +42,7 @@ bool varexp::match(const char* mask, const char* test)
         }
     } while(c);
 
-    if(m) {
+    if(m != '\0') {
        vars = _vars;
        varl = _varl;
        return 0;
