@@ -2,7 +2,7 @@
 
   Simple wildcard matching with pattern matching
 
-  (c) 2003 squell ^ zero functionality!
+  (c) 2003,2004 squell ^ zero functionality!
   see the file 'COPYING' for license conditions
 
   Usage:
@@ -46,11 +46,14 @@
 #include <vector>
 #include <string>
 #include <stdexcept>
+#include <iterator>
 
 class varexp {
 public:
     varexp(const char* mask, const char* test) : vars(), varl()
     { result = match(mask,test); };
+    varexp() : vars(), varl()
+    { result = 0; }
 
     operator bool() const
     { return result; }
@@ -62,7 +65,11 @@ public:
 
     char* cpy(char* dest, unsigned idx) const;
 
-private:
+    class iterator;
+    iterator begin() const;
+    iterator end() const;
+
+protected:
     std::vector<const char*> vars;   // string portion indexes
     std::vector<int>         varl;   // string portion lengths
     bool                     result;
@@ -82,6 +89,41 @@ inline std::string varexp::operator[](unsigned idx) const
 inline char* varexp::cpy(char* dest, unsigned idx) const
 {
     return std::strncpy(dest, vars[idx], varl[idx] );
+}
+
+class varexp::iterator {
+    friend class varexp;
+    typedef std::vector<const char*>::const_iterator vars_ptr;
+    typedef std::vector<int>::const_iterator         varl_ptr;
+
+    vars_ptr s;
+    varl_ptr l;
+
+    iterator(vars_ptr is, varl_ptr il)
+    : s(is), l(il) { }
+public:
+    std::string operator*()                { return std::string(*s, *l); }
+    bool operator==(const iterator& other) { return s == other.s; }
+    bool operator!=(const iterator& other) { return s != other.s; }
+    iterator& operator++()                 { return ++s, ++l, *this; }
+    iterator  operator++(int)              { iterator tmp(*this);
+                                             return ++s, ++l, tmp; }
+
+    typedef std::input_iterator_tag           iterator_category;
+    typedef std::string                       value_type;
+    typedef std::vector<int>::difference_type difference_type;
+    typedef const std::string*                pointer;
+    typedef const std::string&                reference;
+};
+
+inline varexp::iterator varexp::begin() const
+{
+    return iterator(vars.begin(), varl.begin());
+}
+
+inline varexp::iterator varexp::end() const
+{
+    return iterator(vars.end(), varl.end());
 }
 
 #endif
