@@ -23,15 +23,16 @@
 #ifndef __ZF_SETFNAME
 #define __ZF_SETFNAME
 
+#include <string>
 #include "set_base.h"
 
 namespace set_tag {
 
 class filename : public single_tag {
-    const char* ftemplate;
+    std::string ftemplate;
 public:
-    bool rename(const char* fname)
-    { return ftemplate=(*fname? fname : 0); }
+    filename& rename(const char* fname)
+    { ftemplate=fname; return *this; }
 
     virtual bool vmodify(const char*, const subst&) const;
 

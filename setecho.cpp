@@ -14,9 +14,7 @@ namespace set_tag {
 
 bool echo::vmodify(const char* fname, const subst& v) const
 {
-    if(fmt)
-        log( edit(fmt, v) );
-    return fmt;
+    return log( edit(fmt, v) ), true;
 }
 
 void echo::log(const cvtstring& msg) const

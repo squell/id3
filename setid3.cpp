@@ -127,32 +127,32 @@ bool ID3::vmodify(const char* fn, const subst& v) const
 
         if( fresh ) tag = synth_tag;
 
-        const char* txt;                      // reading aid
+        const string *txt;                    // reading aid
         int n = 0;                            // count number of set fields
 
         if(txt = mod[title])
-            ++n, strncpy(tag.title,  edit(txt,v).latin1().c_str(), sizeof tag.title);
+            ++n, strncpy(tag.title,  edit(*txt,v).latin1().c_str(), sizeof tag.title);
 
         if(txt = mod[artist])
-            ++n, strncpy(tag.artist, edit(txt,v).latin1().c_str(), sizeof tag.artist);
+            ++n, strncpy(tag.artist, edit(*txt,v).latin1().c_str(), sizeof tag.artist);
 
         if(txt = mod[album])
-            ++n, strncpy(tag.album,  edit(txt,v).latin1().c_str(), sizeof tag.album);
+            ++n, strncpy(tag.album,  edit(*txt,v).latin1().c_str(), sizeof tag.album);
 
         if(txt = mod[year])
-            ++n, strncpy(tag.year,   edit(txt,v).latin1().c_str(), sizeof tag.year);
+            ++n, strncpy(tag.year,   edit(*txt,v).latin1().c_str(), sizeof tag.year);
 
         if(txt = mod[cmnt]) {
-            ++n, strncpy(tag.cmnt,   edit(txt,v).latin1().c_str(), sizeof tag.cmnt);
+            ++n, strncpy(tag.cmnt,   edit(*txt,v).latin1().c_str(), sizeof tag.cmnt);
             if(tag.zero != '\0')
                 tag.track = tag.zero = 0;               // ID3 v1.0 -> v1.1
         }
         if(txt = mod[track]) {
-            ++n, tag.track = atoi( edit(txt,v).latin1().c_str() );
+            ++n, tag.track = atoi( edit(*txt,v).latin1().c_str() );
             tag.zero = '\0';
         }
         if(txt = mod[genre]) {
-            string          s = capitalize(edit(txt,v).latin1());
+            string          s = capitalize(edit(*txt,v).latin1());
             unsigned int    x = atoi(s.c_str()) - 1;
             genre_map::iter g = ID3_genre.find(s);
             tag.genre = (s.empty() || g==ID3_genre.end()? x : g->second);

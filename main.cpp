@@ -9,6 +9,7 @@
 #include <string>
 #include "ffindexp.h"
 
+#include "sedit.h"
 #include "set_base.h"
 #include "setid3.h"
 #include "setfname.h"
@@ -17,7 +18,7 @@
 #    include "setid3v2.h"
 #endif
 
-#define _version_ "0.75 (2005034)"
+#define _version_ "0.76-dev (2005xxx)"
 
 /*
 
@@ -63,8 +64,8 @@ namespace {
    // - delegates it into a most-derived-shared combined object
 
     template<class T> struct uses : virtual set_tag::combined {
-        uses(bool on = false)
-        { delegate(object.active(false)); }
+        uses()
+        { delegate( object.active(false) ); }
 
         T object;
     };
@@ -87,6 +88,36 @@ struct metadata :
     template<class Tag> Tag* enable()
     { return (Tag*) &with<Tag>(*this).active(true); }
 };
+
+/* ====================================================== */
+
+ // one single map from chars <-> ID3field
+
+namespace {
+
+    static set_tag::ID3field char_as_ID3field(char c)
+    {
+         switch(c) {
+         case 't': return set_tag::title;
+         case 'a': return set_tag::artist;
+         case 'l': return set_tag::album;
+         case 'y': return set_tag::year;
+         case 'c': return set_tag::cmnt;
+         case 'n': return set_tag::track;
+         case 'g': return set_tag::genre;
+         default : return set_tag::FIELDS;
+         }
+    }
+
+    const char ID3field_as_char[] = "talycng";
+
+    inline static char* ID3field_as_asciiz(int i)
+    {
+        static char fmt[] = "%_";
+        fmt[1] = ID3field_as_char[i];
+        return fmt;         
+    }
+}
 
 /* ====================================================== */
 
@@ -139,29 +170,28 @@ public:
     cvtstring operator[](char field) const;
 };
 
-cvtstring substvars::operator[](char field) const
+cvtstring substvars::operator[](char c) const
 {
-    switch( field ) {
-    case 't': return (*data)[set_tag::title];
-    case 'a': return (*data)[set_tag::artist];
-    case 'l': return (*data)[set_tag::album];
-    case 'y': return (*data)[set_tag::year];
-    case 'c': return (*data)[set_tag::cmnt];
-    case 'n': return (*data)[set_tag::track];
-    case 'g': return (*data)[set_tag::genre];
-    case 'f': if(const char* p = strrchr(data.filename,'/'))
-                  return cvtstring::local(p+1);
-              else
-                  return cvtstring::local(data.filename);
-    case 'x': {
-            counter = (counter+1) & 0xFFFF;
-            char buf[11];
-            sprintf(buf, "%u", counter);
-            return cvtstring::latin1(buf);
-        }
+    switch( c ) {
+        set_tag::ID3field i;
+        char buf[11];
+    default:
+        i = char_as_ID3field(c);
+        if(i < set_tag::FIELDS)
+            return (*data)[i];
+        break;
+    case 'x':
+        counter = (counter+1) & 0xFFFF;
+        sprintf(buf, "%u", counter);
+        return cvtstring::latin1(buf);
+    case 'f':
+        if(const char* p = strrchr(data.filename,'/'))
+              return cvtstring::local(p+1);
+          else
+              return cvtstring::local(data.filename);
     };
-    static char error[] = "unknown variable %_";
-    error[sizeof error-2] = field;
+    static char error[]   = "unknown variable %_";
+    error[sizeof error-2] = c;
     throw set_tag::failure(error);
 }
 
@@ -297,25 +327,69 @@ static void defaults(metadata& tag, set_tag::handler*& target, set_tag::provider
 }
 
 namespace {
-    enum parm_t {                          // parameter modes
-        no_value, force_fn,
-        stdfield, customfield, suggest_size,
-        set_rename, set_query,
-    };
 
     enum oper_t {                          // state information
-        scan = 1,                          // checking for no-file args?
-        w    = 2,                          // write  requested?
-        ren  = 4,                          // rename requested?
-        ro   = 8,                          // read   requested?
+        no_op  = 0,
+        scan   = 1,                        // checking for no-file args?
+        w      = 2,                        // write  requested?
+        ren    = 4,                        // rename requested?
+        rdonly = 8,                        // read   requested?
     };
 
   // reading aids
 
-    oper_t& operator+=(oper_t& x, int y) { return x = oper_t(x|y);  }
-    oper_t& operator-=(oper_t& x, int y) { return x = oper_t(x&~y); }
-    oper_t& operator^=(oper_t& x, int y) { return x = oper_t(x^y);  }
     oper_t  operator% (oper_t x,  int y) { return oper_t(x & y);    }
+    oper_t& add(oper_t& x, oper_t y)     { return x = oper_t(x|y);  }
+    oper_t& rem(oper_t& x, int y)        { return x = oper_t(x&~y); }
+
+  // helper for pattern()
+
+    struct asterisk {
+        mutable string opt;
+        const char* operator[](char c) const
+        { return opt.push_back(c), "*"; }
+    };
+}
+
+ // "inside out" way of specifying what you want.
+ // - kind of lazy. but hey long live code reuse :)
+
+static oper_t pattern(metadata& tag, char*& arg)
+{
+    oper_t state   = no_op;
+    string pattern = arg;
+    char match[]   = "%0";
+
+    string::size_type pos;                           // replace * with stubs
+    while((pos=pattern.find('*',pos)) != string::npos)
+        pattern.replace(pos, 1, match);
+
+    asterisk dummy;                                  // do a little magic
+    const string& fnspec = sedit(pattern, dummy, dummy);
+    if(dummy.opt.size() > 9) {
+        eprintf("too many variables in pattern");
+        shelp();
+    }
+
+    for(string::iterator p = dummy.opt.begin(); p != dummy.opt.end(); ++p) {
+        ++match[1];
+        ID3field field = char_as_ID3field(*p);
+        if(field < set_tag::FIELDS) {
+            tag.set(field, match);
+            add(state, w);
+        } else if(*p == 'f') {
+            tag.enable<filename>()->rename(match);
+            add(state, ren);
+        } else if(*p == 'x') {
+                                                     // pass over in silence
+        } else {
+            eprintf("unrecognized variable: %%%c\n", *p);
+            shelp();
+        }
+    }
+
+    strcpy(arg, fnspec.c_str());
+    return state;
 }
 
 int main_(int argc, char *argv[])
@@ -330,25 +404,31 @@ int main_(int argc, char *argv[])
     set_tag::provider* source = 0;             // pointer to first enabled
     set_tag::handler*  chosen = 0;             // pointer to last enabled
 
-    char*  opt   = "";                         // used for command stacking
+    enum parm_t {                              // parameter modes
+        no_value, force_fn, pattern_fn,
+        stdfield, customfield, suggest_size,
+        set_rename, set_query,
+    };
+
     parm_t cmd   = no_value;
     oper_t state = scan;
+    char*  opt   = "";                         // used for command stacking
 
     for(int i=1; i < argc; i++) {
-        switch( cmd ) {
-        case no_value:                         // process a command parameter
+        switch( cmd ) {                        
+        case no_value:                         // process a command argument
             if(*opt != '\0') --i; else
                 if(argv[i][0] == '-' && scan) opt = argv[i]+1;
             if(*opt == '\0') {
-        case force_fn:
+        case force_fn:                         // argument is filespec
                 defaults(tag, chosen, source);
                 argpath(argv[i]);
-                state -= scan;
-                if(state%(w|ro) == w)          // no-op check
+                rem(state, scan);
+                if(state%(w|rdonly) == w)      // no-op check
                     apply(tag, argv[i], *source);
-                else if(state%(ren|ro) == ren)
+                else if(state%(ren|rdonly) == ren)
                     apply(with<filename>(tag), argv[i], *source);
-                else if(state == ro)
+                else if(state == rdonly)
                     apply(display, argv[i], *source);
                 else if(!state)
                     eprintf("nothing to do with %s\n", argv[i]);
@@ -357,18 +437,20 @@ int main_(int argc, char *argv[])
                     shelp();
                 }
             } else {
-                switch( *opt++ ) {             // param is an option
+                switch( *opt++ ) {             // argument is a switch
                 case 'v': verbose.on(); break;
-                case 'd': tag.clear(); state += w; break;
-                case 't': field = set_tag::title;  cmd = stdfield; break;
-                case 'a': field = set_tag::artist; cmd = stdfield; break;
-                case 'l': field = set_tag::album;  cmd = stdfield; break;
-                case 'y': field = set_tag::year;   cmd = stdfield; break;
-                case 'c': field = set_tag::cmnt;   cmd = stdfield; break;
-                case 'g': field = set_tag::genre;  cmd = stdfield; break;
-                case 'n': field = set_tag::track;  cmd = stdfield; break;
+                case 'm': cmd = pattern_fn; break;
                 case 'f': cmd = set_rename; break;
                 case 'q': cmd = set_query;  break;
+                case 'd': tag.clear(); add(state, w); break;
+                case 't':
+                case 'a':
+                case 'l':
+                case 'y':
+                case 'c':
+                case 'g':
+                case 'n':
+                    field = char_as_ID3field(opt[-1]); cmd = stdfield; break;
 #ifndef NO_V2
                 case '1':
                     chosen = tag.enable<ID3>();
@@ -379,7 +461,7 @@ int main_(int argc, char *argv[])
                     if(!source) source = &with<ID3v2>(tag);
                     break;
 
-                case 's':                      // tag specific options
+                case 's':                      // tag specific switches
                     if(chosen) {
                         cmd = suggest_size; break;
                     }
@@ -391,21 +473,16 @@ int main_(int argc, char *argv[])
                     }
                 case 'r':
                     if(chosen) {
-                        chosen->rm(opt); state += w;
+                        chosen->rm(opt); add(state, w);
                         opt = "";
                         break;
                     }
 #endif
                 case '!':
                     if(chosen) {
-                        chosen->set(set_tag::title,  "%t");
-                        chosen->set(set_tag::artist, "%a");
-                        chosen->set(set_tag::album,  "%l");
-                        chosen->set(set_tag::year,   "%y");
-                        chosen->set(set_tag::cmnt,   "%c");
-                        chosen->set(set_tag::genre,  "%g");
-                        chosen->set(set_tag::track,  "%n");
-                        state += w;
+                        for(int i = 0; i < set_tag::FIELDS; ++i)
+                            chosen->set(ID3field(i), ID3field_as_asciiz(i));
+                        add(state, w);
                         break;
                     }
 
@@ -444,7 +521,12 @@ int main_(int argc, char *argv[])
             }
             break;
 #endif
-        case set_rename:
+        case pattern_fn:                       // filename pattern shorthand
+            add(state, pattern(tag, argv[i--]));
+            cmd = force_fn;
+            continue;
+
+        case set_rename:                       // specify rename format
             if(strrchr(argv[i],'/')) {
                 eprintf("will not rename across directories\n");
             } else if(*argv[i] == '\0') {
@@ -452,24 +534,24 @@ int main_(int argc, char *argv[])
             } else {
                 argpath(argv[i]);
                 tag.enable<filename>()->rename(argv[i]);
+                add(state, ren);
                 cmd = no_value;
-                state += ren;
                 continue;
             }
             shelp();
 
-        case set_query:
+        case set_query:                        // specify echo format
             if(*argv[i] == '\0') {
                 eprintf("empty format string rejected\n");
                 shelp();
             } else
                 display.format(argv[i]);
+            add(state, rdonly);
             cmd = no_value;
-            state += ro;
             continue;
         };
+        add(state, w);                         // set operation done flag
         cmd = no_value;
-        state += w;                            // set operation done flag
     }
 
     if(state % scan)

@@ -41,10 +41,6 @@
 namespace set_tag {
 
 class ID3v2 : public single_tag, public provider {
-    std::map<std::string,std::string> mod;
-    size_t resize;
-    bool fresh;
-
 public:
     ID3v2() : mod(), fresh(false), resize(0)
     { }
@@ -60,6 +56,11 @@ public:
 
     bool set(std::string field, std::string s); // set ID3v2 frame
     bool rm(std::string field);                 // remove ID3v2 frame
+
+private:
+    std::map<std::string,std::string> mod;
+    size_t resize;
+    bool fresh;
 };
 
 }

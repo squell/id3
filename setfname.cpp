@@ -32,7 +32,7 @@ namespace {
 
 bool filename::vmodify(const char* fname, const subst& v) const
 {
-    if(!ftemplate)
+    if(ftemplate.empty())
         return false;
 
     string name = edit(ftemplate, v, "Unknown").local();

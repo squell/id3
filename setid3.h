@@ -25,16 +25,14 @@
 #define __ZF_SETID3
 
 #include <string>
-#include <vector>
+#include <utility>
 #include "set_base.h"
 
 namespace set_tag {
 
 class ID3 : public single_tag, public provider {
-    std::vector<const char*> mod;    // modification data
-    bool fresh;                      // should vmodify clear existing tag?
 public:
-    ID3() : mod(FIELDS,(char*)0), fresh(false)
+    ID3() : mod(), fresh(false)
     { }
 
     bool    vmodify(const char*, const subst&) const;
@@ -47,6 +45,14 @@ public:
 
     ID3& clear()
     { fresh = true; return *this; }
+
+private:
+    struct pair : public std::pair<std::string, bool> {
+        void operator=(const char* p)       { first = p, second = true;  }
+        operator const std::string*() const { return second? &first : 0; }
+    };
+    pair mod[FIELDS];                // modification data
+    bool fresh;                      // should vmodify clear existing tag?
 };
 
 }

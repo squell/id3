@@ -2,6 +2,7 @@ Changelog for 'id3'.
 
 2005-035 (W26):
   code cleanup.
+  setid3.h: now owns the data it receives trough 'set'.
 
 2005-034 (W26):                                ---------[v0.75]-----------
   updated documentation

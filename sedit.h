@@ -49,9 +49,9 @@
 extern std::string capitalize(std::string s);
 
 template<class T>
-  inline std::string sedit(const char*, const T&);
+  inline std::string sedit(const std::string&, const T&);
 template<class T, class U>
-  inline std::string sedit(const char*, const T&, const U&);
+  inline std::string sedit(const std::string&, const T&, const U&);
 
   //
 
@@ -84,21 +84,21 @@ protected:
       (const cvtstring&, const subst&, const char* = "", bool = 0);
 
     template<class T>
-      friend std::string sedit(const char*, const T&);
+      friend std::string sedit(const std::string&, const T&);
     template<class T, class U>
-      friend std::string sedit(const char*, const T&, const U&);
+      friend std::string sedit(const std::string&, const T&, const U&);
 };
 
   // little excuse for making this a useful header :)
 
 template<class T>
-  inline std::string sedit(const char* fmt, const T& vars)
+  inline std::string sedit(const std::string& fmt, const T& vars)
 {
     return sedit(fmt, vars, dummy());
 }
 
 template<class T, class U>
-  inline std::string sedit(const char* fmt, const T& vars, const U& table)
+  inline std::string sedit(const std::string& fmt, const T& vars, const U& table)
 {
     return string_parm::edit(fmt,
       string_parm::container<T,U>(vars, table)).local();

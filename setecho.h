@@ -14,16 +14,17 @@
 #ifndef __ZF_SETQUERY
 #define __ZF_SETQUERY
 
+#include <string>
 #include "set_base.h"
 #include "charconv.h"
 
 namespace set_tag {
 
 class echo : public single_tag {
-    const char* fmt;
+    std::string fmt;
 public:
-    void format(const char* s)
-    { fmt=s; }
+    echo& format(const char* s)
+    { fmt=s; return *this; }
 
     virtual bool vmodify(const char*, const subst&) const;
     virtual void log(const cvtstring&) const;
