@@ -180,12 +180,12 @@ id3l: $(OBJX_L:=.o)
 	$(CXX) $(LDFLAGS) -o $@ $(OBJX_L:=.o)
 
 .cpp.o:
-	$(CC) $(CXXFLAGS) -c $<
+	$(CXX) $(CXXFLAGS) -c $<
 .c.o:
 	$(CC) $(CFLAGS) -c $<
 
 mainl.o:
-	$(CC) $(CXXFLAGS) -DNO_V2 -o $@ -c main.cpp
+	$(CXX) $(CXXFLAGS) -DNO_V2 -o $@ -c main.cpp
 
 MKALLDEP =  $(MKDEP) $(CXXFLAGS) main.cpp;
 MKALLDEP += $(MKDEP) $(CXXFLAGS) -DNO_V2 main.cpp | sed 's/main.o/mainl.o/';
