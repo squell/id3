@@ -1,8 +1,9 @@
 ## id3 makefile for DJGPP v2 ###############################################
 
-CC	= gxx
-CFLAGS	= -g -O2
-LDFLAGS =
+CC       = gxx
+CFLAGS   = -g -O2
+CXXFLAGS = $(CFLAGS)
+LDFLAGS  =
 
 ############################################################################
 
@@ -31,10 +32,10 @@ clean:
 ############################################################################
 
 main.o: main.cpp sedit.h ffindexp.h auto_dir.h setid3v2.h setid3.h
-	$(CC) $(CFLAGS) -c main.cpp
+        $(CC) $(CXXFLAGS) -c main.cpp
 
 mainl.o: main.cpp sedit.h ffindexp.h auto_dir.h setid3.h
-	$(CC) $(CFLAGS) -DNO_V2 -o $@ -c main.cpp
+        $(CC) $(CXXFLAGS) -DNO_V2 -o $@ -c main.cpp
 
 ffindexp.o: varexp.h auto_dir.h
 setid3.o  : sedit.h id3v1.h
@@ -42,7 +43,7 @@ setid3v2.o: setid3.h sedit.h id3v1.h id3v2.h fileops.h
 id3v2.o   : fileops.h
 
 %.o : %.cpp %.h
-	$(CC) $(CFLAGS) -c $<
+        $(CC) $(CXXFLAGS) -c $<
 
 %.o : %.c %.h
 	$(CC) $(CFLAGS) -c $<
