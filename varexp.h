@@ -46,7 +46,6 @@
 #define __ZF_VAREXP
 
 #include <cstring>
-#include <cstddef>
 #include <vector>
 #include <string>
 #include <stdexcept>

@@ -8,27 +8,30 @@
   Usage:
 
   string_parm::edit parses any "%x"'s found in its first argument and
-  replaces them with corresponding entries from the container passed as its
+  replaces them with corresponding entries from containers passed in its
   second argument.
 
   Optional modifiers:
-   "+" Pass Throught A Capitalization Function
-   "-" convert to lower case
-   "_" Don't_eliminate_underscores_and   don't   compress    spaces
+   "+"     Pass Throught A Capitalization Function
+   "-"     convert to lower case
+   "_"     Don't_eliminate_underscores_and   don't   compress    spaces
+   "#"     Pad numbers with (number of #'s-1) zero's.
+   "|alt|" Replace with alternate text if substitution would fail.
 
   Special forms:
    "%%" -> %
-   "%@" -> \0
    "%," -> \n
 
   Restrictions:
 
-  The only requirements of the container type is that it has a [] operator
-  defined, and that it contains data that can be converted into a cvtstring.
-  A standard C "array-of-char*" will do, as will std::vector<string>.
+  If using the string_parm::container<> template, the only requirements of the
+  container types passed to it are that they have a [] operator defined, and
+  that it return data convertible into a cvtstring. E.g. a standard C
+  "array-of-char*" will do, as will std::vector<string>.
 
-  If the container type does not perform bounds checking on the [] operator,
-  the results of using an out-of-bounds %x substitution is undefined.
+  If a container does not perform bounds checking on the [] operator, the
+  results of using an out-of-bounds %x substitution directed to it container
+  is undefined.
 
   Example:
 

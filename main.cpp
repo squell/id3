@@ -93,11 +93,11 @@ namespace {
    // this template class:
    // - boxes a handler to make it safe for (multiple) inheritance,
    // - defaults the handler to 'disabled',
-   // - delegates it into a most-derived-shared combined_tag object
+   // - delegates it into a most-derived-shared combined object
 
-    template<class T> struct uses : virtual set_tag::combined_tag {
+    template<class T> struct uses : virtual set_tag::combined {
         uses(bool on = false) : object(on)
-        { set_tag::combined_tag::delegate(object); }
+        { set_tag::combined::delegate(object); }
 
         T object;
     };

@@ -82,7 +82,7 @@ namespace {
 string capitalize(string s)
 {
     bool new_w = true;
-    for(string::iterator p = s.begin(); p != s.end(); p++) {
+    for(string::iterator p = s.begin(); p != s.end(); ++p) {
         *p = new_w? toupper(*p):tolower(*p);
         new_w = isspace(*p) || !isalnum(*p) && new_w;
     }

@@ -19,6 +19,9 @@
   operation has succeeded completely,or failed completely). In all other
   cases it should throw set_tag::failure.
 
+  virtual destructor in set_tag::handler and set_tag::provider ommitted for
+  filesize issues with gcc3.
+
 */
 
 #ifndef __ZF_SET_BASE_HPP
@@ -41,7 +44,7 @@ namespace set_tag {
     class handler;             // abstract base class / interface
 
     class single_tag;
-    class combined_tag;
+    class combined;
 
     class provider;            // extra interface for providing readers
     class reader;              // abc abstracting tag format
@@ -74,7 +77,7 @@ public:
     virtual handler& set(ID3field, const char*) = 0;
     virtual handler& clear() = 0;
 
-    virtual handler& reserve(size_t req = 0)
+    virtual handler& reserve(std::size_t req = 0)
     { return *this; }
 
   // free-form set methods (optional - default to no-op)
@@ -83,6 +86,9 @@ public:
     { return false; }
     virtual bool rm(std::string)
     { return false; }
+
+protected:                     // disable outside destruction
+    ~handler() { }
 };
 
   ///////////////////////////////////////////////////////
@@ -92,6 +98,9 @@ public:
 class provider {
 public:
     virtual reader* read(const char*) const = 0;
+
+protected:
+    ~provider() { }
 };
 
 class reader {
@@ -122,18 +131,18 @@ public:
   // (delegates all messages to registered handlers)   //
   ///////////////////////////////////////////////////////
 
-class combined_tag : public handler {
+class combined : public handler {
     std::vector<single_tag*> tags;
 public:
   // registers a delegate tag
-    combined_tag& delegate(single_tag& t)
+    combined& delegate(single_tag& t)
     { tags.push_back(&t); return *this; }
 
   // standard state set methods (non-inline)
-    handler& active(bool);
-    bool     active() const;
-    handler& set(ID3field, const char*);
-    handler& clear();
+    combined& active(bool);
+    bool      active() const;
+    combined& set(ID3field, const char*);
+    combined& clear();
 
     bool vmodify(const char*, const subst&) const;
 };

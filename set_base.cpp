@@ -20,21 +20,21 @@ namespace {
     because all tag formats use different naming conventions, so it would
     be really pointless anyhow. */
 
-handler& combined_tag::clear()
+combined& combined::clear()
 {
     for(iter p = tags.begin(); p != tags.end(); )
         (*p++)->clear();
     return *this;
 }
 
-handler& combined_tag::set(ID3field field, const char* data)
+combined& combined::set(ID3field field, const char* data)
 {
     for(iter p = tags.begin(); p != tags.end(); )
         (*p++)->set(field, data);
     return *this;
 }
 
-handler& combined_tag::active(bool state)
+combined& combined::active(bool state)
 {
     for(iter p = tags.begin(); p != tags.end(); )
         (*p++)->active(state);
@@ -43,7 +43,7 @@ handler& combined_tag::active(bool state)
 
  /* This function logically OR's all active() states together */
 
-bool combined_tag::active() const
+bool combined::active() const
 {
     for(iter p = tags.begin(); p != tags.end(); )
         if((*p++)->active())
@@ -54,7 +54,7 @@ bool combined_tag::active() const
  /* implementation of combined vmodify()
     - obeys the vmodify restrictions of set_base.h */
 
-bool combined_tag::vmodify(const char* fn, const subst& val) const
+bool combined::vmodify(const char* fn, const subst& val) const
 {
     bool e = false;
     for(iter p = tags.begin(); p != tags.end(); ++p) {
