@@ -52,11 +52,8 @@ public:
 
   // extended set
 
-    ID3v2& set(std::string field, std::string s)  // set ID3v2 frame
-    { mod[field] = s; return *this; }
-
-    ID3v2& rm(std::string field)                  // remove ID3v2 frame
-    { mod[field].erase(); return *this; }
+    ID3v2& set(std::string field, std::string s); // set ID3v2 frame
+    ID3v2& rm(std::string field);                 // remove ID3v2 frame
 };
 
 }

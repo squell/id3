@@ -52,24 +52,5 @@ bool combined_tag::active() const
     return false;
 }
 
-/* ====================================================== */
-
- /*
-    I'm NOT throwing a std::string here because:
-    - Can't simply pass the reference we're given (won't be valid soon)
-    - Don't like the theoretical possibility of a copy constructor throwing
-      an exception while I'm throwing an exception.
-    - Dynamically allocating a string and passing that pointer around is
-      more work :)
-  */
-
-failure::failure(const string& s)
-{
-    txt = new (nothrow) char[s.length()+1];
-    if(txt) {
-        strcpy(txt, s.c_str());
-    }
-}
-
 }
 

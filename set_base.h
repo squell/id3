@@ -26,6 +26,7 @@
 
 #include <string>
 #include <exception>
+#include <new>
 #include <vector>
 #include "sedit.h"
 
@@ -131,6 +132,23 @@ public:
     virtual const char* what() const throw()
     { return txt ? txt : "<null>"; }
 };
+
+ /*
+    I'm NOT throwing a std::string here because:
+    - Can't simply pass the reference we're given (won't be valid soon)
+    - Don't like the theoretical possibility of a copy constructor throwing
+      an exception while I'm throwing an exception.
+    - Dynamically allocating a string and passing that pointer around is
+      more work :)
+  */
+
+inline set_tag::failure::failure(const std::string& s)
+{
+    txt = new (std::nothrow) char[s.length()+1];
+    if(txt) {
+        std::strcpy(txt, s.c_str());
+    }
+}
 
 #ifdef __BORLANDC__
 }

@@ -30,22 +30,21 @@ INSTALL_DIR   = $(INSTALL) -d
 INSTALL_STRIP = $(INSTALL) -s
 INSTALL_DATA  = $(INSTALL) -m 644
 
+## makefile setup ##########################################################
+
+.PHONY: all clean final
+.PHONY: install install-strip install-full uninstall
+.PHONY: installdirs installman installdoc
+.PHONY: dist dist-zip
+
+.SUFFIXES: .c .cpp .o
+
 ## standard targets ########################################################
-
-id3: main.o sedit.o varexp.o ffindexp.o charconv.o \
-     set_base.o setid3.o setid3v2.o \
-     id3v1.o id3v2.o fileops.o
-	$(CXX) $(LDFLAGS) -o $@ $+
-
-id3l: mainl.o sedit.o varexp.o ffindexp.o charconv.o \
-     set_base.o setid3.o \
-     id3v1.o
-	$(CXX) $(LDFLAGS) -o $@ $+
 
 all  : id3 id3l
 
 final: id3 id3l
-	$(STRIP) $+
+	$(STRIP) id3 id3l
 
 clean:
 	rm -f *.o id3 id3l
@@ -97,26 +96,42 @@ dist: $(DISTFILES)
 dist-zip: $(DISTFILES)
 	$(D_PKG); zip -9l $${pkg//.}s.zip $(D_FIL); rm -f $${pkg}
 
-## dependencies ############################################################
+## build rules #############################################################
 
-main.o: main.cpp sedit.h ffindexp.h auto_dir.h setid3v2.h setid3.h
-	$(CC) $(CXXFLAGS) -c main.cpp
+OBJ_GEN = sedit.o varexp.o ffindexp.o charconv.o
+OBJ_1	= setid3.o id3v1.o
+OBJ_2	= setid3v2.o id3v2.o fileops.o
+OBJECTS = main.o $(OBJ_GEN) set_base.o $(OBJ_1) $(OBJ_2)
 
-mainl.o: main.cpp sedit.h ffindexp.h auto_dir.h setid3.h
+id3: $(OBJECTS)
+	$(CXX) $(LDFLAGS) -o $@ $(OBJECTS)
+
+id3l: mainl.o $(OBJ_GEN) $(OBJ_1)
+	$(CXX) $(LDFLAGS) -o $@ mainl.o $(OBJ_GEN) $(OBJ_1)
+
+.cpp.o:
+	$(CC) $(CXXFLAGS) -c $<
+.c.o:
+	$(CC) $(CFLAGS) -c $<
+
+mainl.o: main.cpp ffindexp.h auto_dir.h set_base.h sedit.h setid3.h
 	$(CC) $(CXXFLAGS) -DNO_V2 -o $@ -c main.cpp
 
-sedit.o   : charconv.h
-ffindexp.o: varexp.h auto_dir.h
-set_base.o: sedit.h
-setid3.o  : set_base.h sedit.h id3v1.h
-setid3v2.o: set_base.h setid3.h sedit.h id3v1.h id3v2.h fileops.h
-id3v2.o   : fileops.h
+## dependencies -MM ########################################################
 
-%.o : %.cpp %.h
-	$(CC) $(CXXFLAGS) -c $<
-
-%.o : %.c %.h
-	$(CC) $(CFLAGS) -c $<
+fileops.o: fileops.c fileops.h
+id3v1.o: id3v1.c id3v1.h
+id3v2.o: id3v2.c fileops.h id3v2.h
+charconv.o: charconv.cpp charconv.h
+ffindexp.o: ffindexp.cpp varexp.h auto_dir.h ffindexp.h
+main.o: main.cpp ffindexp.h auto_dir.h set_base.h sedit.h setid3.h \
+  setid3v2.h
+sedit.o: sedit.cpp charconv.h sedit.h
+set_base.o: set_base.cpp set_base.h sedit.h
+setid3.o: setid3.cpp setid3.h set_base.h sedit.h id3v1.h
+setid3v2.o: setid3v2.cpp setid3v2.h set_base.h sedit.h id3v1.h id3v2.h \
+  fileops.h
+varexp.o: varexp.cpp varexp.h
 
 ############################################################################
 

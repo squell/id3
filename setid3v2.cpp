@@ -112,6 +112,18 @@ ID3v2& ID3v2::set(ID3field i, const char* m)
     return *this;
 }
 
+ID3v2& ID3v2::set(std::string field, std::string s)
+{
+    mod[field] = s;
+    return *this;
+}
+
+ID3v2& ID3v2::rm(std::string field)
+{
+    mod[field].erase();
+    return *this;
+}
+
 template<void clean(void*)> struct voidp {          // auto-ptr like
     void* data;
     operator void*() { return data; }
