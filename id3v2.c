@@ -84,6 +84,35 @@ static int fpadd(FILE *dest, char c, size_t len)
     return w == len;
 }
 
+static FILE *fopentmp(const char *hint, char **name)        /* free() name */
+{
+    char *buf;
+    FILE *f;
+#ifdef USE_TMPNAM
+    if(buf = malloc(L_tmpnam)) {
+        if(tmpnam(buf) && (f = fopen(buf, "wb"))) {
+            *name = buf;
+            return f;
+        }
+        free(buf);
+    }
+#else
+    char* pname = strrchr(hint, '/');
+    size_t idx  = pname? pname-hint+1 : 0;
+
+    if(buf = malloc(idx + 9)) {
+        strncpy(buf, hint, idx);
+        strcpy (buf+idx, "idXXXXXX");
+        if(mktemp(buf) && (f = fopen(buf, "wb"))) {
+            *name = buf;
+            return f;
+        }
+        free(buf);
+    }
+#endif
+    return 0;
+}
+
 /* ==================================================== */
 
 int cpfile(const char *srcnam, const char *dstnam)
@@ -275,16 +304,21 @@ int ID3_writef(const char *fname, void *src)
         }
         fseek(f, orig, SEEK_CUR);
     } else {
+        if(size == 0) {
+            fclose(f);
+            return 1;
+        }
         rewind(f);
     }
                                                         /* file rewriter */
     {
-        char *tmp   = tmpnam(0);                       /* i know, i know */
-        FILE *nf;
         ulong nsize = ((size+sizeof new_h+0x1FF) & ~0x1FF) - sizeof new_h;
         int ok;                                      /* rnd to 512 bytes */
 
-        if( !tmp || !(nf = fopen(tmp, "wb")) )
+        char *tmp;
+        FILE *nf = fopentmp(fname, &tmp);
+
+        if( !nf )
             goto abort;
 
         if(size != 0) {
@@ -305,8 +339,10 @@ int ID3_writef(const char *fname, void *src)
             }
         } else {
             remove(tmp);                                      /* failure */
+            free(tmp);
             return 0;
         }
+        free(tmp);
     }
     return 1;
 
