@@ -21,24 +21,26 @@ bool varexp::match(const char* mask, const char* test)
     bool flag = false;
 
     char m, c;
-    while( m=*mask++, c=*test++, m && c ) {
-        if(m=='*') {
+    do {
+        switch( c=*test++, m=*mask++ ) {
+        default :
+            if( m != c ) return 0;
+        case '?':
+            flag = false;
+            break;
+
+        case '*':
             if(!flag) {
                 vars.push_back(test-1);   // add entry for new variable
                 varl.push_back(0);        // + length count
                 flag = true;
             }
-            if( match(mask,test-1) || (++varl.back(),match(mask,test)) )
-                return 1;
-            else
-                --mask;
-        } else {
-            flag = false;
-            if(m!='?' && m!=c)
-                break;                    // bool(c|m) == true. (*)
+            if( match(mask,test-1) ) return 1;
+            --mask, ++varl.back();
         }
-    }
-    if(c|m) {                             // (*)
+    } while(c);
+
+    if(m) {
        vars = _vars;
        varl = _varl;
        return 0;
@@ -49,22 +51,25 @@ bool varexp::match(const char* mask, const char* test)
 /*
 
  C version without pattern matching (more concise):
- (ok, so it's dense - big deal)
 
 int match(const char *mask, const char *test)
 {
-    char m, c;
-    while( m=*mask++, c=*test++, m && c ) {
-        if(m=='*')
-            if( match(mask,test-1) || match(mask,test) )
-                return 1;
-            else
-                --mask;
-        else if(m!='?' && m!=c)
-            return 0;
-    }
-    return(!(c|m))
+    char c, m;
+    do {
+        switch( c=*test++, m=*mask++ ) {
+        default :
+            if( m != c ) return 0;
+        case '?':
+            break;
+        case '*':
+            if( match(mask,test-1) ) return 1;
+            --mask;
+        }
+    } while(c);
+    return !m;
 }
 
 */
+
+
 

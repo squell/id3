@@ -6,6 +6,7 @@
 #include <map>
 #include <algorithm>
 #include "setid3.h"
+#include "id3v1.h"
 
 /*
 
@@ -23,18 +24,6 @@
 #endif
 
 using namespace std;
-
-struct ID3v1 {                                   // ID3 v1.1 tag structure
-    char TAG[3];
-    char title [30];
-    char artist[30];
-    char album [30];
-    char year[4];
-    char cmnt[28];
-    char __;
-    unsigned char track;
-    unsigned char genre;
-};
 
 const ID3v1 synth_tag = {
     { 'T', 'A', 'G' }
@@ -70,14 +59,12 @@ static string capitalize(string s)
 
 /* ====================================================== */
 
-#include "genres"                               // ID3v1_genres list
-
 const struct genre_map : map<string,int> {
     typedef const_iterator iter;                // shorthand
 
     genre_map()                                 // initialize associative map
     {
-        for(int i=0; i < sizeof ID3v1_genres/sizeof *ID3v1_genres; i++) {
+        for(int i=0; ID3v1_genres[i]; i++) {
             (*this)[ capitalize(ID3v1_genres[i]) ] = i;
         }
     }
@@ -104,7 +91,8 @@ string smartID3::edit(string s, const base_container& v)
                 s[pos++] = '\0';
                 break;
             case VAR:       // "%%" -> "%"
-                s.erase(pos++, 1);
+                s.erase(pos, 1);
+                ++pos;
                 break;
             case '_':
                 und = true;
@@ -126,8 +114,10 @@ string smartID3::edit(string s, const base_container& v)
             case '8':
             case '9':
                 string tmp = v[c-'1'];
-                if(cap) tmp = capitalize(tmp);
-                if(!und) replace(tmp.begin(), tmp.end(), '_', ' ');
+                if(cap)
+                    tmp = capitalize(tmp);
+                if(!und)
+                    replace(tmp.begin(), tmp.end(), '_', ' ');
                 s.replace(pos, n+1, tmp);
                 pos += tmp.length();
                 break;

@@ -1,5 +1,3 @@
-#include <cstdio>
-
 #include <string>
 #include <map>
 #include <cctype>
@@ -19,6 +17,7 @@ using namespace std;
 /* ===================================== */
 
  // extra hairyness to prevent buffer overflows by re-allocating on the fly
+ // this may seem like overkill, but i had to do a runtime check anyway, so
 
 struct w_ptr {
     unsigned long avail;
@@ -27,8 +26,6 @@ struct w_ptr {
 
  // employs a 'hint' system. if 4kb extra isn't enough, it'll try 8kb,
  // then 16kb, etc. next time, it'll immediately try 16kb again, etc.
-
- // note the *static* initialization!
 
 char* put(char* dst, const char* ID, const void* src, size_t len, w_ptr& base)
 {

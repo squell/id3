@@ -2,9 +2,13 @@
 
   ID3v1.1 genres + Winamp extensions
 
+  Array is null-terminated.
+
 */
 
-const char *ID3v1_genres[] = {
+#include "id3v1.h"
+
+const char *const ID3v1_genres[] = {
 
     "Blues", "Classic Rock", "Country", "Dance", "Disco", "Funk",
     "Grunge", "Hip-Hop", "Jazz", "Metal", "New Age", "Oldies",
@@ -36,9 +40,7 @@ const char *ID3v1_genres[] = {
     "NegerPunk", "Polsk Punk", "Beat", "Christian Gangsta",
     "Heavy Metal", "Black Metal", "Crossover", "Contemporary C",
     "Christian Rock", "Merengue", "Salsa", "Thrash Metal",
-    "Anime", "JPop", "SynthPop"
-
+    "Anime", "JPop", "SynthPop",
+    0
 };
-
-
 
