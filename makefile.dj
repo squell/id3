@@ -1,7 +1,7 @@
 ## id3 makefile for DJGPP v2 ###############################################
 
 CC	= gxx
-CFLAGS	= -g -O2 -fno-rtti
+CFLAGS	= -g -O2
 LDFLAGS =
 
 ############################################################################
@@ -24,7 +24,8 @@ clean:
 
 id3.exe: main.o sedit.o varexp.o ffindexp.o charconv.o \
 	 set_base.o setid3.o setid3v2.o \
-	 id3v1.o id3v2.o fileops.o
+	 id3v1.o id3v2.o fileops.o \
+	 setfname.o
 	$(CC) $(LDFLAGS) -o $@ $+
 
 id3l.exe: mainl.o sedit.o varexp.o ffindexp.o charconv.o \
@@ -34,10 +35,10 @@ id3l.exe: mainl.o sedit.o varexp.o ffindexp.o charconv.o \
 
 main.o: main.cpp ffindexp.h auto_dir.h set_base.h sedit.h setid3.h \
   setid3v2.h
-	$(CC) $(CFLAGS) -c main.cpp
+	$(CC) $(CFLAGS) -DDOS_DIRSEP -c main.cpp
 
 mainl.o: main.cpp ffindexp.h auto_dir.h set_base.h sedit.h setid3.h
-	$(CC) $(CFLAGS) -DNO_V2 -o $@ -c main.cpp
+	$(CC) $(CFLAGS) -DDOS_DIRSEP -DNO_V2 -o $@ -c main.cpp
 
 %.o : %.cpp %.h
 	$(CC) $(CFLAGS) -c $<
@@ -47,18 +48,20 @@ mainl.o: main.cpp ffindexp.h auto_dir.h set_base.h sedit.h setid3.h
 
 ## dependencies -MM ########################################################
 
-fileops.o: fileops.c fileops.h
-id3v1.o: id3v1.c id3v1.h
-id3v2.o: id3v2.c fileops.h id3v2.h
 charconv.o: charconv.cpp charconv.h
-ffindexp.o: ffindexp.cpp varexp.h auto_dir.h ffindexp.h
-main.o: main.cpp ffindexp.h auto_dir.h set_base.h sedit.h setid3.h \
-  setid3v2.h
+ffindexp.o: ffindexp.cpp varexp.h \
+ auto_dir.h ffindexp.h
+main.o: main.cpp ffindexp.h auto_dir.h \
+ sedit.h set_base.h setid3.h setid3v2.h setfname.h
 sedit.o: sedit.cpp charconv.h sedit.h
-set_base.o: set_base.cpp set_base.h sedit.h
-setid3.o: setid3.cpp setid3.h set_base.h sedit.h id3v1.h
-setid3v2.o: setid3v2.cpp setid3v2.h set_base.h sedit.h id3v1.h id3v2.h \
-  fileops.h
+set_base.o: set_base.cpp set_base.h \
+ sedit.h
+setfname.o: setfname.cpp setfname.h \
+ set_base.h sedit.h
+setid3.o: setid3.cpp setid3.h set_base.h \
+ sedit.h id3v1.h
+setid3v2.o: setid3v2.cpp setid3v2.h \
+ set_base.h sedit.h id3v1.h id3v2.h fileops.h
 varexp.o: varexp.cpp varexp.h
 
 ############################################################################

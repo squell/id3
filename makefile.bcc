@@ -29,8 +29,11 @@ clean:
 
 ############################################################################
 
+main.obj: main.cpp
+	$(CC) $(CFLAGS) -DDOS_DIRSEP -o$@ -c main.cpp
+
 mainl.obj: main.cpp
-	$(CC) $(CFLAGS) -DNO_V2 -o$@ -c main.cpp
+	$(CC) $(CFLAGS) -DDOS_DIRSEP -DNO_V2 -o$@ -c main.cpp
 
 .c.obj:
 	$(CC) $(CFLAGS) -c $<

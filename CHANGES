@@ -1,7 +1,7 @@
 Changelog for 'id3'.
 
 2004-167 (W25):
-  set_base: trimmed down interface
+  set_base.h: streamlining
 
 2004-162 (W24):
   main.cpp: [CLI] added -s switch for suggesting tag size
@@ -135,12 +135,12 @@ Todo list:
 
   - autocounter
   - "-rT???"
+  - show new filenames inverbose
 
   - More things:
     + Support for Ogg Vorbis
     + Support for APEv2
     + Support for Lyrics3 v2.0 (?)
-    + File rename
   - Internationalization (Unicode)
     + Locale interaction
     + Enable multibyte encodings for varexp (?)

@@ -5,14 +5,16 @@
 #include <stdexcept>
 #include <string>
 #include "ffindexp.h"
+#include "sedit.h"
 
 #include "set_base.h"
 #include "setid3.h"
 #ifndef NO_V2
 #  include "setid3v2.h"
+#  include "setfname.h"
 #endif
 
-#define _version_ "0.74-alpha (2004162)"
+#define _version_ "0.74-alpha (2004167)"
 
 /*
 
@@ -93,29 +95,9 @@ namespace {
     template<class T> inline const T* with(const uses<T>& box) { return &box.object; }
 }
 
-/* ====================================================== */
-
 #ifdef __ZF_SETID3V2
 
-  // custom implementation of combined vmodify()
-  // - obeys the vmodify restrictions of set_base.h
-
-struct metadata : uses<ID3>, uses<ID3v2> {
-    virtual bool vmodify(const char* fn, const base_container& val) const
-    {
-        bool e2 = false;                       // temp store return value
-
-        if( (e2=with<ID3v2>(*this)->vmodify(fn, val)) &&
-                with<ID3  >(*this)->vmodify(fn, val)  )
-            return true;
-
-        if(e2 && with<ID3v2>(*this)->active()) {
-            throw failure("partial tag written: ", fn);
-        }
-
-        return false;
-    }
-};
+struct metadata : uses<ID3v2>, uses<ID3>, uses<set_tag::filename> { };
 
 #else
 
@@ -125,13 +107,17 @@ typedef ID3 metadata;
 
 /* ====================================================== */
 
-struct mass_tag : filefindexp, metadata {
-    mass_tag() : edir(false) { }
-
+class mass_tag : filefindexp, public metadata {
     virtual void process();
     virtual void entered();
 
     bool edir;
+public:
+    mass_tag() : edir(false) { }
+    void operator()(const char* spec);
+
+    template<class Tag> single_tag* enable()
+    { return &with<Tag>(*this)->active(true); }
 };
 
 void mass_tag::entered()
@@ -144,17 +130,19 @@ void mass_tag::process()
 {
     verbose.reportf(path);
     if(! modify(path, var) )
-        fprintf(err(), "id3: could not edit tag in %s!\n", path);
+        return (void) fprintf(err(), "id3: could not edit tag in %s\n", path);
 }
 
-void write_tags(const char* spec, mass_tag& tag)
+void mass_tag::operator()(const char* spec)
 {
-    if(! tag(spec) )
+    if(! filefindexp::operator()(spec) )
         fprintf(err(), "id3: no %s matching %s\n",
-                tag.edir? "files" : "directories", spec);
+                edir? "files" : "directories", spec);
 }
 
 /* ====================================================== */
+
+namespace {
 
 void help(const char* argv0)
 {
@@ -165,16 +153,17 @@ void help(const char* argv0)
 #else
         "usage: %s [OPTIONS] filespec ...\n"
 #endif
-        " -d\t\t"         "clear existing tag\n"
-        " -t <title>\t"   "set fields\n"
-        " -a <artist>\t"  "\n"
-        " -l <album>\t"   "\n"
-        " -n <tracknr>\t" "\n"
-        " -y <year>\t"    "\n"
-        " -g <genre>\t"   "\n"
-        " -c <comment>\t" "\n"
-        " -v\t\t"         "give verbose output\n"
-        " -V\t\t"         "print version info\n"
+        " -d\t\t"          "clear existing tag\n"
+        " -t <title>\t"    "set fields\n"
+        " -a <artist>\t"   "\n"
+        " -l <album>\t"    "\n"
+        " -n <tracknr>\t"  "\n"
+        " -y <year>\t"     "\n"
+        " -g <genre>\t"    "\n"
+        " -c <comment>\t"  "\n"
+        " -f <filename>\t" "set filename\n"
+        " -v\t\t"          "give verbose output\n"
+        " -V\t\t"          "print version info\n"
 #ifdef __ZF_SETID3V2
         "Only when -2:\n"
         " -rXXXX\t\terase all XXXX frames\n"
@@ -208,7 +197,6 @@ void shelp()
     exit(exitc=1);
 }
 
-
 long argtol(const char* arg)                   // convert argument to long
 {
     char* endp;
@@ -218,6 +206,18 @@ long argtol(const char* arg)                   // convert argument to long
         exit(exitc=1);
     }
     return n;
+}
+
+#ifndef DOS_DIRSEP
+inline void argpath(char* arg) { }             // dummy
+#else
+void argpath(char* arg)                        // convert backslashes
+{
+    for(char* p = arg; *p; ++p)
+        if(*p == '\\') *p = '/';
+}
+#endif
+
 }
 
 /* ====================================================== */
@@ -230,13 +230,14 @@ int main_(int argc, char *argv[])
 
     enum parm_t {                              // parameter modes
         no_value, force_fn,
-        stdfield, customfield, suggest_size
+        stdfield, customfield, suggest_size,
+        set_rename
     } cmd = no_value;
 
     ID3field field;
     string fieldID;                            // free form field selector
 
-    set_tag::single_tag* chosen = 0;           // pointer to last enabled
+    set_tag::handler* chosen = 0;              // pointer to last enabled
 
     char* opt  = "";                           // used for command stacking
     bool  scan = true;                         // check for no-file args
@@ -249,11 +250,12 @@ int main_(int argc, char *argv[])
                 if(argv[i][0] == '-' && scan) opt = argv[i]+1;
         case force_fn:
             if(*opt == '\0') {
+                argpath(argv[i]);
                 scan = false;
                 if(!chosen)                    // default to ID3
-                    with<ID3>(tag)->enable();
+                    tag.enable<ID3>();
                 if(w)                          // no-op check
-                    write_tags(argv[i], tag);
+                    tag( argv[i] );
                 else
                     fprintf(err(), "id3: nothing to do with %s\n", argv[i]);
             } else {
@@ -267,6 +269,7 @@ int main_(int argc, char *argv[])
                 case 'c': field = set_tag::cmnt;   cmd = stdfield; break;
                 case 'g': field = set_tag::genre;  cmd = stdfield; break;
                 case 'n': field = set_tag::track;  cmd = stdfield; break;
+                case 'f': cmd = set_rename; break;
 #ifdef __ZF_SETID3V2
                 case 's':
                     cmd = suggest_size; break;
@@ -281,10 +284,10 @@ int main_(int argc, char *argv[])
                     opt = "";
                     break;
                 case '1':
-                    (chosen = with<ID3>  (tag))->enable();
+                    chosen = tag.enable<ID3>();
                     break;
                 case '2':
-                    (chosen = with<ID3v2>(tag))->enable();
+                    chosen = tag.enable<ID3v2>();
                     break;
 #endif
                 case 'h': help(argv[0]);
@@ -303,6 +306,16 @@ int main_(int argc, char *argv[])
 
         case stdfield:                         // write a standard field
             tag.set(field, argv[i]);
+            break;
+
+        case set_rename:
+            argpath(argv[i]);
+            if(! with<filename>(tag)->rename(argv[i]) ) {
+                fprintf(err(), "id3: cannot rename across directories\n");
+                shelp();
+            }
+            if(!chosen)
+                chosen = with<filename>(tag);
             break;
 
 #ifdef __ZF_SETID3V2
@@ -324,7 +337,7 @@ int main_(int argc, char *argv[])
 #endif
         };
         cmd = no_value;
-        w = true;
+        w = true;                              // set operation done flag
     }
 
     if(scan)
@@ -340,6 +353,7 @@ int main_(int argc, char *argv[])
 
 int main(int argc, char *argv[])
 {
+    argpath(argv[0]);
     try {
         return main_(argc, argv);
     } catch(const set_tag::failure& f) {

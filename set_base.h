@@ -65,13 +65,7 @@ public:
       bool modify(const char* fn, const T& vars) const
     { return vmodify(fn, container<T>(vars)); }
 
-    handler& enable()  { return active(1); }
-    handler& disable() { return active(0); }
-
   // standard state set methods
-
-    virtual handler& active(bool) = 0;
-    virtual bool     active() const = 0;
 
     virtual handler& set(ID3field, const char*) = 0;
     virtual handler& clear() = 0;
@@ -105,14 +99,13 @@ class set_tag::single_tag : public handler {
 protected:
     single_tag(bool t = true)
     : enabled(t), fresh(false) { }
-
     bool enabled;                  // should vmodify do anything?
     bool fresh;                    // should vmodify clear existing tag?
 public:
-    handler& active(bool on) { enabled = on; return *this; }
-    bool     active() const  { return enabled; }
+    single_tag& active(bool on) { enabled = on; return *this; }
+    bool        active() const  { return enabled; }
 
-    handler& clear()         { fresh = true; return *this; }
+    handler& clear()            { fresh = true; return *this; }
 };
 
   ///////////////////////////////////////////////////////
@@ -121,10 +114,10 @@ public:
   ///////////////////////////////////////////////////////
 
 class set_tag::combined_tag : public handler {
-    std::vector<set_tag::handler*> tags;
+    std::vector<set_tag::single_tag*> tags;
 public:
   // registers a delegate tag
-    combined_tag& delegate(set_tag::handler& t)
+    combined_tag& delegate(set_tag::single_tag& t)
     { tags.push_back(&t); return *this; }
 
   // standard state set methods (non-inline)
@@ -132,6 +125,8 @@ public:
     bool     active() const;
     handler& set(ID3field, const char*);
     handler& clear();
+
+    bool vmodify(const char*, const base_container&) const;
 };
 
   ///////////////////////////////////////////////////////

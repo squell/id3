@@ -103,7 +103,8 @@ dist-zip: $(DISTFILES)
 OBJ_GEN = sedit.o varexp.o ffindexp.o charconv.o
 OBJ_1	= setid3.o id3v1.o
 OBJ_2	= setid3v2.o id3v2.o fileops.o
-OBJECTS = main.o $(OBJ_GEN) set_base.o $(OBJ_1) $(OBJ_2)
+OBJ_F   = setfname.o
+OBJECTS = main.o $(OBJ_GEN) set_base.o $(OBJ_1) $(OBJ_2) $(OBJ_F)
 
 id3: $(OBJECTS)
 	$(CXX) $(LDFLAGS) -o $@ $(OBJECTS)

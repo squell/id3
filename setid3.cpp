@@ -102,15 +102,12 @@ const struct genre_map : map<string,int,bool (*)(const string&,const string&)> {
 
 set_tag::reader* ID3::read(const char* fn)
 {
-//   return new read_tag::ID3(fn);
+//.  return new read_tag::ID3(fn);
      return 0;
 }
 
 bool ID3::vmodify(const char* fn, const base_container& v) const
 {
-    if(!enabled)
-        return true;
-
     ID3v1 tag = { { 0 } };                    // duct tape
 
     if( FILE* f = fopen(fn, "rb+") ) {

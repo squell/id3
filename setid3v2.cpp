@@ -11,7 +11,7 @@
 
 /*
 
-  (c) 2003 squell ^ zero functionality!
+  (c) 2004 squell ^ zero functionality!
   see the file 'COPYING' for license conditions
 
   Note: I'm devoting quite a bit of code to glue the interface from C to C++,
@@ -139,9 +139,6 @@ template<void clean(void*)> struct voidp {          // auto-ptr like
 
 bool ID3v2::vmodify(const char* fn, const base_container& v) const
 {
-    if(!enabled)
-        return true;
-
     size_t check;
     void* buf = ID3_readf(fn, &check);
 

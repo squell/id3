@@ -32,9 +32,8 @@
 
   Example:
 
-      sedit ed("%2%1");
       char* tab[] = { "foo", "bar" };
-      cout << capitalize( ed(tab) );   // "Barfoo"
+      cout << capitalize( sedit("%2%1", tab) );   // "Barfoo"
 
 */
 
@@ -45,7 +44,8 @@
 
 extern std::string capitalize(std::string s);
 
-class sedit;
+template<class T>
+  std::string sedit(const char*, const T&);
 
   //
 
@@ -69,21 +69,18 @@ protected:
     };
 
     static std::string edit(std::string, const base_container&);
+
+    template<class T>
+      friend std::string sedit(const char*, const T&);
 };
 
   // little excuse for making this a useful header :)
 
-class sedit : string_parm {
-public:
-    sedit(std::string msg) : fmt(msg) { }
-
-    template<class T>
-      std::string operator()(const T& vars)
-    { return edit(fmt, container<T>(vars)); }
-
-private:
-    const std::string fmt;
-};
+template<class T>
+  inline std::string sedit(const char* fmt, const T& vars)
+{
+    return string_parm::edit(fmt, string_parm::container<T>(vars));
+}
 
 #endif
 

@@ -6,6 +6,7 @@
 */
 
 #include <vector>
+#include <algorithm>    ////////////////////
 #include "set_base.h"
 
 using namespace std;
@@ -13,7 +14,7 @@ using namespace std;
 namespace set_tag {
 
 namespace {
-    typedef vector<handler*>::const_iterator iter;
+    typedef vector<single_tag*>::const_iterator iter;
 }
 
  /* This class does NOT delegate the free form methods. This is simply
@@ -51,12 +52,24 @@ bool combined_tag::active() const
     return false;
 }
 
-/*
-bool combined_tag::vmodify() const
-{
+ /* implementation of combined vmodify()
+    - obeys the vmodify restrictions of set_base.h */
 
+bool combined_tag::vmodify(const char* fn, const base_container& val) const
+{
+    bool e = false;
+    for(iter p = tags.begin(); p != tags.end(); ++p) {
+        const single_tag* sub = *p;
+        if(sub->active()) {
+            if( !sub->vmodify(fn, val) ) {
+                if(e) throw failure("partial tag written: ", fn);
+                else  return false;
+            }
+            e = true;
+        }
+    }
+    return e;
 }
-*/
 
 }
 
