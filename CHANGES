@@ -5,9 +5,10 @@ Changelog for 'id3'.
     numbers found inside the string will get padded. E.g. [1/5] -> [01/05]
   setid3[v2].cpp: regression: setting dupe fields overrides again
   main.cpp: added some foolproof code for "-!"
-  ffindexp.cpp:95: optimized speed for cases where the shell has handled
+  fileexp: refactoring of ffindexp, making it cleaner
+  fileexp.cpp:110: optimized speed for cases where the shell has handled
     wildcards (saves sorting and scanning a whole dir for each file)
-  ffindexp.cpp:117: [CLI] added -R for recursive directory search
+  fileexp.cpp:132: [CLI] added -R for recursive directory search
 
 2005-037 (W05):
   main.cpp:326: [CLI] added -m switch for 'pattern' shorthand. For example,
