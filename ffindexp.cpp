@@ -5,6 +5,12 @@
 #include "varexp.h"
 #include "auto_dir.h"
 #include "ffindexp.h"
+#if defined(__WIN32__)
+#    include <io.h>
+#    define F_OK 0
+#else
+#    include <unistd.h>
+#endif
 
 /*
 
@@ -86,6 +92,11 @@ bool filefindexp::nested(auto_dir dir, char* wpath, char* fnmatch)
     }
 
     entered();
+    if(!recursive && access(fnmatch, F_OK) == 0) {
+        nwpath = pathcpy(wpath, fnmatch);       // check if file is 'simple'
+        process(fnmatch);                       // (speeds up simple cases)
+        return true;
+    }
 
     strvec files;
     while( dirent* fn = dir.read() )            // read all files in dir
@@ -94,14 +105,18 @@ bool filefindexp::nested(auto_dir dir, char* wpath, char* fnmatch)
     sort(files.begin(), files.end());
 
     for(strvec::iterator fn = files.begin(); fn != files.end(); ++fn) {
-        pathcpy(wpath, fn->c_str());
+        nwpath = pathcpy(wpath, fn->c_str());
         direxp match(fnmatch, wpath);
         if(match) {
             for(varexp::iterator i = match.begin(); i != match.end(); ++i)
                 var.push_back(*i);
-            process();
+            process(wpath);
             w = true;
             var.resize(prevlen);
+        }
+        if(recursive && *wpath != '.') {
+            if(auto_dir newdir = auto_dir(path))
+                w = nested(newdir, pathcpy(nwpath, "/"), fnmatch) || w;
         }
     }
 

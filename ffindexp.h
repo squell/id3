@@ -10,14 +10,16 @@
   When a filefindexp-derived object is used as a function object, it looks for
   files matching the wildcard spec, and calls the overridden process() member
   for each match. The member variables 'path' and 'var' contain the pathname
-  and matched variables (see varexp), and should not be modified.
+  and matched variables (see varexp), and should not be modified. The argument
+  to process() contains a pointer in 'path', pointing to the start of the
+  actual filename (sans directory prefix).
 
   entered() is called whenever a directory is entered to be scanned for files
 
   Example:
 
   struct showfiles : filefindexp {
-      void process()
+      void process(const char*)
       { puts(path); }
   };
 
@@ -42,9 +44,12 @@
 
 class filefindexp {
 public:
+    filefindexp(bool r = 0) : recursive(r) { }
     bool operator()(const char* filemask);
+    bool recursive;
+
 protected:
-    virtual void process() = 0;               // override this one
+    virtual void process(const char*) = 0;    // override this one
     virtual void entered() { }                // def. do nothing
 
     std::vector<std::string> var;             // contains matched vars
