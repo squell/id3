@@ -18,7 +18,7 @@
   .vmodify() doesn't know about frames having multiple instances.
 
   a. - when updating a frame type which has multiple instances, the first one
-	   will be replaced and the rest will be left unaltered.
+       will be replaced and the rest will be left unaltered.
 
   b. - ID3v2 will never add multiple instances of the same frame type.
 
@@ -41,22 +41,22 @@
 namespace set_tag {
 
 class ID3v2 : public single_tag {
-	std::map<std::string,std::string> mod;
+    std::map<std::string,std::string> mod;
 
 public:
     ID3v2(bool f = true) : single_tag(f), mod() { }
 
-	ID3v2& set(ID3field i, const char* m);		  // set standard field
+    ID3v2& set(ID3field i, const char* m);        // set standard field
 
-	virtual bool vmodify(const char*, const base_container&) const;
+    virtual bool vmodify(const char*, const base_container&) const;
 
   // extended set
 
-	ID3v2& set(std::string field, std::string s)  // set ID3v2 frame
-	{ mod[field] = s; return *this; }
+    ID3v2& set(std::string field, std::string s)  // set ID3v2 frame
+    { mod[field] = s; return *this; }
 
-	ID3v2& rm(std::string field)				  // remove ID3v2 frame
-	{ mod[field].erase(); return *this; }
+    ID3v2& rm(std::string field)                  // remove ID3v2 frame
+    { mod[field].erase(); return *this; }
 };
 
 }

@@ -13,10 +13,10 @@
 
   int main(int argc, char* argv[])
   {
-	  set_tag::ID3()
-	  .set(artist, "%2")
-	  .set(title,  "%3")
-	  .modify(argv[1], argv);
+      set_tag::ID3()
+      .set(artist, "%2")
+      .set(title,  "%3")
+      .modify(argv[1], argv);
   }
 
 */
@@ -31,16 +31,16 @@
 namespace set_tag {
 
 class ID3 : public single_tag {
-	std::vector<const char*> mod;		   // modification data
+    std::vector<const char*> mod;          // modification data
 public:
     ID3(bool f = true) : single_tag(f), mod(FIELDS,(char*)0) { }
 
-	virtual bool vmodify(const char*, const base_container&) const;
+    virtual bool vmodify(const char*, const base_container&) const;
 
   // standard set
 
-	ID3& set(ID3field i, const char* m) 	// set ID3 field i to value m
-	{ if(i < FIELDS) mod[i] = m; return *this; }
+    ID3& set(ID3field i, const char* m)     // set ID3 field i to value m
+    { if(i < FIELDS) mod[i] = m; return *this; }
 };
 
 }

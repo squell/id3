@@ -31,54 +31,54 @@
 
 namespace set_tag {
 
-	enum ID3field {
-		title, artist, album, year, cmnt, track, genre, FIELDS
-	};
+    enum ID3field {
+        title, artist, album, year, cmnt, track, genre, FIELDS
+    };
 
-	class handler;			   // abstract base class / interface
+    class handler;             // abstract base class / interface
 
-	class single_tag;
-	class combined_tag;
+    class single_tag;
+    class combined_tag;
 
-	class failure;			   // exception class
+    class failure;             // exception class
 
 }
 
 #ifdef __BORLANDC__
-namespace set_tag { 		   // (borland craps w/o this?)
+namespace set_tag {            // (borland craps w/o this?)
 #endif
 
   ///////////////////////////////////////////////////////
-  // interface part 								   //
+  // interface part                                    //
   ///////////////////////////////////////////////////////
 
 class set_tag::handler : protected string_parm {
 public:
-	virtual bool vmodify(const char*, const base_container&) const = 0;
+    virtual bool vmodify(const char*, const base_container&) const = 0;
 
-	template<class T>
-	  bool modify(const char* fn, const T& vars) const
-	{ return vmodify(fn, container<T>(vars)); }
+    template<class T>
+      bool modify(const char* fn, const T& vars) const
+    { return vmodify(fn, container<T>(vars)); }
 
-	handler& enable()  { return active(1); }
-	handler& disable() { return active(0); }
+    handler& enable()  { return active(1); }
+    handler& disable() { return active(0); }
 
     virtual ~handler() { };
 
   // standard state set methods
 
-	virtual handler& active(bool) = 0;
-	virtual bool	 active() const = 0;
+    virtual handler& active(bool) = 0;
+    virtual bool     active() const = 0;
 
-	virtual handler& set(ID3field, const char*) = 0;
-	virtual handler& clear() = 0;
+    virtual handler& set(ID3field, const char*) = 0;
+    virtual handler& clear() = 0;
 
   // free-form set methods (optional - default to no-op)
 
-	virtual handler& set(std::string, std::string)
-	{ return *this; }
-	virtual handler& rm(std::string)
-	{ return *this; }
+    virtual handler& set(std::string, std::string)
+    { return *this; }
+    virtual handler& rm(std::string)
+    { return *this; }
 };
 
   ///////////////////////////////////////////////////////
@@ -87,51 +87,51 @@ public:
 
 class set_tag::single_tag : public handler {
 protected:
-	single_tag(bool t = true)
-	: enabled(t), fresh(false) { }
+    single_tag(bool t = true)
+    : enabled(t), fresh(false) { }
 
     bool enabled;                  // should vmodify do anything?
-	bool fresh; 				   // should vmodify clear existing tag?
+    bool fresh;                    // should vmodify clear existing tag?
 public:
     handler& active(bool on) { enabled = on; return *this; }
-	bool	 active() const  { return enabled; }
+    bool     active() const  { return enabled; }
 
-	handler& clear()		 { fresh = true; return *this; }
+    handler& clear()         { fresh = true; return *this; }
 };
 
   ///////////////////////////////////////////////////////
-  // generic implementation 						   //
+  // generic implementation                            //
   // (delegates all messages to registered handlers)   //
   ///////////////////////////////////////////////////////
 
 class set_tag::combined_tag : public handler {
-	std::vector<set_tag::handler*> tags;
+    std::vector<set_tag::handler*> tags;
 public:
   // registers a delegate tag
-	combined_tag& delegate(set_tag::handler& t)
+    combined_tag& delegate(set_tag::handler& t)
     { tags.push_back(&t); return *this; }
 
   // standard state set methods (non-inline)
-	handler& active(bool);
-	bool	 active() const;
-	handler& set(ID3field, const char*);
-	handler& clear();
+    handler& active(bool);
+    bool     active() const;
+    handler& set(ID3field, const char*);
+    handler& clear();
 };
 
   ///////////////////////////////////////////////////////
-  // severe error reporting 						   //
+  // severe error reporting                            //
   ///////////////////////////////////////////////////////
 
 class set_tag::failure : public std::exception {
-	mutable char* txt;
+    mutable char* txt;
 public:
-	explicit failure(const std::string&);
-	failure(const failure& other) : txt( other.txt )
-	{ other.txt = 0; }
-	virtual ~failure() throw()
-	{ delete[] txt; }
-	virtual const char* what() const throw()
-	{ return txt ? txt : "<null>"; }
+    explicit failure(const std::string&);
+    failure(const failure& other) : txt( other.txt )
+    { other.txt = 0; }
+    virtual ~failure() throw()
+    { delete[] txt; }
+    virtual const char* what() const throw()
+    { return txt ? txt : "<null>"; }
 };
 
 #ifdef __BORLANDC__

@@ -14,9 +14,9 @@
   string, and then access the matched variables (if any) using the
   index operator. Example:
 
-	 varexp v("*, *", "foo, bar")
-	 v[0]; // == "foo"
-	 v[1]; // == "bar"
+     varexp v("*, *", "foo, bar")
+     v[0]; // == "foo"
+     v[1]; // == "bar"
 
   The index operator returns a std::string. Use the cpy() member if you
   want a copy in plain-old-C style.
@@ -25,8 +25,8 @@
   holds the results of the pattern match (failed/succeed). Thus, varexp can
   also be used like an ordinary wildcard test:
 
-	 if( varexp("r*.txt", str) )
-		 ...	   // executes if str matched "r*.txt"
+     if( varexp("r*.txt", str) )
+         ...       // executes if str matched "r*.txt"
 
   Restrictions:
 
@@ -53,83 +53,83 @@
 
 class varexp {
 public:
-	varexp(const char* mask, const char* test) : vars(), varl()
-	{ result = match(mask,test); };
-	varexp() : vars(), varl()
-	{ result = 0; }
+    varexp(const char* mask, const char* test) : vars(), varl()
+    { result = match(mask,test); };
+    varexp() : vars(), varl()
+    { result = 0; }
 
-	operator bool() const
-	{ return result; }
+    operator bool() const
+    { return result; }
 
-	std::string operator[](unsigned idx) const;
+    std::string operator[](unsigned idx) const;
 
-	unsigned size() const
-	{ return vars.size(); }
+    unsigned size() const
+    { return vars.size(); }
 
-	char* cpy(char* dest, unsigned idx) const;
+    char* cpy(char* dest, unsigned idx) const;
 
-	class iterator;
-	iterator begin() const;
-	iterator end() const;
+    class iterator;
+    iterator begin() const;
+    iterator end() const;
 
 protected:
-	std::vector<const char*> vars;	 // string portion indexes
-	std::vector<int>		 varl;	 // string portion lengths
-	bool					 result;
+    std::vector<const char*> vars;   // string portion indexes
+    std::vector<int>         varl;   // string portion lengths
+    bool                     result;
 
-	bool match(const char* mask, const char* test);
-	int in_set(char c, const char* set, const char* test);
+    bool match(const char* mask, const char* test);
+    int in_set(char c, const char* set, const char* test);
 };
 
 inline std::string varexp::operator[](unsigned idx) const
 {
-	if( idx >= vars.size() )				  // bounds check
-		throw std::out_of_range("varexp: index out of range");
+    if( idx >= vars.size() )                  // bounds check
+        throw std::out_of_range("varexp: index out of range");
 
-	return std::string( vars[idx], varl[idx] );
+    return std::string( vars[idx], varl[idx] );
 }
 
 inline char* varexp::cpy(char* dest, unsigned idx) const
 {
-	return std::strncpy(dest, vars[idx], varl[idx] );
+    return std::strncpy(dest, vars[idx], varl[idx] );
 }
 
 class varexp::iterator {
-	friend class varexp;
-	typedef std::vector<const char*>::const_iterator vars_ptr;
-	typedef std::vector<int>::const_iterator		 varl_ptr;
+    friend class varexp;
+    typedef std::vector<const char*>::const_iterator vars_ptr;
+    typedef std::vector<int>::const_iterator         varl_ptr;
 
-	vars_ptr s;
-	varl_ptr l;
+    vars_ptr s;
+    varl_ptr l;
 
-	iterator(vars_ptr is, varl_ptr il)
-	: s(is), l(il) { }
+    iterator(vars_ptr is, varl_ptr il)
+    : s(is), l(il) { }
 public:
-	std::string operator*() const		   { return std::string(*s, *l); }
-	iterator& operator++()				   { return ++s, ++l, *this; }
-	iterator  operator++(int)			   { iterator tmp(*this);
-											 return ++s, ++l, tmp; }
+    std::string operator*() const          { return std::string(*s, *l); }
+    iterator& operator++()                 { return ++s, ++l, *this; }
+    iterator  operator++(int)              { iterator tmp(*this);
+                                             return ++s, ++l, tmp; }
 
-	friend bool operator==(const iterator& a, const iterator& b)
-	{ return a.s == b.s; }
-	friend bool operator!=(const iterator& a, const iterator& b)
-	{ return a.s != b.s; }
+    friend bool operator==(const iterator& a, const iterator& b)
+    { return a.s == b.s; }
+    friend bool operator!=(const iterator& a, const iterator& b)
+    { return a.s != b.s; }
 
-	typedef std::input_iterator_tag 		  iterator_category;
-	typedef std::string 					  value_type;
-	typedef std::vector<int>::difference_type difference_type;
-	typedef const std::string*				  pointer;
-	typedef const std::string&				  reference;
+    typedef std::input_iterator_tag           iterator_category;
+    typedef std::string                       value_type;
+    typedef std::vector<int>::difference_type difference_type;
+    typedef const std::string*                pointer;
+    typedef const std::string&                reference;
 };
 
 inline varexp::iterator varexp::begin() const
 {
-	return iterator(vars.begin(), varl.begin());
+    return iterator(vars.begin(), varl.begin());
 }
 
 inline varexp::iterator varexp::end() const
 {
-	return iterator(vars.end(), varl.end());
+    return iterator(vars.end(), varl.end());
 }
 
 #endif
