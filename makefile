@@ -58,6 +58,10 @@ depend:
 	 echo .; echo wq) | ed makefile
 
 help:
+	@sed -e '1,/vars/!d' -e '/^[[:upper:]]/!d' makefile
+	@echo
+	@sed -e '1,/setup/!d' -e '/^[[:lower:]]/!d' makefile
+	@echo
 	@grep '^.PHONY' makefile
 
 ## installation ############################################################
@@ -137,11 +141,11 @@ dist-clean: $(DISTFILES)
 	mv .tmp/* `pwd`
 	-rm -rf .tmp
 
-ORIG ?= `pwd`.tar.gz
+orig ?= `pwd`.tar.gz
 
 diff:
 	rm -rf .tmp; mkdir .tmp && ln -s `pwd` .tmp/{current}
-	tar Cxfz .tmp $(ORIG)
+	tar Cxfz .tmp $(orig)
 	diff -x '.*' -durN .tmp/* | gzip -9 > `pwd`-$(D_VER).diff.gz
 	-rm -rf .tmp
 
