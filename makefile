@@ -127,7 +127,7 @@ dist-check:
 	  -e		's/^ \([^ ]*\).*/\1/p'; \
 	    ls $(DISTFILES) | sed 's:/[^ ]*::g') | sort | uniq -u` && \
 	echo "$${d}"; test -z "$${d}"
-	$(D_TMP) && make -C .tmp all && mv .tmp/id3 .tmp/id3l `pwd`
+	$(D_TMP) && make -C .tmp all && mv .tmp/*.o .tmp/id3 .tmp/id3l `pwd`
 	-rm -rf .tmp
 	@echo all release checks okay
 
