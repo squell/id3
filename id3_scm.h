@@ -9,13 +9,35 @@
 
 */
 
-#include <stdio.h>
-#include <string.h>
+#ifndef __ZF_ID3PRINT_SCHEME
+#define __ZF_ID3PRINT_SCHEME
+
+#include "id3_fmt.h"
+#include <cstdio>
+
 #include "id3v1.h"
 #include "id3v2.h"
 
-void id3p_unparse_v1(struct ID3v1 tag)
+struct id3_scheme : id3_print {
+      id3_scheme()                    { std::printf("(define directory '("); }
+     ~id3_scheme()                    { std::printf("))\n"); }
+
+     void file_beg(const char *fname) { std::printf("\n(\"%s\"", fname); }
+     void file_end(void)              { std::printf(")"); }
+
+     void unparse_v1(struct ID3v1 &tag);
+     void unparse_v2(void *src);
+};
+
+ // this should never actualy get inlined in production code, since they
+ // should be called from within an instance-pointer with id3_print type
+
+ // note that inline functions have external linkage so in any case you will
+ // end up with just one copy of every function.
+
+inline void id3_scheme::unparse_v1(struct ID3v1 &tag)
 {
+    using std::printf;
     printf("\n    (id3 (v 1.1)\n"
            "\t(title \"%.30s\")\n"
            "\t(artist \"%.30s\")\n"
@@ -36,8 +58,9 @@ void id3p_unparse_v1(struct ID3v1 tag)
           );
 }
 
-void id3p_unparse_v2(void *src)
+inline void id3_scheme::unparse_v2(void *src)
 {
+    using std::printf;
     ID3FRAME frm;
 
     printf("\n    (id3v2 (v 3.0)");
@@ -65,41 +88,5 @@ void id3p_unparse_v2(void *src)
     printf(")");
 }
 
-int id3p_showfile(const char *fname)
-{
-    struct ID3v1 tag = { { 0 } };
-    FILE *f   = fopen(fname, "rb");
-    void *src;
-
-    if(!f) return 0;
-
-    printf("\n(\"%s\"", fname);
-
-    if(f) {                                /* manually read ID3v1 tag */
-        fseek(f, -128, SEEK_END);
-        fread(&tag, 128, 1, f);
-        fclose(f);
-        if(memcmp(tag.TAG, "TAG", 3) == 0)
-           id3p_unparse_v1(tag);
-    }
-
-    if( src=ID3_readf(fname, 0) ) {
-        id3p_unparse_v2(src);
-        ID3_free(src);
-    }
-
-    printf(")");
-    return 1;
-}
-
-void id3p_listhead(void)
-{
-    printf("(define directory '(");
-}
-
-void id3p_listfoot(void)
-{
-    printf("))\n");
-}
-
+#endif
 
