@@ -95,21 +95,21 @@ cvtstring string_parm::edit(const cvtstring& fmt, const subst& var, const char* 
         while( pos+n < s.length() ) {
             cvtstring svar;
 
-            switch( char c = s[pos+n] ) {
-            case VAR: s.replace(pos++, n+1, 1, VAR ); break;   // "%%" -> "%"
-            case ',': s.replace(pos, n+1, "\r\n", 2); pos += 2; break;
+            switch( char c = s[pos + (n++)] ) {
+            case VAR: s.replace(pos++, n, 1, VAR ); break;   // "%%" -> "%"
+            case ',': s.replace(pos, n, "\r\n", 2); pos += 2; break;
 
-            case '_': raw  = true; ++n; continue;
-            case '+': caps = name; ++n; continue;
-            case '-': caps = lowr; ++n; continue;
-            case '#': ++npad;      ++n; continue;
+            case '_': raw  = true; continue;
+            case '+': caps = name; continue;
+            case '-': caps = lowr; continue;
+            case '#': ++npad;      continue;
             case '|': {                                        // alt string
-                     int t = s.find('|',pos+n+1);
+                     int t = s.find('|',pos+n);
                      if(t == string::npos) {
-                         s.replace(pos++, n+1, 1, '|');
+                         s.replace(pos++, n, 1, '|');
                          break;
                      }
-                     n  += pos+1;
+                     n  += pos;
                      alt = s.substr(n, t-n);
                      n   = t+1 - pos;
                      continue;
@@ -128,7 +128,7 @@ cvtstring string_parm::edit(const cvtstring& fmt, const subst& var, const char* 
                 goto substitute;
             default :
                 if(!isalpha(c)) {
-                    s.replace(pos++, n+1, 1, '?');
+                    s.replace(pos++, n, 1, '?');
                     break;
                 } else
                     svar = var.alpha(c);
@@ -143,7 +143,7 @@ cvtstring string_parm::edit(const cvtstring& fmt, const subst& var, const char* 
                 }
                 if(npad > 1 && tmp.length() < npad)
                     tmp.insert(string::size_type(0),npad-tmp.length(), '0');
-                s.replace(pos, n+1, tmp);
+                s.replace(pos, n, tmp);
                 pos += tmp.length();
             }
 
