@@ -10,6 +10,7 @@ LDFLAGS  =
 
 STRIP	 = strip
 TAR	 = tar
+MKDEP    = $(CC) -MM
 
 ## installation vars #######################################################
 
@@ -32,7 +33,7 @@ INSTALL_DATA  = $(INSTALL) -m 644
 
 ## makefile setup ##########################################################
 
-.PHONY: all clean final default
+.PHONY: build all final clean depend help
 .PHONY: install install-strip install-full uninstall
 .PHONY: installdirs installman installdoc
 .PHONY: dist dist-zip dist-clean dist-check diff
@@ -55,6 +56,9 @@ clean:
 depend:
 	(echo '/$@encies/+2;/^$$/-1c'; $(MKALLDEP); \
 	 echo .; echo wq) | ed makefile
+
+help:
+	@grep '^.PHONY' makefile
 
 ## installation ############################################################
 
@@ -181,19 +185,21 @@ MKALLDEP += $(MKDEP) $(CFLAGS)	 $(SRC_C:=.c)
 
 ## dependencies -MM ########################################################
 
+main.o: main.cpp ffindexp.h auto_dir.h sedit.h set_base.h setid3.h \
+ setfname.h setid3v2.h
+mainl.o: main.cpp ffindexp.h auto_dir.h sedit.h set_base.h setid3.h \
+ setfname.h
+sedit.o: sedit.cpp charconv.h sedit.h
+varexp.o: varexp.cpp varexp.h
+ffindexp.o: ffindexp.cpp varexp.h auto_dir.h ffindexp.h
+charconv.o: charconv.cpp charconv.h
+set_base.o: set_base.cpp set_base.h sedit.h
+setid3.o: setid3.cpp setid3.h set_base.h sedit.h id3v1.h
+setid3v2.o: setid3v2.cpp setid3v2.h set_base.h sedit.h id3v1.h id3v2.h \
+ fileops.h
+setfname.o: setfname.cpp setfname.h set_base.h sedit.h
 fileops.o: fileops.c fileops.h
 id3v1.o: id3v1.c id3v1.h
 id3v2.o: id3v2.c fileops.h id3v2.h
-charconv.o: charconv.cpp charconv.h
-ffindexp.o: ffindexp.cpp varexp.h auto_dir.h ffindexp.h
-main.o: main.cpp ffindexp.h auto_dir.h sedit.h set_base.h setid3.h \
-  setfname.h setid3v2.h
-sedit.o: sedit.cpp charconv.h sedit.h
-set_base.o: set_base.cpp set_base.h sedit.h
-setfname.o: setfname.cpp setfname.h set_base.h sedit.h
-setid3.o: setid3.cpp setid3.h set_base.h sedit.h id3v1.h
-setid3v2.o: setid3v2.cpp setid3v2.h set_base.h sedit.h id3v1.h id3v2.h \
-  fileops.h
-varexp.o: varexp.cpp varexp.h
 
 ############################################################################
