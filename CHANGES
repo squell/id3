@@ -1,11 +1,18 @@
 Changelog for 'id3'.
 
+2003-239 (W35):
+  ogg_out.cpp: Streamlining
+
+2003-237 (W35):
+  Created ogg_out class
+
 2003-234 (W34):
-  Started on ogg_out
+  ogg_in.cpp: further review of ogg_in so ogg_in is well-behaved in
+    'badbit' conditions.
 
 2003-231 (W34):
-  Resumed work on vorbis_in - correctness definitions, testing code,
-  split in ogg.cpp and vorbis.cpp, culling useless features.
+  ogg_in.cpp & vorbis.cpp: Resumed work. Split vorbis work in two files,
+    correctness validation stuff, testing, refining.
 
 2003-218 (W32):                                ---------[v0.70]-----------
   id3v2.c:ID3_writef: [BUGFIX] Serious. tmpnam() does not guarantee to
@@ -61,78 +68,15 @@ Changelog for 'id3'.
   Code clean up + minor improvements (e.g. added [] to wildcard match)
   Bolted together (private) `id3' & (private) ID3v2 sources
 
-Changelog for 'id3'.
 
+Todo list:
 
-  BUG 6807
-  COVARIANTS
-  Support for Ogg Vorbis
-  Options for forcing re-packing id3v2
   Command stacking    ("-nat 1 art tit == -n 1 -a art -t tit")
-  Shorthand Wildcards ("%n. %t.mp3" == -n %1 -t %2 "*. *.mp3")
-  Join main.cpp & view.cpp
-
-Todo list:
-
-2003-218 (W32):                                ---------[v0.70]-----------
-  id3v2.c:ID3_writef: [BUGFIX] Serious. tmpnam() does not guarantee to
-    create filenames that can always be fed to rename() on all systems,
-    thus causing files to disappear / remain in your temp dir.
-    Fix: Added a copy routine/handler.
-  setid3.cpp & setid3v2.cpp: now throw exceptions on serious errors
-  varexp.h: better explanation of index-out-of-range error
-  main.cpp: handles all exceptions, more consistent help messages
-
-2003-216 (W32):
-  id3v2.c:268: Added check on tmpnam(0) returning NULL
-  id3v2.c:66:  Added safety to see if copyfile() halted because of eof
-  setid3v2.cpp:91: [BUGFIX] Harmless. w_ptr constructor sometimes got an
-    uninitialized allocation value (went by unnoticed because of
-    alloc-on-write?). Fix: Removed this feature - unnecessary anyway.
-  setid3v2.cpp:89: Only read previous ID3v2 if necessary.
-
-2003-215 (W31):
-  Fleshed out large parts of the public interface of vorbis_in
-
-2003-210 (W31):
-  Tried to generize crc32.h (postponed), some tidbits added to vorbis.cpp
-
-2003-199 (W29):
-  Created vorbis.cpp framework & crc32.h
-
-2003-198 (W29):
-  Added conditional stdint.h include, some dirent.h implementations need it
-
-2003-189 (W28):                                ---------[v0.60]-----------
-  First public release
-  setid3.cpp: Removed silly packing check
-  setid3v2.cpp:97: Added "&& src". Whoopsee! :)
-  id3v2.c: writef() now writes ID3v2 tags to files < 10 bytes. :)
-
-2003-185 (W27):
-  setid3v2.cpp:26: made w_ptr a live object + added bad_alloc checks
-  setid3v2.cpp:90: void* src + ID3_free -> voidp<> src (exception safety)
-  setid3.cpp:94: Now emits CR/LF pairs for %n, violating ID3v2, but
-    conforming to Winamp. I figure more people care about Winamp.
-
-2003-184 (W27):
-  Readme
-  Added specifying genre per number
-
-2003-183 (W27):
-  Started changelog.
-  Install
-  More code cleaning. Removed implementation-dependency with rename()
-
-2003-181 (W27):
-  Code clean up + minor improvements (e.g. added [] to wildcard match)
-  Bolted together (private) `id3' & (private) ID3v2 sources
-
-Todo list:
-  Support for Ogg Vorbis
   Options for re-formatting existing tag values
+  mktemp()
+  Support for Ogg Vorbis
   Options for forcing re-packing id3v2
-  Command stacking    ("-nat 1 art tit == -n 1 -a art -t tit")
   Shorthand Wildcards ("%n. %t.mp3" == -n %1 -t %2 "*. *.mp3")
   Join main.cpp & view.cpp
+  Restructure smartID3 inheritance.
 
