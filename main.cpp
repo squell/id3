@@ -1,3 +1,6 @@
+#if __STDC_VERSION__ >= 199901L
+#  include <stdint.h>                     // for some variants of dirent.h
+#endif
 #include <dirent.h>
 #include <cstdlib>
 #include <cstdio>
