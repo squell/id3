@@ -26,7 +26,7 @@ extern void    ID3_free(void *buf);
 extern void    ID3_start(ID3FRAME f, void *buf);
 extern int     ID3_frame(ID3FRAME f);
 
-extern void   *ID3_put(void *dest, const char ID[4], void *src, size_t len);
+extern void   *ID3_put(void *dest, const char ID[4], const void *src, size_t len);
 
 #ifdef __cplusplus
 }

@@ -321,7 +321,7 @@ int ID3_frame(ID3FRAME f)
         && (isupper(f->ID[3]) || isdigit(f->ID[3]));
 }
 
-void *ID3_put(void *dest, const char ID[4], void *src, size_t len)
+void *ID3_put(void *dest, const char ID[4], const void *src, size_t len)
 {
     struct raw_frm *frame = (struct raw_frm*)dest;
     char *cdest           = (char*)dest + sizeof *frame;
