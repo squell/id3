@@ -125,7 +125,7 @@ static ulong calcsize(uchar *buf, ulong max)
         size += step;
         buf  += step;
     }
-    return size<max? size : 0;
+    return size<=max? size : 0;
 }
 
 static int checkid(const char ID[])

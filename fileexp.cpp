@@ -129,7 +129,8 @@ bool filefind::nested(auto_dir dir, char* wpath, char* fnmatch)
             w = true;
             var.resize(prevlen);
         }
-        if(recursive && *wpath != '.') {
+        char buf[1];
+        if(recursive && *wpath != '.' && readlink(path, buf, 1) < 0) {
             if(auto_dir newdir = auto_dir(path))
                 w = nested(newdir, pathcpy(nwpath, "/"), fnmatch) || w;
         }
