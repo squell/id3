@@ -15,6 +15,7 @@ Changelog for 'id3'.
 
 2003-185 (W27):
   setid3v2.cpp: made w_ptr a live object + added bad_alloc checks
+  setid3v2.cpp: void* src -> safe3 src
 
 Todo list:
 

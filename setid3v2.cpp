@@ -77,8 +77,8 @@ smartID3v2& smartID3v2::set(ID3set i, const char* m)
 struct safe3 {                                       // auto-ptr like
     void* data;
     operator void*() { return data; }
-    safe(void* p)    { data = p; }
-   ~safe()           { ID3_free(data); }
+    safe3(void* p)   { data = p; }
+   ~safe3()          { ID3_free(data); }
 };
 
 bool smartID3v2::vmodify(const char* fn, const base_container& v) const
