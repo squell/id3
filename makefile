@@ -32,12 +32,12 @@ INSTALL_DATA  = $(INSTALL) -m 644
 
 ## standard targets ########################################################
 
-id3: main.o sedit.o varexp.o ffindexp.o \
+id3: main.o sedit.o varexp.o ffindexp.o charconv.o \
      set_base.o setid3.o setid3v2.o \
      id3v1.o id3v2.o fileops.o
 	$(CXX) $(LDFLAGS) -o $@ $+
 
-id3l: mainl.o sedit.o varexp.o ffindexp.o \
+id3l: mainl.o sedit.o varexp.o ffindexp.o charconv.o \
      set_base.o setid3.o \
      id3v1.o
 	$(CXX) $(LDFLAGS) -o $@ $+
@@ -104,6 +104,7 @@ main.o: main.cpp sedit.h ffindexp.h auto_dir.h setid3v2.h setid3.h
 mainl.o: main.cpp sedit.h ffindexp.h auto_dir.h setid3.h
 	$(CC) $(CXXFLAGS) -DNO_V2 -o $@ -c main.cpp
 
+sedit.o   : charconv.h
 ffindexp.o: varexp.h auto_dir.h
 set_base.o: sedit.h
 setid3.o  : set_base.h sedit.h id3v1.h

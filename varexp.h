@@ -2,11 +2,12 @@
 
   Simple wildcard matching with pattern matching
 
-  ! currently does not handle multi-byte encodings properly
-
   (c) 2004 squell ^ zero functionality!
   see the file 'COPYING' for license conditions
 
+  ! currently does not handle multi-byte encodings properly
+  ! (except utf-8)
+  
   Usage:
 
   Construct a varexp object using a wildcard specification and a test

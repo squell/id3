@@ -1,9 +1,8 @@
 #include <string>
 #include <cctype>
 #include <algorithm>
+#include "charconv.h"
 #include "sedit.h"
-
-#include <cstdio>
 
 /*
 
@@ -74,11 +73,23 @@ string capitalize(string s)
 
 /* ====================================================== */
 
+ // this is just a placeholder until sedit is fully wide-character aware
+
+inline void convert_to_latin1(string& s)
+{
+     string tmp = latin1::conv(s);
+     s.swap(tmp);
+}
+
+/* ====================================================== */
+
 string string_parm::edit(string s, const base_container& v)
 {
     enum style { as_is, name, lowr };
 
     string::size_type pos = 0;
+
+    convert_to_latin1(s);
 
     while( (pos=s.find(VAR, pos)) != string::npos ) {
         bool  raw  = false;

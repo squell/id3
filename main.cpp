@@ -120,7 +120,7 @@ struct metadata : uses<ID3>, uses<ID3v2> {
 
 #else
 
-struct metadata : ID3 { };
+typedef ID3 metadata;
 
 #endif
 
@@ -200,7 +200,7 @@ void Copyright()
 {
  //      |=======================64 chars wide==========================|
     printf(
-        "id3 " _version_ ", Copyright (C) 2003, 04 Squell\n"
+        "id3 " _version_ ", Copyright (C) 2003, 04 Marc R. Schoolderman\n"
         "This program comes with ABSOLUTELY NO WARRANTY.\n\n"
         "This is free software, and you are welcome to redistribute it\n"
         "under certain conditions; see the file named COPYING in the\n"

@@ -1,10 +1,12 @@
 Changelog for 'id3'.
 
 2004-144 (W21):
+  charconv.pp: hacked together a converion to latin1 on systems that are
+    fully unicode compliant (e.g. glibc2.2 and up)
   setid3.cpp: now upgrades old ID3v1.0 tags
-  id3v2.c:186: fixed (rare) leak, added check to see if padding is zeroed,
+  id3v2.c:186: fixed (rare) leak, added check to see if padding is zeroed
   setid3v2.cpp:127: added checking and prevention against malformed tags
-  main.cpp: added "-V" version information
+  main.cpp: added "-V" version information, changed help screen
 
 2004-093 (W14):
   main.cpp: Added "--" option (stops scanning for more options)
