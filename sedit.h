@@ -54,12 +54,12 @@ class string_parm {
     static const char VAR = '%';              // replacement char
 
 protected:
-    struct base_container {
+    struct subst {
         virtual std::string operator[](unsigned) const = 0;
     };
 
     template<class T>                         // templatized wrapper
-    struct container : base_container {
+    struct container : subst {
         const T& data;
 
         container(const T& t) : data(t) { }
@@ -68,10 +68,17 @@ protected:
         { return data[x]; }
     };
 
-    static std::string edit(std::string, const base_container&);
+    struct null_container : subst {
+        virtual std::string operator[](unsigned) const
+        { return std::string(); }
+    };
+
+    static std::string edit(std::string, const subst&);
 
     template<class T>
       friend std::string sedit(const char*, const T&);
+    template<class T, class U>
+      friend std::string sedit(const char*, const T&, const U&);
 };
 
   // little excuse for making this a useful header :)
@@ -79,7 +86,15 @@ protected:
 template<class T>
   inline std::string sedit(const char* fmt, const T& vars)
 {
-    return string_parm::edit(fmt, string_parm::container<T>(vars));
+    return string_parm::edit(fmt, string_parm::container<T>(vars),
+                                  string_parm::null_container());
+}
+
+template<class T, class U>
+  inline std::string sedit(const char* fmt, const T& vars, const U& table)
+{
+    return string_parm::edit(fmt, string_parm::container<T>(vars),
+                                  string_parm::container<U>(table));
 }
 
 #endif

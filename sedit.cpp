@@ -36,7 +36,7 @@ namespace {
 
  // remove extraneous spaces in a string
 
-    inline void compress(string& s)
+    void compress(string& s)
     {
         string::reverse_iterator t( unique(s.begin(), s.end(), both_space()) );
         if(t != s.rend() && isspace(*t)) ++t;
@@ -44,6 +44,22 @@ namespace {
         if(s.length() > 0 && isspace(s[0]))
             s.erase(s.begin());
     }
+
+ // choose capitalization
+
+    enum style { as_is, name, lowr };
+
+    string stylize(string s, style caps)
+    {
+        switch(caps) {
+        case name:
+            return capitalize(s);
+        case lowr:
+            transform(s.begin(), s.end(), s.begin(), to_lower());
+        }
+        return s;
+    }
+
 }
 
  // Capitalize A Text-string Like This.
@@ -70,10 +86,8 @@ inline void convert_to_latin1(string& s)
 
 /* ====================================================== */
 
-string string_parm::edit(string s, const base_container& v)
+string string_parm::edit(string s, const subst& var)
 {
-    enum style { as_is, name, lowr };
-
     string::size_type pos = 0;
 
     while( (pos=s.find(VAR, pos)) != string::npos ) {
@@ -82,13 +96,10 @@ string string_parm::edit(string s, const base_container& v)
         int n = 1;
         while( pos+n < s.length() ) {
             switch( char c = s[pos+n] ) {
-            default:
-                s.erase(pos, n);
-                break;
             case '@':
-            case ':': s.erase(pos, 1); s[pos++] = '\0'; break;
-            case VAR: s.erase(pos, 1);   pos++;         break; // "%%" -> "%"
-            case ',': s[pos++] = '\r'; s[pos++] = '\n'; break;
+            case ':': s.replace(pos++, n+1, 1, '\0'); break;
+            case VAR: s.replace(pos++, n+1, 1, VAR ); break;   // "%%" -> "%"
+            case ',': s.replace(pos, n+1, "\r\n", 2); pos += 2; break;
 
             case '_': raw  = true; ++n; continue;
             case '+': caps = name; ++n; continue;
@@ -103,21 +114,29 @@ string string_parm::edit(string s, const base_container& v)
             case '6':
             case '7':
             case '8':
-            case '9':
-                string tmp = v[c-'1' +ZERO_BASED];
-                if(!raw) {                                  // remove gunk
-                    replace(tmp.begin(), tmp.end(), '_', ' ');
+            case '9': if(!ZERO_BASED) --c;
+                {
+                    string tmp = stylize(var[c-'0'], caps);
+                    if(!raw) {                                 // remove gunk
+                        replace(tmp.begin(), tmp.end(), '_', ' ');
+                        compress(tmp);
+                    }
+                    s.replace(pos, n+1, tmp);
+                    pos += tmp.length();
+                    break;
+                }
+            default :
+                if(!isalpha(c)) {
+                    s.replace(pos++, n+1, 1, '?'); break;
+                } else {
+                    string tmp = stylize("not implemented", caps);
+                    if(raw)
+                        replace(tmp.begin(), tmp.end(), ' ', '_');
                     compress(tmp);
+                    s.replace(pos, n+1, tmp);
+                    pos += tmp.length();
+                    break;
                 }
-                switch(caps) {
-                case name:
-                    tmp = capitalize(tmp); break;
-                case lowr:
-                    transform(tmp.begin(), tmp.end(), tmp.begin(), to_lower());
-                }
-                s.replace(pos, n+1, tmp);
-                pos += tmp.length();
-                break;
             }
             break;         // turn switch-breaks into while-breaks
         }
