@@ -162,6 +162,14 @@ static ulong calcsize(uchar *buf, ulong max)
     return *buf? 0 : size;
 }
 
+static int checkid(const char ID[])
+{
+    return (isupper(ID[0]) || isdigit(ID[0]))
+        && (isupper(ID[1]) || isdigit(ID[1]))
+        && (isupper(ID[2]) || isdigit(ID[2]))
+        && (isupper(ID[3]) || isdigit(ID[3]));
+}
+
 /* ==================================================== */
 
 void *ID3_readf(const char *fname, unsigned long *tagsize)
@@ -254,16 +262,18 @@ int ID3_frame(ID3FRAME f)
     f->encrypted  = frame->flags[1] & ENC;
     f->grouped    = frame->flags[1] & GRP;
 
-    return (isupper(f->ID[0]) || isdigit(f->ID[0]))
-        && (isupper(f->ID[1]) || isdigit(f->ID[1]))
-        && (isupper(f->ID[2]) || isdigit(f->ID[2]))
-        && (isupper(f->ID[3]) || isdigit(f->ID[3]));
+    return checkid(f->ID);
 }
+
+/* ==================================================== */
 
 void *ID3_put(void *dest, const char ID[4], const void *src, size_t len)
 {
     struct raw_frm *frame = (struct raw_frm*)dest;
     char *cdest           = (char*)dest + sizeof *frame;
+
+    if(!ID || !checkid(ID))
+        return (*(char*)dest=0), dest;
 
     memcpy(frame->ID, ID, 4);
     nbo4(frame->size, len);
