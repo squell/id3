@@ -91,7 +91,7 @@ int main(int argc, char *argv[])
     bool   w = false;            // check against no-ops
 #ifdef __ZF_SETID3V2
     bool aux = false;            // check for -1 & -2 commands
-    string opt;                  // v2
+    string frmID;                // v2
     smartID3v2 tag(true,false);  // default: write ID3v1, not v2
 #else
     smartID3 tag;
@@ -99,9 +99,9 @@ int main(int argc, char *argv[])
 
     for(int i=1; i < argc; i++) {
 #ifdef __ZF_SETID3V2
-        if(!opt.empty()) {       // v2
-            tag.set(opt, argv[i]);
-            opt.erase();
+        if(!frmID.empty()) {     // v2 - write raw frame
+            tag.set(frmID, argv[i]);
+            frmID.erase();
             w = true;
         } else
 #endif
@@ -123,11 +123,11 @@ int main(int argc, char *argv[])
                 switch( toupper(argv[i][1]) ) {
 #ifdef __ZF_SETID3V2
                 case 'D':
-                    if( opt.assign(argv[i]+2) == "" )
+                    if( frmID.assign(argv[i]+2) == "" )
                         tag.clear();
                     else
-                        tag.rm(opt);
-                    opt.erase();
+                        tag.rm(frmID);
+                    frmID.erase();
                     w = true;
                     break;
 #else
@@ -141,7 +141,7 @@ int main(int argc, char *argv[])
                 case 'G': t = genre;  break;
                 case 'N': t = track;  break;
 #ifdef __ZF_SETID3V2
-                case 'W': opt.assign(argv[i]+2); break;
+                case 'W': frmID.assign(argv[i]+2); break;
                 case '2': tag.opt(aux++,true); break;
                 case '1': tag.opt(true,aux++); break;
 #endif
