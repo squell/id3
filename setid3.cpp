@@ -136,8 +136,6 @@ string smartID3::edit(string s, const base_container& v)
 
 /* ====================================================== */
 
-#pragma warn -pia                             // no if(x = ..) warnings
-
 bool smartID3::vmodify(const char* fn, const base_container& v) const
 {
     ID3v1 tag = { { 0 } };                    // duct tape

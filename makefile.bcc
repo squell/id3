@@ -1,18 +1,20 @@
 ## id3 makefile for Borland C++ (tested with 5.5) ##########################
 
 CC     = bcc32
-CFLAGS = -d -O2
+CFLAGS = -w- -d -O2
+
+.autodepend
 
 ############################################################################
 
 id3.exe: main.obj setid3.obj setid3v2.obj varexp.obj id3v1.obj id3v2.obj id3_fmt.obj
         $(CC) $(CFLAGS) -e$@ $**
 
-id3l.exe: mainl.obj setid3.obj varexp.obh id3v1.obj
-	$(CC) -o $@ $+
+id3l.exe: mainl.obj setid3.obj varexp.obj id3v1.obj
+        $(CC) $(CFLAGS) -e$@ $**
 
-final: id3.exe
-        upx --best -f $**                       ## requires upx installed ##
+final: id3.exe id3l.exe
+        upx --best $**                          ## requires upx installed ##
 
 all  : id3.exe id3l.exe
 
@@ -23,14 +25,8 @@ clean:
 
 ############################################################################
 
-main.obj: main.cpp setid3.h setid3v2.h varexp.h id3v1.h id3v2.h
-        $(CC) $(CFLAGS) -c $**
-
 mainl.obj: main.cpp setid3.h varexp.h id3v1.h
-        $(CC) $(CFLAGS) -DNO_V2 -o $@ -c $**
-
-setid3v2.obj: id3v2.h setid3.h
-setid3.obj  : id3v1.h
+        $(CC) $(CFLAGS) -DNO_V2 -o$@ -c main.cpp
 
 .c.obj:
         $(CC) $(CFLAGS) -c $<
