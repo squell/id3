@@ -6,7 +6,6 @@
 */
 
 #include <vector>
-#include <cstring>
 #include "set_base.h"
 
 using namespace std;

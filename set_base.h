@@ -24,6 +24,7 @@
 #ifndef __ZF_SET_BASE_HPP
 #define __ZF_SET_BASE_HPP
 
+#include <cstring>
 #include <string>
 #include <exception>
 #include <new>
