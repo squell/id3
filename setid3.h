@@ -109,10 +109,13 @@ public:
 };
 
 class smartID3::failure : public std::exception {
-    mutable auto_ptr<char> txt;
+    mutable std::auto_ptr<char> txt;
 public:
     explicit failure(const std::string&);
-    failure(const failure& other) : txt( other.txt ) { }
+    failure(const failure& other) : txt( other.txt )
+    { }
+    virtual ~failure() throw()
+    { }
     virtual const char* what() const throw()
     { return txt.get() ? txt.get() : "<null>"; }
 };
