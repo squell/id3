@@ -24,11 +24,17 @@ id3 \- a commandline mass tagger
 .RB [ \-c
 .IR comment ]
 .br
+.RB [ \-! ]
 .RB [ \-s
 .IR size ]
 .RB [ \-r\fIFRAME ]
 .RB [ \-w\fIFRAME
 .IR data ]
+.br
+.RB [ \-q
+.IR string ]
+.RB [ \-f
+.IR filename ]
 .RI [ " \*(lqfilespec\*(rq
 \& ... ]
 
@@ -111,9 +117,26 @@ below.
 Genres can be specified either directly or with their assigned number,
 regardless of tag format.
 
+.TP
+.BI \-q " format
+for each file encounted, \fIformat\fR will get scanned for substitution
+commands, and written to standard output.
+
+.TP
+.BI \-f " filename-template
+rename files encountered according to \fIfilename-template\fR.
+The argument is scanned for substitution commands, and empty variables will
+by default get replaced with the string \*(lqUnknown\*(rq. Trying to rename
+to an already existing file will cause an error.
+
 .PP
 The  following  options  only  operate  on  the  last tag selected, and only
 have meaning where relevant.
+
+.TP
+.BI \-!
+fill all standard tag fields with information from the source tag. This is
+similar to writing \*(lq-talnygc %t %a %l %n %y %g %c\*(rq, but only operates on the last tag.
 
 .TP
 .BI \-s " size
@@ -154,8 +177,47 @@ to prevent your shell from expanding any wildcards.
 replaced with the portion of the filename matching the \fIn\fRth \*(lq*\*(rq
 wildcard in the file specification. 0 is taken to mean 10.
 
+.TP
+.BI % <modifiers>c
+.SM where \fIc\fR <- [a..z]
+
 .RS
-Available \fI<modifiers>\fR:
+replace by values according to the following table:
+.PP
+.BR %t " title
+.br
+.BR %a " artist
+.br
+.BR %g " genre
+.br
+.BR %n " track\ number
+.br
+.BR %l " album\ title
+.br
+.BR %y " year
+.br
+.BR %c " comment\ field
+.br
+.BR %f " filename
+.br
+.BR %x " auto-increasing\ counter 
+.PP
+All values get read (where applicable) from the left-most specified tag format
+on the command line, and reflect the state of the file before any modifications
+were made. Similarly, \fI%f\fR is always the original filename. The \fI%x\fR 
+value gets increased each time it is substituted, and is intended to be used 
+for auto-numbering.
+.RE
+
+.TP
+.B %%
+replaced with a single \*(lq%\*(rq
+
+.TP
+.B %,
+replaced with the newline (\*(lq\en\*(rq) character
+
+.SS Available \fI<modifiers>\fR (optional):
 .TP
 .BR + " (plus\ sign)
 Capitalize the substituted value
@@ -165,21 +227,18 @@ Convert all characters to lowercase
 .TP
 .BR _ " (underscore)
 Do not replace underscores with spaces, and do not compress empty space.
+.TP
+.BR # " (hash\ or\ pound\ sign)
+Prefix a zero before the substituted value to pad it out, if necessary.
+Multiple hash signs can be stacked for more padding. Intended for numeric
+fields only.
+.TP
+.BI | fallback |
+If substitution would yield an empty value, substitute with \fIfallback\fR 
+instead. \fIfallback\fR itself may contain other substitutions, but no other 
+.B |
+(pipe) symbols or fallbacks.
 .RE
-
-.TP
-.B %%
-replaced with a single \*(lq%\*(rq
-
-.SS Intended for use with \-wFRAME:
-
-.TP
-.B %,
-replaced with the newline (\*(lq\en\*(rq) character
-
-.TP
-.B %@ " %:
-replaced with the null (\*(lq\e0\*(rq) character
 
 .SH EXAMPLES
 Here are some examples of using id3:
@@ -194,10 +253,18 @@ Add a simple tag to a file.
 Removes all ID3v1 tags from all mp3's.
 
 .TP
+\fBid3 -2 -1! fs_song.mp3
+Copy ID3v2 tag to ID3v1 tag in selected file. (Note the order)
+
+.TP
 \fBid3 -a "TAFKAT" -n "%1" -t "%c2" "*. *.mp3"
 Sets tag fields correspondingly:
   01. my_song.mp3  [=>] "01" "My Song"
   02. untitled.mp3 [=>] "02" "Untitled"    etc..
+
+.TP
+\fBid3 -2 -f "%a - %t.mp3" blaet.mp3
+Rename file to a standard format, using ID3v2 values.
 
 .TP
 \fBid3 -2 -rAPIC -s 0 *.mp3
@@ -208,8 +275,16 @@ Removes embedded images and padding from all mp3's.
 Adds an ID3v2 lyric frame to blaet.mp3.
 
 .TP
-\fBid3 -v -g alt-rock -alnt "The Author" %1 %2 %3 "Author - */*. *.mp3"
+\fBid3 -v -g alt-rock -alnt "The Author" %1 %2 %3 "Author - */(*) *.mp3"
 Process multiple directories at once.
+
+.TP
+\fbid3 -1 -2! -c "Was: %f" -f "%|TAFKAT|a - %|Untitled (%x)|t.mp3" "*.mp3"
+More advanced rename. Save previous filename in the comment field, and copies ID3v1 to ID3v2.
+
+.TP
+\fbid3 -2 -q "[%###x] %1/%f:% %|No ID3v2!|<%, %<%a - >%t>" "*/*.mp3" 
+Generate a simple playlist from the present two-level directory hierarchy.
 
 .SH NOTES
 The internal pattern matching emulates the normal pattern matching of
