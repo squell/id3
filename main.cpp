@@ -176,26 +176,26 @@ int main_(int argc, char *argv[])
                     u=true, fprintf(err(), "id3: nothing to do with %s\n", argv[i]);
             else
                 switch( *opt++ ) {             // param is an option
-                case 'V': verbose.on(); break;
-                case 'D': tag.clear(); w = true; break;
-                case 'T': field = title;  cmd = stdfield; break;
-                case 'A': field = artist; cmd = stdfield; break;
-                case 'L': field = album;  cmd = stdfield; break;
-                case 'Y': field = year;   cmd = stdfield; break;
-                case 'C': field = cmnt;   cmd = stdfield; break;
-                case 'G': field = genre;  cmd = stdfield; break;
-                case 'N': field = track;  cmd = stdfield; break;
+                case 'v': verbose.on(); break;
+                case 'd': tag.clear(); w = true; break;
+                case 't': field = title;  cmd = stdfield; break;
+                case 'a': field = artist; cmd = stdfield; break;
+                case 'l': field = album;  cmd = stdfield; break;
+                case 'y': field = year;   cmd = stdfield; break;
+                case 'c': field = cmnt;   cmd = stdfield; break;
+                case 'g': field = genre;  cmd = stdfield; break;
+                case 'n': field = track;  cmd = stdfield; break;
 #ifdef __ZF_SETID3V2
-                case 'W':
+                case 'w':
                     fieldID.assign(opt); opt = "";
                     cmd = customfield; break;
-                case 'R':
+                case 'r':
                     tag.rm(opt); opt = "";
                     w = true; break;
                 case '2': tag.opt(aux++,true); break;
                 case '1': tag.opt(true,aux++); break;
 #endif
-                case 'H': help(argv[0]);
+                case 'h': help(argv[0]);
                 default:
                     fprintf(err(), "id3: unrecognized switch: -%c\n", opt[-1]);
                     shelp();
