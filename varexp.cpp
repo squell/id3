@@ -23,6 +23,8 @@ bool varexp::match(const char* mask, const char* test)
     char m, c;
     do {
         switch( c=*test++, m=*mask++ ) {
+        case '[':
+            if( in_set(c,mask,test) ) return 1;
         default :
             if( m != c ) return 0;
         case '?':
@@ -46,6 +48,29 @@ bool varexp::match(const char* mask, const char* test)
        return 0;
     }
     return 1;
+}
+
+ /*
+     auxiliary code to detect character ranges in expressions
+ */
+
+int varexp::in_set(char c, const char* set, const char* test)
+{
+    int  inv = 0, t = 0;
+    char prev, m;
+    if(*set=='!' || *set=='^') {
+        inv = 1;                       // match chars NOT in set
+        ++set;
+    }
+    for(prev = 0; (m = *set++); prev = m)
+        if(m=='-' && prev && *set && *set!=']') {
+            t |= (c >= prev) && (c <= *set);
+        } else {
+            if(m==']')
+                return (t^inv) && match(set, test);
+            t |= (m==c);
+        }
+    return 0;
 }
 
 /*
