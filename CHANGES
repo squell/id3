@@ -25,25 +25,33 @@ Changelog for 'id3'.
   setid3v2.cpp:97: Added "&& src". Whoopsee! :)
   id3v2.c: writef() now writes ID3v2 tags to files < 10 bytes. :)
 
-2003-198 (W29)
+2003-198 (W29):
   Added conditional stdint.h include, some dirent.h implementations need it
 
-2003-199 (W29)
+2003-199 (W29):
   Created vorbis.cpp framework & crc32.h
 
-2003-210 (W31)
+2003-210 (W31):
   Tried to generize crc32.h (postponed), some tidbits added to vorbis.cpp
 
-2003-215 (W31)
+2003-215 (W31):
   Fleshed out large parts of the public interface of vorbis_in
 
-2003-216 (W32)
+2003-216 (W32):
   id3v2.c:268: Added check on tmpnam(0) returning NULL
   id3v2.c:66:  Added safety to see if copyfile() halted because of eof
-  setid3v2.cpp:89: [BUGFIX] w_ptr constructor sometimes got an uninitialized
-    allocation value (went by unnoticed because of alloc-on-write?). Harmless.
-    Fix: Removed this feature - unnecessary anyway.
-  setid3v2.cpp:95: Only read pervious ID3v2 if necessary.
+  setid3v2.cpp:91: [BUGFIX] Harmless. w_ptr constructor sometimes got an
+    uninitialized allocation value (went by unnoticed because of
+    alloc-on-write?). Fix: Removed this feature - unnecessary anyway.
+  setid3v2.cpp:89: Only read previous ID3v2 if necessary.
+
+2003-218 (W32):                                ---------[v0.70]-----------
+  id3v2.c:ID3_writef: [BUGFIX] Serious. tmpnam() does not guarantee to
+    create filenames that can always be fed to rename() on all systems,
+    thus causing files to disappear / remain in your temp dir.
+    Fix: Added a copy routine/handler.
+  main.cpp: Now catches all exceptions.
+  setid3.cpp: Now throws an exception on a serious error
 
 Todo list:
 
