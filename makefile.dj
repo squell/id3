@@ -9,6 +9,12 @@ final: id3
 
 all  : id3
 
+dist :	main.cpp varexp.cpp varexp.h setid3.cpp setid3.h \
+    makefile.dj makefile copying
+	pkzip -ex src.zip $+
+	pkzip -ex bin.zip readme copying id3.exe
+	tar cvfz src.tar.gz $+
+
 clean:
 	del *.o
 	del id3
