@@ -16,7 +16,7 @@
 
 using namespace std;
 
-typedef std::map<std::string,std::string> db;
+typedef map<string,string> db;
 
 /* ===================================== */
 
@@ -77,14 +77,14 @@ smartID3v2& smartID3v2::set(ID3set i, const char* m)
 template<void clean(void*)> struct voidp {          // auto-ptr like
     void* data;
     operator void*() { return data; }
-    voidp(void* p)   { data = p; }
+    voidp(void* p)   { data = p;    }
    ~voidp()          { clean(data); }
 };
 
 bool smartID3v2::vmodify(const char* fn, const base_container& v) const
 {
-    if(v1 && !v2)
-        return smartID3::vmodify(fn, v);
+    if(!v2)
+        return v1 && smartID3::vmodify(fn, v);
 
     size_t temp;
     voidp<ID3_free>
@@ -120,9 +120,6 @@ bool smartID3v2::vmodify(const char* fn, const base_container& v) const
 
     bool res = ID3_writef(fn, dst);
 
-    if(v1 && res)
-        return smartID3::vmodify(fn, v);
-    else
-        return res;
+    return res && (!v1 || smartID3::vmodify(fn, v));
 }
 

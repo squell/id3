@@ -15,9 +15,9 @@ Changelog for 'id3'.
 
 2003-185 (W27):
   setid3v2.cpp:26: made w_ptr a live object + added bad_alloc checks
-  setid3v2.cpp:90: void* src -> voidp<> src
+  setid3v2.cpp:90: void* src + ID3_free -> voidp<> src (exception safety)
   setid3.cpp:94: Now emits CR/LF pairs for %n, violating ID3v2, but
-  conforming to Winamp. I figure more people care about Winamp.
+    conforming to Winamp. I figure more people care about Winamp.
 
 Todo list:
 
