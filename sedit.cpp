@@ -29,18 +29,6 @@ struct sedit_deprecation_warning {
     };
 } sedit_depr = { false, false };
 
- // Capitalize A Text-string Like This.
-
-string capitalize(string s)
-{
-    bool new_w = true;
-    for(string::iterator p = s.begin(); p != s.end(); p++) {
-        *p = new_w? toupper(*p):tolower(*p);
-        new_w = isspace(*p) || !isalnum(*p) && new_w;
-    }
-    return s;
-}
-
  // some predicates and transformers to feed to STL algo's
 
 namespace {
@@ -53,6 +41,34 @@ namespace {
         char operator()(char c)
         { return tolower(c); }
     };
+
+    struct not_space {
+        bool operator()(char c)
+        { return !isspace(c); }
+    };
+}
+
+ // Capitalize A Text-string Like This.
+
+string capitalize(string s)
+{
+    bool new_w = true;
+    for(string::iterator p = s.begin(); p != s.end(); p++) {
+        *p = new_w? toupper(*p):tolower(*p);
+        new_w = isspace(*p) || !isalnum(*p) && new_w;
+    }
+    return s;
+}
+
+ // remove extraneous spaces in a string
+
+void compress(string& s)
+{
+    string::reverse_iterator t( unique(s.begin(), s.end(), both_space()) );
+    if(t != s.rend() && isspace(*t)) ++t;
+    s.erase(t.base(), s.end());
+    if(s.length() > 0 && isspace(s[0]))
+        s.erase(s.begin());
 }
 
 /* ====================================================== */
@@ -96,9 +112,7 @@ string svar::edit(string s, const base_container& v)
                 string tmp = v[c-'1' +ZERO_BASED];
                 if(!raw) {                                  // remove gunk
                     replace(tmp.begin(), tmp.end(), '_', ' ');
-                    string::iterator t =
-                      unique(tmp.begin(), tmp.end(), both_space());
-                    tmp.erase(t, tmp.end());
+                    compress(tmp);
                 }
                 switch(caps) {
                 case name:
