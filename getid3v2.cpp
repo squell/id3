@@ -17,6 +17,9 @@ using namespace std;
 using set_tag::read::ID3v2;
 using set_tag::ID3field;
 
+static bool getframe(void*, ID3FRAME, const char*);
+static cvtstring unbinarize(ID3FRAME);
+
 ID3v2::ID3v2(const char* fn) : tag(ID3_readf(fn,0))
 {
 }
@@ -26,7 +29,55 @@ ID3v2::~ID3v2()
     ID3_free(tag);
 }
 
-static bool getframe(ID3FRAME f, void* tag, const char* field)
+cvtstring ID3v2::operator[](ID3field field) const
+{
+    ID3FRAME f;
+    bool ok = false;
+    if(tag)
+        switch( field ) {
+        case title:
+            ok = getframe(tag, f, "TIT2" "TIT3" "TOFN" "TRSN");
+            break;
+        case artist:
+            ok = getframe(tag, f, "TPE1" "TPE2" "TPE3" "TPE4" "TCOM"
+                                  "TEXT" "TOPE" "TOLY" "TPUB" "TRSO");
+            break;
+        case album:
+            ok = getframe(tag, f, "TALB" "TPOS" "TOAL");
+            break;
+        case year:
+            ok = getframe(tag, f, "TYER" "TORY" "TRDA" "TDAT");
+            break;
+        case cmnt:
+            ok = getframe(tag, f, "COMM" "WPUB" "TCOP" "WCOP");
+            break;
+        case track:
+            ok = getframe(tag, f, "TRCK" "TIME");
+            break;
+        case genre:
+            ok = getframe(tag, f, "TCON" "TIT1");
+        }
+    return ok? unbinarize(f) : cvtstring();
+}
+
+/* ====================================================== */
+
+ID3v2::array ID3v2::listing() const
+{
+    ID3FRAME f;
+    ID3_start(f, tag);
+
+    array vec;
+    vec.push_back( array::value_type("ID3v2", "2.3") );
+    while(ID3_frame(f)) {
+        vec.push_back( array::value_type(f->ID, unbinarize(f)) );
+    }
+    return vec;
+}
+
+/* ====================================================== */
+
+static bool getframe(void* tag, ID3FRAME f, const char* field)
 {
     for( ; *field != '\0'; field+=4) {
         ID3_start(f, tag);
@@ -46,21 +97,20 @@ static bool getframe(ID3FRAME f, void* tag, const char* field)
 static cvtstring unbinarize(ID3FRAME f)
 {
     const char sep[] = ": ";
-    if(f->ID[0] == 'T' && f->ID[3] != 'X' ||
-       strcmp(f->ID, "IPLS") == 0 || strcmp(f->ID, "USER") == 0) {
+    if(f->ID[0] == 'T' && f->ID[3] != 'X' || strcmp(f->ID, "IPLS") == 0 || strcmp(f->ID, "USER") == 0) {
         int skip((f->ID[0]=='U')? 4 : 1);
         string s(f->data+skip, f->size-skip);
-	switch(f->data[0]) {
-	case 0:  return cvtstring::latin1(s);
-	default: return cvtstring::latin1("?");
-	}
+        switch(f->data[0]) {
+        case 0:  return cvtstring::latin1(s);
+        default: return cvtstring::latin1("?");
+        }
     } else if(f->ID[0] == 'W' && f->ID[3] != 'X') {
         string s(f->data+1, f->size-1);
         return cvtstring::latin1(s);
     } else if(strcmp(f->ID, "COMM") == 0 || strcmp(f->ID, "USLT") == 0 ||
               strcmp(f->ID, "TXXX") == 0 || strcmp(f->ID, "WXXX") == 0) {
         int skip((f->ID[3]=='X')? 1 : 4);
-        string s(f->data+skip, f->size-skip);
+        string s(f->data+skip, f->size-skip);                    // *note
         int    i;
         switch(f->data[0]) {
         case 0 :            //    s = cvtstring::latin1(s).latin(); no-op
@@ -72,61 +122,24 @@ static cvtstring unbinarize(ID3FRAME f)
         if(i > 0) s.insert(i, sep);
         return cvtstring::latin1(s);
     } else if(strcmp(f->ID, "PCNT") == 0) {
-	unsigned long t = 0;
-	char buf[12];			 // long enough to hold a 32bit digit
-	t = (f->data[0] & 0xFF) << 24 | (f->data[1] & 0xFF) << 16 |
-	    (f->data[2] & 0xFF) <<  8 | (f->data[3] & 0xFF);
+        unsigned long t = 0;
+        char buf[12];                    // long enough to hold a 32bit digit
+        t = (f->data[0] & 0xFF) << 24 | (f->data[1] & 0xFF) << 16 |
+            (f->data[2] & 0xFF) <<  8 | (f->data[3] & 0xFF);
         sprintf(buf, "%lu", t);
-	return cvtstring::latin1(buf);
+        return cvtstring::latin1(buf);
     }
     return cvtstring::latin1("<unsupported>");
 }
 
- // double sigh.
+/*
 
-cvtstring ID3v2::operator[](ID3field field) const
-{
-    ID3FRAME f;
-    bool ok = false;
-    if(tag)
-	switch( field ) {
-        case title:
-            ok = getframe(f, tag, "TIT2" "TIT3" "TOFN" "TRSN");
-	    break;
-	case artist:
-            ok = getframe(f, tag, "TPE1" "TPE2" "TPE3" "TPE4" "TCOM"
-                                  "TEXT" "TOPE" "TOLY" "TPUB" "TRSO");
-	    break;
-        case album:
-            ok = getframe(f, tag, "TALB" "TPOS" "TOAL");
-	    break;
-	case year:
-            ok = getframe(f, tag, "TYER" "TORY" "TRDA" "TDAT");
-	    break;
-	case cmnt:
-            ok = getframe(f, tag, "COMM" "WPUB" "TCOP" "WCOP");
-	    break;
-	case track:
-            ok = getframe(f, tag, "TRCK" "TIME");
-	    break;
-	case genre:
-            ok = getframe(f, tag, "TCON" "TIT1");
-        }
-    return ok? unbinarize(f) : cvtstring();
-}
+ note:
 
-/* ====================================================== */
+ One of many things wrong with ID3v2, a WXXX frame is composed out of a
+ zero-terminated description (encoding dependant), which is followed by a
+ string (always ISO-8859-1). We can't simply ignore this aberrant frame
+ because e.g. WinAmp uses it as its general URL field.
 
-ID3v2::array ID3v2::listing() const
-{
-    ID3FRAME f;
-    ID3_start(f, tag);
-
-    array vec;
-    vec.push_back( array::value_type("ID3v2", "2.3") );
-    while(ID3_frame(f)) {
-	vec.push_back( array::value_type(f->ID, unbinarize(f)) );
-    }
-    return vec;
-}
+*/
 

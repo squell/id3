@@ -26,72 +26,77 @@ using namespace std;
 using set_tag::ID3v2;
 using set_tag::ID3field;
 
-typedef map<string,string> db;
+namespace {
 
 /* ===================================== */
 
  // extra hairyness to prevent buffer overflows by re-allocating on the fly
  // overkill, but i had to do a runtime check anyway, so.
 
-struct w_ptr {
-    size_t avail;
-    char*  base;
+    class writer {
+        size_t avail;
+        char *base, *dest;
 
-    operator char*()  { return base; }
+    public:
+        operator char*()   { return base; }
 
-    w_ptr(size_t len) { base = (char*) malloc(avail=len);
-                        if(!base) throw bad_alloc(); }
-   ~w_ptr()           { free(base); }
+        writer(size_t len) { base = (char*) malloc(avail=len);
+                             if(!base) throw bad_alloc();
+                             dest = (char*) ID3_put(base,0,0,0); }
 
-    char* put(char* dst, const char* ID, const void* src, size_t len);
-};
+       ~writer()           { free(base); }
 
-char* w_ptr::put(char* dst, const char* ID, const void* src, size_t len)
-{
-    static size_t factor = 0x1000;      // start reallocing in 4k blocks
+        char* put(const char* ID, const void* src, size_t len);
+    };
 
-    if(len+10 > avail) {
-        while(len+10 > factor) factor *= 2;
-        int size = dst - base;
-        avail    = factor;
-        base     = (char*) realloc(base, size+factor);
-        if(!base) throw bad_alloc();
-        dst      = base + size;      // translate current pointer
+    char* writer::put(const char* ID, const void* src, size_t len)
+    {
+        static size_t factor = 0x1000;      // start reallocing in 4k blocks
+
+        if(len+10 > avail) {
+            while(len+10 > factor) factor *= 2;
+            int size = dest - base;
+            base     = (char*) realloc(base, size+factor);
+            avail    = factor;
+            if(!base) throw bad_alloc();
+            dest     = base + size;         // translate current pointer
+        }
+
+        avail -= (len+10);
+        return (char*) ID3_put(dest,ID,src,len);
     }
-
-    avail -= (len+10);
-    return (char*) ID3_put(dst,ID,src,len);
-}
 
 /* ===================================== */
 
  // convert C handler to a C++ exception at program startup
 
-extern "C" int w_handler(const char*, const char*);
+    extern "C" int copy_on_fail(const char*, const char*);
 
-struct w_fail {
-    w_fail()            { ID3_wfail = w_handler; }
-    static string err;
-    static void raise();
-} static w_fail_inst;
+    struct guard {
+        guard()            { ID3_wfail = copy_on_fail; }
+        static string err;
+        static void raise();
+    } static fail_inst;
 
-string w_fail::err;
+    string guard::err;
 
-void w_fail::raise()
-{
-    string emsg;
-    emsg.swap(err);
-    if(!emsg.empty())
-        throw set_tag::failure(emsg);
-}
-
-extern "C" int w_handler(const char* oldn, const char* newn)
-{
-    if(! cpfile(oldn, newn) ) {
-        string emsg(" lost, new contents still in ");
-        w_fail::err = newn + emsg + oldn;
+    void guard::raise()
+    {
+        string emsg;
+        emsg.swap(err);
+        if(!emsg.empty())
+            throw set_tag::failure(emsg);
     }
-    return 1;
+
+    extern "C" int copy_on_fail(const char* oldn, const char* newn)
+    {
+        if(! cpfile(oldn, newn) ) {
+            string emsg(" lost, new contents still in ");
+            guard::err = newn + emsg + oldn;
+        }
+        return 1;
+    }
+
 }
 
 /* ===================================== */
@@ -129,7 +134,9 @@ static string binarize(string field, const cvtstring& src)
 
 /* ===================================== */
 
-const static char xlat[][5] = {
+typedef map<string,string> db;
+
+const static char xlat[][5] = {                     // ID3field order!
     "TIT2", "TPE1", "TALB", "TYER", "COMM", "TRCK", "TCON"
 };
 
@@ -179,11 +186,11 @@ set_tag::reader* ID3v2::read(const char* fn) const
     return new read::ID3v2(fn);
 }
 
-template<void clean(void*)> struct voidp {          // auto-ptr like
+template<void dispose(void*)> struct voidp {        // auto-ptr like
     void* data;
-    operator void*() { return data; }
-    voidp(void* p)   { data = p;    }
-   ~voidp()          { clean(data); }
+    operator void*() { return data;   }
+    voidp(void* p)   { data = p;      }
+   ~voidp()          { dispose(data); }
 };
 
 bool ID3v2::vmodify(const char* fn, const subst& v) const
@@ -194,39 +201,37 @@ bool ID3v2::vmodify(const char* fn, const subst& v) const
     if(!buf && check != 0)                          // evil ID3 tag
         return false;
 
-    voidp<ID3_free> src ( fresh? (void*)0 : buf );
-    w_ptr           dst ( 0x1000 );
-    db              cmod( mod );
-
-    char* out = (char*) ID3_put(dst,0,0,0);         // initialize
+    voidp<ID3_free> src  ( fresh? (void*)0 : buf );
+    writer          tag  ( 0x1000 );
+    db              table( mod );
 
     if( src ) {                                     // update existing tags
         ID3FRAME f;
         ID3_start(f, src);
 
         while(ID3_frame(f)) {
-            db::iterator p = cmod.find(f->ID);
-            if(p == cmod.end())
-                out = dst.put(out, f->ID, f->data, f->size);
+            db::iterator p = table.find(f->ID);
+            if(p == table.end())
+                tag.put(f->ID, f->data, f->size);
             else
                 if(p->second != "") {               // else: erase frames
                     string s = binarize(p->first, edit(p->second, v));
-                    out = dst.put(out, f->ID, s.c_str(), s.length());
-                    cmod.erase(p);
+                    tag.put(f->ID, s.c_str(), s.length());
+                    table.erase(p);
                 }
         }
     }
 
-    for(db::iterator p = cmod.begin(); p != cmod.end(); ++p) {
+    for(db::iterator p = table.begin(); p != table.end(); ++p) {
         if(p->second != "") {
             string s = binarize(p->first, edit(p->second, v));
-            out = dst.put(out, p->first.c_str(), s.c_str(), s.length());
+            tag.put(p->first.c_str(), s.c_str(), s.length());
         }
     }
 
-    bool res = ID3_writef(fn, dst, resize);
-    w_fail::raise();
+    bool result = ID3_writef(fn, tag, resize);
+    guard::raise();
 
-    return res;
+    return result;
 }
 
