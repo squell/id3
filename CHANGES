@@ -1,7 +1,12 @@
 Changelog for 'id3'.
 
+2004-176 (W26):
+  main.cpp: [BUGFIX] ARGH! Since 0.72, id3 crashed on invalid %indexes. I
+    had carefully   placed range checks in the original varexp, but due to
+    later mod's, the original varexp [] didn't get called anymore. #$()*#
+
 2004-171 (W25):
-  sedit.cpp: [BUG] conversion to latin1 gets called at the proper place now
+  sedit.cpp: [BUGFIX] conversion to latin1 gets used correctly now
   sedit.cpp: removed deprecated stuff
 
 2004-170 (W25):
@@ -15,7 +20,7 @@ Changelog for 'id3'.
 2004-162 (W24):
   main.cpp: [CLI] added -s switch for suggesting tag size
   id3v2.c:249:added size-hint recognition
-  main.cpp:278: bugfix: -rXXXX didn't work anymore
+  main.cpp:278: [BUGFIX] -rXXXX didn't work anymore
 
 2004-148 (W22):                                ---------[v0.73]-----------
   makefile deGNUified (mostly), some size optimizations

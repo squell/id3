@@ -24,6 +24,8 @@ id3 \- a commandline mass tagger
 .RB [ \-c
 .IR comment ]
 .br
+.RB [ \-s
+.IR size ]
 .RB [ \-r\fIFRAME ]
 .RB [ \-w\fIFRAME
 .IR data ]
@@ -101,27 +103,35 @@ conjunction with this, all selected tags will be removed.
 .br
 .BI \-g " genre
 .IP
-add/replace the specified fields with the values given. Field values are
-scanned for substitution commands, see
+add/replace  the  specified  fields  in all selected tags with the values
+given. Field values are scanned for substitution commands, see
 .B SUBSTITUTION
 below.
 
 Genres can be specified either directly or with their assigned number,
 regardless of tag format.
 
+.PP
+The  following  options  only  operate  on  the  last tag selected, and only
+have meaning where relevant.
+
+.TP
+.BI \-s " size
+try  to  write a new tag using exactly \fIsize\fR bytes, adding / removing
+padding as necessary.
+
 .TP
 .B \-r\fIFRAME
-remove all occurrences of frames named \fIFRAME\fR. This is meaningless on tag
-formats that do not have a notion of frames, such as ID3v1. Consult the format
-documentation for valid \fIFRAME\fR names.
+remove  all occurrences of frames named \fIFRAME\fR from the  tag. Consult the
+format documentation for valid \fIFRAME\fR names.
 
 .TP
 .BI \-w\fIFRAME " data
-add / update a frame named \fIFRAME\fR with raw \fIdata\fR. For experts only.
-Substitutions are performed, but \fIdata\fR is NOT checked or parsed for
-semantic correctness or conformance. You're on your own. Again, consult the
-format documentation.
+add  /  update  a frame named \fIFRAME\fR with \fIdata\fR in the  tag.  Again,
+consult the format documentation. See \fICOMPATIBILITY\fR for more
+information.
 
+.PP
 Individual options can be stacked in a single argument for more convenience.
 For example, running
 
@@ -190,11 +200,11 @@ Sets tag fields correspondingly:
   02. untitled.mp3 [=>] "02" "Untitled"    etc..
 
 .TP
-\fBid3 -2 -rAPIC *.mp3
-Removes all embedded pictures from all mp3 files.
+\fBid3 -2 -rAPIC -s 0 *.mp3
+Removes embedded images and padding from all mp3's.
 
 .TP
-\fBid3 -2 -wUSLT "%@englyrics%@foo, bar%,lalala!%," blaet.mp3
+\fBid3 -2 -wUSLT "foo, bar%,lalala!%," blaet.mp3
 Adds an ID3v2 lyric frame to blaet.mp3.
 
 .TP
@@ -225,6 +235,10 @@ string instead of a number when using ID3v1, id3 tries to find the specified
 genre in this list, and selects the closest possible match (if any). For the
 genre numbers and exact spelling, see \fIid3v1.c\fR in the source
 distribution. An empty or invalid genre is assigned the number 0.
+
+The  -w\fIFRAME\fR  parameter  only  knows  the following ID3v2 frames:  Txxx
+(text), Wxxx (links), COMM (comment), IPLS (involved  people),  USLT (lyrics),
+USER (tos) and PCNT (numeric play counter). It is a no-op for ID3v1.
 
 id3 does not support ID3v2 v2.0 or earlier, neither does it support the new
 ID3v2 v4.0 (yet?). It also does not support ID3v2 features as compression,

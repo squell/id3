@@ -7,7 +7,7 @@ _>\/| |(_)|_)_>\/_>
 ~~/~~~~~~~|~~~~/~~~
        id3 [-v] [-12] [-d] [-t title] [-a artist] [-g genre]
         [-n tracknr] [-l album] [-y year] [-c comment]
-        [-rFRAME] [-wFRAME data] [ "filespec" ... ]
+        [-s size] [-rFRAME] [-wFRAME data] [ "filespec" ... ]
 
  _| _  _ _._o.__|_o _ ._
 (_|(/__>(_| ||_)|_|(_)| |
@@ -48,6 +48,8 @@ _>\/| |(_)|_)_>\/_>
 
        -h   show commandline help
 
+       -V   display version number and copyright
+
        -v   be verbose
 
        -1
@@ -68,25 +70,29 @@ _>\/| |(_)|_)_>\/_>
        -y "year"
        -c "comment"
        -g "genre"
-            add/replace  the  specified  fields  with the values
-            given.  Field  values  are  scanned for substitution
-            commands, see `SUBSTITUTION' below.
+            add/replace  the  specified  fields  in all selected
+            tags with the values given. Field values are scanned
+            for substitution commands, see `SUBSTITUTION' below.
 
             Genres  can  be  specified  either  directly or with
             their assigned number, regardless of tag format.
 
+       The  following  options  only  operate  on  the  last tag
+       selected, and only have meaning where relevant.
+
+       -s size
+            try  to  write a new tag using exactly `size' bytes,
+            adding / removing padding as necessary.
+
        -rFRAME
-            remove all occurrences of frames named `FRAME'. This
-            is  meaningless  on  tag  formats that do not have a
-            notion  of  `frames',  such  as  ID3v1.  Consult the
-            format documentation for valid `FRAME' names.
+            remove  all occurrences of frames named `FRAME' from
+            the  tag. Consult the format documentation for valid
+            `FRAME' names.
 
        -wFRAME data
-            add  / update a frame named `FRAME' with raw `data'.
-            For  experts  only. Substitutions are performed, but
-            `data'   is  NOT  checked  or  parsed  for  semantic
-            correctness  or  conformance.  You're  on  your own.
-            Again, consult the format documentation.
+            add  /  update  a frame named `FRAME' with `data' in
+            the  tag.  Again,  consult the format documentation.
+            See `COMPATIBILITY' for more information.
 
        Individual  options  can  be stacked in a single argument
        for more convenience. For example, running
@@ -149,10 +155,10 @@ _>|_||_)_> |_| |_|_||_|(_)| |
              01. my_song.mp3  [=>] "01" "My Song"
              02. untitled.mp3 [=>] "02" "Untitled"    etc..
 
-       $ id3 -2 -rAPIC *.mp3
-            Removes all embedded pictures from all mp3 files.
+       $ id3 -2 -rAPIC -s 0 *.mp3
+            Removes embedded images and padding from all mp3's.
 
-       $ id3 -2 -wUSLT "%@englyrics%@foo, bar%,lalala!%," blaet.mp3
+       $ id3 -2 -wUSLT "foo, bar%,lalala!%," blaet.mp3
             Adds an ID3v2 lyric frame to blaet.mp3.
 
        $ id3 -v -alnt "The Author" %1 %2 %3 "Author - */*. *.mp3"
@@ -205,6 +211,11 @@ _>|_||_)_> |_| |_|_||_|(_)| |
        For  the  genre numbers and exact spelling, see `id3v1.c'
        in  the source distribution. An empty or invalid genre is
        assigned the number 0.
+
+       The  -wFRAME  parameter  only  knows  the following ID3v2
+       frames:  Txxx  (text), Wxxx (links), COMM (comment), IPLS
+       (involved  people),  USLT  (lyrics),  USER (tos) and PCNT
+       (numeric play counter). It is a no-op for ID3v1.
 
        id3  does not support ID3v2 v2.0 or earlier, neither does
        it  support  the  new ID3v2 v4.0 (yet?). It also does not

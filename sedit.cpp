@@ -81,7 +81,7 @@ string string_parm::edit(string s, const base_container& v)
         style caps = as_is;
         int n = 1;
         while( pos+n < s.length() ) {
-            switch( char c = toupper(s[pos+n]) ) {
+            switch( char c = s[pos+n] ) {
             default:
                 s.erase(pos, n);
                 break;

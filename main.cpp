@@ -16,7 +16,7 @@
 #  include "setid3v2.h"
 #endif
 
-#define _version_ "0.74-beta (2004176)"
+#define _version_ "0.74 (2004177)"
 
 /*
 
