@@ -29,21 +29,6 @@ const ID3v1 synth_tag = {
     { 'T', 'A', 'G' }
 };
 
- /* this is a packing check. if the check works out fine, any decent compiler
-    should be able to optimize this fully away. */
-
-const char _pack_error[] = "ID3v1 tag structure not packed! Recompile!";
-
-static struct _pack_check {
-    _pack_check()
-    {
-        if(sizeof(ID3v1) != 128) {
-            puts(_pack_error);
-            exit(1/!(sizeof(ID3v1)-128));  // generate compiler warning too
-        }
-    }
-} _do;
-
 /* ====================================================== */
 
 // Capitalize A Text-String Like This.
