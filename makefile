@@ -1,6 +1,6 @@
-## id3 makefile for DJGPP v2 ###############################################
+## generic unix id3 makefile ###############################################
 
-CC     = gxx
+CC     = gcc
 CFLAGS = -g -O2
 
 ############################################################################
@@ -9,20 +9,16 @@ id3: main.o setid3.o varexp.o id3v1.o
 	$(CC) $(CFLAGS) -o $@ $+
 
 final: id3
-	upx --best -f -oID3.EXE $<
+	strip $<
 
 all  : id3
 
 dist :	main.cpp varexp.cpp varexp.h setid3.cpp setid3.h \
-    makefile.dj makefile.bcc makefile copying
-	pkzip -ex src.zip $+
-	pkzip -ex bin.zip readme copying id3.exe
+    makefile.dj makefile copying
 	tar cvfz src.tar.gz $+
 
 clean:
-	del *.o
-	del id3
-	del id3.exe
+	rm *.o id3
 
 %.o  : %.cpp %.h
 	$(CC) $(CFLAGS) -c $<
