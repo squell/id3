@@ -504,7 +504,7 @@ int main_(int argc, char *argv[])
 
     if(scan)
         eprintf("missing file arguments\n");
-    if(scan || !w && !ro)
+    if(scan || !(w|ren|ro))
         shelp();
 
     return exitc;
