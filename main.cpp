@@ -184,6 +184,7 @@ cvtstring substvars::operator[](char field) const
     case 'c': return (*data)[set_tag::cmnt];
     case 'n': return (*data)[set_tag::track];
     case 'g': return (*data)[set_tag::genre];
+    case 'F': return cvtstring::local(data.filename);
     case 'f': if(const char* p = strrchr(data.filename,'/'))
                   return cvtstring::local(p+1);
               else
