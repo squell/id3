@@ -52,6 +52,10 @@ final: id3 id3l
 clean:
 	-rm -f *.o id3 id3l
 
+depend:
+	(echo '/$@encies/+2;/^$$/-1c'; $(MKALLDEP); \
+	 echo .; echo wq) | ed makefile
+
 ## installation ############################################################
 
 installdirs:
@@ -140,8 +144,10 @@ HTMLPROC = sed -n 's/^.*href="\([[:alnum:]/_.-]*[.]tar[.]gz\)".*$$/\1/p'
 
 wget-orig:
 	wget -nv $(URI)/`wget -nv -O - $(URI)/id3.html | $(HTMLPROC)`
+
 fetch-orig:
 	fetch $(URI)/`fetch -o - $(URI)/id3.html | $(HTMLPROC)`
+
 curl-orig:
 	curl -# -O $(URI)/`curl -# $(URI)/id3.html | $(HTMLPROC)`
 
@@ -152,22 +158,26 @@ OBJ_1	= setid3 id3v1
 OBJ_2	= setid3v2 id3v2 fileops
 OBJ_F	= setfname
 OBJECTS = main $(OBJ_GEN) set_base $(OBJ_1) $(OBJ_2) $(OBJ_F)
+OBJX_L	= mainl $(OBJ_GEN) set_base $(OBJ_1) $(OBJ_F)
 
-id3: $(OBJECTS)
+id3: $(OBJECTS:=.o)
 	$(CXX) $(LDFLAGS) -o $@ $(OBJECTS:=.o)
 
-id3l: mainl.o $(OBJ_GEN) $(OBJ_1)
-	$(CXX) $(LDFLAGS) -o $@ \
-	  mainl.o $(OBJ_GEN:=.o) set_base.o $(OBJ_1:=.o) $(OBJ_F:=.o)
+id3l: $(OBJX_L:=.o)
+	$(CXX) $(LDFLAGS) -o $@ $(OBJX_L:=.o)
 
 .cpp.o:
 	$(CC) $(CXXFLAGS) -c $<
 .c.o:
 	$(CC) $(CFLAGS) -c $<
 
-mainl.o: main.cpp ffindexp.h auto_dir.h sedit.h set_base.h setid3.h \
-  setfname.h
+mainl.o:
 	$(CC) $(CXXFLAGS) -DNO_V2 -o $@ -c main.cpp
+
+MKALLDEP =  $(MKDEP) $(CXXFLAGS) main.cpp;
+MKALLDEP += $(MKDEP) $(CXXFLAGS) -DNO_V2 main.cpp | sed 's/main.o/mainl.o/';
+MKALLDEP += $(MKDEP) $(CXXFLAGS) $(SRC_CPP:=.cpp);
+MKALLDEP += $(MKDEP) $(CFLAGS)	 $(SRC_C:=.c)
 
 ## dependencies -MM ########################################################
 
