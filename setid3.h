@@ -30,10 +30,12 @@
 
 namespace set_tag {
 
-class ID3 : public single_tag {
-    std::vector<const char*> mod;          // modification data
+class ID3 : public single_tag, public provider {
+    std::vector<const char*> mod;    // modification data
+    bool fresh;                      // should vmodify clear existing tag?
 public:
-    ID3(bool f = true) : single_tag(f), mod(FIELDS,(char*)0) { }
+    ID3(bool f = true) : single_tag(f), mod(FIELDS,(char*)0), fresh(false)
+    { }
 
     bool    vmodify(const char*, const subst&) const;
     reader* read(const char*) const;
@@ -41,7 +43,10 @@ public:
   // standard set
 
     ID3& set(ID3field i, const char* m)     // set ID3 field i to value m
-    { if(i < FIELDS) mod[i] = m; return *this; }
+    { if(i < FIELDS && !mod[i]) mod[i] = m; return *this; }
+
+    ID3& clear()
+    { fresh = true; return *this; }
 };
 
 }

@@ -32,10 +32,10 @@ bool filename::vmodify(const char* fname, const subst& v) const
     if(!ftemplate)
         return false;
 
-    std::string name = edit(ftemplate, v);
+    std::string name = edit(ftemplate, v).local();
 
-    for(std::string::iterator p = name.begin(); p != name.end(); ) {
-        p = portable_fn(*p)? ++p : name.erase(p);
+    for(std::string::iterator p = name.begin(); p != name.end(); ++p) {
+        *p = portable_fn(*p)? *p : '_';
     }
 
     if(const char* psep = strrchr(fname, '/')) {      // copy path prefix

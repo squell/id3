@@ -4,6 +4,7 @@
 #include <cctype>
 #include <cstdlib>
 #include "setid3v2.h"
+#include "getid3v2.h"
 #include "sedit.h"
 #include "id3v1.h"
 #include "id3v2.h"
@@ -72,7 +73,7 @@ struct w_fail {
     w_fail()            { ID3_wfail = w_handler; }
     static string err;
     static void raise();
-} w_fail_inst;
+} static w_fail_inst;
 
 string w_fail::err;
 
@@ -97,10 +98,16 @@ extern "C" int w_handler(const char* oldn, const char* newn)
 
  // checks if a given field is valid
 
-string binarize(string field, string s)
+static string binarize(string field, const cvtstring& src)
 {
+    string s = src.latin1();
+
+    if(field == "TCON") {                             // genre by number
+        unsigned int x = atoi(s.c_str())-1;           // is portable
+        if(x < ID3v1_numgenres) s = ID3v1_genre[x];
+    }
     if(field[0] == 'T' || field == "IPLS" || field == "WXXX") {
-        bool t = (field[1]=='X' && field[2]=='X' && field[3]=='X');
+        bool t = field.compare(1,3,"XXX") == 0;
         s.insert(string::size_type(0), 1+t, '\0');
     } else if(field[0] == 'W') {
         //
@@ -121,25 +128,26 @@ string binarize(string field, string s)
 
 /* ===================================== */
 
-const char xlat[][5] = {
+const static char xlat[][5] = {
     "TIT2", "TPE1", "TALB", "TYER", "COMM", "TRCK", "TCON"
 };
 
 ID3v2& ID3v2::set(ID3field i, const char* m)
 {
-    if(i < FIELDS) {
-        if(i == genre) {
-            unsigned int x = atoi(m)-1;             // is portable
-            if(x < ID3v1_numgenres) m = ID3v1_genre[x];
-        }
+    if(i < FIELDS)
         set(xlat[i], m);
-    }
     return *this;
 }
 
 ID3v2& ID3v2::reserve(size_t n)
 {
     resize = n? n : 1;
+    return *this;
+}
+
+ID3v2& ID3v2::clear()
+{
+    fresh = true;
     return *this;
 }
 
@@ -151,7 +159,7 @@ bool ID3v2::set(std::string field, std::string s)
         if(!isalnum(field[n] = toupper(field[n])))
             return false;
     if( binarize(field, "0").length() != 0 ) {      // test a dummy string
-        mod[field] = s;
+        mod.insert( db::value_type(field, s) );     // was: mod[field] = s
         return true;
     }
     return false;
@@ -161,6 +169,13 @@ bool ID3v2::rm(std::string field)
 {
     mod[field].erase();
     return true;
+}
+
+/* ===================================== */
+
+set_tag::reader* ID3v2::read(const char* fn) const
+{
+    return new read::ID3v2(fn);
 }
 
 template<void clean(void*)> struct voidp {          // auto-ptr like

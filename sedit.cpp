@@ -62,16 +62,6 @@ namespace {
         return s;
     }
 
- // remove gunk
-
-    unraw(string& s)
-    {
-        replace_if(s.begin(), s.end(), control_char(), ' ');
-        replace(s.begin(), s.end(), '_', ' ');
-        compress(s);
-
-    }
-
 }
 
  // Capitalize A Text-string Like This.
@@ -98,17 +88,18 @@ cvtstring string_parm::edit(const cvtstring& fmt, const subst& var)
     while( (pos=s.find(VAR, pos)) != string::npos ) {
         bool  raw  = false;
         style caps = as_is;
+        int   npad = 1;
         int n = 1;
         while( pos+n < s.length() ) {
+            cvtstring svar;
             switch( char c = s[pos+n] ) {
-            case '@':
-            case ':': s.replace(pos++, n+1, 1, '\0'); break;
             case VAR: s.replace(pos++, n+1, 1, VAR ); break;   // "%%" -> "%"
             case ',': s.replace(pos, n+1, "\r\n", 2); pos += 2; break;
 
             case '_': raw  = true; ++n; continue;
             case '+': caps = name; ++n; continue;
             case '-': caps = lowr; ++n; continue;
+            case '#': ++npad;      ++n; continue;
 
             case '0': if(!ZERO_BASED) c += 10;
             case '1':
@@ -120,23 +111,25 @@ cvtstring string_parm::edit(const cvtstring& fmt, const subst& var)
             case '7':
             case '8':
             case '9': if(!ZERO_BASED) --c;
-                {
-                    string tmp = stylize((var.numeric(c-'0').*conv)(), caps);
-                    if(!raw) unraw(tmp);
-                    s.replace(pos, n+1, tmp);
-                    pos += tmp.length();
-                    break;
-                }
+                svar = var.numeric(c-'0');
+                goto substitute;
             default :
                 if(!isalpha(c)) {
-                    s.replace(pos++, n+1, 1, '?'); break;
-                } else {
-                    string tmp = stylize((var.alpha(c).*conv)(), caps);
-                    if(!raw) unraw(tmp);
-                    s.replace(pos, n+1, tmp);
-                    pos += tmp.length();
+                    s.replace(pos++, n+1, 1, '?');
                     break;
+                } else
+                    svar = var.alpha(c);
+            substitute:
+                string tmp = stylize((svar.*conv)(), caps);
+                if(!raw) {                                     // remove gunk
+                    replace_if(tmp.begin(), tmp.end(), control_char(), ' ');
+                    replace(tmp.begin(), tmp.end(), '_', ' ');
+                    compress(tmp);
                 }
+                if(npad > 1 && tmp.length() < npad)
+                    tmp.insert(0,npad-tmp.length(), '0');
+                s.replace(pos, n+1, tmp);
+                pos += tmp.length();
             }
             break;         // turn switch-breaks into while-breaks
         }

@@ -33,13 +33,16 @@ public:
     filename(bool f = true) : single_tag(f) { }
 
     bool rename(const char* fname)
-    { return enabled=ftemplate=(strchr(fname,'/')? 0 : fname); }
+    { return ftemplate=(*fname? fname : 0); }
 
     virtual bool vmodify(const char*, const subst&) const;
 
   // standard set - dummies
 
     filename& set(ID3field, const char*)
+    { return *this; }
+
+    filename& clear()
     { return *this; }
 };
 

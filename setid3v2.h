@@ -40,17 +40,21 @@
 
 namespace set_tag {
 
-class ID3v2 : public single_tag {
+class ID3v2 : public single_tag, public provider {
     std::map<std::string,std::string> mod;
     size_t resize;
+    bool fresh;
 
 public:
-    ID3v2(bool f = true) : single_tag(f), mod(), resize(0) { }
+    ID3v2(bool f = true) : single_tag(f), mod(), fresh(false), resize(0)
+    { }
 
     ID3v2& set(ID3field i, const char* m);        // set standard field
     ID3v2& reserve(size_t);                       // set suggested size
+    ID3v2& clear();                               // erase previous tag?
 
-    bool vmodify(const char*, const subst&) const;
+    bool    vmodify(const char*, const subst&) const;
+    reader* read(const char*) const;
 
   // extended set
 

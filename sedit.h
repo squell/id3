@@ -2,7 +2,7 @@
 
   string replacement function
 
-  (c) 2004 squell ^ zero functionality!
+  (c) 2004, 2005 squell ^ zero functionality!
   see the file 'COPYING' for license conditions
 
   Usage:
@@ -24,7 +24,7 @@
   Restrictions:
 
   The only requirements of the container type is that it has a [] operator
-  defined, and that it contains data that can be converted into a std::string.
+  defined, and that it contains data that can be converted into a cvtstring.
   A standard C "array-of-char*" will do, as will std::vector<string>.
 
   If the container type does not perform bounds checking on the [] operator,
@@ -41,6 +41,7 @@
 #define __ZF_SEDIT_HPP
 
 #include <string>
+#include "charconv.h"
 
 extern std::string capitalize(std::string s);
 
@@ -57,8 +58,8 @@ class string_parm {
 
 protected:
     struct subst {
-        virtual std::string numeric(unsigned) const = 0;
-        virtual std::string alpha  (char)     const = 0;
+        virtual cvtstring numeric(unsigned) const = 0;
+        virtual cvtstring alpha  (char)     const = 0;
     };
 
     template<class T, class U>                // templatized wrapper
@@ -68,15 +69,15 @@ protected:
 
         container(const T& t, const U& u) : num(t), chr(u) { }
 
-        virtual std::string numeric(unsigned x) const { return num[x]; }
-        virtual std::string alpha  (char x)     const { return chr[x]; }
+        virtual cvtstring numeric(unsigned x) const { return num[x]; }
+        virtual cvtstring alpha  (char x)     const { return chr[x]; }
     };
 
     struct dummy {
         const char* operator[](unsigned) const { return ""; }
     };
 
-    static std::string edit(std::string, const subst&);
+    static cvtstring edit(const cvtstring&, const subst&);
 
     template<class T>
       friend std::string sedit(const char*, const T&);
@@ -95,7 +96,8 @@ template<class T>
 template<class T, class U>
   inline std::string sedit(const char* fmt, const T& vars, const U& table)
 {
-    return string_parm::edit(fmt, string_parm::container<T,U>(vars, table));
+    return string_parm::edit(fmt,
+      string_parm::container<T,U>(vars, table)).local();
 }
 
 #endif

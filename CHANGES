@@ -1,8 +1,22 @@
 Changelog for 'id3'.
 
+2005-032 (W05):
+  setid3[v2].cpp: setting genre by number now works through substituion,
+    subsequent fields don't override earlier ones anymore
+
+2005-031 (W05):
+  getid3[v2].cpp: added
+  main.cpp: [CLI] added substitution of %t, %a, %n, %l, %y, %c, %g.
+  main.cpp: [CLI] enabled -! and -f switch
+  sedit.cpp: removed substitution that introduced null chars
+
 2005-025 (W04):
   setid3v2.cpp: [bugfix] tag contents weren't written if using a user
     specified locale. Also -wPCNT listens to vars now.
+  setecho: [CLI] Added very primitive tag info display (-q switch)
+  charconv: Implemented cvtstring system for conversion.
+  sedit: string_parm adapted to use cvtstring
+  sedit: now filters control characters from substituted variables
 
 2004-196 (W27):
   debian/*: automation of building .deb packages via dpkg-buildpackage -b
@@ -159,7 +173,7 @@ Changelog for 'id3'.
 
 Todo list:
 
-  - Autocounter
+  - Conditional expressions
   - More things:
     + Support for Ogg Vorbis
     + Support for APEv2
@@ -171,7 +185,7 @@ Todo list:
   - Fetch default data ("-j filename")
   - Shorthand Wildcards ("%n. %t.mp3" == -n %1 -t %2 "*. *.mp3")
   - Options for re-using existing tag values ("%a, %t ..")
-  - Extend substitution capabilities (i/o?)
+  - Extend substitution capabilities (i/o? slice?)
 
 Thanks go out to everybody who has responded with questions, suggestions,
 and bug reports!

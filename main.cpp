@@ -12,6 +12,7 @@
 #include "set_base.h"
 #include "setid3.h"
 #include "setfname.h"
+#include "setecho.h"
 #ifndef NO_V2
 #  include "setid3v2.h"
 #endif
@@ -79,14 +80,17 @@ struct verbose_t {
 /* ====================================================== */
 
 namespace {
-    using namespace set_tag;
+
+    using set_tag::ID3;
+    using set_tag::ID3v2;
+    using set_tag::filename;
 
    // this template class:
    // - boxes a handler to make it safe for (multiple) inheritance,
    // - defaults the handler to 'disabled',
    // - delegates it into a most-derived-shared combined_tag object
 
-    template<class T> struct uses : virtual combined_tag {
+    template<class T> struct uses : virtual set_tag::combined_tag {
         uses(bool on = false) : object(on)
         { combined_tag::delegate(object); }
 
@@ -107,9 +111,14 @@ struct metadata :
 #endif
    uses<ID3>,
    uses<filename>
-{ };
+{
+    template<class Tag> Tag* enable()
+    { return (Tag*) &with<Tag>(*this).active(true); }
+};
 
 /* ====================================================== */
+
+ // range checked vector
 
 struct safe {
     safe(const vector<string>& v) : vec(v) { }
@@ -125,18 +134,97 @@ private:
 
 /* ====================================================== */
 
-class mass_tag : filefindexp, public metadata {
-    virtual void process();
-    virtual void entered();
+  // 'lazy evaluation pointer' - only acquires resource when necessary
 
+struct lazyreader {
+    const char*              const filename;
+    const set_tag::provider* const tag;
+
+    lazyreader(const set_tag::provider* ctor, const char* fn)
+    : filename(fn), tag(ctor), data(0) { }
+   ~lazyreader()
+    { delete data; }
+
+    const set_tag::reader& operator*() const;
+private:
+    mutable const set_tag::reader* data;
+};
+
+const set_tag::reader& lazyreader::operator*() const
+{
+    return *(data? data : data = tag->read(filename));
+}
+
+ // variable mapping for substitution
+ // - only reads tag data from file when actually requested
+
+class substvars {
+    static unsigned  counter;
+    const lazyreader data;
+
+    static cvtstring fallback(const cvtstring& s, const char* def);
+public:
+    substvars(const set_tag::provider& ctor, const char* fn)
+    : data(&ctor, fn) { }
+    cvtstring operator[](char field) const;
+};
+
+cvtstring substvars::fallback(const cvtstring& s, const char* def)
+{
+     return !s.empty()? s : cvtstring::latin1(def);
+}
+
+cvtstring substvars::operator[](char field) const
+{
+    switch( field ) {
+    case 't': return (*data)[set_tag::title];
+    case 'a': return (*data)[set_tag::artist];
+    case 'l': return (*data)[set_tag::album];
+    case 'y': return (*data)[set_tag::year];
+    case 'c': return (*data)[set_tag::cmnt];
+    case 'n': return (*data)[set_tag::track];
+    case 'g': return (*data)[set_tag::genre];
+    case 'f': if(const char* p = strrchr(data.filename,'/'))
+                  return cvtstring::local(p+1);
+              else
+                  return cvtstring::local(data.filename);
+    case 'x': {
+            counter = (counter+1) & 0xFFFF;
+            char buf[11];
+            sprintf(buf, "%u", counter);
+            return cvtstring::latin1(buf);
+        }
+    };
+    static char error[] = "unknown variable %_";
+    error[sizeof error-2] = field;
+    throw set_tag::failure(error);
+}
+
+unsigned substvars::counter = 0;
+
+/* ====================================================== */
+
+ // adaptation of filefindexp with verbose output
+
+class mass_tag : filefindexp {
+    const set_tag::handler*  tag;
+    const set_tag::provider* info;
+    virtual void entered();
+    virtual void process();
     bool edir;
 public:
     mass_tag() : edir(false) { }
-    void operator()(const char* spec);
-
-    template<class Tag> single_tag& enable()
-    { return with<Tag>(*this).active(true); }
+    void operator()
+      ( const set_tag::handler&, const char*, const set_tag::provider& );
 };
+
+void mass_tag::operator()(const set_tag::handler& h, const char* spec, const set_tag::provider& p)
+{
+    tag  = &h;
+    info = &p;
+    if(! filefindexp::operator()(spec) )
+        eprintf("no %s matching %s\n", edir? "files" : "directories", spec);
+}
 
 void mass_tag::entered()
 {
@@ -147,14 +235,8 @@ void mass_tag::entered()
 void mass_tag::process()
 {
     verbose.reportf(path);
-    if(! modify(path, safe(var)) )
+    if(! tag->modify(path, safe(var), substvars(*info,path)) )
         return (void) eprintf("could not edit tag in %s\n", path);
-}
-
-void mass_tag::operator()(const char* spec)
-{
-    if(! filefindexp::operator()(spec) )
-        eprintf("no %s matching %s\n", edir? "files" : "directories", spec);
 }
 
 /* ====================================================== */
@@ -238,26 +320,39 @@ static inline void argpath(char* arg) { }      // dummy
 
 /* ====================================================== */
 
+void defaults(metadata& tag, set_tag::handler*& target,
+                             set_tag::provider*& source)
+{
+    typedef set_tag::ID3 Default;
+
+    if(!target) target = &with<Default>(tag).active(true);
+    if(!source) source = &with<Default>(tag);
+}
+
 using set_tag::ID3field;
 
 int main_(int argc, char *argv[])
 {
-    mass_tag tag;
+    set_tag::echo display;
+    mass_tag apply;
+    metadata tag;
 
     enum parm_t {                              // parameter modes
         no_value, force_fn,
         stdfield, customfield, suggest_size,
-        set_rename
+        set_rename, set_query
     } cmd = no_value;
 
     ID3field field;
     string fieldID;                            // free form field selector
 
-    set_tag::handler* chosen = 0;              // pointer to last enabled
+    set_tag::provider* source = 0;             // pointer to first enabled
+    set_tag::handler*  chosen = 0;             // pointer to last enabled
 
     char* opt  = "";                           // used for command stacking
     bool  scan = true;                         // check for no-file args
     bool  w    = false;                        // check against no-ops args
+    bool  ro   = false;                        // check for read-only ops
 
     for(int i=1; i < argc; i++) {
         switch( cmd ) {
@@ -266,12 +361,18 @@ int main_(int argc, char *argv[])
                 if(argv[i][0] == '-' && scan) opt = argv[i]+1;
         case force_fn:
             if(*opt == '\0') {
+                defaults(tag, chosen, source);
                 argpath(argv[i]);
                 scan = false;
-                if(!chosen)                    // default to ID3
-                    tag.enable<ID3>();
-                if(w)                          // no-op check
-                    tag( argv[i] );
+                if(w && !ro)                   // no-op check
+                    apply(tag, argv[i], *source);
+                else if(ro)                    // reading?
+                    if(!w) {
+                        apply(display, argv[i], *source);
+                    } else {
+                        eprintf("incompatible operation requested\n");
+                        shelp();
+                    }
                 else
                     eprintf("nothing to do with %s\n", argv[i]);
             } else {
@@ -286,15 +387,20 @@ int main_(int argc, char *argv[])
                 case 'g': field = set_tag::genre;  cmd = stdfield; break;
                 case 'n': field = set_tag::track;  cmd = stdfield; break;
                 case 'f': cmd = set_rename; break;
+                case 'q': cmd = set_query;  break;
 #ifndef NO_V2
                 case '1':
-                    chosen = &tag.enable<ID3>();
+                    chosen = tag.enable<ID3>();
+                    if(!source) source = &with<ID3>(tag);
                     break;
                 case '2':
-                    chosen = &tag.enable<ID3v2>();
+                    chosen = tag.enable<ID3v2>();
+                    if(!source) source = &with<ID3v2>(tag);
                     break;
 
-                case 's':                      // tag specific options
+  // tag specific options
+
+                case 's':
                     if(chosen) {
                         cmd = suggest_size; break;
                     }
@@ -310,9 +416,23 @@ int main_(int argc, char *argv[])
                         opt = "";
                         break;
                     }
+#endif
+                case '!':
+                    if(chosen) {
+                        chosen->set(set_tag::title,  "%t");
+                        chosen->set(set_tag::artist, "%a");
+                        chosen->set(set_tag::album,  "%l");
+                        chosen->set(set_tag::year,   "%y");
+                        chosen->set(set_tag::cmnt,   "%c");
+                        chosen->set(set_tag::genre,  "%g");
+                        chosen->set(set_tag::track,  "%n");
+                        w = true;
+                        break;
+                    }
+
                     eprintf("specify tag format before -%c\n", opt[-1]);
                     shelp();
-#endif
+
                 case 'h': help();
                 case 'V': Copyright();
                 case '-':
@@ -331,22 +451,6 @@ int main_(int argc, char *argv[])
             tag.set(field, argv[i]);
             break;
 
-        case set_rename:
-#if 1
-            argpath(argv[i]);
-            if(! with<filename>(tag).rename(argv[i]) ) {
-                eprintf("will not rename across directories\n");
-                shelp();
-            }
-            if(!chosen)
-                chosen = &with<filename>(tag);
-            break;
-#else
-            eprintf("%s: argument ignored\n", argv[i]);
-            cmd = no_value;
-            continue;
-#endif
-
 #ifndef NO_V2
         case suggest_size: {                   // v2 - suggest size
                 long l = argtol(argv[i]);
@@ -361,6 +465,27 @@ int main_(int argc, char *argv[])
             }
             break;
 #endif
+        case set_rename:
+            if(strrchr(argv[i],'/')) {
+                eprintf("will not rename across directories\n");
+            } else if(*argv[i] == '\0') {
+                eprintf("empty format string rejected\n");
+            } else {
+                argpath(argv[i]);
+                tag.enable<filename>()->rename(argv[i]);
+                break;
+            }
+            shelp();
+
+        case set_query:
+            if(*argv[i] == '\0') {
+                eprintf("empty format string rejected\n");
+                shelp();
+            } else
+                display.format(argv[i]);
+            cmd = no_value;
+            ro = true;
+            continue;
         };
         cmd = no_value;
         w = true;                              // set operation done flag
@@ -368,7 +493,7 @@ int main_(int argc, char *argv[])
 
     if(scan)
         eprintf("missing file arguments\n");
-    if(scan || !w)
+    if(scan || !w && !ro)
         shelp();
 
     return exitc;

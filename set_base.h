@@ -43,7 +43,8 @@ namespace set_tag {
     class single_tag;
     class combined_tag;
 
-    class reader;              // abc for reading tags
+    class provider;            // extra interface for providing readers
+    class reader;              // abc abstracting tag format
 
     class failure;             // exception class
 
@@ -88,12 +89,17 @@ public:
   // tag reading interface                             //
   ///////////////////////////////////////////////////////
 
+class provider {
+public:
+    virtual reader* read(const char*) const = 0;
+};
+
 class reader {
 public:
-    typedef std::vector< std::pair<std::string, std::string> > array;
+    typedef std::vector< std::pair<std::string, cvtstring> > array;
 
-    virtual std::string operator[](ID3field) const = 0;
-    virtual array       listing() const = 0;
+    virtual cvtstring operator[](ID3field) const = 0;
+    virtual array     listing() const = 0;
     virtual ~reader() { };
 };
 
@@ -104,14 +110,11 @@ public:
 class single_tag : public handler {
 protected:
     single_tag(bool t = true)
-    : enabled(t), fresh(false) { }
-    bool enabled;                  // should vmodify do anything?
-    bool fresh;                    // should vmodify clear existing tag?
+    : enabled(t) { }
+    bool enabled;                  // should vmodify be called?
 public:
     single_tag& active(bool on) { enabled = on; return *this; }
     bool        active() const  { return enabled; }
-
-    handler& clear()            { fresh = true; return *this; }
 };
 
   ///////////////////////////////////////////////////////

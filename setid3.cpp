@@ -7,6 +7,7 @@
 #include <map>
 #include <new>
 #include "setid3.h"
+#include "getid3.h"
 #include "sedit.h"
 #include "id3v1.h"
 
@@ -102,7 +103,7 @@ const struct genre_map : map<string,int,bool (*)(const string&,const string&)> {
 
 set_tag::reader* ID3::read(const char* fn) const
 {
-    return 0;
+    return new read::ID3(fn);
 }
 
 bool ID3::vmodify(const char* fn, const subst& v) const
@@ -130,30 +131,31 @@ bool ID3::vmodify(const char* fn, const subst& v) const
         int n = 0;                            // count number of set fields
 
         if(txt = mod[title])
-            ++n, strncpy(tag.title,  edit(txt,v).c_str(), sizeof tag.title);
+            ++n, strncpy(tag.title,  edit(txt,v).latin1().c_str(), sizeof tag.title);
 
         if(txt = mod[artist])
-            ++n, strncpy(tag.artist, edit(txt,v).c_str(), sizeof tag.artist);
+            ++n, strncpy(tag.artist, edit(txt,v).latin1().c_str(), sizeof tag.artist);
 
         if(txt = mod[album])
-            ++n, strncpy(tag.album,  edit(txt,v).c_str(), sizeof tag.album);
+            ++n, strncpy(tag.album,  edit(txt,v).latin1().c_str(), sizeof tag.album);
 
         if(txt = mod[year])
-            ++n, strncpy(tag.year,   edit(txt,v).c_str(), sizeof tag.year);
+            ++n, strncpy(tag.year,   edit(txt,v).latin1().c_str(), sizeof tag.year);
 
         if(txt = mod[cmnt]) {
-            ++n, strncpy(tag.cmnt,   edit(txt,v).c_str(), sizeof tag.cmnt);
+            ++n, strncpy(tag.cmnt,   edit(txt,v).latin1().c_str(), sizeof tag.cmnt);
             if(tag.zero != '\0')
                 tag.track = tag.zero = 0;               // ID3 v1.0 -> v1.1
         }
         if(txt = mod[track]) {
-            ++n, tag.track = atoi( edit(txt,v).c_str() );
+            ++n, tag.track = atoi( edit(txt,v).latin1().c_str() );
             tag.zero = '\0';
         }
         if(txt = mod[genre]) {
-            unsigned int    x = atoi(txt) - 1;
-            genre_map::iter g = ID3_genre.find( capitalize(edit(txt,v)) );
-            tag.genre = (g==ID3_genre.end()? x : g->second);
+            string          s = capitalize(edit(txt,v).latin1());
+            unsigned int    x = atoi(s.c_str()) - 1;
+            genre_map::iter g = ID3_genre.find(s);
+            tag.genre = (s.empty() || g==ID3_genre.end()? x : g->second);
             ++n;
         }
 
