@@ -2,12 +2,16 @@ Changelog for 'id3'.
 
 2003-181 (W27):
   Code clean up + minor improvements (e.g. added [] to wildcard match)
-  Bolted together (private) ID3v1 tagger & (private) ID3v2 sources
+  Bolted together (private) `id3' & (private) ID3v2 sources
 
 2003-183 (W27):
   Started changelog.
-  Documentation.
-  More code cleaning. Removed dependancy on rename() behaviour.
+  Install
+  More code cleaning. Removed implementation-dependancy with rename()
+
+2003-184 (W27):
+  Readme
+  Added support for specifying genre per number.
 
 Todo list:
 

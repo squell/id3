@@ -22,9 +22,8 @@
 #    include <unistd.h>
 #    define ftrunc(f)  ftruncate(fileno(f), ftell(f))
 #endif
-
-#ifndef ZERO_BASED                         // programmers set this to 1 :))
-#  define ZERO_BASED 0    
+#if !defined(ZERO_BASED)                   // programmers set this to 1 :))
+#    define ZERO_BASED 0
 #endif
 
 using namespace std;
@@ -173,8 +172,9 @@ bool smartID3::vmodify(const char* fn, const base_container& v) const
             tag.track = atoi( edit(txt,v).c_str() );
 
         if(txt = mod[genre]) {
+            unsigned int    x = atoi(txt) - 1;
             genre_map::iter g = ID3_genre.find( capitalize(edit(txt,v)) );
-            tag.genre = (g==ID3_genre.end() ? 255 : g->second);
+            tag.genre = (g==ID3_genre.end() ? x : g->second);
         }
 
         if( fresh && count(mod.begin(),mod.end(),(char*)0) == 7 ) {

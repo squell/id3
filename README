@@ -1,0 +1,175 @@
+
+       id3 - a commandline ID3 mass tagger     _)      | __ /
+                                                |   _` |  _ \
+                                               _| \__,_| ___/
+ _  ._  _ ._  _   _
+_>\/| |(_)|_)_>\/_>
+~~/~~~~~~~|~~~~/~~~
+        id3 [-12] [-d] [-t title] [-a artist] [-g genre]
+        [-n tracknr] [-l album] [-y year] [-c comment]
+        [-dFRAME] [-wFRAME data] [ "filespec" ... ]
+
+ _| _  _ _._o.__|_o _ ._
+(_|(/__>(_| ||_)|_|(_)| |
+~~~~~~~~~~~~~|~~~~~~~~~~~
+       id3  is  a  mass tagger for audio files. This means it is
+       meant  to  be  used  to non-interactively perform similar
+       updates to the meta-information in any number of files in
+       just a single command.
+
+       Operations  performed  might consist of replacing certain
+       information,   or  adding,  replacing,  or  removing  all
+       meta-information present in an audio file.
+
+       To  take  advantage  of  this,  it has the ability to use
+       portions of filenames to fill in portions of a tag.
+
+       id3  currently  supports  the  old-style  ID3 format with
+       track-number  extension  (ID3  v1.1), as well as the more
+       complicated  ID3v2  (ID3  v2.3.0) format. This also means
+       use  is  pretty  much  limited to audio formats which use
+       these formats, e.g, MPEG-1 Layer III.
+
+ _ .__|_o _ ._  _
+(_)|_)|_|(_)| |_>
+~~~|~~~~~~~~~~~~~
+       The options are processed in the order specified.
+
+       filespec ...
+            specifies the file(s) to be affected by the command.
+
+            If  you  use wildcards, it is recommended to enclose
+            the  specification  in  double  quotes (""). id3 has
+            internal  shell pattern matching which will not work
+            if your shell performs this function.
+
+       -1
+            write ID3 v1 tags (default). See `-2'.
+       -2
+            write  ID3 v2 tags. If both -1 and -2 are specified,
+            both tag formats will be written.
+
+       -d
+            do  not  re-use  existing  tag  data.  If no new tag
+            information  is  specified in conjunction with this,
+            all selected tags will be removed.
+
+       -t "title"
+       -a "artist"
+       -l "album"
+       -y "year"
+       -c "comment"
+       -g "genre"
+       -n "tracknr"
+            add/replace  the  specified  fields  with the values
+            given.  Use  of  "" is recommended, if not required.
+            field  values  are parsed for substitution commands,
+            see the section headed `SUBSTITUTION' below.
+
+            Genres  can  be  specified  either  directly or with
+            their assigned number, regardless of tag format.
+
+       -dFRAME
+            remove all occurrences of frames named `FRAME'. This
+            is  meaningless  on  tag  formats that do not have a
+            notion  of  `frames',  such  as  ID3 v1. Consult the
+            format documentation for valid `FRAME' names.
+
+       -wFRAME data
+            add  / update a frame named `FRAME' with raw `data'.
+            For  experts  only.  `data' is NOT checked or parsed
+            for semantic correctness or conformance. See above.
+
+ _   |_  __|_o_|_  _|_o _ ._
+_>|_||_)_> |_| |_|_||_|(_)| |
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+       id3  can perform `printf-like' substitution on the values
+       prior  to writing them to a tag. Note that if you want to
+       use  this, you HAVE TO enclose the wildcard specification
+       in  double  quotes so your shell does not perform pattern
+       expansion on it.
+
+      `%<modifiers>N' where N <- [0..9]
+            replaced  with  the portion of the filename matching
+            the Nth `*' wildcard in the file specification. 0 is
+            taken to mean 10.
+
+            Available <modifiers>:
+
+            c    Capitalize the substituted value
+            _    Do not replace underscores with spaces
+
+      `%:'  replaced  with  the  null (`\0') character (intended
+            for use with -wFRAME on ID3v2 tags)
+
+      `%%'  replaced with a single `%'.
+
+ _    _.._ _ ._ | _  _
+(/_><(_|| | ||_)|(/__>
+~~~~~~~~~~~~~|~~~~~~~~
+
+       $ id3 -a "Stallman" -t "Free Software Song" fs_song.mp3
+            Add a simple tag to a file.
+
+       $ id3 -d *.mp3
+            Removes all tags from all mp3's.
+
+       $ id3 -2 -dAPIC *.mp3
+            Removes all embedded pictures from all mp3 files.
+
+       $ id3 -a "TAFKAT" -n "%1" -t "%c2" "*. *.mp3"
+            Sets id3 fields in correspondence with the files:
+             01. my_song.mp3  [=>] "01" "My Song"
+             02. untitled.mp3 [=>] "02" "Untitled"
+            etc.
+
+._  __|_ _  _
+| |(_)|_(/__>
+~~~~~~~~~~~~~
+       The internal pattern matching emulates the normal pattern
+       matching of `sh'. It supports ?, * and [].
+
+       In  an  ambiguous  situation,  the  pattern  matcher will
+       always  try  to  resolve  a  `*' wildcard to the shortest
+       possible  sequence  of  tokens.  This  differs  from  the
+       standard  behavior  of  regular  expressions,  however it
+       tends to make sense in the context of filenames.
+
+       E.g.: `*_*', `1_foo_bar' -> %1 == `1', not `1_foo'.
+
+       Do  NOT  add ID3 tags to files for which it does not make
+       sense,  i.e,  add  them only to MP3 files. In particular,
+       do  not  add  ID3v2  tags  to OGG files, since ID3v2 tags
+       start  at the beginning of the file, and thus will result
+       in  corrupted  OGG  files.  Support for the OGG container
+       format is planned in a future release.
+
+       I  discourage  using  ID3v2  tags if not truly necessary.
+       Working  with  ID3v2 tags might involve copying sensitive
+       data  several  times,  introducing possible opportunities
+       for  data  corruption and file fragmentation. And because
+       ID3v2  is  complex,  program code is complex, and as such
+       ore prone to contain errors.
+
+       ID3v2  goes  way  beyond the demands of simple meta-data,
+       and  tries  to  support embedding general purpose data in
+       places where it shouldn't be. Do not use it for this.
+
+ _ _ ._ _ ._  _._|_o|_ o|o_|_
+(_(_)| | ||_)(_| |_||_)||| |_\/
+~~~~~~~~~~|~~~~~~~~~~~~~~~~~~/~
+       id3  has a built-in genre list of 148 genres. If pass the
+       -g parameter a name instead of a number when using ID3v1,
+       id3  tries  to  find  the  specified  genre in this list.
+       Capitalization  doesn't  matter,  however  exact spelling
+       does. For the genre numbers and spelling, see `id3v1.c'.
+
+       id3  does not support ID3v2 v2.0 or earlier, neither does
+       it  support  the  new ID3v2 v4.0 (yet?). It also does not
+       support ID3v2 features as compression, encryption, ...
+
+ _.  _|_|_  _ .__
+(_||_||_| |(_)|_>
+~~~~~~~~~~~~~~~~~
+       squell ^ zf! (squell@xms.ms, squell@goth.net)
+

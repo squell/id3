@@ -3,6 +3,7 @@
 #include <cctype>
 #include <cstdlib>
 #include "setid3v2.h"
+#include "id3v1.h"
 #include "id3v2.h"
 
 /*
@@ -51,9 +52,12 @@ const char xlat[][5] = {
 smartID3v2& smartID3v2::set(ID3set i, const char* m)
 {
     if(i < ID3) {
-        const string t("\0eng\0", i!=cmnt? 1 : 5);
-
-        mod2.insert( db::value_type(xlat[i], t+m) );
+        const string prefix("\0eng\0", i!=cmnt? 1 : 5);
+        if(i == genre) {
+            unsigned int x = atoi(m)-1;             // is portable
+            if(x < ID3v1_numgenres) m = ID3v1_genre[x];
+        }
+        mod2.insert( db::value_type(xlat[i], prefix+m) );
         smartID3::set(i,m);                         // chain to parent
     }
     return *this;
