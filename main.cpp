@@ -119,9 +119,7 @@ namespace {
 
     // next function acts like a cast operator on the above
 
-    template<class T> inline T& with(T& obj)		       { return obj; }
     template<class T> inline T& with(uses<T>& box)	       { return box.object; }
-    template<class T> inline const T& with(const T& obj)       { return obj; }
     template<class T> inline const T& with(const uses<T>& box) { return box.object; }
 }
 
@@ -142,10 +140,10 @@ struct metadata :
 
 class mass_tag : fileexp::find {
 public:
-    mass_tag(bool r = false) : recursive(0), edir(0) { }
-    bool recursive;
+    mass_tag() : recursive(0), edir(0) { }
     void operator()
-      ( const set_tag::handler&, const char*, const set_tag::provider& );
+      ( const set_tag::handler&, const char* spec, const set_tag::provider& );
+    bool recursive;
 
     class substvars;
     class r_vector;
@@ -180,11 +178,11 @@ class mass_tag::substvars {
     mutable const set_tag::reader* tag_data;
     static unsigned counter;
 public:
-    substvars(const set_tag::provider& ctor, const char* fn)
-    : tag(&ctor), filename(fn), tag_data(0) { }
-   ~substvars() { delete tag_data; }
-
     cvtstring operator[](char field) const;
+
+    substvars(const set_tag::provider& proto, const char* fn)
+    : tag(&proto), filename(fn), tag_data(0) { }
+   ~substvars() { delete tag_data; }
 };
 
 void mass_tag::operator()(const set_tag::handler& h, const char* spec, const set_tag::provider& p)
@@ -323,9 +321,10 @@ static void defaults(metadata& tag, set_tag::handler*& target, set_tag::provider
 
  // "inside out" way of specifying what you want.
  // - kind of lazy. but hey long live code reuse :)
+ // - assumes sedit() processes variables left-to-right
 
 struct setpattern {
-    setpattern(metadata&, char*&);
+    setpattern(metadata& _tag, char*& arg);    // call as if a function
     operator op::oper_t() const { return state; }
     const char* operator[](unsigned);
     const char* operator[](char c);
@@ -338,7 +337,7 @@ private:
 setpattern::setpattern(metadata& _tag, char*& arg)
 : tag(_tag), state(op::no_op)
 {
-    string::size_type pos(0);                  // replace * with stubs
+    string::size_type pos(0);                  // replace '*' with stubs
     string s(arg);
     while((pos = s.find('*',pos)) != string::npos) {
         s.replace(pos, 1, "%x");
