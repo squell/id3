@@ -9,7 +9,7 @@
 
 struct verbose_t {
     bool          show;
-    clock_t  time;
+    clock_t       time;
     unsigned long numfiles;
 
     verbose_t()
