@@ -1,5 +1,8 @@
 Changelog for 'id3'.
 
+2004-029 (W05):
+  created a unix manpage
+
 2004-027 (W05):                                ---------[v0.72]-----------
   [CLI] Now supports directory wildcards (e.g. "mp3root/*/*/*_*.mp3")
     Be careful with this, mkay? ;)

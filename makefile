@@ -2,34 +2,41 @@
 
 SHELL  = /bin/sh
 
-CC     = gcc
-CXX    = g++
-CFLAGS = -g -O2
+CC	= gcc
+CXX	= g++
+CFLAGS	= -g -O2
+LDFLAGS =
 
-STRIP  = strip
+STRIP	= strip
 
 ## installation vars #######################################################
 
-prefix = /usr/local
-bindir = $(prefix)/bin
+prefix	= /usr/local
+bindir	= $(prefix)/bin
+datadir = $(prefix)/share
+manext	= 1
+mandir	= $(prefix)/man/man$(manext)
+docdir	= $(datadir)/doc/id3
 
-binary = id3
+binary	= id3
+docdata = README CHANGES COPYING
 
 INSTALL       = install
 INSTALL_DIR   = $(INSTALL) -d
 INSTALL_STRIP = $(INSTALL) -s
+INSTALL_DATA  = $(INSTALL) -m 644
 
 ############################################################################
 
 id3: main.o sedit.o varexp.o ffindexp.o \
      setid3.o setid3v2.o \
      id3v1.o id3v2.o fileops.o
-	$(CXX) -o $@ $+
+	$(CXX) $(LDFLAGS) -o $@ $+
 
 id3l: mainl.o sedit.o varexp.o ffindexp.o \
       setid3.o \
       id3v1.o
-	$(CXX) -o $@ $+
+	$(CXX) $(LDFLAGS) -o $@ $+
 
 all  : id3 id3l
 
@@ -37,21 +44,29 @@ final: id3 id3l
 	$(STRIP) $+
 
 clean:
-	rm *.o id3 id3l
+	rm -f *.o id3 id3l
 
 ############################################################################
 
 installdirs:
-	$(INSTALL_DIR) $(bindir)
+	$(INSTALL_DIR) $(bindir) $(mandir) $(docdir)
 
-install: installdirs $(binary)
+installman: id3.man README
+	$(INSTALL_DATA) id3.man $(mandir)/id3.$(manext)
+	for f in $(docdata); do  \
+	    $(INSTALL_DATA) $${f} $(docdir)/$${f}; done
+
+install: $(binary) installdirs installman
 	$(INSTALL) $(binary) $(bindir)/id3
 
-install-strip: installdirs $(binary)
+install-strip: $(binary) installdirs installman
 	$(INSTALL_STRIP) $(binary) $(bindir)/id3
 
 uninstall:
+	rm -f $(mandir)/id3.$(manext)
 	rm -f $(bindir)/id3
+	for f in $(docdata); do \
+	    rm -f $(docdir)/$${f}; done
 
 ############################################################################
 

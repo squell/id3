@@ -114,7 +114,7 @@ void shelp()
 void help(const char* argv0)
 {
     printf(
-        "id3 0.72 (2004028)\n"
+        "id3 0.73pvt (2004xxx)\n"
 #ifdef __ZF_SETID3V2
         "usage: %s [-1 -2] [OPTIONS] filespec ...\n\n"
 #else
