@@ -327,8 +327,8 @@ int main_(int argc, char *argv[])
         case no_value:                         // process a command parameter
             if(*opt != '\0') --i; else
                 if(argv[i][0] == '-' && scan) opt = argv[i]+1;
-        case force_fn:
             if(*opt == '\0') {
+        case force_fn:
                 defaults(tag, chosen, source);
                 argpath(argv[i]);
                 scan = false;
@@ -368,9 +368,7 @@ int main_(int argc, char *argv[])
                     if(!source) source = &with<ID3v2>(tag);
                     break;
 
-  // tag specific options
-
-                case 's':
+                case 's':                      // tag specific options
                     if(chosen) {
                         cmd = suggest_size; break;
                     }
