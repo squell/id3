@@ -21,6 +21,7 @@ clean:
 	del id3l.exe
 
 zip:
+	del distrib.zip
 	pkzip -exP distrib * debian/*
 
 ############################################################################

@@ -86,7 +86,8 @@ DISTFILES = INSTALL $(docdata) makefile makefile.dj makefile.bcc \
 	$(foreach f, sedit varexp ffindexp charconv, $(f).h $(f).cpp) \
 	$(foreach f, set_base setid3 setid3v2 setfname, $(f).h $(f).cpp) \
 	$(foreach f, fileops id3v1 id3v2, $(f).h $(f).c) \
-	id3.man
+	id3.man \
+	$(foreach f, control rules copyright changelog, debian/$(f))
 
 D_VER = `sed -n "/_version_/{s:[^0-9]*\([^ ]*\).*:\1:p;q;}" main.cpp`
 D_TMP = rm -rf .tmp; mkdir .tmp
@@ -119,7 +120,8 @@ dist-check:
 	@echo all release checks okay
 
 dist-clean:
-	$(D_TMP) && ln $(DISTFILES) .tmp
+	$(D_TMP) && mkdir .tmp/debian
+	ln $(DISTFILES) .tmp
 	-rm -rf *
 	mv .tmp/* `pwd`
 	-rm -rf .tmp
