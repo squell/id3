@@ -43,9 +43,10 @@
 class filefindexp {
 public:
     bool operator()(const char* filemask);
+    virtual ~filefindexp() { }
 protected:
     virtual void process() = 0;               // override this one
-    virtual void entered() { };               // def. do nothing
+    virtual void entered() { }                // def. do nothing
 
     std::vector<std::string> var;             // contains matched vars
     char path[PATH_MAX];                      // contains full file path

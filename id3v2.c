@@ -205,7 +205,6 @@ int ID3_writef(const char *fname, void *src)
 {
     struct raw_hdr new_h = { "ID3", 3, 0, 0, 0 };
     struct raw_hdr rh    = { { 0 } };                       /* duct tape */
-    struct raw_frm fm;
     ulong size = calcsize(src,ULONG_MAX);
 
     FILE *f = fopen(fname, "rb+");

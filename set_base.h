@@ -63,6 +63,8 @@ public:
 	handler& enable()  { return active(1); }
 	handler& disable() { return active(0); }
 
+    virtual ~handler() { };
+
   // standard state set methods
 
 	virtual handler& active(bool) = 0;
@@ -88,10 +90,10 @@ protected:
 	single_tag(bool t = true)
 	: enabled(t), fresh(false) { }
 
+    bool enabled;                  // should vmodify do anything?
 	bool fresh; 				   // should vmodify clear existing tag?
-	bool enabled;				   // should vmodify do anything?
 public:
-	handler& active(bool on) { enabled = on; }
+    handler& active(bool on) { enabled = on; return *this; }
 	bool	 active() const  { return enabled; }
 
 	handler& clear()		 { fresh = true; return *this; }
@@ -107,7 +109,7 @@ class set_tag::combined_tag : public handler {
 public:
   // registers a delegate tag
 	combined_tag& delegate(set_tag::handler& t)
-	{ tags.push_back(&t); }
+    { tags.push_back(&t); return *this; }
 
   // standard state set methods (non-inline)
 	handler& active(bool);

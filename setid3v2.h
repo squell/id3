@@ -44,7 +44,7 @@ class ID3v2 : public single_tag {
 	std::map<std::string,std::string> mod;
 
 public:
-	ID3v2(bool f = true) : mod(), single_tag(f) { }
+    ID3v2(bool f = true) : single_tag(f), mod() { }
 
 	ID3v2& set(ID3field i, const char* m);		  // set standard field
 

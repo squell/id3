@@ -33,7 +33,7 @@ namespace set_tag {
 class ID3 : public single_tag {
 	std::vector<const char*> mod;		   // modification data
 public:
-	ID3(bool f = true) : mod(FIELDS,(char*)0), single_tag(f) { }
+    ID3(bool f = true) : single_tag(f), mod(FIELDS,(char*)0) { }
 
 	virtual bool vmodify(const char*, const base_container&) const;
 
