@@ -8,7 +8,7 @@
 #include <stdexcept>
 #include <string>
 #include "ffindexp.h"
-#include "sedit.h"
+#include "verbose.h"
 
 #include "set_base.h"
 #include "setid3.h"
@@ -33,8 +33,9 @@ using namespace std;
 
  // exitcodes: 0 - ok, 1 - syntax, 2 - errors, 3 - fatal errors
 
-static int   exitc = 0;
-static char* name  = "id3";
+static char*     name  = "id3";
+static verbose_t verbose;
+static int&      exitc = verbose.exitc;
 
 static void eprintf(const char* msg, ...)
 {
@@ -45,40 +46,6 @@ static void eprintf(const char* msg, ...)
     vfprintf (stderr, msg, args);
     va_end(args);
 }
-
- // all verbose mode functionality goes here
-
-struct verbose_t {
-    bool          show;
-    clock_t       time;
-    unsigned long numfiles;
-
-    verbose_t() : show(false), time(clock()), numfiles(0) { }
-    void on()                                { show = true; }
-
-   ~verbose_t()
-    {
-        time = clock() - time;
-        if(show) {
-            if(exitc!=0) fprintf(stderr, "Errors were encountered\n");
-            if(exitc!=1) fprintf(stderr, "(%d files in %.3fs) done\n", numfiles, double(time) / CLOCKS_PER_SEC);
-        }
-    }
-
-    void reportf(const char* s)                     // reporting a filename
-    {
-        if(show) {
-            ++numfiles;
-            const char* sep = strrchr(s, '/');
-            fprintf(stderr, "\t%s\n", sep?sep+1:s);
-        }
-    }
-
-    void reportd(const char* s)                     // reporting a dir
-    {
-        if(show && *s) fprintf(stderr, "%s\n", s);
-    }
-} static verbose;
 
 /* ====================================================== */
 
@@ -97,7 +64,7 @@ namespace {
 
     template<class T> struct uses : virtual set_tag::combined {
         uses(bool on = false) : object(on)
-        { set_tag::combined::delegate(object); }
+        { delegate(object); }
 
         T object;
     };
@@ -166,18 +133,11 @@ const set_tag::reader& lazyreader::operator*() const
 class substvars {
     static unsigned  counter;
     const lazyreader data;
-
-    static cvtstring fallback(const cvtstring& s, const char* def);
 public:
     substvars(const set_tag::provider& ctor, const char* fn)
     : data(&ctor, fn) { }
     cvtstring operator[](char field) const;
 };
-
-cvtstring substvars::fallback(const cvtstring& s, const char* def)
-{
-     return !s.empty()? s : cvtstring::latin1(def);
-}
 
 cvtstring substvars::operator[](char field) const
 {
@@ -288,7 +248,7 @@ static void Copyright()
 {
  //      |=======================64 chars wide==========================|
     printf(
-        "%s " _version_ ", Copyright (C) 2003, 04 Marc R. Schoolderman\n"
+        "%s " _version_ ", Copyright (C) 2003, 04, 05 Marc R. Schoolderman\n"
         "This program comes with ABSOLUTELY NO WARRANTY.\n\n"
         "This is free software, and you are welcome to redistribute it\n"
         "under certain conditions; see the file named COPYING in the\n"

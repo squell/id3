@@ -11,13 +11,13 @@
 #define __ZF_VERBOSE_HPP
 
 struct verbose_t {
-    int           exitc;
+    int&          exitc;
     bool          show;
     clock_t       time;
     unsigned long numfiles;
 
-    verbose_t() : show(false), time(clock()), numfiles(0), exitc(0)
-    { }
+    verbose_t(int& _ec)
+    : show(false), time(clock()), numfiles(0), exitc(_ec) { }
     void on()
     { show = true; }
 
