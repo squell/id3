@@ -1,8 +1,9 @@
 Changelog for 'id3'.
 
 2003-296 (W43):                                ---------[v0.71]-----------
+  main.cpp:dirvector: reads directory as a whole to avoid order mangling
   main.cpp: added version info to -h, and added verbose mode with timing
-  main.cpp:47: now uses posix constant
+  main.cpp:67: now uses posix constant
   setid3:86: [CLI] added "%," as alternative to "%n", "%@" for "%:"
   varexp.cpp:19: no longer copies vectors around.
   Updated documentation
@@ -15,7 +16,7 @@ Changelog for 'id3'.
 
 2003-267 (W39):
   setid3.cpp:38: made freshly written ID3v1 tags have an empty genre.
-  id3v2.c:278  : don't rewrite files with no ID3v2 tags when removing
+  id3v2.c:307  : don't rewrite files with no ID3v2 tags when removing
     ID3v2 tags from files.
 
 2003-262 (W38):
@@ -33,12 +34,12 @@ Changelog for 'id3'.
   main.cpp: handles all exceptions, more consistent help messages
 
 2003-216 (W32):
-  id3v2.c:268: added check on tmpnam(0) returning NULL
+  id3v2.c: added check on tmpnam(0) returning NULL
   id3v2.c:66:  added safety to see if copyfile() halted because of eof
-  setid3v2.cpp:91: [BUGFIX] Harmless. w_ptr constructor sometimes got an
+  setid3v2.cpp: [BUGFIX] Harmless. w_ptr constructor sometimes got an
     uninitialized allocation value (went by unnoticed because of
     alloc-on-write?). Fix: Removed this feature - unnecessary anyway.
-  setid3v2.cpp:89: only read previous ID3v2 if necessary.
+  setid3v2.cpp: only read previous ID3v2 if necessary.
 
 2003-198 (W29):
   added conditional stdint.h include, some dirent.h implementations need it
@@ -46,13 +47,13 @@ Changelog for 'id3'.
 2003-189 (W28):                                ---------[v0.60]-----------
   First public release
   setid3.cpp: removed silly packing check
-  setid3v2.cpp:97: added "&& src". Whoopsee! :)
+  setid3v2.cpp: added "&& src". Whoopsee! :)
   id3v2.c: writef() now writes ID3v2 tags to files < 10 bytes. :)
 
 2003-185 (W27):
-  setid3v2.cpp:26: made w_ptr a live object + added bad_alloc checks
-  setid3v2.cpp:90: void* src + ID3_free -> voidp<> src (exception safety)
-  setid3.cpp:94: Now emits CR/LF pairs for %n, violating ID3v2, but
+  setid3v2.cpp: made w_ptr a live object + added bad_alloc checks
+  setid3v2.cpp: void* src + ID3_free -> voidp<> src (exception safety)
+  setid3.cpp: Now emits CR/LF pairs for %n, violating ID3v2, but
     conforming to Winamp. I figure more people care about Winamp.
 
 2003-184 (W27):
@@ -68,7 +69,6 @@ Changelog for 'id3'.
   Code clean up + minor improvements (e.g. added [] to wildcard match)
   Bolted together (private) `id3' & (private) ID3v2 sources
 
-
 Todo list:
 
   - Restructure smartID3 inheritance.
@@ -78,4 +78,7 @@ Todo list:
   - Options for forcing re-packing id3v2
   ? Shorthand Wildcards ("%n. %t.mp3" == -n %1 -t %2 "*. *.mp3")
   ? Join main.cpp & view.cpp
+
+Thanks go out to everybody who has responded with questions, suggestions,
+and bug reports!
 

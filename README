@@ -27,7 +27,7 @@ _>\/| |(_)|_)_>\/_>
        id3  currently  supports  the  old-style  ID3 format with
        track-number  extension  (ID3  v1.1), as well as the more
        complicated  ID3v2  (ID3  v2.3.0) format. This also means
-       use  is  pretty  much  limited to audio formats which use
+       use  is  pretty  much  limited  to  audio files which use
        these formats, e.g, MPEG-1 Layer III.
 
  _ .__|_o _ ._  _

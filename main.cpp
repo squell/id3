@@ -2,12 +2,20 @@
 #  include <stdint.h>              // for some implementations of dirent.h
 #endif
 #include <dirent.h>
+
+#if defined(__WIN32__)
+#  define _POSIX_ 1                // borland c++ needs this
+#endif
 #include <cstdlib>
 #include <cstdio>
 #include <cstring>
 #include <cctype>
 #include <climits>
 #include <ctime>
+
+#include <vector>
+#include <string>
+
 #include "varexp.h"
 #ifdef NO_V2
 #  include "setid3.h"
@@ -24,11 +32,15 @@
 
 using namespace std;
 
+/* ====================================================== */
+
+ // all verbose mode functionality goes here
+
 struct verbose_t {
     bool    show;
     clock_t time;
 
-    void operator++()
+    void on()
     { show = true; }
 
     verbose_t() : show(false), time(clock()) { }
@@ -37,9 +49,34 @@ struct verbose_t {
     { time = clock() - time;
       if(show) printf("(%.3fs) done\n", double(time) / CLOCKS_PER_SEC); }
 
-    void report(const char* s, bool m)
+    void report(const char* s, bool m)            // reporting a filename
     { if(show && m) printf("%s\n", s); }
 } verbose;
+
+/* ====================================================== */
+
+ // mini class for reading a directory as a vector
+
+struct dirvector : vector<string> {
+    dirvector(const char* path);
+    operator bool()
+    { return success; }
+    
+    bool success;
+};
+
+dirvector::dirvector(const char* path)
+{
+    if( DIR* dir = opendir(path) ) {
+        while( dirent* fn = readdir(dir) ) {
+            push_back(fn->d_name);
+        }
+        closedir(dir);
+        success = true;
+    } else {
+        success = false;
+    }
+}
 
 /* ====================================================== */
 
@@ -57,20 +94,19 @@ void write_mp3s(const char* fspec, smartID3& tag)
         pname = strcpy(path, "./");
     }
 
-    DIR* dir = opendir(path);
+    dirvector dir(path);
     if(!dir)
         return (void) printf("id3: could not read %s\n", path);
 
     bool m = false;                             // idle flag
 
-    while( dirent* fn = readdir(dir) ) {
-        varexp match(fspec, fn->d_name);
-        strcpy(pname, fn->d_name);
+    for(dirvector::iterator fn = dir.begin(); fn != dir.end(); ++fn) {
+        strcpy(pname, fn->c_str());
+        varexp match(fspec, pname);
         verbose.report(path, match);
         if( match && ++m && !tag.modify(path, match) )
-            printf("id3: could not access %s!\n", fn->d_name);
+            printf("id3: could not access %s!\n", pname);
     }
-    closedir(dir);
 
     if(!m)
         printf("id3: no files matching %s\n", fspec);
@@ -159,7 +195,7 @@ int main_(int argc, char *argv[])
                     opt = "";
                     break;
 #endif
-                case 'V': ++verbose; break;
+                case 'V': verbose.on(); break;
                 case 'D': tag.clear(); w = true; break;
                 case 'T': t = title;  break;
                 case 'A': t = artist; break;
