@@ -120,8 +120,7 @@ dist-check:
 	@echo all release checks okay
 
 dist-clean:
-	$(D_TMP) && mkdir .tmp/debian
-	ln $(DISTFILES) .tmp
+	$(D_TMP) &&  cp -l --parents $(DISTFILES) .tmp
 	-rm -rf *
 	mv .tmp/* `pwd`
 	-rm -rf .tmp
