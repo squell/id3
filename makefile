@@ -153,12 +153,15 @@ URI	 = http://home.wanadoo.nl/squell
 HTMLPROC = sed -n 's/^.*href="\([[:alnum:]/_.-]*[.]tar[.]gz\)".*$$/\1/p'
 
 wget-orig:
+	which wget
 	wget -nv $(URI)/`wget -nv -O - $(URI)/id3.html | $(HTMLPROC)`
 
 fetch-orig:
+	which fetch
 	fetch $(URI)/`fetch -o - $(URI)/id3.html | $(HTMLPROC)`
 
 curl-orig:
+	which curl
 	curl -# -O $(URI)/`curl -# $(URI)/id3.html | $(HTMLPROC)`
 
 ## build rules #############################################################
