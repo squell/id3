@@ -105,7 +105,7 @@ set_tag::reader* ID3::read(const char* fn) const
     return 0;
 }
 
-bool ID3::vmodify(const char* fn, const base_container& v) const
+bool ID3::vmodify(const char* fn, const subst& v) const
 {
     ID3v1 tag = { { 0 } };                    // duct tape
 

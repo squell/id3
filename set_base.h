@@ -58,7 +58,7 @@ namespace set_tag {            // borland likes this better
 
 class handler : protected string_parm {
 public:
-    virtual bool vmodify(const char*, const base_container&) const = 0;
+    virtual bool vmodify(const char*, const subst&) const = 0;
 
     template<class T>
       bool modify(const char* fn, const T& vars) const
@@ -128,7 +128,7 @@ public:
     handler& set(ID3field, const char*);
     handler& clear();
 
-    bool vmodify(const char*, const base_container&) const;
+    bool vmodify(const char*, const subst&) const;
 };
 
   ///////////////////////////////////////////////////////

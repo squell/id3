@@ -171,7 +171,7 @@ template<void clean(void*)> struct voidp {          // auto-ptr like
    ~voidp()          { clean(data); }
 };
 
-bool ID3v2::vmodify(const char* fn, const base_container& v) const
+bool ID3v2::vmodify(const char* fn, const subst& v) const
 {
     size_t check;
     void* buf = ID3_readf(fn, &check);

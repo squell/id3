@@ -54,7 +54,7 @@ bool combined_tag::active() const
  /* implementation of combined vmodify()
     - obeys the vmodify restrictions of set_base.h */
 
-bool combined_tag::vmodify(const char* fn, const base_container& val) const
+bool combined_tag::vmodify(const char* fn, const subst& val) const
 {
     bool e = false;
     for(iter p = tags.begin(); p != tags.end(); ++p) {

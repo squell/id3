@@ -35,8 +35,8 @@ class ID3 : public single_tag {
 public:
     ID3(bool f = true) : single_tag(f), mod(FIELDS,(char*)0) { }
 
-    virtual bool    vmodify(const char*, const base_container&) const;
-    virtual reader* read(const char*) const;
+    bool    vmodify(const char*, const subst&) const;
+    reader* read(const char*) const;
 
   // standard set
 

@@ -41,7 +41,7 @@ INSTALL_DATA  = $(INSTALL) -m 644
 
 ## standard targets ########################################################
 
-default: id3
+build: id3
 
 all  : id3 id3l
 
@@ -109,22 +109,22 @@ dist-check:
 	d=`(cat INSTALL | sed -n -e '/contents/,/---/!d' \
 	  -e '/(C)$$/   s:^ \([^ ]*\)[*].*:\1h \1c:p' \
 	  -e '/(C++)$$/ s:^ \([^ ]*\)[*].*:\1h \1cpp:p' \
-	  -e           's:^ \([^ ]*\).*:\1:p'; \
+	  -e	       's:^ \([^ ]*\).*:\1:p'; \
 	    echo $(DISTFILES)) | tr ' ' '\n' | sort | uniq -u` && \
 	echo "$${d}"; test -z "$${d}"
-        $(D_TMP) && ln $(DISTFILES) .tmp
+	$(D_TMP) && ln $(DISTFILES) .tmp
 	make -C .tmp all && mv .tmp/id3 .tmp/id3l `pwd`
 	-rm -rf .tmp
 	@echo all release checks okay
 
 dist-clean:
-        $(D_TMP) && ln $(DISTFILES) .tmp
-	-rm -rf * 
+	$(D_TMP) && ln $(DISTFILES) .tmp
+	-rm -rf *
 	mv .tmp/* `pwd`
 	-rm -rf .tmp
 
 diff:
-        $(D_TMP) && ln -s `pwd` .tmp/{current}
+	$(D_TMP) && ln -s `pwd` .tmp/{current}
 	tar Cxfz .tmp `pwd`.tar.gz
 	diff -x '.*' -durN .tmp/* | gzip -9 > `pwd`-$(D_VER).diff.gz
 	-rm -rf .tmp
