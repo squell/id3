@@ -52,7 +52,7 @@ static string capitalize(string s)
 {
     bool new_w = true;
     for(string::iterator p = s.begin(); p != s.end(); p++) {
-        new_w = !isalpha( *p = (new_w? toupper:tolower)(*p) ); // heh =)
+        new_w = !isalpha( *p = new_w? toupper(*p):tolower(*p) ); // heh =)
     }
     return s;
 }
@@ -129,6 +129,8 @@ string smartID3::edit(string s, const base_container& v)
 }
 
 /* ====================================================== */
+
+#pragma warn -pia                             // no if(x = ..) warnings
 
 bool smartID3::vmodify(const char* fn, const base_container& v)
 {

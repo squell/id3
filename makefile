@@ -1,21 +1,30 @@
-CC     = g++
-CFLAGS = -g -O2
+## id3 makefile for Borland C++ (tested with 5.5) ##########################
 
-id3: main.o setid3.o varexp.o
-	$(CC) $(CFLAGS) -o $@ $+
+CC     = bcc32
+CFLAGS =
 
-final: id3
-	strip $<
+LINK   = ilink32
+LFLAGS =
 
-all  : id3
+############################################################################
+
+id3.exe: main.obj setid3.obj varexp.obj id3v1.obj
+        $(CC) $(LFLAGS) -e$@ $**
+
+final: id3.exe
+        upx --best $**                          ## requires upx installed ##
+
+all  : id3.exe
 
 clean:
-	rm *.o
-	rm id3
+        del *.obj
+        del *.exe
 
-%.o  : %.cpp %.h
-	$(CC) $(CFLAGS) -c $<
+.c.obj:
+        $(CC) $(CFLAGS) -c $<
 
-main.o: main.cpp varexp.h setid3.h
-	$(CC) $(CFLAGS) -c $<
+.cpp.obj:
+        $(CC) $(CFLAGS) -c $<
+
+############################################################################
 
