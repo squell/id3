@@ -1,8 +1,12 @@
 Changelog for 'id3'.
 
 2003-299 (W43):
-  Fixed the 'psychadelic' typo in the genre list (copied from id3.org!)
-  Error messages to stderr instead of stdout, corrected program result code
+  main:cpp: error messages to stderr instead of stdout, program now gives
+    meaningful result codes.
+  id3v1.c:77: 'psychadelic'. Typo in the genre list (copied from id3.org!)
+  id3v2.c:11: fixed copyright notice. :)
+  id3v2.c<>fileops.c: split into two components.
+  id3v2.c: added code for preserving file permissions when copying
 
 2003-296 (W43):                                ---------[v0.71]-----------
   main.cpp:dirvector: reads directory as a whole to avoid order mangling
@@ -81,7 +85,7 @@ Todo list:
   - Restructure smartID3 inheritance.
     + Support for Ogg Vorbis
     + Support for APEv2
-    + Support for Lyrics3 v2.0
+    + Support for Lyrics3 v2.0 (?)
   - Directory wildcards ("mp3root/*/*/*_*.mp3")
   - Options for re-using existing tag values
   - Extend substitution capabilities.

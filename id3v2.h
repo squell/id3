@@ -97,8 +97,6 @@ extern void   *ID3_put(void *dest, const char ID[4], const void *src, size_t len
 
 extern int   (*ID3_wfail)(const char *srcname, const char *dstname);
 
-extern int cpfile(const char *srcnam, const char *dstnam);
-
 #ifdef __cplusplus
 }
 #endif

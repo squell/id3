@@ -6,6 +6,7 @@
 #include "setid3v2.h"
 #include "id3v1.h"
 #include "id3v2.h"
+#include "fileops.h"
 
 /*
 

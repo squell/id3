@@ -21,7 +21,7 @@ INSTALL_STRIP = $(INSTALL) -s
 
 ############################################################################
 
-id3: main.o varexp.o setid3.o setid3v2.o id3v1.o id3v2.o
+id3: main.o varexp.o setid3.o setid3v2.o id3v1.o id3v2.o fileops.o
 	$(CXX) -o $@ $+
 
 id3l: mainl.o varexp.o setid3.o id3v1.o
@@ -57,8 +57,9 @@ main.o: main.cpp varexp.h setid3.h setid3v2.h id3v1.h id3v2.h
 mainl.o: main.cpp varexp.h setid3.h id3v1.h
 	$(CC) $(CFLAGS) -DNO_V2 -o $@ -c main.cpp
 
-setid3v2.o: id3v2.h setid3.h
+setid3v2.o: id3v2.h setid3.h fileops.h
 setid3.o  : id3v1.h
+id3v2.o   : fileops.h
 
 %.o : %.cpp %.h
 	$(CC) $(CFLAGS) -c $<

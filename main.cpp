@@ -154,7 +154,20 @@ void help(const char* argv0)
 
 /* ====================================================== */
 
-const ID3set no_value = ID3_MAX; // dummy value
+enum parm_t {
+    f_title  = title,            // copy ID3set values
+    f_artist = artist,           // (the order of ID3set doesnt matter)
+    f_album  = album,
+    f_year   = year,
+    f_cmnt   = cmnt,
+    f_track  = track,
+    f_genre  = genre,
+    o_value = ID3_MAX,          // dummy value + ensures enum order
+    f_custom,
+    s_size
+};
+
+const ID3set no_value = ID3_MAX;
 
 int main_(int argc, char *argv[])
 {

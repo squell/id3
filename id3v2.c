@@ -4,11 +4,12 @@
 #include <ctype.h>
 #include <errno.h>
 #include <limits.h>
+#include "fileops.h"
 #include "id3v2.h"
 
 /*
 
-  (c) 2000 squell ^ zero functionality!
+  (c) 2003 squell ^ zero functionality!
   see the file 'COPYING' for license conditions
 
   NOTE! Unsynchronization is only supported for reading
@@ -49,86 +50,6 @@ struct raw_frm {
     uchar size [4];
     uchar flags[2];
 };
-
-/* ==================================================== */
-
-static int fcopy(FILE *dest, FILE *src)
-{
-    char buffer[0x4000];                              /* 16kb buffer */
-    size_t r, w;
-
-    do {
-        r = fread (buffer, 1, sizeof buffer, src);
-        w = fwrite(buffer, 1, r, dest);
-        if(w != r) return 0;
-    } while(r == sizeof buffer);
-
-    return feof(src);
-}
-
-static int fpadd(FILE *dest, char c, size_t len)
-{
-    char buffer[0x4000];                              /* 16kb buffer */
-    size_t w;
-
-    memset(buffer, c, sizeof buffer);
-
-    while(len > sizeof buffer) {
-        w = fwrite(buffer, sizeof buffer, 1, dest);
-        if(w!=1) return 0;
-        len -= sizeof buffer;
-    }
-
-    w = fwrite(buffer, 1, len, dest);
-
-    return w == len;
-}
-
-static FILE *fopentmp(const char *hint, char **name)        /* free() name */
-{
-    char *buf;
-    FILE *f;
-#ifdef USE_TMPNAM
-    if(buf = malloc(L_tmpnam)) {
-        if(tmpnam(buf) && (f = fopen(buf, "wb"))) {
-            *name = buf;
-            return f;
-        }
-        free(buf);
-    }
-#else
-    char* pname = strrchr(hint, '/');
-    size_t idx  = pname? pname-hint+1 : 0;
-
-    if(buf = malloc(idx + 8 + 1)) {
-        strncpy(buf, hint, idx);
-        strcpy (buf+idx, "idXXXXXX");
-        if(mktemp(buf) && (f = fopen(buf, "wb"))) {
-            *name = buf;
-            return f;
-        }
-        free(buf);
-    }
-#endif
-    return 0;
-}
-
-/* ==================================================== */
-
-int cpfile(const char *srcnam, const char *dstnam)
-{
-    FILE *src, *dst;
-    int result = 0;
-
-    if(src = fopen(srcnam, "rb")) {
-        if(dst = fopen(dstnam, "wb")) {
-            result = fcopy(dst, src);
-            fclose(dst);
-        }
-        fclose(src);
-    }
-    return result;
-}
 
 /* ==================================================== */
 
@@ -332,6 +253,7 @@ int ID3_writef(const char *fname, void *src)
         }
         fclose(f);
         fclose(nf);
+
         if(ok && remove(fname) == 0) {
             if( rename(tmp, fname) != 0 && !ID3_wfail(tmp, fname) ) {
                 fprintf(stderr, "%s -> %s: %s\n", tmp, fname, strerror(errno));
