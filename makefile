@@ -1,6 +1,6 @@
 ## generic GNU makefile ####################################################
 
-SHELL  = /bin/sh
+SHELL	 = /bin/sh
 
 CC	 = gcc
 CXX	 = g++
@@ -20,8 +20,7 @@ man1dir  = $(mandir)/man$(manext)
 
 binary	 = id3
 
-datadir  = $(prefix)/share
-docdir	 = $(datadir)/doc/id3
+docdir	 = $(prefix)/share/doc/id3
 docdata  = README CHANGES COPYING
 
 INSTALL       = install
@@ -52,12 +51,13 @@ clean:
 ############################################################################
 
 installdirs:
-	$(INSTALL_DIR) $(bindir) $(man1dir) $(docdir)
+	$(INSTALL_DIR) $(bindir) $(man1dir)
 
 installman: id3.man
-	$(INSTALL_DATA) id3.man $(man1dir)/id3.$(manext)
+	-$(INSTALL_DATA) id3.man $(man1dir)/id3.$(manext)
 
-install-doc: $(docdata)
+installdoc: $(docdata)
+	$(INSTALL_DIR) $(docdir)
 	for f in $(docdata); do  \
 	    $(INSTALL_DATA) $${f} $(docdir)/$${f}; done
 
@@ -66,6 +66,8 @@ install: $(binary) installdirs installman
 
 install-strip: $(binary) installdirs installman
 	$(INSTALL_STRIP) $(binary) $(bindir)/id3
+
+install-full: installdoc install-strip
 
 uninstall:
 	rm -f $(man1dir)/id3.$(manext)
