@@ -43,6 +43,10 @@ _>\/| |(_)|_)_>\/_>
             internal  shell pattern matching which will not work
             if your shell performs this function.
 
+            The  shell  pattern  matching can be applied to both
+            filenames  and  directory  names.  id3 can look into
+            multiple directories with a single command.
+
        -h   show commandline help
 
        -v   be verbose
@@ -158,6 +162,11 @@ _>|_||_)_> |_| |_|_||_|(_)| |
        The internal pattern matching emulates the normal pattern
        matching of `sh'. It supports ?, * and [].
 
+       A shell pattern will never match a forward slash (`/') or
+       a  dot  (`.') beginning a filename. Wildcards can be used
+       for  directories  as well (to arbitrary depths), in which
+       case a search will be performed.
+
        In  an  ambiguous  situation,  the  pattern  matcher will
        always  resolve  a  `*' wildcard to the shortest possible
        sequence  of  tokens.  This  differs  from  the  standard
@@ -168,9 +177,9 @@ _>|_||_)_> |_| |_|_||_|(_)| |
 
        Do  NOT  add ID3 tags to files for which it does not make
        sense,  i.e,  add  them only to MP3 files. In particular,
-       do  not  add  ID3v2  tags  to OGG files, since ID3v2 tags
+       do  not  add  ID3v2  tags  to Ogg files, since ID3v2 tags
        start  at  the  beginning  of the file, thereby resulting
-       in  corrupted  OGG  files.  Support for the OGG container
+       in  corrupted  Ogg  files.  Support for the Ogg container
        format is planned in a future release.
 
        I  discourage  using  ID3v2  tags if not truly necessary.
@@ -188,12 +197,12 @@ _>|_||_)_> |_| |_|_||_|(_)| |
 (_(_)| | ||_)(_| |_||_)||| |_\/
 ~~~~~~~~~~|~~~~~~~~~~~~~~~~~~/~
        id3  has a built-in genre list of 148 genres. If you pass
-       the  -g  parameter  a name instead of a number when using
+       the  -g parameter a string instead of a number when using
        ID3v1,  id3  tries  to  find  the specified genre in this
-       list.   Capitalization   doesn't  matter,  however  exact
-       spelling  does.  For  the genre numbers and spelling, see
-       `id3v1.c'  in  the  source  distribution.  An empty genre
-       field is assigned the number 0.
+       list,  and  selects  the closest possible match (if any).
+       For  the  genre numbers and exact spelling, see `id3v1.c'
+       in  the source distribution. An empty or invalid genre is
+       assigned the number 0.
 
        id3  does not support ID3v2 v2.0 or earlier, neither does
        it  support  the  new ID3v2 v4.0 (yet?). It also does not
@@ -202,10 +211,10 @@ _>|_||_)_> |_| |_|_||_|(_)| |
  _.  _|_|_  _ .__
 (_||_||_| |(_)|_>
 ~~~~~~~~~~~~~~~~~
-       squell ^ zf! (squell@xms.ms, squell@goth.net)
+       squell ^ zf! (squell@goth.net, squell@xms.ms)
 
  _. __|_ _|
 (_|(_)|_(_|
 ~~|~~~~~~~~
-       ALL FANATICS MUST DIE!
-
+       Don't let THEM immanentize the Eschaton.
+       
