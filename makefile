@@ -23,6 +23,9 @@ final: id3 id3l
 clean:
 	rm *.o id3 id3l
 
+install: all
+	@echo Move the file "id3" or "id3l" to the desired directory
+
 ############################################################################
 
 main.o: main.cpp varexp.h setid3.h setid3v2.h id3v1.h id3v2.h
