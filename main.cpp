@@ -102,6 +102,7 @@ int main_(int argc, char *argv[])
 #else
     smartID3 tag;
 #endif
+    char* opt = "";
 
     for(int i=1; i < argc; i++) {
 #ifdef __ZF_SETID3V2
@@ -116,21 +117,24 @@ int main_(int argc, char *argv[])
             t = ID3;
             w = true;
         } else {
-            if( argv[i][0] != '-' )
+            if(*opt) --i; else
+                if(argv[i][0] == '-') opt = argv[i]+1;
+            if(*opt == '\0')
                 if(w)
                     u=true, write_mp3s(argv[i], tag);
                 else
                     u=true, printf("id3: nothing to do with %s\n", argv[i]);
             else
-                switch( toupper(argv[i][1]) ) {
+                switch( toupper(*opt++) ) {
 #ifdef __ZF_SETID3V2
                 case 'D':
-                    if( fieldID.assign(argv[i]+2) == "" )
+                    if( fieldID.assign(opt) == "" )
                         tag.clear();
                     else
                         tag.rm(fieldID);
                     fieldID.erase();
-                    w = true;
+                    w   = true;
+                    opt = "";
                     break;
 #else
                 case 'D': tag.clear(); w = true; break;
@@ -143,13 +147,13 @@ int main_(int argc, char *argv[])
                 case 'G': t = genre;  break;
                 case 'N': t = track;  break;
 #ifdef __ZF_SETID3V2
-                case 'W': fieldID.assign(argv[i]+2); break;
+                case 'W': fieldID.assign(opt); opt = ""; break;
                 case '2': tag.opt(aux++,true); break;
                 case '1': tag.opt(true,aux++); break;
 #endif
                 case 'H': help(argv[0]);
                 default:
-                    printf("id3: unrecognized switch: -%c\n", argv[i][1]);
+                    printf("id3: unrecognized switch: -%c\n", opt[-1]);
                     printf(shelp);
                     exit(1);
                 }
