@@ -61,9 +61,9 @@ Makefiles
 
 Pick the makefile you need and rename it to 'makefile' or use 'make -f':
 
-  'makefile'  is meant for generic GNU/BSD systems. If you want to use
-  Intel C++ instead of GCC you will have to edit it. You can also use this
-  file for building with MinGW (but 'clean' will probably not work.)
+  'makefile'  is meant for generic GNU/BSD systems. You will have to edit it
+  if you want to use a different compiler than GCC. (You can also use this
+  file for building with MinGW)
 
   'makefile.dj'  is for DOS systems using DJGPP v2
 
