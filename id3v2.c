@@ -159,6 +159,14 @@ static ulong calcsize(uchar *buf, ulong max)
     return *buf? 0 : size;
 }
 
+static int checkid(const char ID[])
+{
+    return (isupper(ID[0]) || isdigit(ID[0]))
+        && (isupper(ID[1]) || isdigit(ID[1]))
+        && (isupper(ID[2]) || isdigit(ID[2]))
+        && (isupper(ID[3]) || isdigit(ID[3]));
+}
+
 /* ==================================================== */
 
 void *ID3_readf(const char *fname, unsigned long *tagsize)
@@ -315,16 +323,18 @@ int ID3_frame(ID3FRAME f)
     f->encrypted  = frame->flags[1] & ENC;
     f->grouped    = frame->flags[1] & GRP;
 
-    return (isupper(f->ID[0]) || isdigit(f->ID[0]))
-        && (isupper(f->ID[1]) || isdigit(f->ID[1]))
-        && (isupper(f->ID[2]) || isdigit(f->ID[2]))
-        && (isupper(f->ID[3]) || isdigit(f->ID[3]));
+    return checkid(f->ID);
 }
+
+/* ==================================================== */
 
 void *ID3_put(void *dest, const char ID[4], const void *src, size_t len)
 {
     struct raw_frm *frame = (struct raw_frm*)dest;
     char *cdest           = (char*)dest + sizeof *frame;
+
+    if(!ID || !checkid(ID))
+        return (*(char*)dest=0), dest;
 
     memcpy(frame->ID, ID, 4);
     nbo4(frame->size, len);
@@ -335,33 +345,4 @@ void *ID3_put(void *dest, const char ID[4], const void *src, size_t len)
     cdest[len] = 0;                                        /* suffixing 0 */
     return cdest + len;
 }
-
-/*
-
-char bripz[] = "\0blaaaaaaaaaaaaaaaaaat";
-
-int main()
-{
-    void *d = malloc(100000), *i, *o;
-    ID3FRAME f;
-    char bla[1000];
-
-    i = ID3_readf("test2.mp3");
-    o = d;
-    ID3_start(f, i);
-    while( ID3_frame(f) ) {
-        puts(f->ID);
-        strncpy(bla, f->data+1, f->size-1);
-        bla[f->size-1] = 0;
-        puts(bla);
-        if( strcmp(f->ID, "TALB") == 0 ) {
-            o = ID3_put(o, "TALB", bripz, sizeof bripz);
-        } else {
-            o = ID3_put(o,f->ID, f->data, f->size);
-        }
-    }
-    ID3_writef("test2.mp3", d);
-}
-
-*/
 

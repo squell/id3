@@ -105,10 +105,10 @@ int main(int argc, char *argv[])
         } else {
             if( argv[i][0] != '-' )
                 if(w)
-                    try{
+                    try {
                         write_mp3s(argv[i], tag);
                     } catch(const out_of_range& x) {
-                        printf("err: wildcard index out of range\n");
+                        printf("err: index out of range\n");
                     }
                 else
                     printf("err: nothing to do with %s\n", argv[i]);
@@ -134,7 +134,7 @@ int main(int argc, char *argv[])
                 case 'G': t = genre;  break;
                 case 'N': t = track;  break;
 #ifdef __ZF_SETID3V2
-                case 'W': opt.assign(argv[i]+2); break;
+                case 'W': opt.assign(argv[i]+2);  break;
                 case '2': tag.v2(true).v1(aux++); break;
                 case '1': tag.v1(true).v2(aux++); break;
 #endif

@@ -220,6 +220,7 @@ abort:                                   /* close file and return failure */
 int ID3_writef(const char *fname, void *src)
 {
     ID3_printf(fname, src);              // implicit
+    return 1;
 }
 
 void ID3_free(void *buf)

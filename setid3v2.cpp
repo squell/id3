@@ -72,7 +72,7 @@ bool smartID3v2::vmodify(const char* fn, const base_container& v) const
 
     db cmod(mod2);
 
-    *out = 0;
+    ID3_put(out, 0, 0, 0);                          // initialize
 
     if(!fresh) {                                    // update existing tags
         ID3FRAME f;
