@@ -19,6 +19,10 @@ Changelog for 'id3'.
   setid3.cpp:94: Now emits CR/LF pairs for %n, violating ID3v2, but
     conforming to Winamp. I figure more people care about Winamp.
 
+2003-189 (W28):                                ---------[v0.60]-----------
+  First public release
+  
+
 Todo list:
 
   Support for Ogg Vorbis

@@ -96,7 +96,7 @@ If you, for some reason, happen to dislike having '%' as a special character,
 you can replace it with whatever you want by changing the 'VAR' constant.
 
 ---------------------------------------------------------------
-| links
+| useful links
 -------------------------------------------------------------
 
 (DOS) DJGPP v2:
@@ -110,6 +110,9 @@ you can replace it with whatever you want by changing the 'VAR' constant.
 
 (Linux, Win32) Intel C++ 7.1:       (30 day evaluation/non-commercial only)
   http://www.intel.com/software/products/compilers/
+
+(Win32 -> DOS extender)             (Use Win32 compilers to create DOS apps)
+  http://michael.tippach.bei.t-online.de/wdosx/
 
 ---------------------------------------------------------------
 | contact: (pri.) squell@xms.ms, (alt.) squell@goth.net

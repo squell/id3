@@ -94,12 +94,12 @@ int id3p_showfile(const char *fname)
 
 void id3p_listhead(void)
 {
-    printf("(define directory '(");
+    printf("( ; Scheme S-Expression");
 }
 
 void id3p_listfoot(void)
 {
-    printf("))\n");
+    printf(")\n");
 }
 
 
