@@ -1,6 +1,7 @@
 #include <vector>
 #include <string>
 #include <stdexcept>
+#include <algorithm>
 #include "varexp.h"
 #include "auto_dir.h"
 #include "ffindexp.h"
@@ -89,6 +90,8 @@ bool filefindexp::nested(auto_dir dir, char* wpath, char* fnmatch)
     strvec files;
     while( dirent* fn = dir.read() )            // read all files in dir
         files.push_back(fn->d_name);
+
+    sort(files.begin(), files.end());
 
     for(strvec::iterator fn = files.begin(); fn != files.end(); ++fn) {
         pathcpy(wpath, fn->c_str());
