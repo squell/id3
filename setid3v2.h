@@ -67,7 +67,7 @@ public:
     smartID3v2& set(ID3set i, const char* m);
 
 protected:
-    virtual bool vmodify(const char*, const base_container&);
+    virtual bool vmodify(const char*, const base_container&) const;
 
 private:
     typedef std::map<std::string,std::string> db;

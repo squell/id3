@@ -23,6 +23,10 @@
 #    define ftrunc(f)  ftruncate(fileno(f), ftell(f))
 #endif
 
+#ifndef ZERO_BASED                         // programmers set this to 1 :))
+#  define ZERO_BASED 0    
+#endif
+
 using namespace std;
 
 const ID3v1 synth_tag = {
@@ -103,7 +107,9 @@ string smartID3::edit(string s, const base_container& v)
                 ++n;
                 continue;
             case '0':
+#if !ZERO_BASED
                 c += 10;      // so it'll turn up as 9 when we subtract '1'
+#endif
             case '1':
             case '2':
             case '3':
@@ -113,7 +119,7 @@ string smartID3::edit(string s, const base_container& v)
             case '7':
             case '8':
             case '9':
-                string tmp = v[c-'1'];
+                string tmp = v[c-'1' +ZERO_BASED];
                 if(cap)
                     tmp = capitalize(tmp);
                 if(!und)
@@ -132,7 +138,7 @@ string smartID3::edit(string s, const base_container& v)
 
 #pragma warn -pia                             // no if(x = ..) warnings
 
-bool smartID3::vmodify(const char* fn, const base_container& v)
+bool smartID3::vmodify(const char* fn, const base_container& v) const
 {
     ID3v1 tag = { { 0 } };                    // duct tape
 

@@ -60,7 +60,7 @@ smartID3v2& smartID3v2::set(ID3set i, const char* m)
     return *this;
 }
 
-bool smartID3v2::vmodify(const char* fn, const base_container& v)
+bool smartID3v2::vmodify(const char* fn, const base_container& v) const
 {
     if(v1_ && !v2_)
         return smartID3::vmodify(fn, v);

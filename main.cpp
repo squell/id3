@@ -3,8 +3,12 @@
 #include <cstdio>
 #include <cstring>
 #include <cctype>
-#include "setid3.h"
 #include "varexp.h"
+#ifdef NO_V2
+#  include "setid3.h"
+#else
+#  include "setid3v2.h"
+#endif
 
 /*
 
@@ -15,7 +19,11 @@
 
 using namespace std;
 
-void write_mp3s(const char* fspec, smartID3& tag)
+struct take_action {
+    virtual bool operator()(const char*, varexp&) const = 0;
+};
+
+void for_files(const char* fspec, const take_action& action)
 {
     char path[sizeof dirent().d_name * 2];
     strncpy(path, fspec, sizeof path);          // copy constant
@@ -38,14 +46,40 @@ void write_mp3s(const char* fspec, smartID3& tag)
     while( dirent* fn = readdir(dir) ) {
         varexp match(fspec, fn->d_name);
         strcpy(pname, fn->d_name);
-        if( match && ++m && !tag.modify(path, match) )
-            printf("err: could not edit %s!\n", fn->d_name);
+        if( match && ++m && !action(path, match) )
+            printf("err: could not access %s!\n", fn->d_name);
     }
     closedir(dir);
 
     if(!m)
         printf("err: no files matching %s\n", fspec);
 }
+
+  /*
+      Some history here: for_files() was called write_mp3s(),
+      and it was hard-wired to call 'tag.modify()'. I added yet another
+      layer of indirection to make this routine more versatile.
+   */
+
+/* ====================================================== */
+
+struct write_mp3s : take_action {
+    smartID3& tag;
+
+    write_mp3s(smartID3& tag) : tag(tag) { }
+
+    bool operator()(const char* path, varexp& vars) const
+    { return tag.modify(path, vars); }
+};
+
+#include "id3_scm.h"
+
+struct view_mp3s : take_action {
+    mutable id3_scheme prn;
+
+    bool operator()(const char* path, varexp&) const
+    { return prn(path), true; }
+};
 
 /* ====================================================== */
 
@@ -76,9 +110,21 @@ int main(int argc, char *argv[])
 
     bool   w = false;            // check against no-ops, not really needed
     ID3set t = ID3;
+#ifdef __ZF_SETID3V2
+    smartID3v2 tag(true,false);  // default: write ID3v1, not v2
+    string opt;                  // v2
+#else
     smartID3 tag;
+#endif
 
     for(int i=1; i < argc; i++) {
+#ifdef __ZF_SETID3V2
+        if(!opt.empty()) {       // v2
+            tag.set(opt, argv[i]);
+            opt.erase();
+            w = true;
+        } else
+#endif
         if(t != ID3) {
             tag.set(t, argv[i]);
             t = ID3;
@@ -87,7 +133,8 @@ int main(int argc, char *argv[])
             if( argv[i][0] != '-' )
                 if(w)
                     try{
-                        write_mp3s(argv[i], tag);
+                        for_files(argv[i], write_mp3s(tag));
+                    //  for_files(argv[i], view_mp3s());
                     } catch(const out_of_range& x) {
                         printf("err: wildcard index out of range\n");
                     }
@@ -95,7 +142,18 @@ int main(int argc, char *argv[])
                     printf("err: nothing to do with %s\n", argv[i]);
             else
                 switch( toupper(argv[i][1]) ) {
+#ifdef __ZF_SETID3V2
+                case 'D':
+                    if( opt.assign(argv[i]+2,4) == "" )
+                        tag.clear();
+                    else
+                        tag.rm(opt);
+                    opt.erase();
+                    w = true;
+                    break;
+#else
                 case 'D': tag.clear(); w = true; break;
+#endif
                 case 'T': t = title;  break;
                 case 'A': t = artist; break;
                 case 'L': t = album;  break;
@@ -103,6 +161,11 @@ int main(int argc, char *argv[])
                 case 'C': t = cmnt;   break;
                 case 'G': t = genre;  break;
                 case 'N': t = track;  break;
+#ifdef __ZF_SETID3V2
+                case 'W': opt.assign(argv[i]+2,4); break;
+                case '2': tag.v2(true).v1(argv[i][2]=='+'); break;
+                case '1': tag.v1(true).v2(argv[i][2]=='+'); break;
+#endif
                 default:
                     printf("err: unrecognized switch: -%c\n", argv[i][1]);
                     exit(1);

@@ -81,20 +81,20 @@ protected:
 
     bool fresh;                               // clear existing?
 
-    virtual bool vmodify(const char*, const base_container&);
+    virtual bool vmodify(const char*, const base_container&) const;
 
 public:
     smartID3() : mod(ID3,(char*)0), fresh(false)
     { }
 
-    smartID3& set(int i, const char* m)       // set ID3 field i to value m
-    { mod[i] = m;   return *this; }
+    smartID3& set(ID3set i, const char* m)    // set ID3 field i to value m
+    { if(i<ID3) mod[i] = m; return *this; }
 
     smartID3& clear()                         // clear original ID3 tag
     { fresh = true; return *this; }
 
     template<class T>                         // returns success/failure
-    bool modify(const char* fn, const T& vars)
+    bool modify(const char* fn, const T& vars) const
     { return vmodify(fn, container<T>(vars)); }
 
     static const char VAR = '%';              // replacement char
