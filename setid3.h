@@ -13,8 +13,13 @@
   ID3 tag, and can then use the "modify()" member to make such changes to as
   many files as you'd like. modify() parses any "%x"'s found in the field
   strings and replaces them with corresponding entries from the container you
-  pass as its second argument. A "%x" may have an optional "c" modifier which
-  passes the results of such a substitution through a capitilization function.
+  pass as its second argument (0 -> 10).
+
+  A "%x" may have an optional "c" modifier which passes the results of such
+  a substitution Through A Capitilization Function. Normally, any underscores
+  will be replaced with spaces, but_this_can_be_suppressed_by_adding the "_"
+  modifier. "%%" will be replaced by a single % character, and "%:" will be
+  replaced with a \0 character.
 
   If you use clear() and don't specify any changes, modify() will remove any
   ID3 tags it encounters.
@@ -23,8 +28,6 @@
   serves no real purpose other than to make sourcecode more enjoyable. :)
 
   Restrictions:
-
-  Any underscores in the ID3 fields are always replaced by spaces. Sorry. :)
 
   The only requirements of the container type is that it has a [] operator
   defined, and that it contains data that can be converted into a std:string.

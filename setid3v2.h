@@ -5,7 +5,37 @@
   (c) 2003 squell ^ zero functionality!
   see the file 'COPYING' for license conditions
 
-  See setid3.h
+  See setid3.h for details. This new patch object can patch ID3v2 tags
+
+  New methods in this class:
+
+  .set(ID, raw content)
+      Set an ID3v2 specific tag directly (overrides ID3v1)
+      Does not chain back, e.g. setting "TIT2" does not set ID3v1 "title".
+  .rm(ID)
+      Remove specific ID3v2 frames from a tag.
+  .v1(yes/no) .v2(yes/no)
+      Wether or not to write a ID3v1 / ID3v2 tag.
+      Default: write ID3v2 only.
+
+  Limitation/Flaws:
+
+  smartID3v2 is unaware of all the specific semantics of the ID3v2 frames,
+  for the sake of simplicity. This does not pose a real problem as the
+  responsibility of filling an ID3v2 frame with correct content now lies
+  with the user of this class, however, it does have as a consequence that
+  .vmodify() doesn't know about frames having multiple instances.
+
+  a. - when updating a frame type which has multiple instances, the first one
+       will be replaced and the rest will be left unaltered.
+    
+  b. - smartID3v2 will never add multiple instances of the same frame type.
+  
+  c. - deleting a frame using .rm() deletes *ALL* frames of a specific type.
+
+  (a) requires an extra distinguisher function.
+  (b) is not a real problem, but it could be solved by porting to multimap
+  (c) is what users would expect, therefore intended behaviour
 
 */
 
