@@ -110,7 +110,7 @@ id3: $(OBJECTS)
 	$(CXX) $(LDFLAGS) -o $@ $(OBJECTS)
 
 id3l: mainl.o $(OBJ_GEN) $(OBJ_1)
-	$(CXX) $(LDFLAGS) -o $@ mainl.o $(OBJ_GEN) $(OBJ_1)
+	$(CXX) $(LDFLAGS) -o $@ mainl.o $(OBJ_GEN) set_base.o $(OBJ_1)
 
 .cpp.o:
 	$(CC) $(CXXFLAGS) -c $<

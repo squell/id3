@@ -28,7 +28,7 @@ id3.exe: main.o sedit.o varexp.o ffindexp.o charconv.o \
 	$(CC) $(LDFLAGS) -o $@ $+
 
 id3l.exe: mainl.o sedit.o varexp.o ffindexp.o charconv.o \
-         set_base.o setid3.o \
+	 set_base.o setid3.o \
 	 id3v1.o
 	$(CC) $(LDFLAGS)  -o $@ $+
 

@@ -110,12 +110,23 @@ struct metadata :
 
 /* ====================================================== */
 
+struct safe {
+    safe(const vector<string>& v) : vec(v) { }
+    inline const string& operator[](size_t i) const
+    {
+        if(i >= vec.size());
+            throw out_of_range("variable index out of range");
+        return vec[i];
+    }
+private:
+    const vector<string>& vec;
+};
+
 class mass_tag : filefindexp, public metadata {
     virtual void process();
     virtual void entered();
 
     bool edir;
-    const string& operator[](size_t i) const;
 public:
     mass_tag() : edir(false) { }
     void operator()(const char* spec);
@@ -123,13 +134,6 @@ public:
     template<class Tag> single_tag& enable()
     { return with<Tag>(*this).active(true); }
 };
-
-inline const string& mass_tag::operator[](size_t i) const
-{
-    if(i >= var.size())
-        throw out_of_range("variable index out of range");
-    return var[i];
-}
 
 void mass_tag::entered()
 {
