@@ -64,6 +64,13 @@
 
     ID3_writef("filename", buf);
 
+  Notes:
+
+  ID3_writef() is very conservative by default: it will only rewrite the
+  MP3 file if it absolutely has to, i.e., if a tag has to be removed,
+  added, or is too small. It will not automatically rewrite MP3 files
+  to downsize ID3v2 tags (that would be silly).
+
 */
 #ifndef __ZF_ID3V2_H
 #define __ZF_ID3V2_H

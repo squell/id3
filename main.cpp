@@ -34,6 +34,16 @@ using namespace std;
 
 /* ====================================================== */
 
+ // exitcodes: 0 - ok, 1 - syntax, 2 - errors, 3 - fatal errors
+
+static int exitc = 0;
+
+static inline FILE* err()
+{
+    exitc = 2;
+    return stderr;
+}
+
  // all verbose mode functionality goes here
 
 struct verbose_t {
@@ -41,16 +51,19 @@ struct verbose_t {
     clock_t time;
 
     void on()
-    { show = true; }
+    {   show = true;   }
 
     verbose_t() : show(false), time(clock()) { }
 
     ~verbose_t()
-    { time = clock() - time;
-      if(show) printf("(%.3fs) done\n", double(time) / CLOCKS_PER_SEC); }
+    {   time = clock() - time;
+        if(show) {
+            if(exitc!=0) printf("Errors were encountered\n");
+            if(exitc!=1) printf("(%.3fs) done\n", double(time) / CLOCKS_PER_SEC);
+        }                                                                   }
 
     void report(const char* s, bool m)            // reporting a filename
-    { if(show && m) printf("%s\n", s); }
+    {   if(show && m) printf("%s\n", s);   }
 } verbose;
 
 /* ====================================================== */
@@ -96,7 +109,7 @@ void write_mp3s(const char* fspec, smartID3& tag)
 
     dirvector dir(path);
     if(!dir)
-        return (void) fprintf(stderr, "id3: could not read %s\n", path);
+        return (void) fprintf(err(), "id3: could not read %s\n", path);
 
     bool m = false;                             // idle flag
 
@@ -105,19 +118,19 @@ void write_mp3s(const char* fspec, smartID3& tag)
         varexp match(fspec, pname);
         verbose.report(path, match);
         if( match && ++m && !tag.modify(path, match) )
-            fprintf(stderr, "id3: could not access %s!\n", pname);
+            fprintf(err(), "id3: could not access %s!\n", pname);
     }
 
     if(!m)
-        fprintf(stderr, "id3: no files matching %s\n", fspec);
+        fprintf(err(), "id3: no files matching %s\n", fspec);
 }
 
 /* ====================================================== */
 
 void shelp()
 {
-    fprintf(stderr, "Try `id3 -h' for more information.\n");
-    exit(1);
+    fprintf(err(), "Try `id3 -h' for more information.\n");
+    exit(exitc=1);
 }
 
 void help(const char* argv0)
@@ -149,7 +162,7 @@ void help(const char* argv0)
         "is a digit in the range [1..9,0].\n",
         argv0
     );
-    exit(0);
+    exit(exitc=1);
 }
 
 /* ====================================================== */
@@ -202,7 +215,7 @@ int main_(int argc, char *argv[])
                 if(w)
                     u=true, write_mp3s(argv[i], tag);
                 else
-                    u=true, fprintf(stderr, "id3: nothing to do with %s\n", argv[i]);
+                    u=true, fprintf(err(), "id3: nothing to do with %s\n", argv[i]);
             else
                 switch( toupper(*opt++) ) {
                 case 'V': verbose.on(); break;
@@ -226,18 +239,18 @@ int main_(int argc, char *argv[])
 #endif
                 case 'H': help(argv[0]);
                 default:
-                    fprintf(stderr, "id3: unrecognized switch: -%c\n", opt[-1]);
+                    fprintf(err(), "id3: unrecognized switch: -%c\n", opt[-1]);
                     shelp();
                 }
         }
     }
 
     if(!u)
-        fprintf(stderr, "id3: missing file arguments\n");
+        fprintf(err(), "id3: missing file arguments\n");
     if(!u || !w)
         shelp();
 
-    return 0;
+    return exitc;
 }
 
 
@@ -249,13 +262,14 @@ int main(int argc, char *argv[])
     try {
         return main_(argc, argv);
     } catch(const smartID3::failure& f) {
-        fprintf(stderr, "id3: %s\n", f.what());
+        fprintf(err(), "id3: %s\n", f.what());
     } catch(const out_of_range& x) {
-        fprintf(stderr, "id3: %s\n", x.what());
+        fprintf(err(), "id3: %s\n", x.what());
     } catch(const exception& exc) {
-        fprintf(stderr, "id3: unhandled exception: %s\n", exc.what());
+        fprintf(err(), "id3: unhandled exception: %s\n", exc.what());
     } catch(...) {
-        fprintf(stderr, "id3: unexpected unhandled exception\n");
+        fprintf(err(), "id3: unexpected unhandled exception\n");
     }
+    return 3;
 }
 

@@ -91,10 +91,10 @@ Todo list:
     + Support for APEv2
     + Support for Lyrics3 v2.0 (?)
   - Options for forcing re-packing id3v2 ("-s size")
-  - Fuzzy genre matching
   - Directory wildcards ("mp3root/*/*/*_*.mp3")
-  - Options for re-using existing tag values
   - Extend substitution capabilities.
+  - Options for re-using existing tag values
+  - Internationalization (Unicode)
   ? Shorthand Wildcards ("%n. %t.mp3" == -n %1 -t %2 "*. *.mp3")
   ? Join main.cpp & view.cpp
 

@@ -86,7 +86,7 @@ Win32/DOS systems. You should have. :)
 ===
 Customizing
 
-Some things you can tweak in the definition of smartID3, in setid3.h:
+Some things you can tweak in the definition of the class `svar', in sedit.h:
 
 Set the ZERO_BASED constant to 1 (or true), if you would like to start
 counting wildcards in the commandline parameters at 0 instead of 1, making the
