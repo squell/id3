@@ -127,7 +127,7 @@ cvtstring string_parm::edit(const cvtstring& fmt, const subst& var)
                     compress(tmp);
                 }
                 if(npad > 1 && tmp.length() < npad)
-                    tmp.insert(0,npad-tmp.length(), '0');
+                    tmp.insert(string::size_type(0),npad-tmp.length(), '0');
                 s.replace(pos, n+1, tmp);
                 pos += tmp.length();
             }

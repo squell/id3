@@ -20,7 +20,7 @@ bool echo::vmodify(const char* fname, const subst& v) const
 
 void echo::log(const cvtstring& msg) const
 {
-    puts(msg.local().c_str());
+    std::puts(msg.local().c_str());
 }
 
 }

@@ -1,5 +1,6 @@
-#include <cstdio>
 #include <string>
+#include <cstdio>
+#include <ctype>
 #include "setfname.h"
 #if defined(__WIN32__)
 #    include <io.h>

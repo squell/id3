@@ -92,7 +92,7 @@ namespace {
 
     template<class T> struct uses : virtual set_tag::combined_tag {
         uses(bool on = false) : object(on)
-        { combined_tag::delegate(object); }
+        { set_tag::combined_tag::delegate(object); }
 
         T object;
     };
