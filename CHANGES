@@ -2,13 +2,13 @@ Changelog for 'id3'.
 
 2003-027 (W05):
   [CLI] Now supports directory wildcards ("mp3root/*/*/*_*.mp3")
-  ffind.cpp & auto_dir.h added
+  ffindexp.cpp & auto_dir.h added
   main.cpp: now uses ffindexp for solving wildcard match
 
 2003-019 (W04):
   (Resumed development)
   varexp.h: added varexp::iterator class
-  ffind.cpp: fleshed out base algorithm
+  ffindexp.cpp: fleshed out base algorithm
 
 2003-301 (W44):
   setid3.cpp:clipped_compare: added a more intelligent ID3v1 genre-lookup,
