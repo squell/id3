@@ -14,7 +14,7 @@ final: id3
 all  : id3
 
 dist :	main.cpp varexp.cpp varexp.h setid3.cpp setid3.h \
-    makefile.dj makefile copying
+    makefile.dj makefile.bcc makefile copying
 	tar cvfz src.tar.gz $+
 
 clean:
