@@ -90,6 +90,10 @@ _>|_||_)_> |_| |_|_||_|(_)| |
        specification  on  the  commandline  in  double quotes to
        prevent your shell from expanding any wildcards.
 
+       4dos/4nt  users  may also need to double any occurrence of
+       the  %  character,  or  enclose strings containing one in
+       backquotes, to prevent the environment from replacing it.
+
       `%<modifiers>N' where N <- [0..9]
             replaced  with  the portion of the filename matching
             the Nth `*' wildcard in the file specification. 0 is

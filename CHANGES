@@ -7,7 +7,7 @@ Changelog for 'id3'.
 2003-183 (W27):
   Started changelog.
   Install
-  More code cleaning. Removed implementation-dependancy with rename()
+  More code cleaning. Removed implementation-dependency with rename()
 
 2003-184 (W27):
   Readme
