@@ -74,7 +74,7 @@ const char *const ID3v1_genre[] = {
 /* 65*/ "Native American",
 /* 66*/ "Cabaret",
 /* 67*/ "New Wave",
-/* 68*/ "Psychedelic",
+/* 68*/ "Psychadelic",
 /* 69*/ "Rave",
 /* 70*/ "Showtunes",
 /* 71*/ "Trailer",

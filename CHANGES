@@ -1,10 +1,20 @@
 Changelog for 'id3'.
 
+2003-027 (W05):
+  [CLI] Now supports directory wildcards ("mp3root/*/*/*_*.mp3")
+  ffind.cpp & auto_dir.h added
+  main.cpp: now uses ffindexp for solving wildcard match
+
+2003-019 (W04):
+  (Resumed development)
+  varexp.h: added varexp::iterator class
+  ffind.cpp: fleshed out base algorithm
+
 2003-301 (W44):
   setid3.cpp:clipped_compare: added a more intelligent ID3v1 genre-lookup,
     so saying "alt" and "alternative", "prog.rock" and "progressive rock",
-    "fast fusion" and "fast-fusion", "humour" and "humor", etc, etc, will
-    all resolve to the correct genre.
+    "fast fusion" and "fast-fusion", "humour" and "humor", "psyche/adelic",
+    etc, etc, will all resolve to the correct genre.
   setid3.cpp<>sedit.cpp: made smartID3::edit an independent function
 
 2003-299 (W43):
@@ -92,7 +102,7 @@ Todo list:
     + Support for Lyrics3 v2.0 (?)
   - Options for forcing re-packing id3v2 ("-s size")
   - Directory wildcards ("mp3root/*/*/*_*.mp3")
-  - Extend substitution capabilities.
+  - Extend substitution capabilities (slices?)
   - Options for re-using existing tag values
   - Internationalization (Unicode)
   ? Shorthand Wildcards ("%n. %t.mp3" == -n %1 -t %2 "*. *.mp3")
