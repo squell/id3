@@ -46,7 +46,7 @@ class ID3v2 : public single_tag, public provider {
     bool fresh;
 
 public:
-    ID3v2(bool f = true) : single_tag(f), mod(), fresh(false), resize(0)
+    ID3v2() : mod(), fresh(false), resize(0)
     { }
 
     ID3v2& set(ID3field i, const char* m);        // set standard field

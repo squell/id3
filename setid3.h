@@ -34,7 +34,7 @@ class ID3 : public single_tag, public provider {
     std::vector<const char*> mod;    // modification data
     bool fresh;                      // should vmodify clear existing tag?
 public:
-    ID3(bool f = true) : single_tag(f), mod(FIELDS,(char*)0), fresh(false)
+    ID3() : mod(FIELDS,(char*)0), fresh(false)
     { }
 
     bool    vmodify(const char*, const subst&) const;

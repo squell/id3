@@ -22,8 +22,6 @@ namespace set_tag {
 class echo : public single_tag {
     const char* fmt;
 public:
-    echo(bool t=true) : single_tag(t) { }
-
     void format(const char* s)
     { fmt=s; }
 

@@ -30,8 +30,6 @@ namespace set_tag {
 class filename : public single_tag {
     const char* ftemplate;
 public:
-    filename(bool f = true) : single_tag(f) { }
-
     bool rename(const char* fname)
     { return ftemplate=(*fname? fname : 0); }
 
