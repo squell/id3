@@ -1,18 +1,22 @@
 Changelog for 'id3'.
 
 2005-033 (W05):
-  setid3[v2].cpp: setting genre by number now works through substituion,
-    subsequent fields don't override earlier ones anymore
+  setid3[v2].cpp: setting genre by number now works through substituion
+  setid3[v2].cpp: setting a dupe field won't override an earlier one anymore
   setfname.cpp: empty vars get substituted by 'Unknown' (by default)
+  id3v2.c:129: [BUGFIX] out of bounds access on illegal id3v2 tags
+    ironically, that routine was supposed to catch illegal id3v2 tags...
+  ffindexp.cpp:94: now sorts file list (wasn't necessary previously)
+  sedit.cpp: [CLI] added %||v fallback, and grouping (kept disabled)
 
 2005-031 (W05):
   getid3[v2].cpp: added
-  main.cpp: [CLI] added substitution of %t, %a, %n, %l, %y, %c, %g.
+  main.cpp: [CLI] added substitution of %t, %a, %n, %l, %y, %c, %g, %x
   main.cpp: [CLI] enabled -! and -f switch
-  sedit.cpp: removed substitution that introduced null chars
+  sedit.cpp: removed substitutions that introduced null chars
 
 2005-025 (W04):
-  setid3v2.cpp: [bugfix] tag contents weren't written if using a user
+  setid3v2.cpp: [BUGFIX] v2 tag contents weren't written if using a user
     specified locale. Also -wPCNT listens to vars now.
   setecho: [CLI] Added very primitive tag info display (-q switch)
   charconv: Implemented cvtstring system for conversion.
