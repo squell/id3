@@ -378,8 +378,8 @@ const char* setpattern::operator[](unsigned)
 int main_(int argc, char *argv[])
 {
     set_tag::echo display;
-    mass_tag apply;
     metadata tag;
+    mass_tag apply;
 
     ID3field field;
     string fieldID;			       // free form field selector
@@ -413,7 +413,7 @@ int main_(int argc, char *argv[])
 		    apply(tag, argv[i], *source);
                 else if(state%(ren|rd) == ren)
 		    apply(with<filename>(tag), argv[i], *source);
-                else if(state == op::rd)
+                else if(state == rd)
 		    apply(display, argv[i], *source);
 		else if(!state)
 		    eprintf("nothing to do with %s\n", argv[i]);
@@ -538,7 +538,7 @@ int main_(int argc, char *argv[])
 		shelp();
 	    } else
 		display.format(argv[i]);
-            add(state, op::rd);
+            add(state, rd);
 	    cmd = no_value;
 	    continue;
 	};
