@@ -58,7 +58,7 @@ namespace {
         void operator<<(wchar_t wc)
         {
             char buf[MB_CUR_MAX];
-            int n = wctomb(buf, wc);
+            int  n = wctomb(buf, wc);
             if(n > 0) str.append(buf, n);
             else      str.push_back('?');
         }

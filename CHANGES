@@ -1,5 +1,8 @@
 Changelog for 'id3'.
 
+2005-035 (W26):
+  code cleanup.
+
 2005-034 (W26):                                ---------[v0.75]-----------
   updated documentation
   getid3.cpp: fixed localization bug

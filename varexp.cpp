@@ -54,21 +54,21 @@ bool varexp::match(const char* mask, const char* test)
      uses plain value comparison to detect ranges
  */
 
-int varexp::in_set(char c, const char* set, const char* test)
+int varexp::in_set(char c, const char* set, const char* rest)
 {
-    int  inv = 0, t = 0;
+    int  neg = 0, truth = 0;
     char prev, m;
     if(*set=='!' || *set=='^') {
-        inv = 1;                       // match chars NOT in set
+        neg = 1;                       // match chars NOT in set
         ++set;
     }
     for(prev = 0; (m = *set++); prev = m)
         if(m=='-' && prev && *set!='\0' && *set!=']') {
-            t |= (c >= prev) && (c <= *set);
+            truth |= (c >= prev) && (c <= *set);
         } else {
             if(m==']')
-                return (t^inv) && match(set, test);
-            t |= (m==c);
+                return (truth^neg) && match(set, rest);
+            truth |= (m==c);
         }
     return 0;
 }

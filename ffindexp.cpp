@@ -42,17 +42,19 @@ char* filefindexp::pathcpy(char* dest, const char* src)
 bool filefindexp::operator()(const char* filemask)
 {
     strncpy(mask, filemask, sizeof mask);       // copy constant
-    path[0] = mask[sizeof mask-1] = '\0';       // duct tape
+    path[0] = '\0';                             // duct tape
     return nested(auto_dir("./"), path, mask);
 }
 
   // recursive file search routine, leaves this->mask nonsensical on success
+  // wpath   - write position (inside path)
+  // fnmatch - read position  (inside mask)
 
 bool filefindexp::nested(auto_dir dir, char* wpath, char* fnmatch)
 {
     typedef vector<string> strvec;
     strvec::size_type prevlen = var.size();     // backup value
-    char* nwpath;
+    char* nwpath;                               // next write position
 
     bool w = false;                             // idle check
 
@@ -72,7 +74,6 @@ bool filefindexp::nested(auto_dir dir, char* wpath, char* fnmatch)
             if(match) {
                 nwpath = pathcpy( pathcpy(wpath, fn->d_name), "/" );
                 if(auto_dir newdir = auto_dir(path)) {
-                 /* var.insert(var.end(), match.begin(), match.end()); */
                     for(varexp::iterator i = match.begin(); i != match.end(); ++i) {
                         var.push_back(*i);
                     }
@@ -81,7 +82,7 @@ bool filefindexp::nested(auto_dir dir, char* wpath, char* fnmatch)
                 }
             }
         }
-        fndirsep[-1] = '/';
+        fndirsep[-1] = '/';                     // 'repair' this->mask
         return w;
     }
 
@@ -97,11 +98,11 @@ bool filefindexp::nested(auto_dir dir, char* wpath, char* fnmatch)
         pathcpy(wpath, fn->c_str());
         direxp match(fnmatch, wpath);
         if(match) {
-         /* var.insert(var.end(), match.begin(), match.end()); */
             for(varexp::iterator i = match.begin(); i != match.end(); ++i) {
                 var.push_back(*i);
             }
-            w = true; process();
+            process();
+            w = true;
             var.resize(prevlen);
         }
     }

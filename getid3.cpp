@@ -63,7 +63,7 @@ cvtstring ID3::operator[](ID3field field) const
 
 /* ====================================================== */
 
-namespace {
+namespace {                     // don't rely on any fixed order of ID3field
     using namespace set_tag;
 
     const char* desc[] = {

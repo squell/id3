@@ -51,7 +51,7 @@ protected:
     char path[PATH_MAX];                      // contains full file path
 
 private:
-    bool nested(auto_dir dir, char* wpath, char* fnmatch);
+    bool nested(auto_dir, char*, char*);
     char* pathcpy(char*, const char*);        // special strcpy variant
 
     char mask[PATH_MAX];

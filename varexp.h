@@ -5,9 +5,6 @@
   (c) 2004 squell ^ zero functionality!
   see the file 'COPYING' for license conditions
 
-  ! currently does not handle multi-byte encodings properly
-  ! (except utf-8)
-
   Usage:
 
   Construct a varexp object using a wildcard specification and a test
@@ -40,12 +37,16 @@
   cpy(), true to form, will not perform any range checking and is a
   potential can of worms, generally. :)
 
+  The wildcard match will fail in certain cases where filenames are in a
+  multi-byte encodings that is not filesystem-safe, like EUC-JP.
+
 */
 
 #ifndef __ZF_VAREXP
 #define __ZF_VAREXP
 
 #include <cstring>
+#include <cstddef>
 #include <vector>
 #include <string>
 #include <stdexcept>
@@ -61,12 +62,12 @@ public:
     operator bool() const
     { return result; }
 
-    std::string operator[](unsigned idx) const;
+    std::string operator[](std::size_t i) const;
 
     unsigned size() const
     { return vars.size(); }
 
-    char* cpy(char* dest, unsigned idx) const;
+    char* cpy(char* dest, std::size_t i) const;
 
     class iterator;
     iterator begin() const;
@@ -78,20 +79,20 @@ protected:
     bool                     result;
 
     bool match(const char* mask, const char* test);
-    int in_set(char c, const char* set, const char* test);
+    int in_set(char c, const char* set, const char* rest);
 };
 
-inline std::string varexp::operator[](unsigned idx) const
+inline std::string varexp::operator[](std::size_t i) const
 {
-    if( idx >= vars.size() )                  // bounds check
+    if( i >= vars.size() )                    // bounds check
         throw std::out_of_range("varexp: index out of range");
 
-    return std::string( vars[idx], varl[idx] );
+    return std::string( vars[i], varl[i] );
 }
 
-inline char* varexp::cpy(char* dest, unsigned idx) const
+inline char* varexp::cpy(char* dest, std::size_t i) const
 {
-    return std::strncpy(dest, vars[idx], varl[idx] );
+    return std::strncpy(dest, vars[i], varl[i] );
 }
 
 class varexp::iterator {
@@ -102,8 +103,8 @@ class varexp::iterator {
     vars_ptr s;
     varl_ptr l;
 
-    iterator(vars_ptr is, varl_ptr il)
-    : s(is), l(il) { }
+    iterator(vars_ptr _s, varl_ptr _l)
+    : s(_s), l(_l) { }
 public:
     std::string operator*() const          { return std::string(*s, *l); }
     iterator& operator++()                 { return ++s, ++l, *this; }

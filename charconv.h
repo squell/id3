@@ -1,11 +1,17 @@
 /*
 
-  character conversion (user locale -> latin1)
+  character conversion (user locale <-> latin1)
 
   (c) 2005 squell ^ zero functionality!
   see the file 'COPYING' for license conditions
 
-  bla..
+  Usage:
+
+  The cvtstring class encapsulates an encoding-neutral string.
+
+  Example:
+
+  std::puts( cvtstring::latin1("ISO 8859-1 text").local() );
 
 */
 
@@ -16,9 +22,12 @@
 
 class cvtstring {
 public:
+
+  // named constructors
     static cvtstring local (const std::string&);
     static cvtstring latin1(const std::string&);
 
+  // inspectors
     std::string local() const;
     std::string latin1() const;
 
@@ -26,6 +35,7 @@ public:
 
     static const char* system_charset();        // returns locale or NULL
 
+   // implied conversion for local strings
     cvtstring(const std::string&);
     cvtstring(const char*);
     cvtstring();

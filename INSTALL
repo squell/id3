@@ -13,10 +13,10 @@ the contents of the source distribution:
  makefile.dj    - makefile for djgpp2
  makefile.bcc   - makefile for borland c++
 
- main.cpp       - main program file                             (C++)
- sedit.*        - string formatting                             (C++)
+-main.cpp       - main program file                             (C++)
+-sedit.*        - string formatting                             (C++)
  charconv.*     - character conversion                          (C++)
- set_base.*     - abstract patch class                          (C++)
+-set_base.*     - abstract patch class                          (C++)
  setid3.*       - + id3v1 implementation                        (C++)
  getid3.*       - + id3v1 reader                                (C++)
  setid3v2.*     - + id3v2 implementation                        (C++)
@@ -34,7 +34,7 @@ the contents of the source distribution:
  id3.man        - raw man page                                  (troff -man)
 
 ---------------------------------------------------------------
-| (c) squell 2003, 2004 - copyright notice
+| (c) squell 2003-2005 - copyright notice
 -------------------------------------------------------------
 
 All files in this package are copyrighted. This is NOT public domain software.
