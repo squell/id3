@@ -51,8 +51,8 @@ which should be included in this source distribution.
 
 Successfully compiled with:
 
- - GCC 2.95.3       (GNU/Linux, DJGPP)
- - GCC 3.x          (GNU/Linux, OpenBSD, DJGPP, MinGW)
+ - GCC 3.x          (GNU/Linux, FreeBSD, Solaris, DJGPP, MinGW)
+ - GCC 2.95.x       (GNU/Linux, DJGPP, MinGW)
  - Intel C++ 7.1    (GNU/Linux)
  - Borland C++ 5.5  (Win32)
 
