@@ -21,7 +21,7 @@ clean:
 	del id3l.exe
 
 zip:
-	tar cvfz distrib.tgz * debian/* --no-recursion
+	pkzip -ex -P distrib * debian/*
 
 ############################################################################
 
