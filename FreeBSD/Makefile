@@ -1,12 +1,12 @@
 # New ports collection makefile for:   id3 mass tagger
-# Date created:        28 July 2004
+# Date created:        9 February 2005
 # Whom:                squell
 #
 # $FreeBSD$
 #
 
 PORTNAME=	id3mtag
-PORTVERSION=	0.75
+PORTVERSION=	0.76
 CATEGORIES=	audio
 MASTER_SITES=	http://home.wanadoo.nl/squell/files/
 DISTNAME=	id3-${PORTVERSION}

@@ -42,7 +42,7 @@ namespace set_tag {
 
 class ID3v2 : public single_tag, public provider {
 public:
-    ID3v2() : mod(), fresh(false), resize(0)
+    ID3v2() : mod(), resize(0), fresh(false)
     { }
 
     ID3v2& set(ID3field i, const char* m);        // set standard field

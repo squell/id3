@@ -203,7 +203,7 @@ int (*ID3_wfail)(const char *srcname, const char *dstname) = cpfile;
 
 int ID3_writef(const char *fname, void *src, size_t reqsize)
 {
-    struct raw_hdr new_h = { "ID3", 3, 0, 0, 0 };
+    struct raw_hdr new_h = { "ID3", 3, 0, 0, { 0, } };
     struct raw_hdr rh    = { { 0 } };                       /* duct tape */
     ulong size = calcsize(src,ULONG_MAX);
 

@@ -100,11 +100,13 @@ SRC_CPP    += set_base setid3 setid3v2 setfname setecho
 SRC_CPP    += getid3 getid3v2
 SRC_C	    = fileops id3v1 id3v2
 DIR_DEBIAN  = control rules copyright changelog
+DIR_FREEBSD = Makefile pkg-descr
 
 DISTFILES = INSTALL $(docdata) makefile makefile.dj makefile.bcc \
 	main.cpp auto_dir.h $(SRC_CPP:=.h) $(SRC_C:=.h) \
 	$(SRC_CPP:=.cpp) $(SRC_C:=.c) id3.man \
-	$(DIR_DEBIAN:%=debian/%)
+        $(DIR_DEBIAN:%=debian/%) \
+        $(DIR_FREEBSD:%=FreeBSD/%)
 
 D_VER = `sed -n "/_version_/{s:[^0-9]*\([^ ]*\).*:\1:p;q;}" main.cpp`
 

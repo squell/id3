@@ -89,6 +89,8 @@ protected:
     template<class T>
       friend std::string sedit(const std::string&, const T&);
     template<class T, class U>
+      friend std::string sedit(const std::string&, const T&, const U&);
+    template<class T, class U>
       friend std::string sedit(const std::string&, T&, U&);
 };
 

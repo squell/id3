@@ -2,10 +2,13 @@
 #include <stdio.h>
 #include <string.h>
 #include "fileops.h"
+#if !defined(__WIN32__)
+#    include <unistd.h>
+#endif
 
 /*
 
-  (c) 2003 squell ^ zero functionality!
+  (c) 2003, 2005 squell ^ zero functionality!
   see the file 'COPYING' for license conditions
 
 */
@@ -42,37 +45,37 @@ int fpadd(FILE *dest, char c, size_t len)
     return w == len;
 }
 
-char *tmpnam_alloc(const char *hint)
+FILE *ftemp(char *template, const char *mode)
 {
-    char *buf;
-#ifdef USE_TMPNAM
-    if(buf = malloc(L_tmpnam)) {
-        if(tmpnam(buf))
-            return buf;
-        free(buf);
-    }
+    FILE *f;
+#ifndef _XOPEN_UNIX
+    FILE *fc;
+    if(mktemp(template) && (fc = fopen(template, "wb+"))) {
+        if(f = freopen(0, mode, fc)) return f;
+        fclose(fc);
 #else
-    char* pname = strrchr(hint, '/');
-    size_t idx  = pname? pname-hint+1 : 0;
-
-    if(buf = malloc(idx + 8 + 1)) {
-        strncpy(buf, hint, idx);
-        strcpy (buf+idx, "idXXXXXX");
-        if(mktemp(buf))
-            return buf;
-        free(buf);
-    }
+    int fd = mkstemp(template);
+    if(fd > 0) {
+        if(f = fdopen(fd, mode)) return f;
+        close(fd);
 #endif
+        unlink(template);
+    } 
     return 0;
 }
 
 FILE *opentemp(const char *hint, char **name)            /* free() name! */
 {
-    char *buf;
+    static const char template[] = "idXXXXXX";
+
+    char *buf, *dirsep = strrchr(hint, '/');
+    size_t prefix = dirsep? dirsep-hint+1 : 0;
     FILE *f;
 
-    if(buf = tmpnam_alloc(hint)) {
-        if(f = fopen(buf, "wb")) {
+    if(buf = malloc(prefix + sizeof template)) {
+        strncpy(buf, hint, prefix);
+        strcpy (buf+prefix, template);
+        if(f = ftemp(buf, "wb")) {
             if(name) *name = buf;
             else     free(buf);
             return f;

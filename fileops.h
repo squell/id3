@@ -2,20 +2,15 @@
 
   Miscellaneous file operations
 
-  (c) 2003 squell ^ zero functionality!
+  (c) 2003, 2005 squell ^ zero functionality!
   see the file 'COPYING' for license conditions
 
   Usage:
 
-      char *tmpnam_alloc(const char *hint)
-
-  generates a temporary filename "near" the filename 'hint', and stores
-  this in freshly allocated memory. returns NULL on failure.
-
       FILE *opentemp(const char *hint, char **name)
 
-  like tmpnam_alloc, but tries to open the file at the same time, storing
-  the filename in *name if name != NULL
+  generates a temporary file "near" the filename 'hint' using ftemp, stores
+  the name (if != NULL), and returns the open stream.
 
       int cpfile(const char *srcnam, const char *dstnam)
 
@@ -31,6 +26,10 @@
   writes len times the character c to the file opened as dest.
   returns success or failure
 
+      FILE *ftemp(char *template, const char *mode)
+
+  behaves like mk(s)temp, but returns a stream opened in mode
+
 */
 
 #ifndef __ZF_FILEOPS_H
@@ -44,9 +43,9 @@ extern "C" {
 
 extern int   fcopy(FILE *dest, FILE *src);
 extern int   fpadd(FILE *dest, char c, size_t len);
+extern FILE *ftemp(char *template, const char *mode);
 
-char        *tmpnam_alloc(const char *hint);
-FILE        *opentemp(const char *hint, char **name);
+extern FILE *opentemp(const char *hint, char **name);
 
 extern int   cpfile(const char *srcnam, const char *dstnam);
 

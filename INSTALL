@@ -13,7 +13,7 @@ the contents of the source distribution:
  makefile.dj    - makefile for djgpp2
  makefile.bcc   - makefile for borland c++
 
--main.cpp       - main program file                             (C++)
+ main.cpp       - main program file                             (C++)
  sedit.*        - string formatting                             (C++)
  charconv.*     - character conversion                          (C++)
  set_base.*     - abstract patch class                          (C++)
@@ -122,9 +122,6 @@ range %0..%9 map to the 1st .. 10th wildcard.
 
 If you, for some reason, happen to dislike having '%' as a special character,
 you can replace it with whatever you want by changing the 'VAR' constant.
-
-Adding "-DUSE_TMPNAM" to CFLAGS will make sure id3v2.c uses tmpnam()
-instead of mktemp() for generating temporary file names.
 
 ---------------------------------------------------------------
 | useful links

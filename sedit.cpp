@@ -86,7 +86,7 @@ string capitalize(string s)
 
  // padnumeric("(300/4)=75", 4) -> "0300/0004=0075"
 
-string padnumeric(string s, int pad)
+string padnumeric(string s, size_t pad)
 {
     const char digits[] = "0123456789";
     string::size_type p, q = 0;
@@ -133,7 +133,7 @@ cvtstring string_parm::edit(const cvtstring& fmt, const subst& var, const char* 
             case '-': caps = lowr; continue;
             case '#': ++npad;      continue;
             case '|': {                                        // alt string
-                     int t = s.find('|', pos+n);
+                     string::size_type t = s.find('|', pos+n);
                      if(t == string::npos) {
                          s.replace(pos++, n, 1, '|');
                          break;

@@ -36,8 +36,6 @@ using namespace std;
 static char*	 name  = "id3";
 static int	 exitc = 0;
 
-static void shelp(); // temporary
-
 static void eprintf(const char* msg, ...)
 {
     exitc = 2;
@@ -46,6 +44,12 @@ static void eprintf(const char* msg, ...)
     fprintf  (stderr, "%s: ", name);
     vfprintf (stderr, msg, args);
     va_end(args);
+}
+
+static void shelp()
+{
+    fprintf(stderr, "Try `%s -h' for more information.\n", name);
+    exit(exitc=1);
 }
 
 #include "verbose.cpp"
@@ -138,7 +142,7 @@ struct metadata :
 
 class mass_tag : fileexp::find {
 public:
-    mass_tag(bool r = false) : edir(0), recursive(0) { }
+    mass_tag(bool r = false) : recursive(0), edir(0) { }
     bool recursive;
     void operator()
       ( const set_tag::handler&, const char*, const set_tag::provider& );
@@ -223,6 +227,8 @@ cvtstring mass_tag::substvars::operator[](char c) const
         counter = (counter+1) & 0xFFFF;
         sprintf(buf, "%u", counter);
         return cvtstring::latin1(buf);
+    case 'F':
+        return filename;
     case 'f':
         if(const char* p = strrchr(filename,'/'))
               return cvtstring::local(p+1);
@@ -253,7 +259,7 @@ static void Help()
         " -g <genre>\t"    "\n"
 	" -c <comment>\t"  "\n"
 	" -f <filename>\t" "set filename\n"
-        " -m <pattern>\t"  "match fields to pattern"
+        " -m <pattern>\t"  "match fields to pattern\n"
 	" -q <string>\t"   "print string on stdout\n"
         " -R\t\t"          "recurse into directories\n"
         " -v\t\t"          "give verbose output\n"
@@ -286,13 +292,7 @@ static void Copyright()
     exit(exitc=1);
 }
 
-static void shelp()
-{
-    fprintf(stderr, "Try `%s -h' for more information.\n", name);
-    exit(exitc=1);
-}
-
-static long argtol(const char* arg)	       // convert argument to long
+static long argtol(const char* arg)            // convert argument to long
 {
     char* endp;
     long n = strtol(arg, &endp, 0);
@@ -361,7 +361,7 @@ const char* setpattern::operator[](char c)
     } else if(c == 'x') {
         ;                                      // pass over in silence
     } else {
-        eprintf("unknown variable: %%%c\n", c);
+        eprintf("illegal variable: %%%c\n", c);
         shelp();
     }
     return "*";
@@ -424,6 +424,7 @@ int main_(int argc, char *argv[])
 	    } else {
 		switch( *opt++ ) {	       // argument is a switch
 		case 'v': verbose.on(); break;
+                case 'R': apply.recursive = true; break;
 		case 'm': cmd = pattern_fn; break;
 		case 'f': cmd = set_rename; break;
 		case 'q': cmd = set_query;  break;

@@ -22,7 +22,7 @@ clean:
 
 zip:
 	del distrib.zip
-	pkzip -ex -P distrib * debian/*
+        pkzip -ex -P distrib * debian/* FreeBSD/*
 
 ############################################################################
 

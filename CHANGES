@@ -1,6 +1,10 @@
 Changelog for 'id3'.
 
-2005-039 (W05):
+2005-040 (W06):
+  fileops.c:48: slightly different tempfile mechanism. uses mkstemp
+    on systems that indicate support for it (shuts up the linker warnings)
+
+2005-039 (W06):
   sedit.cpp:89: [CLI] "#" prefixes in vars get processed better now: only
     numbers found inside the string will get padded. E.g. [1/5] -> [01/05]
   setid3[v2].cpp: regression: setting dupe fields overrides again
@@ -9,6 +13,7 @@ Changelog for 'id3'.
   fileexp.cpp:110: optimized speed for cases where the shell has handled
     wildcards (saves sorting and scanning a whole dir for each file)
   fileexp.cpp:132: [CLI] added -R for recursive directory search
+  mp3file.c: wrote mp3 length checking
 
 2005-037 (W05):
   main.cpp:326: [CLI] added -m switch for 'pattern' shorthand. For example,
@@ -201,7 +206,6 @@ Changelog for 'id3'.
 
 Todo list:
 
-  - Shorthand Wildcards (-m "%n. %t.mp3" == -n %1 -t %2 "*. *.mp3")
   - Conditional expressions
   - More things:
     + Support for Ogg Vorbis
