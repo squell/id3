@@ -10,7 +10,7 @@ LDFLAGS  =
 
 STRIP	 = strip
 TAR	 = tar
-MKDEP    = $(CC) -MM
+MKDEP	 = $(CC) -MM
 
 ## installation vars #######################################################
 
@@ -137,9 +137,11 @@ dist-clean: $(DISTFILES)
 	mv .tmp/* `pwd`
 	-rm -rf .tmp
 
+ORIG ?= `pwd`.tar.gz
+
 diff:
 	rm -rf .tmp; mkdir .tmp && ln -s `pwd` .tmp/{current}
-	tar Cxfz .tmp `pwd`.tar.gz
+	tar Cxfz .tmp $(ORIG)
 	diff -x '.*' -durN .tmp/* | gzip -9 > `pwd`-$(D_VER).diff.gz
 	-rm -rf .tmp
 
