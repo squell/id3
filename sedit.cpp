@@ -41,12 +41,19 @@ string capitalize(string s)
     return s;
 }
 
- // equivalence predicate to feed to std::unique
+ // some predicates and transformers to feed to STL algo's
 
-struct compress_space {
-    bool operator()(char a, char b)
-    { return isspace(a) && isspace(b); }
-};
+namespace {
+    struct both_space {
+        bool operator()(char a, char b)
+        { return isspace(a) && isspace(b); }
+    };
+
+    struct to_lower {
+        char operator()(char c)
+        { return tolower(c); }
+    };
+}
 
 /* ====================================================== */
 
@@ -90,14 +97,14 @@ string svar::edit(string s, const base_container& v)
                 if(!raw) {                                  // remove gunk
                     replace(tmp.begin(), tmp.end(), '_', ' ');
                     string::iterator t =
-                      unique(tmp.begin(), tmp.end(), compress_space());
+                      unique(tmp.begin(), tmp.end(), both_space());
                     tmp.erase(t, tmp.end());
                 }
                 switch(caps) {
                 case name:
                     tmp = capitalize(tmp); break;
                 case lowr:
-                    transform(tmp.begin(), tmp.end(), tmp.begin(), tolower);
+                    transform(tmp.begin(), tmp.end(), tmp.begin(), to_lower());
                 }
                 s.replace(pos, n+1, tmp);
                 pos += tmp.length();

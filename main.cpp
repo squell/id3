@@ -1,7 +1,3 @@
-#if defined(__WIN32__)
-#  define _POSIX_ 1                // borland c++ needs this
-#endif
-
 #include <cstdlib>
 #include <cstdio>
 #include <cstring>
@@ -63,7 +59,7 @@ struct verbose_t {
     void reportf(const char* s)                     // reporting a filename
     {
         if(show) {
-            char* sep = strrchr(s, '/');
+            const char* sep = strrchr(s, '/');
             printf("\t%s\n", sep?sep+1:s);
         }
     }

@@ -102,12 +102,15 @@ class varexp::iterator {
     iterator(vars_ptr is, varl_ptr il)
     : s(is), l(il) { }
 public:
-    std::string operator*()                { return std::string(*s, *l); }
-    bool operator==(const iterator& other) { return s == other.s; }
-    bool operator!=(const iterator& other) { return s != other.s; }
+    std::string operator*() const          { return std::string(*s, *l); }
     iterator& operator++()                 { return ++s, ++l, *this; }
     iterator  operator++(int)              { iterator tmp(*this);
                                              return ++s, ++l, tmp; }
+
+    friend bool operator==(const iterator& a, const iterator& b)
+    { return a.s == b.s; }
+    friend bool operator!=(const iterator& a, const iterator& b)
+    { return a.s != b.s; }
 
     typedef std::input_iterator_tag           iterator_category;
     typedef std::string                       value_type;
