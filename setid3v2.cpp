@@ -1,8 +1,10 @@
 #include <cstdio>
+#include <algorithm>
 
 #include <string>
 #include <map>
 #include <cctype>
+#include <cstdlib>
 #include "setid3v2.h"
 #include "id3v2.h"
 
@@ -18,6 +20,41 @@ using namespace std;
 typedef map<string,string>::iterator   map_ptr;
 typedef map<string,string>::value_type map_el;
 
+/* ===================================== */
+
+ // extra hairyness to prevent buffer overflows by re-allocating on the fly
+
+struct w_ptr {
+    unsigned long avail;
+    char*         data;
+};
+
+ // employs a 'hint' system. if 4kb extra isn't enough, it'll try 8kb,
+ // then 16kb, etc. next time, it'll immediately try 16kb again, etc.
+
+ // note the *static* initialization!
+
+char* put(char* dst, const char* ID, const void* src, size_t len, w_ptr& base)
+{
+    static unsigned long factor = 0x1000;  // start reallocing in 4k blocks
+
+    if(len+10 > base.avail) {
+        while(len+10 > factor) factor *= 2;
+        int size   = dst-base.data;
+        base.avail = factor;
+/* */
+        printf("[realoc %d]", size+factor);  
+/* */
+        base.data  = (char*) realloc(base.data, size+factor);
+        dst        = base.data + size;     // translate current pointer
+    }
+
+    base.avail -= (len+10);
+    return (char*) ID3_put(dst,ID,src,len);
+}
+
+/* ===================================== */
+
 const char xlat[][5] = {
     "TIT2", "TPE1", "TALB", "TYER", "COMM", "TRCK", "TCON"
 };
@@ -25,54 +62,68 @@ const char xlat[][5] = {
 smartID3v2& smartID3v2::set(ID3set i, const char* m)
 {
     if(i < ID3) {
-        const string t = (i==cmnt?"\0eng\0":"\0");
+        const string t("\0eng\0", i!=cmnt? 1 : 5);
 
         mod2.insert( map_el(xlat[i], t+m) );
         smartID3::set(i,m);                       // chain to parent
     }
     return *this;
 }
- 
+
 bool smartID3v2::vmodify(const char* fn, const base_container& v)
 {
-    printf("[%s]\n", fn);
-    for(map_ptr p = mod2.begin(); p != mod2.end(); ++p) {
-        printf("%s(%s)\n", p->first.c_str(), p->second.c_str());
-    }
-/*
-    unsigned long size;
-    void* src = ID3_readf(fn, &size);
-    char* dst = new char[size+1];
-    char* out = dst;
+    w_ptr dst;
+    void* src = ID3_readf(fn, &dst.avail);
+                dst.avail = dst.avail+0x1000;
+    char* out = dst.data  = (char*) malloc(dst.avail);
+
+/* */
+    printf("[%s - %d] ------------------------------ \n", fn, bool(src));
+/* */
 
     map<string,string> cmod(mod2);
 
     *out = 0;
 
     if(!fresh) {                                 // update existing tags
+/* */
+        printf("{ ");
+/* */
         ID3FRAME f;
         ID3_start(f, src);
 
         while(ID3_frame(f)) {
+/* */
+            printf("%s(%.*s)", f->ID, f->size-1, f->data+1);
+/* */
             map_ptr p = cmod.find(f->ID);
             if(p == cmod.end())
-                out = (char*) ID3_put(out, f->ID, f->data, f->size);
+                out = put(out, f->ID, f->data, f->size, dst);
             else {
                 string s = edit(p->second, v);
-                out = (char*) ID3_put(out, p->first.c_str(), s.c_str(), s.length());
+                out = put(out, f->ID, s.c_str(), s.length(), dst);
                 cmod.erase(p);
+/* */
+                printf(" <- %s", s.c_str()+1);
+/* */
             }
+/* */
+            printf("\n  ");
+/* */
         }
     }
 
-    for(map_ptr p = cmod.begin(); p != cmod.end(); p++) {
+    for(map_ptr p = cmod.begin(); p != cmod.end(); ++p) {
         string s = edit(p->second, v);
-        out = (char*) ID3_put(out, p->first.c_str(), s.c_str(), s.length());
+        out = put(out, p->first.c_str(), s.c_str(), s.length(), dst);
+/* */
+        printf("+ %s(%s)\n", p->first.c_str(), s.c_str()+1);
+/* */
     }
 
-    ID3_writef(fn, dst);
+    bool res = ID3_writef(fn, dst.data);
     ID3_free(src);
-    delete[] dst;
-*/
+    free(dst.data);
+    return res;
 }
 
