@@ -1,22 +1,14 @@
-#if __STDC_VERSION__ >= 199901L
-#  include <stdint.h>              // for some implementations of dirent.h
-#endif
-#include <dirent.h>
-
-#if defined(__WIN32__)
-#  define _POSIX_ 1                // borland c++ needs this
-#endif
 #include <cstdlib>
 #include <cstdio>
 #include <cstring>
 #include <cctype>
-#include <climits>
 #include <ctime>
 
+#include <stdexcept>
 #include <vector>
 #include <string>
 
-#include "varexp.h"
+#include "ffindexp.h"
 #ifdef NO_V2
 #  include "setid3.h"
 #else
@@ -25,7 +17,7 @@
 
 /*
 
-  (c) 2003 squell ^ zero functionality!
+  (c) 2003,2004 squell ^ zero functionality!
   see the file 'COPYING' for license conditions
 
 */
@@ -56,73 +48,59 @@ struct verbose_t {
     verbose_t() : show(false), time(clock()) { }
 
     ~verbose_t()
-    {   time = clock() - time;
+    {
+        time = clock() - time;
         if(show) {
             if(exitc!=0) printf("Errors were encountered\n");
             if(exitc!=1) printf("(%.3fs) done\n", double(time) / CLOCKS_PER_SEC);
-        }                                                                   }
+        }
+    }
 
-    void report(const char* s, bool m)            // reporting a filename
-    {   if(show && m) printf("%s\n", s);   }
+    void reportf(const char* s)                     // reporting a filename
+    {
+        if(show) {
+            char* sep = strrchr(s, '/');
+            printf("\t%s\n", sep?sep+1:s);
+        }
+    }
+    void reportd(const char* s)                     // reporting a dir
+    {   if(show && *s) printf("%s\n", s);   }
 } verbose;
 
 /* ====================================================== */
 
- // mini class for reading a directory as a vector
-
-struct dirvector : vector<string> {
-    dirvector(const char* path);
-    operator bool()
-    { return success; }
-
-    bool success;
+#ifdef __ZF_SETID3V2
+struct mass_tag : filefindexp, smartID3v2 {
+    mass_tag(bool a, bool b)
+    : edir(false), smartID3v2(a,b) { }
+#else
+struct mass_tag : filefindexp, smartID3 {
+    mass_tag()
+    : edir(false) { }
+#endif
+    virtual void process();
+    virtual void entered();
+    bool edir;
 };
 
-dirvector::dirvector(const char* path)
+void mass_tag::entered()
 {
-    if( DIR* dir = opendir(path) ) {
-        while( dirent* fn = readdir(dir) ) {
-            push_back(fn->d_name);
-        }
-        closedir(dir);
-        success = true;
-    } else {
-        success = false;
-    }
+    verbose.reportd(path);
+    edir = true;
+}
+                    
+void mass_tag::process()
+{
+    verbose.reportf(path);
+    if(! modify(path, var) )
+        fprintf(err(), "id3: could not access %s!\n", path);
 }
 
-/* ====================================================== */
-
-void write_mp3s(const char* fspec, smartID3& tag)
+void write_tags(const char* spec, mass_tag& tag)
 {
-    char path[PATH_MAX];
-    strncpy(path, fspec, sizeof path);          // copy constant
-    path[sizeof path-1] = 0;                    // duct tape
-
-    char* pname = strrchr(path, '/');           // pos to append filename to
-    if(pname) {
-        *(++pname) = 0;                         // seperate path & fspec
-        fspec += (pname-path);                  // increase expression ptr
-    } else {
-        pname = strcpy(path, "./");
-    }
-
-    dirvector dir(path);
-    if(!dir)
-        return (void) fprintf(err(), "id3: could not read %s\n", path);
-
-    bool m = false;                             // idle flag
-
-    for(dirvector::iterator fn = dir.begin(); fn != dir.end(); ++fn) {
-        strcpy(pname, fn->c_str());
-        varexp match(fspec, pname);
-        verbose.report(path, match);
-        if( match && ++m && !tag.modify(path, match) )
-            fprintf(err(), "id3: could not access %s!\n", pname);
-    }
-
-    if(!m)
-        fprintf(err(), "id3: no files matching %s\n", fspec);
+    if(! tag(spec) )
+        fprintf(err(), "id3: no %s matching %s\n",
+                       tag.edir? "files" : "directories", spec);
 }
 
 /* ====================================================== */
@@ -181,9 +159,9 @@ int main_(int argc, char *argv[])
     string fieldID;
 
     bool aux = false;                          // check for -1 & -2 commands
-    smartID3v2 tag(true,false);                // def: write ID3v1, not v2
+    mass_tag tag(true, false);                 // def: write ID3v1, not v2
 #else
-    smartID3 tag;
+    mass_tag tag;
 #endif
     char* opt = "";                            // used for command stacking
 
@@ -194,10 +172,10 @@ int main_(int argc, char *argv[])
                 if(argv[i][0] == '-') opt = argv[i]+1;
             if(*opt == '\0')
                 if(w)
-                    u=true, write_mp3s(argv[i], tag);
+                    u=true, write_tags(argv[i], tag);
                 else
                     u=true, fprintf(err(), "id3: nothing to do with %s\n", argv[i]);
-            else                       
+            else
                 switch( toupper(*opt++) ) {    // param is an option
                 case 'V': verbose.on(); break;
                 case 'D': tag.clear(); w = true; break;
@@ -209,7 +187,7 @@ int main_(int argc, char *argv[])
                 case 'G': field = genre;  cmd = stdfield; break;
                 case 'N': field = track;  cmd = stdfield; break;
 #ifdef __ZF_SETID3V2
-                case 'W': 
+                case 'W':
                     fieldID.assign(opt); opt = "";
                     cmd = customfield; break;
                 case 'R':

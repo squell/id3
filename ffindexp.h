@@ -12,6 +12,8 @@
   for each match. The member variables 'path' and 'var' contain the pathname
   and matched variables (see varexp), and should not be modified.
 
+  entered() is called whenever a directory is entered to be scanned for files
+
   Example:
 
   struct showfiles : filefindexp {
@@ -45,9 +47,9 @@
 class filefindexp {
 public:
     bool operator()(const char* filemask);
-
 protected:
     virtual void process() = 0;               // override this one
+    virtual void entered() { };               // def. do nothing
 
     std::vector<std::string> var;             // contains matched vars
     char path[PATH_MAX];                      // contains full file path
