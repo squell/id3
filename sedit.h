@@ -2,8 +2,24 @@
 
   string replacement function
 
-  (c) 2003 squell ^ zero functionality!
+  (c) 2004 squell ^ zero functionality!
   see the file 'COPYING' for license conditions
+
+  Usage:
+
+  string_parm::edit parses any "%x"'s found in its first argument and
+  replaces them with corresponding entries from the container passed as its
+  second argument.
+
+  Optional modifiers:
+   "+" Pass Throught A Capitalization Function
+   "-" convert to lower case
+   "_" Don't_eliminate_underscores_and   don't   compress    spaces
+
+  Special forms:
+   "%%" -> %
+   "%@" -> \0
+   "%," -> \n
 
   Example:
 
@@ -24,7 +40,7 @@ class sedit;
 
   //
 
-class svar {
+class string_parm {
     static const bool ZERO_BASED = false;     // count starts at %0 ?
     static const char VAR = '%';              // replacement char
 
@@ -48,7 +64,7 @@ protected:
 
   // little excuse for making this a useful header :)
 
-class sedit : svar {
+class sedit : string_parm {
 public:
     sedit(std::string msg) : fmt(msg) { }
 

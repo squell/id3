@@ -7,7 +7,7 @@
 
 /*
 
-  (c) 2003,2004 squell ^ zero functionality!
+  (c) 2004 squell ^ zero functionality!
   see the file 'COPYING' for license conditions
 
 */
@@ -74,7 +74,7 @@ string capitalize(string s)
 
 /* ====================================================== */
 
-string svar::edit(string s, const base_container& v)
+string string_parm::edit(string s, const base_container& v)
 {
     enum style { as_is, name, lowr };
 
