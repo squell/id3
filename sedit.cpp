@@ -14,7 +14,7 @@
 
 using namespace std;
 
- // band-aid. the notice will be removed in the future too! :)
+ // band-aid. the notice will be removed in the future too! ;)
 
 struct sedit_deprecation_warning {
     bool flag1;
@@ -27,7 +27,7 @@ struct sedit_deprecation_warning {
             printf("id3: note: %%n token will be removed in the future, "
                    "use %%, instead.\n");
     };
-} sedit_depr = { false };
+} sedit_depr = { false, false };
 
  // Capitalize A Text-string Like This.
 
@@ -35,8 +35,8 @@ string capitalize(string s)
 {
     bool new_w = true;
     for(string::iterator p = s.begin(); p != s.end(); p++) {
-	*p = new_w? toupper(*p):tolower(*p);
-	new_w = isspace(*p) || !isalnum(*p) && new_w;
+        *p = new_w? toupper(*p):tolower(*p);
+        new_w = isspace(*p) || !isalnum(*p) && new_w;
     }
     return s;
 }
@@ -59,52 +59,52 @@ string svar::edit(string s, const base_container& v)
     while( (pos=s.find(VAR, pos)) != string::npos ) {
         bool  raw  = false;
         style caps = as_is;
-	int n = 1;
-	while( pos+n < s.length() ) {
-	    switch( char c = toupper(s[pos+n]) ) {
-	    default:
-		s.erase(pos, n);
-		break;
-	    case '@':
-	    case ':': s.erase(pos, 1); s[pos++] = '\0'; break;
-	    case VAR: s.erase(pos, 1);	 pos++; 	break; // "%%" -> "%"
+        int n = 1;
+        while( pos+n < s.length() ) {
+            switch( char c = toupper(s[pos+n]) ) {
+            default:
+                s.erase(pos, n);
+                break;
+            case '@':
+            case ':': s.erase(pos, 1); s[pos++] = '\0'; break;
+            case VAR: s.erase(pos, 1);   pos++;         break; // "%%" -> "%"
             case 'N': sedit_depr.flag2 = true;              // TO BE REMOVED
-	    case ',': s[pos++] = '\r'; s[pos++] = '\n'; break;
+            case ',': s[pos++] = '\r'; s[pos++] = '\n'; break;
 
             case '_': raw  = true; ++n; continue;
             case 'C': sedit_depr.flag1 = true;              // TO BE REMOVED
             case '+': caps = name; ++n; continue;
             case '-': caps = lowr; ++n; continue;
 
-	    case '0': if(!ZERO_BASED) c += 10;
-	    case '1':
-	    case '2':
-	    case '3':
-	    case '4':
-	    case '5':
-	    case '6':
-	    case '7':
-	    case '8':
-	    case '9':
-		string tmp = v[c-'1' +ZERO_BASED];
+            case '0': if(!ZERO_BASED) c += 10;
+            case '1':
+            case '2':
+            case '3':
+            case '4':
+            case '5':
+            case '6':
+            case '7':
+            case '8':
+            case '9':
+                string tmp = v[c-'1' +ZERO_BASED];
                 if(!raw) {                                  // remove gunk
-		    replace(tmp.begin(), tmp.end(), '_', ' ');
-		    string::iterator t =
-		      unique(tmp.begin(), tmp.end(), compress_space());
-		    tmp.erase(t, tmp.end());
-		}
+                    replace(tmp.begin(), tmp.end(), '_', ' ');
+                    string::iterator t =
+                      unique(tmp.begin(), tmp.end(), compress_space());
+                    tmp.erase(t, tmp.end());
+                }
                 switch(caps) {
                 case name:
                     tmp = capitalize(tmp); break;
                 case lowr:
                     transform(tmp.begin(), tmp.end(), tmp.begin(), tolower);
                 }
-		s.replace(pos, n+1, tmp);
-		pos += tmp.length();
-		break;
-	    }
-	    break;	   // turn switch-breaks into while-breaks
-	}
+                s.replace(pos, n+1, tmp);
+                pos += tmp.length();
+                break;
+            }
+            break;         // turn switch-breaks into while-breaks
+        }
     }
     return s;
 }

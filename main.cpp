@@ -1,3 +1,7 @@
+#if defined(__WIN32__)
+#  define _POSIX_ 1                // borland c++ needs this
+#endif
+
 #include <cstdlib>
 #include <cstdio>
 #include <cstring>

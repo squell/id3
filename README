@@ -156,6 +156,9 @@ _>|_||_)_> |_| |_|_||_|(_)| |
        $ id3 -2 -wUSLT "%@englyrics%@foo, bar%,lalala!%," blaet.mp3
             Adds an ID3v2 lyric frame to blaet.mp3.
 
+       $ id3 -v -alnt "The Author" %1 %2 %3 "Author - */*. *.mp3"
+            Process multiple directories at once.
+
 ._  __|_ _  _
 | |(_)|_(/__>
 ~~~~~~~~~~~~~

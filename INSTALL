@@ -1,5 +1,5 @@
 ---------------------------------------------------------------
-| id3 v0.71
+| id3 v0.72
 -------------------------------------------------------------
 
 the contents of the source distribution:
@@ -14,15 +14,18 @@ the contents of the source distribution:
  makefile.bcc   - makefile for borland c++
 
  main.cpp       - main program file                             (C++)
- varexp.*       - wildcard/pattern matching class               (C++)
  setid3.*       - id3 patch class                               (C++)
  setid3v2.*     - id3v2 patch extension                         (C++)
+ sedit.*        - string formatting                             (C++)
+ varexp.*       - wildcard/pattern matching class               (C++)
+ ffindexp.*     - filefinder/matcher                            (C++)
+ auto_dir.*     - smart dirent pointer class                    (C++)
 
- id3v1.*        - definitions & date relevant to ID3v1 tag data (C)
+ id3v1.*        - definitions & data relevant to ID3v1 tag data (C)
  id3v2.*        - basic ID3v2 reading/writing interface         (C)
 
 ---------------------------------------------------------------
-| (c) squell 2003 - copyright notice
+| (c) squell 2003,2004 - copyright notice
 -------------------------------------------------------------
 
 All files in this package are copyrighted. This is NOT public domain software.
@@ -48,8 +51,7 @@ Successfully compiled with:
  - Borland C++ 5.5  (Win32)
 
 This program is mostly written in 100% portable ISO C/C++, so basically all
-you need is a modern, standards-compliant C/C++ compiler. I'm not sure if
-this includes MS Visual C++.
+you need is a modern, standards-compliant C/C++ compiler.
 
 I recommend using DJGPP to build a 32bit DPMI program if you're using a
 version of Windows 9X (e.g. 95, 98, Me) because of the kludgy support for
@@ -62,26 +64,40 @@ Makefiles
 Pick the makefile you need and rename it to 'makefile' or use 'make -f':
 
   'makefile'  is meant for generic GNU/BSD systems. You will have to edit it
-  if you want to use a different compiler than GCC. (You can also use this
+  if you want to/need to use different settings. (You can also use this
   file for building with MinGW)
 
   'makefile.dj'  is for DOS systems using DJGPP v2
 
   'makefile.bcc'  is for building a Win32 executable for Borland C++ 5.5
-  You might be able to use this file as a starting point when trying to
-  compile with Intel C++ under Windows. I don't know.
 
 ===
-Standard make targets
+Standard makefile targets:
 
- make id3      - fully enabled executable (default)
- make id3l     - id3v1 only executable
- make all      - both executables
- make final    - same as all, but tries to strip / pack the executables
- make clean    - removes all files produced by make
+ make id3           - fully enabled executable (default)
+ make id3l          - id3v1 only executable
+ make all           - both executables
+ make final         - same as all, but tries to strip / pack the executables
+ make clean         - removes all files produced by make
 
 'final' assumes you have UPX (http://upx.sourceforge.net/) installed on
 Win32/DOS systems. You should have. :)
+
+Generic GNU/BSD makefile targets & variables:
+
+ make install       - installs into the directory `$(prefix)/bin'
+ make install-strip - like install, but strips executable of debug info
+ make uninstall     - uninstall from `$(prefix)/bin'
+
+Because id3 does not have a configure script (yet), you can only set
+these variables as a make commandline parameter:
+
+ prefix             - the prefix directory name  (def. `/usr/local')
+ bindir             - your binary directory      (def. `$(prefix)/bin')
+ binary             - name of the binary         (def. `id3')
+
+E.g: "make install prefix=$HOME" to install in $HOME/bin instead.
+See inside 'makefile' for more details.
 
 ===
 Customizing

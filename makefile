@@ -21,11 +21,11 @@ INSTALL_STRIP = $(INSTALL) -s
 
 ############################################################################
 
-id3: main.o varexp.o sedit.o setid3.o setid3v2.o \
+id3: main.o varexp.o ffindexp.o sedit.o setid3.o setid3v2.o \
      id3v1.o id3v2.o fileops.o
 	$(CXX) -o $@ $+
 
-id3l: mainl.o varexp.o sedit.o setid3.o id3v1.o
+id3l: mainl.o varexp.o ffindexp.o sedit.o setid3.o id3v1.o
 	$(CXX) -o $@ $+
 
 all  : id3 id3l
@@ -52,13 +52,14 @@ uninstall:
 
 ############################################################################
 
-main.o: main.cpp varexp.h setid3.h setid3v2.h sedit.h
+main.o: main.cpp ffindexp.h auto_dir.h setid3v2.h setid3.h sedit.h
 	$(CC) $(CFLAGS) -c main.cpp
 
-mainl.o: main.cpp varexp.h setid3.h sedit.h
+mainl.o: main.cpp ffindexp.h auto_dir.h setid3.h sedit.h
 	$(CC) $(CFLAGS) -DNO_V2 -o $@ -c main.cpp
 
-setid3v2.o: sedit.h id3v1.h id3v2.h setid3.h fileops.h
+ffindexp.o: varexp.h auto_dir.h
+setid3v2.o: setid3.h sedit.h id3v1.h id3v2.h fileops.h
 setid3.o  : sedit.h id3v1.h
 id3v2.o   : fileops.h
 

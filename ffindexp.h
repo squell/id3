@@ -33,11 +33,7 @@
 #ifndef __ZF_FFINDEXP
 #define __ZF_FFINDEXP
 
-#if defined(__WIN32__)
-#  define _POSIX_ 1                // borland c++ needs this
-#endif
 #include <climits>
-
 #include <vector>
 #include <string>
 #include "auto_dir.h"

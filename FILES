@@ -1,5 +1,5 @@
 ---------------------------------------------------------------
-| id3 v0.71
+| id3 v0.72
 -------------------------------------------------------------
 
 the contents of the DOS/Win32 binary distribution:
@@ -14,7 +14,7 @@ the contents of the DOS/Win32 binary distribution:
  id3.exe        - program file - `%' as escape char
 
 ---------------------------------------------------------------
-| (c) squell 2003 - copyright notice
+| (c) squell 2003, 2004 - copyright notice
 -------------------------------------------------------------
 
 All files in this package are copyrighted. This is NOT public domain software.

@@ -27,6 +27,8 @@ Changelog for 'id3'.
   id3v2.c:11: fixed copyright notice. :)
   id3v2.c<>fileops.c: split into two components.
   fileops.c: replaced fopentmp with something conceptually simpler.
+  makefile: made it somewhat more conformant. id3 is still too basic to
+    warrant using autoconf, imo.
 
 2003-296 (W43):                                ---------[v0.71]-----------
   main.cpp:dirvector: reads directory as a whole to avoid order mangling
@@ -99,7 +101,7 @@ Changelog for 'id3'.
 
 Todo list:
 
-  - Restructure smartID3 inheritance.
+  - Restructure smartID3 inheritance
     + Support for Ogg Vorbis
     + Support for APEv2
     + Support for Lyrics3 v2.0 (?)
