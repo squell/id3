@@ -81,7 +81,7 @@ uninstall:
 DISTFILES = INSTALL $(docdata) makefile makefile.dj makefile.bcc \
 	main.cpp auto_dir.h \
 	$(foreach f, sedit varexp ffindexp charconv, $(f).h $(f).cpp) \
-	$(foreach f, set_base setid3 setid3v2, $(f).h $(f).cpp) \
+	$(foreach f, set_base setid3 setid3v2 setfname, $(f).h $(f).cpp) \
 	$(foreach f, fileops id3v1 id3v2, $(f).h $(f).c) \
 	id3.man
 
@@ -103,7 +103,7 @@ dist-zip: $(DISTFILES)
 OBJ_GEN = sedit.o varexp.o ffindexp.o charconv.o
 OBJ_1	= setid3.o id3v1.o
 OBJ_2	= setid3v2.o id3v2.o fileops.o
-OBJ_F   = setfname.o
+OBJ_F	= setfname.o
 OBJECTS = main.o $(OBJ_GEN) set_base.o $(OBJ_1) $(OBJ_2) $(OBJ_F)
 
 id3: $(OBJECTS)

@@ -1,7 +1,12 @@
 #include <cstdio>
-#include <unistd.h>
 #include <string>
 #include "setfname.h"
+#if defined(__WIN32__)
+#    include <io.h>
+#    define F_OK 0
+#else
+#    include <unistd.h>
+#endif
 
 /*
 
@@ -17,7 +22,7 @@ bool filename::vmodify(const char* fname, const base_container& v) const
     if(!enabled)
         return true;
 
-    string name = edit(ftemplate, v);
+    std::string name = edit(ftemplate, v);
 
     if(const char* psep = strrchr(fname, '/')) {      // copy path prefix
         name.insert(0, fname, psep-fname+1);

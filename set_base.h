@@ -158,28 +158,37 @@ public:
 
 inline set_tag::failure::failure(const std::string& err)
 {
+#ifndef __BORLANDC__
+    using std::strcpy;
+#endif
     txt = new (std::nothrow) char[err.length()+1];
     if(txt) {
-        std::strcpy(txt, err.c_str());
+        strcpy(txt, err.c_str());
     }
 }
 
 inline set_tag::failure::failure(const char* err)
 {
+#ifndef __BORLANDC__
+    using std::strcpy;
+#endif
     txt = new (std::nothrow) char[std::strlen(err)+1];
     if(txt) {
-        std::strcpy(txt, err);
+        strcpy(txt, err);
     }
 }
 
 inline set_tag::failure::failure(const char* err, const char* context)
 {
+#ifndef __BORLANDC__
+    using std::strcpy;
+#endif
     std::size_t elen = std::strlen(err);
     std::size_t clen = std::strlen(context);
     txt = new (std::nothrow) char[elen+clen+1];
     if(txt) {
-        std::strcpy(txt,      err);
-        std::strcpy(txt+elen, context);
+        strcpy(txt,      err);
+        strcpy(txt+elen, context);
     }
 }
 
