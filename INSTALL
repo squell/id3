@@ -102,7 +102,7 @@ these variables only the 'make' commandline:
  bindir             - dir for binaries           (def. "$(prefix)/bin")
  mandir             - dir for manpages           (def. "$(prefix)/man")
  datadir            - dir for shared files       (def. "$(prefix)/share")
- binary             - name of the binary object  (def. "id3")
+ binary             - the binary to install      (def. "id3")
 
 E.g: "make install prefix=$HOME" to install in $HOME/bin instead.
 See inside 'makefile' for more details (and more variables).
