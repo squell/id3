@@ -116,7 +116,7 @@ string string_parm::edit(string s, const subst& var)
             case '8':
             case '9': if(!ZERO_BASED) --c;
                 {
-                    string tmp = stylize(var[c-'0'], caps);
+                    string tmp = stylize(var.numeric(c-'0'), caps);
                     if(!raw) {                                 // remove gunk
                         replace(tmp.begin(), tmp.end(), '_', ' ');
                         compress(tmp);
@@ -129,7 +129,7 @@ string string_parm::edit(string s, const subst& var)
                 if(!isalpha(c)) {
                     s.replace(pos++, n+1, 1, '?'); break;
                 } else {
-                    string tmp = stylize("not implemented", caps);
+                    string tmp = stylize(var.alpha(c), caps);
                     if(raw)
                         replace(tmp.begin(), tmp.end(), ' ', '_');
                     compress(tmp);

@@ -45,7 +45,9 @@
 extern std::string capitalize(std::string s);
 
 template<class T>
-  std::string sedit(const char*, const T&);
+  inline std::string sedit(const char*, const T&);
+template<class T, class U>
+  inline std::string sedit(const char*, const T&, const U&);
 
   //
 
@@ -55,22 +57,23 @@ class string_parm {
 
 protected:
     struct subst {
-        virtual std::string operator[](unsigned) const = 0;
+        virtual std::string numeric(unsigned) const = 0;
+        virtual std::string alpha  (char)     const = 0;
     };
 
-    template<class T>                         // templatized wrapper
+    template<class T, class U>                // templatized wrapper
     struct container : subst {
-        const T& data;
+        const T& num;
+        const U& chr;
 
-        container(const T& t) : data(t) { }
+        container(const T& t, const U& u) : num(t), chr(u) { }
 
-        virtual std::string operator[](unsigned x) const
-        { return data[x]; }
+        virtual std::string numeric(unsigned x) const { return num[x]; }
+        virtual std::string alpha  (char x)     const { return chr[x]; }
     };
 
-    struct null_container : subst {
-        virtual std::string operator[](unsigned) const
-        { return std::string(); }
+    struct dummy {
+        const char* operator[](unsigned) const { return ""; }
     };
 
     static std::string edit(std::string, const subst&);
@@ -86,15 +89,13 @@ protected:
 template<class T>
   inline std::string sedit(const char* fmt, const T& vars)
 {
-    return string_parm::edit(fmt, string_parm::container<T>(vars),
-                                  string_parm::null_container());
+    return sedit(fmt, vars, dummy());
 }
 
 template<class T, class U>
   inline std::string sedit(const char* fmt, const T& vars, const U& table)
 {
-    return string_parm::edit(fmt, string_parm::container<T>(vars),
-                                  string_parm::container<U>(table));
+    return string_parm::edit(fmt, string_parm::container<T,U>(vars, table));
 }
 
 #endif

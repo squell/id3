@@ -60,9 +60,13 @@ class handler : protected string_parm {
 public:
     virtual bool vmodify(const char*, const subst&) const = 0;
 
+    template<class T, class U>
+      bool modify(const char* fn, const T& vars, const U& table) const
+    { return vmodify(fn, container<T,U>(vars, table)); }
+
     template<class T>
       bool modify(const char* fn, const T& vars) const
-    { return vmodify(fn, container<T>(vars)); }
+    { return modify(fn, vars, dummy()); }
 
   // standard state set methods
 
