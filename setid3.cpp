@@ -27,7 +27,15 @@
 using namespace std;
 
 const ID3v1 synth_tag = {
-    { 'T', 'A', 'G' }
+    { 'T', 'A', 'G' },
+    { }, // title
+    { }, // artist
+    { }, // album
+    { }, // year
+    { }, // cmnt
+    0,
+    0,   // track
+    255  // genre
 };
 
 /* ====================================================== */
