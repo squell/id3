@@ -79,7 +79,7 @@ installdoc: $(docdata)
 	    $(INSTALL_DATA) $${f} $(docdir)/$${f}; done
 
 install: $(binary) installdirs installman
-	$(INSTALL) $(binary) $(bindir)/id3
+	$(INSTALL_PROGRAM) $(binary) $(bindir)/id3
 
 install-strip: $(binary) installdirs installman
 	$(INSTALL_STRIP) $(binary) $(bindir)/id3
