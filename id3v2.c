@@ -227,7 +227,7 @@ abort:                                   /* close file and return failure */
 int ID3_writef(const char *fname, void *src)
 {
     struct raw_hdr new_h = { "ID3", 3, 0, 0, 0 };
-    struct raw_hdr rh;
+    struct raw_hdr rh    = { { 0 } };                       /* duct tape */
     struct raw_frm fm;
     ulong size = calcsize(src,ULONG_MAX);
 
@@ -235,8 +235,7 @@ int ID3_writef(const char *fname, void *src)
 
     if( !f ) return 0;
 
-    if( fread(&rh, sizeof(struct raw_hdr), 1, f) != 1 )
-        goto abort;                                          /* IO error */
+    fread(&rh, sizeof(struct raw_hdr), 1, f);
 
     if( memcmp(rh.ID, "ID3", 3) == 0 ) {             /* allready tagged? */
         ulong orig;

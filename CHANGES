@@ -21,7 +21,10 @@ Changelog for 'id3'.
 
 2003-189 (W28):                                ---------[v0.60]-----------
   First public release
-  
+  setid3v2.cpp:97: Added "&& src". Whoopsee! :)
+  id3v2.c: writef() now writes ID3v2 tags to files < 10 bytes. :)
+
+
 
 Todo list:
 

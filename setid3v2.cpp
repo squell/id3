@@ -94,7 +94,7 @@ bool smartID3v2::vmodify(const char* fn, const base_container& v) const
 
     char* out = (char*) ID3_put(dst,0,0,0);         // initialize
 
-    if(!fresh) {                                    // update existing tags
+    if(!fresh && src) {                             // update existing tags
         ID3FRAME f;
         ID3_start(f, src);
 
