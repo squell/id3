@@ -1,11 +1,13 @@
 #ifndef __ZF_ID3V2_H
 #define __ZF_ID3V2_H
 
+#include <stddef.h>
+
 #ifdef __cplusplus
 extern "C" {                           /* whole heaps of errors otherwise */
 #endif
 
-typedef struct {
+typedef struct _ID3FRAME {
     char *data;
     unsigned long size;
     char ID[5];

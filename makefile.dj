@@ -1,0 +1,22 @@
+CC     = gpp
+CFLAGS = -g -O2
+
+id3: main.o setid3.o varexp.o
+	$(CC) $(CFLAGS) -o $@ $+
+
+final: id3
+	upx --best -f -oID3.EXE $<
+
+all  : id3
+
+clean:
+	del *.o
+	del id3
+	del id3.exe
+
+%.o  : %.cpp %.h
+	$(CC) $(CFLAGS) -c $<
+
+main.o: main.cpp varexp.h setid3.h
+	$(CC) $(CFLAGS) -c $<
+
