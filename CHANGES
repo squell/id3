@@ -13,6 +13,9 @@ Changelog for 'id3'.
   Readme
   Added support for specifying genre per number.
 
+2003-185 (W27):
+  setid3v2.cpp: made w_ptr a live object + added bad_alloc checks
+
 Todo list:
 
   Support for Ogg Vorbis

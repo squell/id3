@@ -1,5 +1,6 @@
 #include <string>
 #include <map>
+#include <new>
 #include <cctype>
 #include <cstdlib>
 #include "setid3v2.h"
@@ -28,7 +29,8 @@ struct w_ptr {
 
     operator char*()  { return base; }
 
-    w_ptr(size_t len) { base = (char*) malloc(avail=len); }
+    w_ptr(size_t len) { base = (char*) malloc(avail=len);
+                        if(!base) throw bad_alloc(); }
    ~w_ptr()           { free(base); }
 
     char* put(char* dst, const char* ID, const void* src, size_t len);
@@ -45,6 +47,8 @@ char* w_ptr::put(char* dst, const char* ID, const void* src, size_t len)
         base     = (char*) realloc(base, size+factor);
         dst      = base + size;      // translate current pointer
     }
+
+    if(!base) throw bad_alloc();
 
     avail -= (len+10);
     return (char*) ID3_put(dst,ID,src,len);
@@ -69,6 +73,13 @@ smartID3v2& smartID3v2::set(ID3set i, const char* m)
     }
     return *this;
 }
+
+struct safe {                                       // auto-ptr like
+    void* data;
+    operator void*() { return data; }
+    safe(void* p)    { data = p; }
+   ~safe()           { ID3_free(data); }
+};
 
 bool smartID3v2::vmodify(const char* fn, const base_container& v) const
 {
