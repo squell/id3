@@ -1,10 +1,10 @@
 /*
 
-  ID3v1.1 structures, genres 
+  ID3v1.1 structures, genres
 
-  Made this into a header + extern const object, lest certain linkers start
-  emitting multiple copies in executables. And if i'm going to use a header
-  for the genres, why not put the ID3v1 tag structure here as well, eh?
+  Made this into a header + extern const object, lest certain linkers emit
+  multiple copies in executables. And if i'm going to use a header for the
+  genres, why not put the ID3v1 tag structure in here as well, eh?
 
 */
 
