@@ -77,7 +77,7 @@ void help(const char* argv0)
         "\tset ID3 fields\n"
 #ifdef __ZF_SETID3V2
         "\nonly when -2:\n"
-        " -dXXXX\terase all XXXX frames\n"
+        " -rXXXX\terase all XXXX frames\n"
         " -wXXXX <data>\n\tdirectwrite an XXXX frame\n"
 #endif
         "\nAny occurences of the form \"%%i\" in an ID3 field value will be substituted by\n"
@@ -90,9 +90,11 @@ void help(const char* argv0)
 
 /* ====================================================== */
 
+const ID3set no_value = ID3_MAX; // dummy value
+
 int main_(int argc, char *argv[])
 {
-    ID3set t = ID3;
+    ID3set t = no_value;
     bool   w = false;            // check against no-ops args
     bool   u = false;            // check against no-file args
 #ifdef __ZF_SETID3V2
@@ -112,12 +114,12 @@ int main_(int argc, char *argv[])
             w = true;
         } else
 #endif
-        if(t != ID3) {
+        if(t != no_value) {
             tag.set(t, argv[i]);
-            t = ID3;
+            t = no_value;
             w = true;
         } else {
-            if(*opt) --i; else
+            if(*opt != '\0') --i; else
                 if(argv[i][0] == '-') opt = argv[i]+1;
             if(*opt == '\0')
                 if(w)
@@ -127,18 +129,13 @@ int main_(int argc, char *argv[])
             else
                 switch( toupper(*opt++) ) {
 #ifdef __ZF_SETID3V2
-                case 'D':
-                    if( fieldID.assign(opt) == "" )
-                        tag.clear();
-                    else
-                        tag.rm(fieldID);
-                    fieldID.erase();
+                case 'R':
+                    tag.rm(opt);
                     w   = true;
                     opt = "";
                     break;
-#else
-                case 'D': tag.clear(); w = true; break;
 #endif
+                case 'D': tag.clear(); w = true; break;
                 case 'T': t = title;  break;
                 case 'A': t = artist; break;
                 case 'L': t = album;  break;
@@ -157,7 +154,6 @@ int main_(int argc, char *argv[])
                     printf(shelp);
                     exit(1);
                 }
-
         }
     }
 

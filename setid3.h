@@ -62,7 +62,7 @@
 #include <memory>
 
 enum ID3set {
-    title, artist, album, year, cmnt, track, genre, ID3
+    title, artist, album, year, cmnt, track, genre, ID3_MAX
 };
 
 class smartID3 {
@@ -92,11 +92,11 @@ protected:
     static std::string edit(std::string, const base_container&);
 
 public:
-    smartID3() : mod(ID3,(char*)0), fresh(false)
+    smartID3() : mod(ID3_MAX,(char*)0), fresh(false)
     { }
 
     smartID3& set(ID3set i, const char* m)    // set ID3 field i to value m
-    { if(i<ID3) mod[i] = m; return *this; }
+    { if(i < ID3_MAX) mod[i] = m; return *this; }
 
     smartID3& clear()                         // clear original ID3 tag
     { fresh = true; return *this; }

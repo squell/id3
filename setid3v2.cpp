@@ -96,7 +96,7 @@ const char xlat[][5] = {
 
 smartID3v2& smartID3v2::set(ID3set i, const char* m)
 {
-    if(i < ID3) {
+    if(i < ID3_MAX) {
         const string prefix("\0eng\0", i!=cmnt? 1 : 5);
         if(i == genre) {
             unsigned int x = atoi(m)-1;             // is portable

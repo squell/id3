@@ -7,7 +7,7 @@ _>\/| |(_)|_)_>\/_>
 ~~/~~~~~~~|~~~~/~~~
        id3 [-12] [-d] [-t title] [-a artist] [-g genre]
         [-n tracknr] [-l album] [-y year] [-c comment]
-        [-dFRAME] [-wFRAME data] [ "filespec" ... ]
+        [-rFRAME] [-wFRAME data] [ "filespec" ... ]
 
  _| _  _ _._o.__|_o _ ._
 (_|(/__>(_| ||_)|_|(_)| |
@@ -68,7 +68,7 @@ _>\/| |(_)|_)_>\/_>
             Genres  can  be  specified  either  directly or with
             their assigned number, regardless of tag format.
 
-       -dFRAME
+       -rFRAME
             remove all occurrences of frames named `FRAME'. This
             is  meaningless  on  tag  formats that do not have a
             notion  of  `frames',  such  as  ID3v1.  Consult the
@@ -127,7 +127,7 @@ _>|_||_)_> |_| |_|_||_|(_)| |
              01. my_song.mp3  [=>] "01" "My Song"
              02. untitled.mp3 [=>] "02" "Untitled"    etc..
 
-       $ id3 -2 -dAPIC *.mp3
+       $ id3 -2 -rAPIC *.mp3
             Removes all embedded pictures from all mp3 files.
 
        $ id3 -2 -wUSLT "%:englyrics%:foo, bar%nlalala!%n" blaet.mp3

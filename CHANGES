@@ -1,18 +1,22 @@
 Changelog for 'id3'.
 
-2003-239 (W35):
-  ogg_out.cpp: Streamlining
+2003-295 (W43):
+  (Resumed)
+  varexp.cpp:19: No longer copies vector's around.
 
-2003-237 (W35):
-  Created ogg_out class
+2003-269 (W39):
+  main.cpp  : [CLI CHANGE!] -dFRAME is now -rFRAME to remove possible
+    confusion when -d is used as a stacked parameter.
+  id3v2.c:87: encapsulated tmpname handling in fopentmp(), added code that
+    uses mktemp to make id3v2 tag handling faster.
 
-2003-234 (W34):
-  ogg_in.cpp: further review of ogg_in so ogg_in is well-behaved in
-    'badbit' conditions.
+2003-267 (W39):
+  setid3.cpp:38: Made freshly written ID3v1 tags have an empty genre.
+  id3v2.c:278  : Don't rewrite file files with no ID3v2 tags.
 
-2003-231 (W34):
-  ogg_in.cpp & vorbis.cpp: Resumed work. Split vorbis work in two files,
-    correctness validation stuff, testing, refining.
+2003-262 (W38):
+  (Resumed development)
+  main.cpp: Command stacking ('-nat Tr Art Tit' == '-n Tr -a Art -t Tit')
 
 2003-218 (W32):                                ---------[v0.70]-----------
   id3v2.c:ID3_writef: [BUGFIX] Serious. tmpnam() does not guarantee to
@@ -30,15 +34,6 @@ Changelog for 'id3'.
     uninitialized allocation value (went by unnoticed because of
     alloc-on-write?). Fix: Removed this feature - unnecessary anyway.
   setid3v2.cpp:89: Only read previous ID3v2 if necessary.
-
-2003-215 (W31):
-  Fleshed out large parts of the public interface of vorbis_in
-
-2003-210 (W31):
-  Tried to generize crc32.h (postponed), some tidbits added to vorbis.cpp
-
-2003-199 (W29):
-  Created vorbis.cpp framework & crc32.h
 
 2003-198 (W29):
   Added conditional stdint.h include, some dirent.h implementations need it
@@ -71,12 +66,11 @@ Changelog for 'id3'.
 
 Todo list:
 
-  Command stacking    ("-nat 1 art tit == -n 1 -a art -t tit")
-  Options for re-formatting existing tag values
-  mktemp()
+  Restructure smartID3 inheritance.
   Support for Ogg Vorbis
+  Directory wildcards ("mp3root/*/*/*_*.mp3")
+  Options for re-formatting existing tag values?
   Options for forcing re-packing id3v2
   Shorthand Wildcards ("%n. %t.mp3" == -n %1 -t %2 "*. *.mp3")
   Join main.cpp & view.cpp
-  Restructure smartID3 inheritance.
 

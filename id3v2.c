@@ -100,7 +100,7 @@ static FILE *fopentmp(const char *hint, char **name)        /* free() name */
     char* pname = strrchr(hint, '/');
     size_t idx  = pname? pname-hint+1 : 0;
 
-    if(buf = malloc(idx + 9)) {
+    if(buf = malloc(idx + 8 + 1)) {
         strncpy(buf, hint, idx);
         strcpy (buf+idx, "idXXXXXX");
         if(mktemp(buf) && (f = fopen(buf, "wb"))) {
