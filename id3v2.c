@@ -63,7 +63,7 @@ static int copyfile(FILE *dest, FILE *src)
         if(w != r) return 0;
     } while(r == sizeof buffer);
 
-    return 1;
+    return feof(src);
 }
 
 static int paddfile(FILE *dest, char c, size_t len)
@@ -261,11 +261,11 @@ int ID3_writef(const char *fname, void *src)
                                                         /* file rewriter */
     {
         char *tmp   = tmpnam(0);                       /* i know, i know */
-        FILE *nf    = fopen(tmp, "wb");
+        FILE *nf;
         ulong nsize = ((size+sizeof new_h+0x1FF) & ~0x1FF) - sizeof new_h;
         int ok;                                      /* rnd to 512 bytes */
 
-        if(!nf)
+        if( !tmp || !(nf = fopen(tmp, "wb")) )
             goto abort;
 
         if(size != 0) {

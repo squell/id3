@@ -45,10 +45,10 @@ char* w_ptr::put(char* dst, const char* ID, const void* src, size_t len)
         int size = dst - base;
         avail    = factor;
         base     = (char*) realloc(base, size+factor);
+        if(!base) throw bad_alloc();
         dst      = base + size;      // translate current pointer
     }
 
-    if(!base) throw bad_alloc();
 
     avail -= (len+10);
     return (char*) ID3_put(dst,ID,src,len);
@@ -86,16 +86,15 @@ bool smartID3v2::vmodify(const char* fn, const base_container& v) const
     if(!v2)
         return v1 && smartID3::vmodify(fn, v);
 
-    size_t temp;
-    voidp<ID3_free>
-          src ( ID3_readf(fn, &temp) );
-    w_ptr dst ( temp+0x1000 );
+    w_ptr dst ( 0x1000 );
     db    cmod( mod2 );
 
     char* out = (char*) ID3_put(dst,0,0,0);         // initialize
 
     if(!fresh && src) {                             // update existing tags
+        voidp<ID3_free> src( ID3_readf(fn, 0) );
         ID3FRAME f;
+
         ID3_start(f, src);
 
         while(ID3_frame(f)) {

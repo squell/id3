@@ -85,6 +85,7 @@ protected:
     bool fresh;                               // clear existing?
 
     virtual bool vmodify(const char*, const base_container&) const;
+    static std::string edit(std::string, const base_container&);
 
 public:
     smartID3() : mod(ID3,(char*)0), fresh(false)
@@ -99,8 +100,6 @@ public:
     template<class T>                         // returns success/failure
     bool modify(const char* fn, const T& vars) const
     { return vmodify(fn, container<T>(vars)); }
-
-    static std::string edit(std::string, const base_container&);
 };
 
 #endif
