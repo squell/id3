@@ -12,7 +12,7 @@
 
 /*
 
-  (c) 2003 squell ^ zero functionality!
+  (c) 2004 squell ^ zero functionality!
   see the file 'COPYING' for license conditions
 
 */
@@ -26,6 +26,9 @@
 #endif
 
 using namespace std;
+
+using set_tag::ID3;
+using set_tag::ID3field;
 
 const ID3v1 synth_tag = {
     { 'T', 'A', 'G' },
@@ -97,8 +100,11 @@ const struct genre_map : map<string,int,bool (*)(const string&,const string&)> {
 
 /* ====================================================== */
 
-bool smartID3::vmodify(const char* fn, const base_container& v) const
+int ID3::vmodify(const char* fn, const base_container& v) const
 {
+    if(!enabled)
+        return set_tag::OK;
+
     ID3v1 tag = { { 0 } };                    // duct tape
 
     if( FILE* f = fopen(fn, "rb+") ) {
@@ -150,23 +156,14 @@ bool smartID3::vmodify(const char* fn, const base_container& v) const
         fclose(f);
 
         if(err) {
-            string emsg("error writing ID3 tag to ");
+            string emsg("error writing TAG to ");
             throw failure(emsg + fn);
         }
 
-        return 1;
+        return set_tag::OK;
     };
 
-    return 0;
-}
-
-/* ====================================================== */
-
-smartID3::failure::failure(const string& s)
-: txt( new (nothrow) char[s.length()+1] )
-{
-    if(txt.get())
-        strcpy(txt.get(), s.c_str());
+    return set_tag::syserr;
 }
 
 /*

@@ -22,6 +22,9 @@
 
 using namespace std;
 
+using set_tag::ID3v2;
+using set_tag::ID3field;
+
 typedef map<string,string> db;
 
 /* ===================================== */
@@ -75,10 +78,10 @@ string w_fail::err;
 
 void w_fail::raise()
 {
-    string emsg(err);
-    err.erase();
+    string emsg;
+    emsg.swap(err);
     if(!emsg.empty())
-        throw smartID3::failure(emsg);
+        throw set_tag::failure(emsg);
 }
 
 extern "C" int w_handler(const char* oldn, const char* newn)
@@ -96,16 +99,15 @@ const char xlat[][5] = {
     "TIT2", "TPE1", "TALB", "TYER", "COMM", "TRCK", "TCON"
 };
 
-smartID3v2& smartID3v2::set(ID3set i, const char* m)
+ID3v2& ID3v2::set(ID3field i, const char* m)
 {
-    if(i < ID3_MAX) {
+    if(i < FIELDS) {
         const string prefix("\0eng\0", i!=cmnt? 1 : 5);
         if(i == genre) {
             unsigned int x = atoi(m)-1;             // is portable
             if(x < ID3v1_numgenres) m = ID3v1_genre[x];
         }
-        mod2.insert( db::value_type(xlat[i], prefix+m) );
-        smartID3::set(i,m);                         // chain to parent
+        mod.insert( db::value_type(xlat[i], prefix+m) );
     }
     return *this;
 }
@@ -117,15 +119,15 @@ template<void clean(void*)> struct voidp {          // auto-ptr like
    ~voidp()          { clean(data); }
 };
 
-bool smartID3v2::vmodify(const char* fn, const base_container& v) const
+int ID3v2::vmodify(const char* fn, const base_container& v) const
 {
-    if(!v2)
-        return v1 && smartID3::vmodify(fn, v);
+    if(!enabled)
+        return set_tag::OK;
 
     voidp<ID3_free>
           src ( fresh ? (void*)0 : ID3_readf(fn, 0) );
     w_ptr dst ( 0x1000 );
-    db    cmod( mod2 );
+    db    cmod( mod );
 
     char* out = (char*) ID3_put(dst,0,0,0);         // initialize
 
@@ -156,6 +158,6 @@ bool smartID3v2::vmodify(const char* fn, const base_container& v) const
     bool res = ID3_writef(fn, dst);
     w_fail::raise();
 
-    return res && (!v1 || smartID3::vmodify(fn, v));
+    return res? (set_tag::OK) : (set_tag::syserr);
 }
 
