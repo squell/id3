@@ -1,0 +1,19 @@
+Source: id3mtag
+Section: devel
+Priority: optional
+Maintainer: Marc R. Schoolderman <squell@alumina.nl>
+Standards-Version: 3.6.1.1
+
+Package: id3mtag
+Architecture: any
+Section: sound
+Priority: extra
+Depends: ${shlibs:Depends}
+Conflicts: id3
+Replaces: id3
+Description: mass tagging utility for audio files
+ Blah blah, blah blah
+ Blah
+ .
+ http://home.wanadoo.nl/squell/id3.html
+

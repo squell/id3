@@ -1,0 +1,49 @@
+#!/usr/bin/make -f
+
+.PHONY: build binary binary-arch binary-indep clean get-orig-source
+
+package := $(shell sed -n 's/Package: \(.*\)/\1/p' debian/control)
+
+build:
+	$(checkdir)
+	make
+
+clean:
+	$(checkdir)
+	-make -i clean
+	-rm -rf debian/tmp debian/*~ debian/files* debian/substvars
+
+install: checkroot build
+	$(checkdir)
+	rm -rf debian/tmp
+	make prefix=./debian/tmp/usr mandir='$$(datadir)'/man \
+		docdir='$$(datadir)/doc/'$(package) install-full
+	
+binary: binary-arch
+
+binary-indep: checkroot build     # do nothing
+
+TMPPKGDOC=debian/tmp/usr/share/doc/$(package)
+
+binary-arch: checkroot build install
+	$(checkdir)
+	install -d debian/tmp/DEBIAN
+	gzip -9v debian/tmp/usr/share/man/man?/id3.?
+	cp -a debian/copyright $(TMPPKGDOC)/.
+	cp -a debian/changelog $(TMPPKGDOC)/changelog.Debian
+	ln -s CHANGES.gz $(TMPPKGDOC)/changelog.gz
+	rm -f $(TMPPKGDOC)/COPYING
+	cd $(TMPPKGDOC) && gzip -9v CHANGES README changelog.Debian
+	dpkg-shlibdeps debian/tmp/usr/bin/*
+	dpkg-gencontrol -isp
+	chown -R root.root debian/tmp
+	chmod -R go=rX debian/tmp
+	dpkg --build debian/tmp ..
+
+define checkdir
+	test -f main.cpp -a -f debian/rules
+endef
+	
+checkroot:
+	$(checkdir)
+	test $$(id -u) = 0
