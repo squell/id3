@@ -82,13 +82,13 @@ DISTFILES = INSTALL $(docdata) makefile makefile.dj makefile.bcc \
 	$(foreach f, fileops id3v1 id3v2, $(f).c) \
 	id3.man
 
-D_PKG = pkg=id3-`sed -n -e "/_version_/{s!^[^0-9]*\([^ ]*\).*!\1!p;q}" \
+D_PKG = pkg=id3-`sed -n -e "/_version_/{s:^[^0-9]*\([^ ]*\).*$:\1:p;q}" \
 		main.cpp`; \
 	rm -f ../$${pkg}; \
 	ln -s `pwd` ../$${pkg}; \
 	cd ..
 
-D_FIL = `echo $(DISTFILES) | sed -e "s![^ ]*!$${pkg}/&!g"`
+D_FIL = `echo $(DISTFILES) | sed -e "s:[^ ]*:$${pkg}/&:g"`
 
 dist: $(DISTFILES)
 	$(D_PKG); $(TAR) cfhz $${pkg}/$${pkg}.tar.gz $(D_FIL); rm -f $${pkg}
