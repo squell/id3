@@ -167,48 +167,29 @@ void help(const char* argv0)
 
 /* ====================================================== */
 
-enum parm_t {
-    f_title  = title,            // copy ID3set values
-    f_artist = artist,           // (the order of ID3set doesnt matter)
-    f_album  = album,
-    f_year   = year,
-    f_cmnt   = cmnt,
-    f_track  = track,
-    f_genre  = genre,
-    o_value = ID3_MAX,          // dummy value + ensures enum order
-    f_custom,
-    s_size
-};
-
-const ID3set no_value = ID3_MAX;
-
 int main_(int argc, char *argv[])
 {
-    ID3set t = no_value;
-    bool   w = false;            // check against no-ops args
-    bool   u = false;            // check against no-file args
+    enum parm_t {
+        no_value, stdfield,  customfield,
+    } cmd = no_value;
+
+    bool   w = false;                          // check against no-ops args
+    bool   u = false;                          // check against no-file args
+
+    ID3set field;
 #ifdef __ZF_SETID3V2
-    bool aux = false;            // check for -1 & -2 commands
     string fieldID;
-    smartID3v2 tag(true,false);  // default: write ID3v1, not v2
+
+    bool aux = false;                          // check for -1 & -2 commands
+    smartID3v2 tag(true,false);                // def: write ID3v1, not v2
 #else
     smartID3 tag;
 #endif
-    char* opt = "";
+    char* opt = "";                            // used for command stacking
 
     for(int i=1; i < argc; i++) {
-#ifdef __ZF_SETID3V2
-        if(!fieldID.empty()) {     // v2 - write raw frame
-            tag.set(fieldID, argv[i]);
-            fieldID.erase();
-            w = true;
-        } else
-#endif
-        if(t != no_value) {
-            tag.set(t, argv[i]);
-            t = no_value;
-            w = true;
-        } else {
+        switch( cmd ) {
+        case no_value:                         // process a command parameter
             if(*opt != '\0') --i; else
                 if(argv[i][0] == '-') opt = argv[i]+1;
             if(*opt == '\0')
@@ -216,24 +197,24 @@ int main_(int argc, char *argv[])
                     u=true, write_mp3s(argv[i], tag);
                 else
                     u=true, fprintf(err(), "id3: nothing to do with %s\n", argv[i]);
-            else
-                switch( toupper(*opt++) ) {
+            else                       
+                switch( toupper(*opt++) ) {    // param is an option
                 case 'V': verbose.on(); break;
                 case 'D': tag.clear(); w = true; break;
-                case 'T': t = title;  break;
-                case 'A': t = artist; break;
-                case 'L': t = album;  break;
-                case 'Y': t = year;   break;
-                case 'C': t = cmnt;   break;
-                case 'G': t = genre;  break;
-                case 'N': t = track;  break;
+                case 'T': field = title;  cmd = stdfield; break;
+                case 'A': field = artist; cmd = stdfield; break;
+                case 'L': field = album;  cmd = stdfield; break;
+                case 'Y': field = year;   cmd = stdfield; break;
+                case 'C': field = cmnt;   cmd = stdfield; break;
+                case 'G': field = genre;  cmd = stdfield; break;
+                case 'N': field = track;  cmd = stdfield; break;
 #ifdef __ZF_SETID3V2
+                case 'W': 
+                    fieldID.assign(opt); opt = "";
+                    cmd = customfield; break;
                 case 'R':
-                    tag.rm(opt);
-                    w   = true;
-                    opt = "";
-                    break;
-                case 'W': fieldID.assign(opt); opt = ""; break;
+                    tag.rm(opt); opt = "";
+                    w = true; break;
                 case '2': tag.opt(aux++,true); break;
                 case '1': tag.opt(true,aux++); break;
 #endif
@@ -242,7 +223,21 @@ int main_(int argc, char *argv[])
                     fprintf(err(), "id3: unrecognized switch: -%c\n", opt[-1]);
                     shelp();
                 }
-        }
+            continue;
+
+        case stdfield:                         // write a standard field
+            tag.set(field, argv[i]);
+            break;
+
+#ifdef __ZF_SETID3V2
+        case customfield:                      // v2 - write a custom field
+            tag.set(fieldID, argv[i]);
+            fieldID.erase();
+            break;
+#endif
+        };
+        cmd = no_value;
+        w = true;
     }
 
     if(!u)
@@ -253,8 +248,7 @@ int main_(int argc, char *argv[])
     return exitc;
 }
 
-
- // function-try blocks are not supported on some compilers,
+ // function-try blocks are not supported on some compilers (borland),
  // so this little de-tour is necessary
 
 int main(int argc, char *argv[])

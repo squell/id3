@@ -101,7 +101,6 @@ Todo list:
     + Support for APEv2
     + Support for Lyrics3 v2.0 (?)
   - Options for forcing re-packing id3v2 ("-s size")
-  - Directory wildcards ("mp3root/*/*/*_*.mp3")
   - Extend substitution capabilities (slices?)
   - Options for re-using existing tag values
   - Internationalization (Unicode)

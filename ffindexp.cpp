@@ -90,7 +90,7 @@ bool filefindexp::nested(auto_dir dir, char* wpath, char* fnmatch)
 	direxp match(fnmatch, wpath);
 	if(match) {
 	    var.insert(var.end(), match.begin(), match.end());
-            w = true; process(*this);
+            w = true; process();
 	    var.resize(prevlen);
 	}
     }
