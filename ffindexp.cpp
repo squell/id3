@@ -105,3 +105,4 @@ bool filefindexp::nested(auto_dir dir, char* wpath, char* fnmatch)
 
     return w;
 }
+

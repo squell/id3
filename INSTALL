@@ -14,15 +14,16 @@ the contents of the source distribution:
  makefile.bcc   - makefile for borland c++
 
  main.cpp       - main program file                             (C++)
+ sedit.*        - string formatting                             (C++)
  setid3.*       - id3 patch class                               (C++)
  setid3v2.*     - id3v2 patch extension                         (C++)
- sedit.*        - string formatting                             (C++)
  varexp.*       - wildcard/pattern matching class               (C++)
  ffindexp.*     - filefinder/matcher                            (C++)
  auto_dir.*     - smart dirent pointer class                    (C++)
 
  id3v1.*        - definitions & data relevant to ID3v1 tag data (C)
  id3v2.*        - basic ID3v2 reading/writing interface         (C)
+ fileops.*      - auxilliary file functions                     (C)
 
 ---------------------------------------------------------------
 | (c) squell 2003,2004 - copyright notice
@@ -85,16 +86,16 @@ Win32/DOS systems. You should have. :)
 
 Generic GNU/BSD makefile targets & variables:
 
- make install       - installs into the directory `$(prefix)/bin'
+ make install       - installs into the directory "$(prefix)/bin"
  make install-strip - like install, but strips executable of debug info
- make uninstall     - uninstall from `$(prefix)/bin'
+ make uninstall     - uninstall from "$(prefix)/bin"
 
 Because id3 does not have a configure script (yet), you can only set
-these variables as a make commandline parameter:
+these variables on the 'make' commandline:
 
- prefix             - the prefix directory name  (def. `/usr/local')
- bindir             - your binary directory      (def. `$(prefix)/bin')
- binary             - name of the binary         (def. `id3')
+ prefix             - the prefix directory name  (def. "/usr/local")
+ bindir             - the binary directory name  (def. "$(prefix)/bin")
+ binary             - name of the binary object  (def. "id3")
 
 E.g: "make install prefix=$HOME" to install in $HOME/bin instead.
 See inside 'makefile' for more details.

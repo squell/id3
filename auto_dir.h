@@ -22,38 +22,28 @@
 
  // simple c++ wrapper for handling dirent.h
 
-class auto_dir {                            
+class auto_dir {
     struct ref { auto_dir* p; };            // passing to/from functions
     DIR* dirp;
 public:
-    explicit auto_dir(const char* path) throw()
-    { dirp = opendir(path); }
-   ~auto_dir() throw()
-    { if(dirp) closedir(dirp); }
+    explicit auto_dir(const char* path)  { dirp = opendir(path); }
+   ~auto_dir()                           { if(dirp) closedir(dirp); }
 
-    operator bool() throw()
-    { return dirp; }
-    dirent* read() throw()
-    { return readdir(dirp); }
-    void rewind() throw()
-    { rewinddir(dirp); }
+    operator bool()                      { return dirp; }
+    dirent* read()                       { return readdir(dirp); }
+    void rewind()                        { rewinddir(dirp); }
 
-    DIR* release() throw()
+    auto_dir(auto_dir& other)            { dirp = other.release(); }
+    auto_dir& operator=(auto_dir& other) { reset(other.release()); return *this; }
+
+    operator ref()                       { ref tmp = { this }; return tmp; }
+    auto_dir(ref r)                      { dirp = r.p->release(); }
+    auto_dir& operator=(ref r)           { return (*this = *r.p); }
+
+    DIR* release()
     { DIR* tmp(dirp); dirp = 0; return tmp; }
-    void reset(DIR* p = 0) throw()
+    void reset(DIR* p = 0)
     { if(dirp!=p) closedir(dirp); dirp = p; }
-
-    auto_dir(auto_dir& other) throw()
-    { dirp = other.release(); }
-    auto_dir& operator=(auto_dir& other) throw()
-    { reset(other.release()); return *this; }
-
-    operator ref() throw()
-    { ref tmp = { this }; return tmp; }
-    auto_dir(ref r) throw()
-    { dirp = r.p->release(); }
-    auto_dir& operator=(ref r) throw()
-    { return (*this = *r.p); }
 };
 
 #endif

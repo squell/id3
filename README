@@ -44,8 +44,7 @@ _>\/| |(_)|_)_>\/_>
             if your shell performs this function.
 
             The  shell  pattern  matching can be applied to both
-            filenames  and  directory  names.  id3 can look into
-            multiple directories with a single command.
+            filenames  and  directory  names.
 
        -h   show commandline help
 
@@ -220,4 +219,4 @@ _>|_||_)_> |_| |_|_||_|(_)| |
 (_|(_)|_(_|
 ~~|~~~~~~~~
        Don't let THEM immanentize the Eschaton.
-       
+

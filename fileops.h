@@ -31,12 +31,6 @@
   writes len times the character c to the file opened as dest.
   returns success or failure
 
-      FILE *fopentmp(const char *hint, char **name)
-
-  tries to open a temporary file "near" the filename 'hint'. returns the
-  file opened on success, NULL on failure. The filename generated is
-  stored in a freshly allocated buffer which is assigned to *name.
-
 */
 
 #ifndef __ZF_FILEOPS_H
@@ -48,8 +42,8 @@ extern "C" {
 
 #include <stdio.h>
 
-extern int	 fcopy(FILE *dest, FILE *src);
-extern int	 fpadd(FILE *dest, char c, size_t len);
+extern int   fcopy(FILE *dest, FILE *src);
+extern int   fpadd(FILE *dest, char c, size_t len);
 
 char        *tmpnam_alloc(const char *hint);
 FILE        *opentemp(const char *hint, char **name);
