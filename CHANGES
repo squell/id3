@@ -1,14 +1,12 @@
 Changelog for 'id3'.
 
 2005-040 (W06):
-  fileops.c:48: slightly different tempfile mechanism. uses mkstemp
-    on systems that indicate support for it (shuts up the linker warnings)
+  fileops.c:48: now use mkstemp on systems that indicate support for it
 
 2005-039 (W06):
   sedit.cpp:89: [CLI] "#" prefixes in vars get processed better now: only
     numbers found inside the string will get padded. E.g. [1/5] -> [01/05]
   setid3[v2].cpp: regression: setting dupe fields overrides again
-  main.cpp: added some foolproof code for "-!"
   fileexp: refactoring of ffindexp, making it cleaner
   fileexp.cpp:110: optimized speed for cases where the shell has handled
     wildcards (saves sorting and scanning a whole dir for each file)

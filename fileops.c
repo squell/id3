@@ -55,7 +55,7 @@ FILE *ftemp(char *template, const char *mode)
         fclose(fc);
 #else
     int fd = mkstemp(template);
-    if(fd > 0) {
+    if(fd >= 0) {
         if(f = fdopen(fd, mode)) return f;
         close(fd);
 #endif
