@@ -9,3 +9,4 @@ int main(int argc, char **argv)
         id3p_showfile(*++argv);
     id3p_listfoot();
 }
+
