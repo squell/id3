@@ -11,7 +11,8 @@
 #ifndef __ZF_ID3V1_H
 #define __ZF_ID3V1_H
 
-extern const char *const ID3v1_genres[];
+extern const char *const ID3v1_genre[];
+extern       int   const ID3v1_numgenres;
 
 struct ID3v1 {                                   // ID3 v1.1 tag structure
     char TAG   [3];

@@ -2,13 +2,11 @@
 
   ID3v1.1 genres + Winamp extensions
 
-  Array is null-terminated.
-
 */
 
 #include "id3v1.h"
 
-const char *const ID3v1_genres[] = {
+const char *const ID3v1_genre[] = {
     "Blues",
     "Classic Rock",
     "Country",
@@ -89,8 +87,7 @@ const char *const ID3v1_genres[] = {
     "Musical",
     "Rock & Roll",
     "Hard Rock",
-/* Added on December 12, 1997 in cooperation with Winamp: */
-    "Folk",
+    "Folk",                     /* Winamp extensions */
     "Folk/Rock",
     "National Folk",
     "Swing",
@@ -121,14 +118,12 @@ const char *const ID3v1_genres[] = {
     "Primus",
     "Porn Groove",
     "Satire",
-/* Added on January 26, 1998 to ensure compatibility with Winamp 1.7: */
-    "Slow Jam",
+    "Slow Jam",                 /* Winamp 1.7 */
     "Club",
     "Tango",
     "Samba",
     "Folklore",
-/* Added on April 13, 1998 to ensure compatibility with Winamp 1.90: */
-    "Ballad",
+    "Ballad",                   /* Winamp 1.90 */
     "Power Ballad",
     "Rhythmic Soul",
     "Freestyle",
@@ -154,13 +149,13 @@ const char *const ID3v1_genres[] = {
     "Crossover",
     "Contemporary Christian",
     "Christian Rock",
-/* Added on Jun 1, 1998 to ensure compatibility with Winamp 1.91: */
-    "Merengue",
+    "Merengue",                 /* Winamp 1.91 */
     "Salsa",
     "Thrash Metal",
     "Anime",
     "JPop",
     "Synthpop",
-    0
 };
+
+const int ID3v1_numgenres = sizeof ID3v1_genre / sizeof *ID3v1_genre;
 

@@ -64,8 +64,8 @@ const struct genre_map : map<string,int> {
 
     genre_map()                                 // initialize associative map
     {
-        for(int i=0; ID3v1_genres[i]; i++) {
-            (*this)[ capitalize(ID3v1_genres[i]) ] = i;
+        for(int i=0; i < ID3v1_numgenres; i++) {
+            (*this)[ capitalize(ID3v1_genre[i]) ] = i;
         }
     }
 } ID3_genre;
