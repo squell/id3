@@ -287,16 +287,33 @@ static inline void argpath(char* arg) { }      // dummy
 
 /* ====================================================== */
 
-void defaults(metadata& tag, set_tag::handler*& target,
-                             set_tag::provider*& source)
+using set_tag::ID3field;
+
+static void defaults(metadata& tag, set_tag::handler*& target, set_tag::provider*& source)
 {
     typedef set_tag::ID3 Default;
-
     if(!target) target = &with<Default>(tag).active(true);
     if(!source) source = &with<Default>(tag);
 }
 
-using set_tag::ID3field;
+namespace {
+    enum parm_t {                          // parameter modes
+        no_value, force_fn,
+        stdfield, customfield, suggest_size,
+        set_rename, set_query,
+    };
+
+    enum oper_t {                          // operation states
+        scan = 1,                          // checking for no-file args?
+        w    = 2,                          // write  requested?
+        ren  = 4,                          // rename requested?
+        ro   = 8,                          // read   requested?
+    };
+
+    oper_t& operator+=(oper_t& x, oper_t y) { return x = oper_t(x|y);  }
+    oper_t& operator-=(oper_t& x, oper_t y) { return x = oper_t(x&~y); }
+    oper_t& operator^=(oper_t& x, oper_t y) { return x = oper_t(x^y);  }
+}
 
 int main_(int argc, char *argv[])
 {
@@ -304,23 +321,15 @@ int main_(int argc, char *argv[])
     mass_tag apply;
     metadata tag;
 
-    enum parm_t {                              // parameter modes
-        no_value, force_fn,
-        stdfield, customfield, suggest_size,
-        set_rename, set_query
-    } cmd = no_value;
-
     ID3field field;
     string fieldID;                            // free form field selector
 
     set_tag::provider* source = 0;             // pointer to first enabled
     set_tag::handler*  chosen = 0;             // pointer to last enabled
 
-    char* opt  = "";                           // used for command stacking
-    bool  scan = true;                         // check for no-file args
-    bool  w    = false;                        // check against no-ops args
-    bool  ren  = false;                        // check for file renaming
-    bool  ro   = false;                        // check for read-only ops
+    char*  opt   = "";                         // used for command stacking
+    parm_t cmd   = no_value;
+    oper_t state = scan;
 
     for(int i=1; i < argc; i++) {
         switch( cmd ) {
@@ -331,24 +340,23 @@ int main_(int argc, char *argv[])
         case force_fn:
                 defaults(tag, chosen, source);
                 argpath(argv[i]);
-                scan = false;
-                if(w && !ro)                   // no-op check
+                state -= scan;
+                if(state&(w|ro) == w)          // no-op check
                     apply(tag, argv[i], *source);
-                else if(ren && !ro)
+                else if(state&(ren|ro) == ren)
                     apply(with<filename>(tag), argv[i], *source);
-                else if(ro)                    // reading?
-                    if(!w && !ren) {
-                        apply(display, argv[i], *source);
-                    } else {
-                        eprintf("incompatible operation requested\n");
-                        shelp();
-                    }
-                else
+                else if(state == ro)
+                    apply(display, argv[i], *source);
+                else if(!state)
                     eprintf("nothing to do with %s\n", argv[i]);
+                else {
+                    eprintf("incompatible operation requested\n");
+                    shelp();
+                }
             } else {
                 switch( *opt++ ) {             // param is an option
                 case 'v': verbose.on(); break;
-                case 'd': tag.clear(); w = true; break;
+                case 'd': tag.clear(); state += w; break;
                 case 't': field = set_tag::title;  cmd = stdfield; break;
                 case 'a': field = set_tag::artist; cmd = stdfield; break;
                 case 'l': field = set_tag::album;  cmd = stdfield; break;
@@ -380,7 +388,7 @@ int main_(int argc, char *argv[])
                     }
                 case 'r':
                     if(chosen) {
-                        chosen->rm(opt); w = true;
+                        chosen->rm(opt); state += w;
                         opt = "";
                         break;
                     }
@@ -394,7 +402,7 @@ int main_(int argc, char *argv[])
                         chosen->set(set_tag::cmnt,   "%c");
                         chosen->set(set_tag::genre,  "%g");
                         chosen->set(set_tag::track,  "%n");
-                        w = true;
+                        state += w;
                         break;
                     }
 
@@ -442,7 +450,7 @@ int main_(int argc, char *argv[])
                 argpath(argv[i]);
                 tag.enable<filename>()->rename(argv[i]);
                 cmd = no_value;
-                ren = true;
+                state += ren;
                 continue;
             }
             shelp();
@@ -454,16 +462,16 @@ int main_(int argc, char *argv[])
             } else
                 display.format(argv[i]);
             cmd = no_value;
-            ro = true;
+            state += ro;
             continue;
         };
         cmd = no_value;
-        w = true;                              // set operation done flag
+        state += w;                            // set operation done flag
     }
 
-    if(scan)
+    if(state & scan)
         eprintf("missing file arguments\n");
-    if(scan || !(w|ren|ro))
+    if(state == scan)
         shelp();
 
     return exitc;

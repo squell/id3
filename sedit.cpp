@@ -31,18 +31,13 @@ namespace {
         { return tolower(c); }
     };
 
-    struct not_space {
-        bool operator()(char c)
-        { return !isspace(c); }
-    };
-
  // remove extraneous spaces in a string
 
     void compress(string& s)
     {
-        string::reverse_iterator t( unique(s.begin(), s.end(), both_space()) );
-        if(t != s.rend() && isspace(*t)) ++t;
-        s.erase(t.base(), s.end());
+        string::iterator p = unique(s.begin(), s.end(), both_space());
+        if(p != s.begin() && isspace(p[-1])) --p;
+        s.erase(p, s.end());
         if(s.length() > 0 && isspace(s[0]))
             s.erase(s.begin());
     }
