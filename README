@@ -114,12 +114,16 @@ _>|_||_)_> |_| |_|_||_|(_)| |
 
             Available <modifiers>:
 
-            c    Capitalize the substituted value
-            _    Do not replace underscores with spaces
+            "+" (plus sign)
+                        Capitalize the substituted value
+            "-" (minus sign)
+                        Convert all characters to lowercase
+            "_" (underscore)
+                        Do not replace underscores with spaces,
+                        and do not compress empty space.
 
       `%%'  replaced with a single `%'
 
-      `%n'
       `%,'  replaced with the newline ('\n') character
             (intended for use with -wFRAME)
 

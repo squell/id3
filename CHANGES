@@ -2,8 +2,12 @@ Changelog for 'id3'.
 
 2003-027 (W05):
   [CLI] Now supports directory wildcards ("mp3root/*/*/*_*.mp3")
-  ffindexp.cpp & auto_dir.h added
   main.cpp: now uses ffindexp for solving wildcard match
+  main.cpp: cleaned main loop
+  sedit.cpp:capitalize: now handles punctuation properly
+    (so it will be "Love's" and "2nd", not "Love'S" and "2Nd")
+  sedit.cpp: added removal of extra spaces (suppressed by %_ modifier)
+  sedit.cpp: added "-" modifier (lowercase)
 
 2003-019 (W04):
   (Resumed development)
