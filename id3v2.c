@@ -142,10 +142,11 @@ void *ID3_readf(const char *fname, size_t *tagsize)
 {
     struct raw_hdr rh;
     uchar *buf;
-    uchar *dst, *src;
-    ulong size;
+    ulong size, pad;
 
     FILE *f = fopen(fname, "rb");
+
+    if(tagsize) *tagsize = 0;                                   /* clear */
 
     if( !f ) return 0;
 
@@ -175,11 +176,17 @@ void *ID3_readf(const char *fname, size_t *tagsize)
         memmove(&buf[0], &buf[xsiz], size);
     }
 
-    size = calcsize(buf, size);                 /* check semantics of tag */
+    pad  = size;                                /* check semantics of tag */
+    size = calcsize(buf, size);    
     if(tagsize) *tagsize = size;
 
     if(size == 0)                                /* semantic error in tag */
-        goto abort;
+        goto abort_mem;
+
+    while(size < pad) {
+        if( buf[size++] != 0 )                        /* padding not zero */
+            goto abort_mem;
+    }
 
     fclose(f);
     return buf;
