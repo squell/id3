@@ -79,37 +79,36 @@ int main(int argc, char *argv[])
     smartID3 tag;
 
     for(int i=1; i < argc; i++) {
-        if( argv[i][0] != '-' )
-            if(t != ID3) {
-                tag.set(t, argv[i]);
-                t = ID3;
-                w = true;
-            } else {
+        if(t != ID3) {
+            tag.set(t, argv[i]);
+            t = ID3;
+            w = true;
+        } else {
+            if( argv[i][0] != '-' )
                 if(w)
-                {
                     try{
                         write_mp3s(argv[i], tag);
                     } catch(const out_of_range& x) {
                         printf("err: wildcard index out of range\n");
                     }
-                }
                 else
                     printf("err: nothing to do with %s\n", argv[i]);
-            }
-        else
-            switch( toupper(argv[i][1]) ) {
-            case 'D': tag.clear(); w = true; break;
-            case 'T': t = title;  break;
-            case 'A': t = artist; break;
-            case 'L': t = album;  break;
-            case 'Y': t = year;   break;
-            case 'C': t = cmnt;   break;
-            case 'G': t = genre;  break;
-            case 'N': t = track;  break;
-            default:
-                printf("err: unrecognized switch: -%c\n", argv[i][1]);
-                exit(1);
-            }
+            else
+                switch( toupper(argv[i][1]) ) {
+                case 'D': tag.clear(); w = true; break;
+                case 'T': t = title;  break;
+                case 'A': t = artist; break;
+                case 'L': t = album;  break;
+                case 'Y': t = year;   break;
+                case 'C': t = cmnt;   break;
+                case 'G': t = genre;  break;
+                case 'N': t = track;  break;
+                default:
+                    printf("err: unrecognized switch: -%c\n", argv[i][1]);
+                    exit(1);
+                }
+
+        }
     }
 }
 
