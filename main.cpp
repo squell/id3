@@ -191,7 +191,7 @@ void mass_tag::operator()(const set_tag::handler& h, const char* spec, const set
 {
     tag  = &h;
     info = &p;
-    if(! find::operator()(spec) )
+    if(! fileexp::find::operator()(spec) )
 	eprintf("no %s matching %s\n", edir? "files" : "directories", spec);
 }
 

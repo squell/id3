@@ -86,12 +86,12 @@ protected:
     static cvtstring edit
       (const cvtstring&, const subst&, const char* = "", bool = 0);
 
+    template<class T, class U>
+      friend std::string sedit(const std::string&, T&, U&);
     template<class T>
       friend std::string sedit(const std::string&, const T&);
     template<class T, class U>
       friend std::string sedit(const std::string&, const T&, const U&);
-    template<class T, class U>
-      friend std::string sedit(const std::string&, T&, U&);
 };
 
   // little excuse for making this a useful header :)
@@ -99,7 +99,7 @@ protected:
 template<class T>
   inline std::string sedit(const std::string& fmt, const T& vars)
 {
-    return sedit(fmt, vars, dummy());
+    return sedit(fmt, vars, string_parm::dummy());
 }
 
 template<class T, class U>
