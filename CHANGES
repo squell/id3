@@ -1,8 +1,9 @@
 Changelog for 'id3'.
 
-2004-186 (W27):
+2004-196 (W27):
   debian/*: automation of building .deb packages via dpkg-buildpackage -b
-  makefile: added 'fetch-orig' (get latest source tarball with wget).
+  makefile: added 'wget-orig' and 'fetch-orig' (get latest source tarball)
+  makefile: deGNUified
 
 2004-183 (W27):
   sedit.cpp: edit() overhauled + support for %a .. %z added

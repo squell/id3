@@ -35,7 +35,8 @@ INSTALL_DATA  = $(INSTALL) -m 644
 .PHONY: all clean final default
 .PHONY: install install-strip install-full uninstall
 .PHONY: installdirs installman installdoc
-.PHONY: dist dist-zip dist-clean dist-check diff fetch-orig
+.PHONY: dist dist-zip dist-clean dist-check diff
+.PHONY: wget-orig fetch-orig curl-orig
 
 .SUFFIXES: .c .cpp .o
 
@@ -81,13 +82,15 @@ uninstall:
 
 ## distribution ############################################################
 
+SRC_CPP    += sedit varexp ffindexp charconv
+SRC_CPP    += set_base setid3 setid3v2 setfname
+SRC_C	   += fileops id3v1 id3v2
+DIR_DEBIAN += control rules copyright changelog
+
 DISTFILES = INSTALL $(docdata) makefile makefile.dj makefile.bcc \
-	main.cpp auto_dir.h \
-	$(foreach f, sedit varexp ffindexp charconv, $(f).h $(f).cpp) \
-	$(foreach f, set_base setid3 setid3v2 setfname, $(f).h $(f).cpp) \
-	$(foreach f, fileops id3v1 id3v2, $(f).h $(f).c) \
-	id3.man \
-	$(foreach f, control rules copyright changelog, debian/$(f))
+	main.cpp auto_dir.h $(SRC_CPP:=.h) $(SRC_C:=.h) \
+	$(SRC_CPP:=.cpp) $(SRC_C:=.c) id3.man \
+	$(DIR_DEBIAN:%=debian/%)
 
 D_VER = `sed -n "/_version_/{s:[^0-9]*\([^ ]*\).*:\1:p;q;}" main.cpp`
 
@@ -98,7 +101,7 @@ D_PKG = pkg=id3-$(D_VER); \
 D_FIL = `echo $(DISTFILES) | sed "s:[^ ]*:$${pkg}/&:g"`
 
 D_TMP = rm -rf .tmp; mkdir .tmp && \
-	tar c $(DISTFILES) | tar xC .tmp
+	tar cf - $(DISTFILES) | tar xfC - .tmp
 
 dist: $(DISTFILES)
 	$(D_PKG) && $(TAR) chofz $${pkg}.tar.gz $(D_FIL); rm -f $${pkg}
@@ -132,25 +135,30 @@ diff:
 	diff -x '.*' -durN .tmp/* | gzip -9 > `pwd`-$(D_VER).diff.gz
 	-rm -rf .tmp
 
-URL_PREFIX=http://home.wanadoo.nl/squell
+URI	 = http://home.wanadoo.nl/squell
+HTMLPROC = sed -n 's/^.*href="\([[:alnum:]/_.-]*[.]tar[.]gz\)".*$$/\1/p'
 
+wget-orig:
+	wget -nv $(URI)/`wget -nv -O - $(URI)/id3.html | $(HTMLPROC)`
 fetch-orig:
-	wget $(URL_PREFIX)/`wget -q -O - $(URL_PREFIX)/id3.html | \
-	  sed -n 's/^.*href="\([[:alnum:]/_.-]*[.]tar[.]gz\)".*$$/\1/p'`
+	fetch $(URI)/`fetch -o - $(URI)/id3.html | $(HTMLPROC)`
+curl-orig:
+	curl -# -O $(URI)/`curl -# $(URI)/id3.html | $(HTMLPROC)`
 
 ## build rules #############################################################
 
-OBJ_GEN = sedit.o varexp.o ffindexp.o charconv.o
-OBJ_1	= setid3.o id3v1.o
-OBJ_2	= setid3v2.o id3v2.o fileops.o
-OBJ_F	= setfname.o
-OBJECTS = main.o $(OBJ_GEN) set_base.o $(OBJ_1) $(OBJ_2) $(OBJ_F)
+OBJ_GEN = sedit varexp ffindexp charconv
+OBJ_1	= setid3 id3v1
+OBJ_2	= setid3v2 id3v2 fileops
+OBJ_F	= setfname
+OBJECTS = main $(OBJ_GEN) set_base $(OBJ_1) $(OBJ_2) $(OBJ_F)
 
 id3: $(OBJECTS)
-	$(CXX) $(LDFLAGS) -o $@ $(OBJECTS)
+	$(CXX) $(LDFLAGS) -o $@ $(OBJECTS:=.o)
 
 id3l: mainl.o $(OBJ_GEN) $(OBJ_1)
-	$(CXX) $(LDFLAGS) -o $@ mainl.o $(OBJ_GEN) set_base.o $(OBJ_1) $(OBJ_F)
+	$(CXX) $(LDFLAGS) -o $@ \
+	  mainl.o $(OBJ_GEN:=.o) set_base.o $(OBJ_1:=.o) $(OBJ_F:=.o)
 
 .cpp.o:
 	$(CC) $(CXXFLAGS) -c $<
