@@ -3,6 +3,7 @@
 #include <cstdarg>
 #include <cstring>
 #include <cctype>
+#include <climits>
 #include <ctime>
 #include <stdexcept>
 #include <string>
@@ -14,7 +15,7 @@
 #include "setfname.h"
 #include "setecho.h"
 #ifndef NO_V2
-#  include "setid3v2.h"
+#    include "setid3v2.h"
 #endif
 
 #define _version_ "0.75-dev (2004177)"
@@ -184,7 +185,6 @@ cvtstring substvars::operator[](char field) const
     case 'c': return (*data)[set_tag::cmnt];
     case 'n': return (*data)[set_tag::track];
     case 'g': return (*data)[set_tag::genre];
-    case 'F': return cvtstring::local(data.filename);
     case 'f': if(const char* p = strrchr(data.filename,'/'))
                   return cvtstring::local(p+1);
               else
@@ -309,7 +309,7 @@ static long argtol(const char* arg)            // convert argument to long
     return n;
 }
 
-#if defined(__MSDOS__) || defined(__WIN32__)
+#if defined(__DJGPP__) || defined(__WIN32__)
 static void argpath(char* arg)                 // convert backslashes
 {
     for(char* p = arg; *p; ++p)
@@ -508,7 +508,7 @@ int main(int argc, char *argv[])
     argpath(name=argv[0]);                    // set up program name
     if(char* p = strrchr(argv[0], '/')) name = p+1;
 
-#if defined(__MSDOS__) || defined(__WIN32__)
+#if defined(__DJGPP__) || defined(__WIN32__)
     char* end = strchr(name, '\0');           // make "unixy" in appearance
     for(char* p = name; p != end; ++p) *p = tolower(*p);
     if(end-name > 4 && strcmp(end-4, ".exe") == 0) end[-4] = '\0';

@@ -1,8 +1,9 @@
 Changelog for 'id3'.
 
-2005-032 (W05):
+2005-033 (W05):
   setid3[v2].cpp: setting genre by number now works through substituion,
     subsequent fields don't override earlier ones anymore
+  setfname.cpp: empty vars get substituted by 'Unknown' (by default)
 
 2005-031 (W05):
   getid3[v2].cpp: added

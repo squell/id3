@@ -35,10 +35,10 @@ bool filename::vmodify(const char* fname, const subst& v) const
     if(!ftemplate)
         return false;
 
-    string name = edit(ftemplate, v).local();
+    string name = edit(ftemplate, v, "Unknown").local();
 
     for(string::iterator p = name.begin(); p != name.end(); ++p) {
-        *p = portable_fn(*p)? *p : '_';
+        if(!portable_fn(*p)) *p = '_';
     }
 
     if(const char* psep = strrchr(fname, '/')) {      // copy path prefix

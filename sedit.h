@@ -77,7 +77,7 @@ protected:
         const char* operator[](unsigned) const { return ""; }
     };
 
-    static cvtstring edit(const cvtstring&, const subst&);
+    static cvtstring edit(const cvtstring&, const subst&, const char* = "");
 
     template<class T>
       friend std::string sedit(const char*, const T&);

@@ -78,7 +78,7 @@ string capitalize(string s)
 
 /* ====================================================== */
 
-cvtstring string_parm::edit(const cvtstring& fmt, const subst& var)
+cvtstring string_parm::edit(const cvtstring& fmt, const subst& var, const char* fallback)
 {
     const cvtstring::xlat conv = &cvtstring::latin1;
 
@@ -86,12 +86,15 @@ cvtstring string_parm::edit(const cvtstring& fmt, const subst& var)
     string s = (fmt.*conv)();
 
     while( (pos=s.find(VAR, pos)) != string::npos ) {
-        bool  raw  = false;
-        style caps = as_is;
-        int   npad = 1;
+        bool   raw  = false;
+        style  caps = as_is;
+        int    npad = 1;
+        string alt  = fallback;
+
         int n = 1;
         while( pos+n < s.length() ) {
             cvtstring svar;
+
             switch( char c = s[pos+n] ) {
             case VAR: s.replace(pos++, n+1, 1, VAR ); break;   // "%%" -> "%"
             case ',': s.replace(pos, n+1, "\r\n", 2); pos += 2; break;
@@ -100,7 +103,17 @@ cvtstring string_parm::edit(const cvtstring& fmt, const subst& var)
             case '+': caps = name; ++n; continue;
             case '-': caps = lowr; ++n; continue;
             case '#': ++npad;      ++n; continue;
-
+            case '|': {                                        // alt string
+                     int t = s.find('|',pos+n+1);
+                     if(t == string::npos) {
+                         s.replace(pos++, n+1, 1, '|');
+                         break;
+                     }
+                     n  += pos+1;
+                     alt = s.substr(n, t-n);
+                     n   = t+1 - pos;
+                     continue;
+                }
             case '0': if(!ZERO_BASED) c += 10;
             case '1':
             case '2':
@@ -120,6 +133,8 @@ cvtstring string_parm::edit(const cvtstring& fmt, const subst& var)
                 } else
                     svar = var.alpha(c);
             substitute:
+                if(svar.empty())
+                    svar = edit(alt, var);
                 string tmp = stylize((svar.*conv)(), caps);
                 if(!raw) {                                     // remove gunk
                     replace_if(tmp.begin(), tmp.end(), control_char(), ' ');
@@ -131,8 +146,10 @@ cvtstring string_parm::edit(const cvtstring& fmt, const subst& var)
                 s.replace(pos, n+1, tmp);
                 pos += tmp.length();
             }
+
             break;         // turn switch-breaks into while-breaks
         }
+
     }
 
     return cvtstring::latin1(s);
