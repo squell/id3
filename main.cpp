@@ -1,14 +1,11 @@
 #include <cstdlib>
 #include <cstdio>
 #include <cstring>
-#include <cctype>
 #include <ctime>
-
 #include <stdexcept>
-#include <vector>
 #include <string>
-
 #include "ffindexp.h"
+
 #ifdef NO_V2
 #  include "setid3.h"
 #else
@@ -178,7 +175,7 @@ int main_(int argc, char *argv[])
                 else
                     u=true, fprintf(err(), "id3: nothing to do with %s\n", argv[i]);
             else
-                switch( toupper(*opt++) ) {    // param is an option
+                switch( *opt++ ) {             // param is an option
                 case 'V': verbose.on(); break;
                 case 'D': tag.clear(); w = true; break;
                 case 'T': field = title;  cmd = stdfield; break;

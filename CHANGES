@@ -1,5 +1,8 @@
 Changelog for 'id3'.
 
+2004-030 (W05):
+  main.cpp:178: made options case sensitive
+
 2004-029 (W05):
   created a unix manpage
 
