@@ -6,6 +6,8 @@
 #include <cstdio>
 #include <cstring>
 #include <cctype>
+#include <climits>
+#include <ctime>
 #include "varexp.h"
 #ifdef NO_V2
 #  include "setid3.h"
@@ -22,9 +24,28 @@
 
 using namespace std;
 
+struct verbose_t {
+    bool    show;
+    clock_t time;
+
+    void operator++()
+    { show = true; }
+
+    verbose_t() : show(false), time(clock()) { }
+
+    ~verbose_t()
+    { time = clock() - time;
+      if(show) printf("(%.3fs) done\n", double(time) / CLOCKS_PER_SEC); }
+
+    void report(const char* s, bool m)
+    { if(show && m) printf("%s\n", s); }
+} verbose;
+
+/* ====================================================== */
+
 void write_mp3s(const char* fspec, smartID3& tag)
 {
-    char path[sizeof dirent().d_name * 2];
+    char path[PATH_MAX];
     strncpy(path, fspec, sizeof path);          // copy constant
     path[sizeof path-1] = 0;                    // duct tape
 
@@ -45,6 +66,7 @@ void write_mp3s(const char* fspec, smartID3& tag)
     while( dirent* fn = readdir(dir) ) {
         varexp match(fspec, fn->d_name);
         strcpy(pname, fn->d_name);
+        verbose.report(path, match);
         if( match && ++m && !tag.modify(path, match) )
             printf("id3: could not access %s!\n", fn->d_name);
     }
@@ -61,11 +83,13 @@ const char shelp[] = "Try `id3 -h' for more information.\n";
 void help(const char* argv0)
 {
     printf(
+        "id3 0.71 (2003296)\n"
 #ifdef __ZF_SETID3V2
         "usage: %s [-1 -2] [OPTIONS] filespec ...\n\n"
 #else
         "usage: %s [OPTIONS] filespec ...\n\n"
 #endif
+        " -v\tgive verbose output\n"
         " -d\tclear existing tag\n"
         " -t <title>\n"
         " -a <artist>\n"
@@ -135,6 +159,7 @@ int main_(int argc, char *argv[])
                     opt = "";
                     break;
 #endif
+                case 'V': ++verbose; break;
                 case 'D': tag.clear(); w = true; break;
                 case 'T': t = title;  break;
                 case 'A': t = artist; break;

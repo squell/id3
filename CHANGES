@@ -1,22 +1,27 @@
 Changelog for 'id3'.
 
-2003-295 (W43):
-  (Resumed)
-  varexp.cpp:19: No longer copies vector's around.
+2003-296 (W43):                                ---------[v0.71]-----------
+  main.cpp: added version info to -h, and added verbose mode with timing
+  main.cpp:47: now uses posix constant
+  setid3:86: [CLI] added "%," as alternative to "%n", "%@" for "%:"
+  varexp.cpp:19: no longer copies vectors around.
+  Updated documentation
 
 2003-269 (W39):
   main.cpp  : [CLI CHANGE!] -dFRAME is now -rFRAME to remove possible
     confusion when -d is used as a stacked parameter.
   id3v2.c:87: encapsulated tmpname handling in fopentmp(), added code that
-    uses mktemp to make id3v2 tag handling faster.
+    uses mktemp() to make id3v2 tag handling _much_ faster.
 
 2003-267 (W39):
-  setid3.cpp:38: Made freshly written ID3v1 tags have an empty genre.
-  id3v2.c:278  : Don't rewrite file files with no ID3v2 tags.
+  setid3.cpp:38: made freshly written ID3v1 tags have an empty genre.
+  id3v2.c:278  : don't rewrite files with no ID3v2 tags when removing
+    ID3v2 tags from files.
 
 2003-262 (W38):
   (Resumed development)
-  main.cpp: Command stacking ('-nat Tr Art Tit' == '-n Tr -a Art -t Tit')
+  main.cpp: [CLI CHANGE!] implemented command stacking, so
+    '-nat Tr Art Tit' == '-n Tr -a Art -t Tit'
 
 2003-218 (W32):                                ---------[v0.70]-----------
   id3v2.c:ID3_writef: [BUGFIX] Serious. tmpnam() does not guarantee to
@@ -28,20 +33,20 @@ Changelog for 'id3'.
   main.cpp: handles all exceptions, more consistent help messages
 
 2003-216 (W32):
-  id3v2.c:268: Added check on tmpnam(0) returning NULL
-  id3v2.c:66:  Added safety to see if copyfile() halted because of eof
+  id3v2.c:268: added check on tmpnam(0) returning NULL
+  id3v2.c:66:  added safety to see if copyfile() halted because of eof
   setid3v2.cpp:91: [BUGFIX] Harmless. w_ptr constructor sometimes got an
     uninitialized allocation value (went by unnoticed because of
     alloc-on-write?). Fix: Removed this feature - unnecessary anyway.
-  setid3v2.cpp:89: Only read previous ID3v2 if necessary.
+  setid3v2.cpp:89: only read previous ID3v2 if necessary.
 
 2003-198 (W29):
-  Added conditional stdint.h include, some dirent.h implementations need it
+  added conditional stdint.h include, some dirent.h implementations need it
 
 2003-189 (W28):                                ---------[v0.60]-----------
   First public release
-  setid3.cpp: Removed silly packing check
-  setid3v2.cpp:97: Added "&& src". Whoopsee! :)
+  setid3.cpp: removed silly packing check
+  setid3v2.cpp:97: added "&& src". Whoopsee! :)
   id3v2.c: writef() now writes ID3v2 tags to files < 10 bytes. :)
 
 2003-185 (W27):
@@ -66,11 +71,11 @@ Changelog for 'id3'.
 
 Todo list:
 
-  Restructure smartID3 inheritance.
-  Support for Ogg Vorbis
-  Directory wildcards ("mp3root/*/*/*_*.mp3")
-  Options for re-formatting existing tag values?
-  Options for forcing re-packing id3v2
-  Shorthand Wildcards ("%n. %t.mp3" == -n %1 -t %2 "*. *.mp3")
-  Join main.cpp & view.cpp
+  - Restructure smartID3 inheritance.
+    + Support for Ogg Vorbis
+  - Directory wildcards ("mp3root/*/*/*_*.mp3")
+  - Options for re-using existing tag values
+  - Options for forcing re-packing id3v2
+  ? Shorthand Wildcards ("%n. %t.mp3" == -n %1 -t %2 "*. *.mp3")
+  ? Join main.cpp & view.cpp
 

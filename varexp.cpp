@@ -16,8 +16,7 @@
 
 bool varexp::match(const char* mask, const char* test)
 {
-    std::vector<const char*> _vars = vars;     // backup previous values
-    std::vector<int>         _varl = varl;     //
+    std::vector<int>::size_type prevlen = varl.size();   // backup value
     bool flag = false;
 
     char m, c;
@@ -43,8 +42,8 @@ bool varexp::match(const char* mask, const char* test)
     } while(c);
 
     if(m != '\0') {
-       vars = _vars;
-       varl = _varl;
+       vars.resize(prevlen);
+       varl.resize(prevlen);
        return 0;
     }
     return 1;

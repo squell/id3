@@ -5,7 +5,7 @@
  _  ._  _ ._  _   _
 _>\/| |(_)|_)_>\/_>
 ~~/~~~~~~~|~~~~/~~~
-       id3 [-12] [-d] [-t title] [-a artist] [-g genre]
+       id3 [-v] [-12] [-d] [-t title] [-a artist] [-g genre]
         [-n tracknr] [-l album] [-y year] [-c comment]
         [-rFRAME] [-wFRAME data] [ "filespec" ... ]
 
@@ -13,13 +13,13 @@ _>\/| |(_)|_)_>\/_>
 (_|(/__>(_| ||_)|_|(_)| |
 ~~~~~~~~~~~~~|~~~~~~~~~~~
        id3  is  a  mass tagger for audio files. This means it is
-       intended   to   be   used  to  non-interactively  perform
-       operations  on  the meta-information in a number of files
-       with just a single command.
+       intended  to  be  used  for  non-interactively performing
+       operations  on  the  meta-data  in a number of files with
+       just a single command.
 
        Operations  performed  might consist of replacing certain
-       information,   or  adding,  replacing,  or  removing  all
-       meta-information present in an audio file.
+       fields,  or  adding, replacing, or removing all meta-data
+       present in an audio file.
 
        To  take  advantage  of  this,  it has the ability to use
        portions of the filenames to fill in portions of the tag.
@@ -42,6 +42,10 @@ _>\/| |(_)|_)_>\/_>
             the  specification  in  double  quotes (""). id3 has
             internal  shell pattern matching which will not work
             if your shell performs this function.
+
+       -h   show commandline help
+
+       -v   be verbose
 
        -1
             write ID3 v1 tags (default). See `-2'.
@@ -81,6 +85,15 @@ _>\/| |(_)|_)_>\/_>
             correctness  or  conformance.  You're  on  your own.
             Again, consult the format documentation.
 
+       Individual  options  can  be stacked in a single argument
+       for more convenience. For example, running
+
+          id3 -2 -dalt "Artist" "Album" "Title" *.mp3
+
+       is equivalent to:
+
+          id3 -2 -d -a "Artist" -l "Album" -t "Title" *.mp3
+
  _   |_  __|_o_|_  _|_o _ ._
 _>|_||_)_> |_| |_|_||_|(_)| |
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -106,9 +119,11 @@ _>|_||_)_> |_| |_|_||_|(_)| |
 
       `%%'  replaced with a single `%'
 
-      `%n'  replaced with the newline ('\n') character
+      `%n'
+      `%,'  replaced with the newline ('\n') character
             (intended for use with -wFRAME)
 
+      '%@'
       `%:'  replaced with the null (`\0') character
             (intended for use with -wFRAME)
 
@@ -130,7 +145,7 @@ _>|_||_)_> |_| |_|_||_|(_)| |
        $ id3 -2 -rAPIC *.mp3
             Removes all embedded pictures from all mp3 files.
 
-       $ id3 -2 -wUSLT "%:englyrics%:foo, bar%nlalala!%n" blaet.mp3
+       $ id3 -2 -wUSLT "%@englyrics%@foo, bar%,lalala!%," blaet.mp3
             Adds an ID3v2 lyric frame to blaet.mp3.
 
 ._  __|_ _  _

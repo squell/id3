@@ -80,9 +80,11 @@ string smartID3::edit(string s, const base_container& v)
             default:
                 s.erase(pos, n);
                 break;
+            case '@':
             case ':': s.erase(pos, 1); s[pos++] = '\0'; break;
             case VAR: s.erase(pos, 1);   pos++;         break; // "%%" -> "%"
-            case 'N': s[pos++] = '\r'; s[pos++] = '\n'; break;
+            case 'N':
+            case ',': s[pos++] = '\r'; s[pos++] = '\n'; break;
 
             case '_': und = true; ++n; continue;
             case 'C': cap = true; ++n; continue;
