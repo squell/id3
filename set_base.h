@@ -63,8 +63,6 @@ public:
     handler& enable()  { return active(1); }
     handler& disable() { return active(0); }
 
-    virtual ~handler() { };
-
   // standard state set methods
 
     virtual handler& active(bool) = 0;

@@ -43,7 +43,6 @@
 class filefindexp {
 public:
     bool operator()(const char* filemask);
-    virtual ~filefindexp() { }
 protected:
     virtual void process() = 0;               // override this one
     virtual void entered() { }                // def. do nothing
