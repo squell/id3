@@ -25,7 +25,8 @@ Changelog for 'id3'.
   setid3v2.cpp:97: Added "&& src". Whoopsee! :)
   id3v2.c: writef() now writes ID3v2 tags to files < 10 bytes. :)
 
-
+2003-198 (W29)
+  Added conditional stdint.h include, some dirent.h implementations need it
 
 Todo list:
 

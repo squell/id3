@@ -13,9 +13,9 @@ _>\/| |(_)|_)_>\/_>
 (_|(/__>(_| ||_)|_|(_)| |
 ~~~~~~~~~~~~~|~~~~~~~~~~~
        id3  is  a  mass tagger for audio files. This means it is
-       meant  to be used to non-interactively perform operations
-       on  the meta-information in a number of files with just a
-       single command.
+       intended   to   be   used  to  non-interactively  perform
+       operations  on  the meta-information in a number of files
+       with just a single command.
 
        Operations  performed  might consist of replacing certain
        information,   or  adding,  replacing,  or  removing  all
