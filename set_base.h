@@ -93,7 +93,7 @@ public:
 
 class set_tag::reader {
 public:
-    virtual string operator[](ID3field) const = 0;
+    virtual std::string operator[](ID3field) const = 0;
     virtual ~reader() { };
 };
 
@@ -141,7 +141,9 @@ public:
 class set_tag::failure : public std::exception {
     mutable char* txt;
 public:
-    explicit failure(const std::string&);
+    explicit failure(const char* err);
+    explicit failure(const char* err, const char* context);
+    explicit failure(const std::string& err);
     failure(const failure& other) : txt( other.txt )
     { other.txt = 0; }
     virtual ~failure() throw()
@@ -159,11 +161,30 @@ public:
       more work :)
   */
 
-inline set_tag::failure::failure(const std::string& s)
+inline set_tag::failure::failure(const std::string& err)
 {
-    txt = new (std::nothrow) char[s.length()+1];
+    txt = new (std::nothrow) char[err.length()+1];
     if(txt) {
-        std::strcpy(txt, s.c_str());
+        std::strcpy(txt, err.c_str());
+    }
+}
+
+inline set_tag::failure::failure(const char* err)
+{
+    txt = new (std::nothrow) char[std::strlen(err)+1];
+    if(txt) {
+        std::strcpy(txt, err);
+    }
+}
+
+inline set_tag::failure::failure(const char* err, const char* context)
+{
+    std::size_t elen = std::strlen(err);
+    std::size_t clen = std::strlen(context);
+    txt = new (std::nothrow) char[elen+clen+1];
+    if(txt) {
+        std::strcpy(txt,      err);
+        std::strcpy(txt+elen, context);
     }
 }
 

@@ -1,5 +1,8 @@
 Changelog for 'id3'.
 
+2004-167 (W25):
+  set_base: trimmed down interface
+
 2004-162 (W24):
   main.cpp: [CLI] added -s switch for suggesting tag size
   id3v2.c:249:added size-hint recognition

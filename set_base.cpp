@@ -51,5 +51,12 @@ bool combined_tag::active() const
     return false;
 }
 
+/*
+bool combined_tag::vmodify() const
+{
+
+}
+*/
+
 }
 

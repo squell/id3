@@ -102,7 +102,8 @@ const struct genre_map : map<string,int,bool (*)(const string&,const string&)> {
 
 set_tag::reader* ID3::read(const char* fn)
 {
-     return new read_tag::ID3(fn);
+//   return new read_tag::ID3(fn);
+     return 0;
 }
 
 bool ID3::vmodify(const char* fn, const base_container& v) const
@@ -170,10 +171,8 @@ bool ID3::vmodify(const char* fn, const base_container& v) const
 
         fclose(f);
 
-        if(err) {
-            string emsg("error writing TAG to ");
-            throw failure(emsg + fn);
-        }
+        if(err)
+            throw failure("error writing TAG to ", fn);
 
         return true;
     };

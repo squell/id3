@@ -110,8 +110,7 @@ struct metadata : uses<ID3>, uses<ID3v2> {
             return true;
 
         if(e2 && with<ID3v2>(*this)->active()) {
-            string emsg("partial tag written: ");  // *should* never happen
-            throw failure(emsg + fn);
+            throw failure("partial tag written: ", fn);
         }
 
         return false;
