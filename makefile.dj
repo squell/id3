@@ -5,15 +5,15 @@ CFLAGS	 = -g -O2
 
 ############################################################################
 
-all  : id3 id3l
-
 id3: main.o setid3.o setid3v2.o varexp.o id3v1.o id3v2.o id3_fmt.o
 	$(CC) -o $@ $+
 
 id3l: mainl.o setid3.o varexp.o id3v1.o
 	$(CC) -o $@ $+
 
-final: id3
+all  : id3 id3l
+
+final: id3 id3l
 	upx --best -f -oID3.EXE $<
 
 dist :	main.cpp varexp.h varexp.cpp \
@@ -32,10 +32,10 @@ clean:
 ############################################################################
 
 main.o: main.cpp setid3.h setid3v2.h varexp.h id3v1.h id3v2.h
-	$(CC) $(CFLAGS) -c $<
+	$(CC) $(CFLAGS) -c main.cpp
 
 mainl.o: main.cpp setid3.h varexp.h id3v1.h
-	$(CC) $(CFLAGS) -DNO_V2 -o $@ -c $<
+	$(CC) $(CFLAGS) -DNO_V2 -o $@ -c main.cpp
 
 setid3v2.o: id3v2.h setid3.h
 setid3.o  : id3v1.h
