@@ -1,3 +1,8 @@
+#include <cstdio>
+
+#include <string>
+#include <map>
+#include <cctype>
 #include "setid3v2.h"
 #include "id3v2.h"
 
@@ -10,43 +15,37 @@
 
 using namespace std;
 
-/*
-const char smartID3v2::xlat[][5] = {
-    "TIT2", "TPE1", "TALB", "TYER", "COMM", "TCON", "TRCK"
+typedef map<string,string>::iterator   map_ptr;
+typedef map<string,string>::value_type map_el;
+
+const char xlat[][5] = {
+    "TIT2", "TPE1", "TALB", "TYER", "COMM", "TRCK", "TCON"
 };
 
-smartID3v2& smartID3v2::set(ID3set i, const char* m);
+smartID3v2& smartID3v2::set(ID3set i, const char* m)
 {
-    if(i<ID3) {
-        mod2[xlat[i]] = m;
-        smartID3::set(i, m);                      // update ID3v1 info also
+    if(i < ID3) {
+        const string t = (i==cmnt?"\0eng\0":"\0");
+
+        mod2.insert( map_el(xlat[i], t+m) );
+        smartID3::set(i,m);                       // chain to parent
     }
     return *this;
 }
-*/
-
-char* smartID3v2::put(char* out, const map_ptr& p, const base_container& v)
-{
-    string s = edit(p->second, v);
-    int    n = s.length();
-    char*  a = new char[n+1];
-
-    a[ s.copy(a+1,n) ] = 0;                      // copy to temp buffer
-
-    out = (char*) ID3_put(out, p->first.c_str(), a, s.length()+1);
-
-    delete[] a;
-    return out;
-}
-
+ 
 bool smartID3v2::vmodify(const char* fn, const base_container& v)
 {
+    printf("[%s]\n", fn);
+    for(map_ptr p = mod2.begin(); p != mod2.end(); ++p) {
+        printf("%s(%s)\n", p->first.c_str(), p->second.c_str());
+    }
+/*
     unsigned long size;
-    void* src = ID3_readf("test2.mp3", &size);
+    void* src = ID3_readf(fn, &size);
     char* dst = new char[size+1];
     char* out = dst;
 
-    map<string,string> mod(mod2);
+    map<string,string> cmod(mod2);
 
     *out = 0;
 
@@ -55,21 +54,25 @@ bool smartID3v2::vmodify(const char* fn, const base_container& v)
         ID3_start(f, src);
 
         while(ID3_frame(f)) {
-            map_ptr p = mod.find(f->ID);
-            if(p == mod.end())
+            map_ptr p = cmod.find(f->ID);
+            if(p == cmod.end())
                 out = (char*) ID3_put(out, f->ID, f->data, f->size);
             else {
-                out = put(out, p, v);
-                mod.erase(p);
+                string s = edit(p->second, v);
+                out = (char*) ID3_put(out, p->first.c_str(), s.c_str(), s.length());
+                cmod.erase(p);
             }
         }
     }
 
-    for(map_ptr p = mod.begin(); p != mod.end(); p++)
-        out = put(out, p, v);
+    for(map_ptr p = cmod.begin(); p != cmod.end(); p++) {
+        string s = edit(p->second, v);
+        out = (char*) ID3_put(out, p->first.c_str(), s.c_str(), s.length());
+    }
 
     ID3_writef(fn, dst);
     ID3_free(src);
     delete[] dst;
+*/
 }
 

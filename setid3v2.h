@@ -19,13 +19,8 @@
 
 class smartID3v2 : public smartID3 {
     typedef std::string string;
-    typedef std::map<string,string>::iterator map_ptr;
 
     std::map<string,string> mod2;
-
-    static char* put(char*, const map_ptr&, const base_container&);
-
-//  static const char xlat[][5];
 
 protected:
     virtual bool vmodify(const char*, const base_container&);
@@ -34,10 +29,10 @@ public:
     smartID3v2()
     { }
 
-    smartID3v2& set(const char* i, string m)             // set ID3v2 frame
+    smartID3v2& set(string i, string m)               // set ID3v2 frame
     { mod2[i] = m; return *this; }
 
-//  smartID3v2& set(ID3set i, const char* m);
+    smartID3v2& set(ID3set i, const char* m);
 };
 
 #endif
