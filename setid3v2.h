@@ -18,21 +18,24 @@
 #include "setid3.h"
 
 class smartID3v2 : public smartID3 {
-    typedef std::string string;
-
-    std::map<string,string> mod2;
-
-protected:
-    virtual bool vmodify(const char*, const base_container&);
-
 public:
     smartID3v2()
     { }
 
-    smartID3v2& set(string i, string m)               // set ID3v2 frame
+    smartID3v2& set(std::string i, std::string m)     // set ID3v2 frame
     { mod2[i] = m; return *this; }
 
+    smartID3v2& rm(std::string i)                     // remove ID3v2 frame
+    { mod2[i] = ""; }
+
     smartID3v2& set(ID3set i, const char* m);
+
+protected:
+    virtual bool vmodify(const char*, const base_container&);
+
+private:
+    typedef std::map<std::string,std::string> db;
+    db mod2;
 };
 
 #endif

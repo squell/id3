@@ -1,5 +1,4 @@
 #include <cstdio>
-#include <algorithm>
 
 #include <string>
 #include <map>
@@ -16,9 +15,6 @@
 */
 
 using namespace std;
-
-typedef map<string,string>::iterator   map_ptr;
-typedef map<string,string>::value_type map_el;
 
 /* ===================================== */
 
@@ -64,8 +60,8 @@ smartID3v2& smartID3v2::set(ID3set i, const char* m)
     if(i < ID3) {
         const string t("\0eng\0", i!=cmnt? 1 : 5);
 
-        mod2.insert( map_el(xlat[i], t+m) );
-        smartID3::set(i,m);                       // chain to parent
+        mod2.insert( db::value_type(xlat[i], t+m) );
+        smartID3::set(i,m);                         // chain to parent
     }
     return *this;
 }
@@ -81,11 +77,11 @@ bool smartID3v2::vmodify(const char* fn, const base_container& v)
     printf("[%s - %d] ------------------------------ \n", fn, bool(src));
 /* */
 
-    map<string,string> cmod(mod2);
+    db cmod(mod2);
 
     *out = 0;
 
-    if(!fresh) {                                 // update existing tags
+    if(!fresh) {                                    // update existing tags
 /* */
         printf("{ ");
 /* */
@@ -96,29 +92,33 @@ bool smartID3v2::vmodify(const char* fn, const base_container& v)
 /* */
             printf("%s(%.*s)", f->ID, f->size-1, f->data+1);
 /* */
-            map_ptr p = cmod.find(f->ID);
+            db::iterator p = cmod.find(f->ID);
             if(p == cmod.end())
                 out = put(out, f->ID, f->data, f->size, dst);
-            else {
-                string s = edit(p->second, v);
-                out = put(out, f->ID, s.c_str(), s.length(), dst);
-                cmod.erase(p);
+            else
+                if(p->second != "") {               // else: erase frames
+                    string s = edit(p->second, v);
+                    out = put(out, f->ID, s.c_str(), s.length(), dst);
+                    cmod.erase(p);
 /* */
-                printf(" <- %s", s.c_str()+1);
+                    printf(" <- %s", s.c_str()+1);
 /* */
-            }
+                }
 /* */
+                else printf(" [DEL]");
             printf("\n  ");
 /* */
         }
     }
 
-    for(map_ptr p = cmod.begin(); p != cmod.end(); ++p) {
-        string s = edit(p->second, v);
-        out = put(out, p->first.c_str(), s.c_str(), s.length(), dst);
+    for(db::iterator p = cmod.begin(); p != cmod.end(); ++p) {
+        if(p->second != "") {
+            string s = edit(p->second, v);
+            out = put(out, p->first.c_str(), s.c_str(), s.length(), dst);
 /* */
-        printf("+ %s(%s)\n", p->first.c_str(), s.c_str()+1);
+            printf("+ %s(%s)\n", p->first.c_str(), s.c_str()+1);
 /* */
+        }
     }
 
     bool res = ID3_writef(fn, dst.data);

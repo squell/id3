@@ -90,6 +90,7 @@ string smartID3::edit(string s, const base_container& v)
     while( (pos=s.find(VAR, pos)) >= 0 ) {
         bool und = false;
         bool cap = false;
+        char hex = 0;
         int n = 1;
         while( pos+n < s.length() ) {
             switch( char c = toupper(s[pos+n]) ) {
