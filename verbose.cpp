@@ -30,8 +30,7 @@ struct verbose_t {
     {
         if(show) {
             ++numfiles;
-            const char* sep = strrchr(s, '/');
-            fprintf(stderr, "\t%s\n", sep?sep+1:s);
+            fprintf(stderr, "\t%s\n", s);
         }
     }
 

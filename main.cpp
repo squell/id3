@@ -7,7 +7,7 @@
 #include <climits>
 #include <stdexcept>
 #include <string>
-#include "ffindexp.h"
+#include "fileexp.h"
 
 #include "sedit.h"
 #include "set_base.h"
@@ -136,9 +136,10 @@ struct metadata :
 
  // adaptation of filefindexp with verbose output
 
-class mass_tag : filefindexp {
+class mass_tag : fileexp::find {
 public:
-    mass_tag(bool r = false) : edir(false) { }
+    mass_tag(bool r = false) : edir(0), recursive(0) { }
+    bool recursive;
     void operator()
       ( const set_tag::handler&, const char*, const set_tag::provider& );
 
@@ -147,8 +148,8 @@ public:
 private:
     const set_tag::handler*  tag;
     const set_tag::provider* info;
-    virtual void entered();
-    virtual void process(const char*);
+    void file(const char* name, const fileexp::record&);
+    bool dir (const char* path);
     bool edir;
 };
 
@@ -186,21 +187,22 @@ void mass_tag::operator()(const set_tag::handler& h, const char* spec, const set
 {
     tag  = &h;
     info = &p;
-    if(! filefindexp::operator()(spec) )
+    if(! find::operator()(spec) )
 	eprintf("no %s matching %s\n", edir? "files" : "directories", spec);
 }
 
-void mass_tag::entered()
+bool mass_tag::dir(const char* path)
 {
     verbose.reportd(path);
     edir = true;
+    return recursive;
 }
 
-void mass_tag::process(const char* name)
+void mass_tag::file(const char* name, const fileexp::record& f)
 {
     verbose.reportf(name);
-    if(! tag->modify(path, r_vector(var), substvars(*info,path)) )
-	return (void) eprintf("could not edit tag in %s\n", path);
+    if(! tag->modify(f.path, r_vector(f.var), substvars(*info, f.path)) )
+        return (void) eprintf("could not edit tag in %s\n", f.path);
 }
 
 unsigned mass_tag::substvars::counter = 0;
@@ -253,7 +255,8 @@ static void Help()
 	" -f <filename>\t" "set filename\n"
         " -m <pattern>\t"  "match fields to pattern"
 	" -q <string>\t"   "print string on stdout\n"
-	" -v\t\t"          "give verbose output\n"
+        " -R\t\t"          "recurse into directories\n"
+        " -v\t\t"          "give verbose output\n"
 	" -V\t\t"          "print version info\n"
 #ifndef NO_V2
         "Only on last selected tag:\n"

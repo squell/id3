@@ -36,6 +36,7 @@ id3 \- a commandline mass tagger
 .IR pattern ]
 .RB [ \-q
 .IR string ]
+.RB [ \-R ]
 .RI [ " \*(lqfilespec\*(rq
 \& ... ]
 .SH DESCRIPTION
@@ -124,6 +125,11 @@ below.
 .BI \-q " format
 for each file encountered, \fIformat\fR will get scanned for substitution
 commands, and written to standard output.
+.TP
+.B \-R
+recursively descend into all subdirectories to look for matching files,
+instead of just the the base directory. Use with caution - in most cases,
+it's more flexible to use wildcards for processing multiple directories.
 .PP
 The following options operate on the last tag selected before them, and only
 have meaning where relevant.
@@ -256,7 +262,7 @@ Adds an ID3v2 lyric frame to blaet.mp3.
 \fBid3 -v -g alt-rock -alnt "The Author" %1 %2 %3 "Author - */(*) *.mp3"
 Process multiple directories at once.
 .TP
-\fbid3 -1 -2! -c "Was: %f" -f "%|TAFKAT|a - %|Untitled (%x)|t.mp3" "*.mp3"
+\fBid3 -1 -2! -c "Was: %f" -f "%|TAFKAT|a - %|Untitled (%x)|t.mp3" "*.mp3"
 More advanced rename. Save previous filename in the comment field, and copies ID3v1 to ID3v2.
 .SH NOTES
 The internal pattern matching emulates the normal pattern matching of
@@ -296,4 +302,3 @@ This is free software; see the source for copying conditions. There is NO
 warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 .SH SEE ALSO
 Program homepage: http://home.wanadoo.nl/squell/id3.html
-

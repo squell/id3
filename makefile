@@ -95,7 +95,7 @@ uninstall:
 
 ## distribution ############################################################
 
-SRC_CPP     = sedit varexp ffindexp charconv
+SRC_CPP     = sedit varexp fileexp charconv
 SRC_CPP    += set_base setid3 setid3v2 setfname setecho
 SRC_CPP    += getid3 getid3v2
 SRC_C	    = fileops id3v1 id3v2
@@ -170,7 +170,7 @@ curl-orig:
 
 ## build rules #############################################################
 
-OBJ_GEN = sedit varexp ffindexp charconv
+OBJ_GEN = sedit varexp fileexp charconv
 OBJ_1	= setid3 getid3 id3v1
 OBJ_2	= setid3v2 getid3v2 id3v2 fileops
 OBJ_F	= setfname setecho
@@ -198,13 +198,13 @@ MKALLDEP += $(MKDEP) $(CFLAGS)	 $(SRC_C:=.c)
 
 ## dependencies -MM ########################################################
 
-main.o: main.cpp ffindexp.h auto_dir.h sedit.h charconv.h set_base.h \
+main.o: main.cpp fileexp.h auto_dir.h sedit.h charconv.h set_base.h \
   setid3.h setfname.h setecho.h setid3v2.h
-mainl.o: main.cpp ffindexp.h auto_dir.h sedit.h charconv.h set_base.h \
+mainl.o: main.cpp fileexp.h auto_dir.h sedit.h charconv.h set_base.h \
   setid3.h setfname.h setecho.h
 sedit.o: sedit.cpp sedit.h charconv.h
 varexp.o: varexp.cpp varexp.h
-ffindexp.o: ffindexp.cpp varexp.h auto_dir.h ffindexp.h
+fileexp.o: fileexp.cpp varexp.h auto_dir.h fileexp.h
 charconv.o: charconv.cpp charconv.h
 set_base.o: set_base.cpp set_base.h sedit.h charconv.h
 setid3.o: setid3.cpp setid3.h set_base.h sedit.h charconv.h getid3.h \

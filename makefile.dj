@@ -26,13 +26,13 @@ zip:
 
 ############################################################################
 
-id3.exe: main.o sedit.o varexp.o ffindexp.o charconv.o \
+id3.exe: main.o sedit.o varexp.o fileexp.o charconv.o \
          set_base.o setid3.o setid3v2.o setfname.o setecho.o \
          getid3.o getid3v2.o \
 	 id3v1.o id3v2.o fileops.o
 	$(CC) $(LDFLAGS) -o $@ $+
 
-id3l.exe: mainl.o sedit.o varexp.o ffindexp.o charconv.o \
+id3l.exe: mainl.o sedit.o varexp.o fileexp.o charconv.o \
          set_base.o setid3.o setfname.o setecho.o \
          getid3.o \
 	 id3v1.o
@@ -52,13 +52,13 @@ mainl.o:
 
 ## dependencies -MM ########################################################
 
-main.o: main.cpp ffindexp.h auto_dir.h sedit.h charconv.h set_base.h \
+main.o: main.cpp fileexp.h auto_dir.h sedit.h charconv.h set_base.h \
   setid3.h setfname.h setecho.h setid3v2.h
-mainl.o: main.cpp ffindexp.h auto_dir.h sedit.h charconv.h set_base.h \
+mainl.o: main.cpp fileexp.h auto_dir.h sedit.h charconv.h set_base.h \
   setid3.h setfname.h setecho.h
 sedit.o: sedit.cpp sedit.h charconv.h
 varexp.o: varexp.cpp varexp.h
-ffindexp.o: ffindexp.cpp varexp.h auto_dir.h ffindexp.h
+fileexp.o: fileexp.cpp varexp.h auto_dir.h fileexp.h
 charconv.o: charconv.cpp charconv.h
 set_base.o: set_base.cpp set_base.h sedit.h charconv.h
 setid3.o: setid3.cpp setid3.h set_base.h sedit.h charconv.h getid3.h \
