@@ -44,8 +44,8 @@ namespace set_tag {
 
 }
 
-#ifdef __BORLAND_C__
-namespace set_tag {            // (but borland craps w/o this?)
+#ifdef __BORLANDC__
+namespace set_tag {            // (borland craps w/o this?)
 #endif
 
   ///////////////////////////////////////////////////////
@@ -132,7 +132,7 @@ public:
 	{ return txt ? txt : "<null>"; }
 };
 
-#ifdef __BORLAND_C__
+#ifdef __BORLANDC__
 }
 #endif
 
