@@ -50,13 +50,12 @@ Changelog for 'id3'.
     create filenames that can always be fed to rename() on all systems,
     thus causing files to disappear / remain in your temp dir.
     Fix: Added a copy routine/handler.
-  main.cpp: Now catches all exceptions.
-  setid3.cpp: Now throws an exception on a serious error
+  setid3.cpp & setid3v2.cpp: now throw exceptions on serious errors
+  varexp.h: better explanation of index-out-of-range error
+  main.cpp: handles all exceptions, more consistent help messages
 
 Todo list:
 
-  Fix inconsistent error/help messages
-  Check if ID3 tag properly written?
   Support for Ogg Vorbis
   Options for forcing re-packing id3v2
   Command stacking    ("-nat 1 art tit == -n 1 -a art -t tit")

@@ -69,12 +69,13 @@ private:
 
     bool match(const char* mask, const char* test);
     int in_set(char c, const char* set, const char* test);
+    void raise();
 };
 
 inline std::string varexp::operator[](unsigned idx) const
 {
     if( idx >= vars.size() )                  // bounds check
-        throw std::out_of_range("varexp");
+        throw std::out_of_range("varexp: index out of range");
 
     return std::string( vars[idx], varl[idx] );
 }

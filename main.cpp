@@ -38,7 +38,7 @@ void write_mp3s(const char* fspec, smartID3& tag)
 
     DIR* dir = opendir(path);
     if(!dir)
-        return (void) printf("err: could not read %s\n", path);
+        return (void) printf("id3: could not read %s\n", path);
 
     bool m = false;                             // idle flag
 
@@ -46,15 +46,17 @@ void write_mp3s(const char* fspec, smartID3& tag)
         varexp match(fspec, fn->d_name);
         strcpy(pname, fn->d_name);
         if( match && ++m && !tag.modify(path, match) )
-            printf("err: could not access %s!\n", fn->d_name);
+            printf("id3: could not access %s!\n", fn->d_name);
     }
     closedir(dir);
 
     if(!m)
-        printf("err: no files matching %s\n", fspec);
+        printf("id3: no files matching %s\n", fspec);
 }
 
 /* ====================================================== */
+
+const char shelp[] = "For help, type id3 -h\n";
 
 void help(const char* argv0)
 {
@@ -91,7 +93,8 @@ void help(const char* argv0)
 int main_(int argc, char *argv[])
 {
     ID3set t = ID3;
-    bool   w = false;            // check against no-ops
+    bool   w = false;            // check against no-ops args
+    bool   u = false;            // check against no-file args
 #ifdef __ZF_SETID3V2
     bool aux = false;            // check for -1 & -2 commands
     string fieldID;
@@ -115,13 +118,9 @@ int main_(int argc, char *argv[])
         } else {
             if( argv[i][0] != '-' )
                 if(w)
-                    try {
-                        write_mp3s(argv[i], tag);
-                    } catch(const out_of_range& x) {
-                        printf("err: index out of range\n");
-                    }
+                    u=true, write_mp3s(argv[i], tag);
                 else
-                    printf("err: nothing to do with %s\n", argv[i]);
+                    u=true, printf("id3: nothing to do with %s\n", argv[i]);
             else
                 switch( toupper(argv[i][1]) ) {
 #ifdef __ZF_SETID3V2
@@ -148,15 +147,20 @@ int main_(int argc, char *argv[])
                 case '2': tag.opt(aux++,true); break;
                 case '1': tag.opt(true,aux++); break;
 #endif
+                case 'H': help(argv[0]);
                 default:
-                    printf("err: unrecognized switch: -%c\n", argv[i][1]);
+                    printf("id3: unrecognized switch: -%c\n", argv[i][1]);
+                    printf(shelp);
                     exit(1);
                 }
 
         }
     }
 
-    if(!w) help(argv[0]);
+    if(!u)
+        printf("id3: missing file arguments\n");
+    if(!u || !w)
+        printf(shelp);
 }
 
 
@@ -169,6 +173,8 @@ int main(int argc, char *argv[])
         main_(argc, argv);
     } catch(const smartID3::failure& f) {
         printf("id3: %s\n", f.what());
+    } catch(const out_of_range& x) {
+        printf("id3: %s\n", x.what());
     } catch(const exception& exc) {
         printf("id3: unhandled exception: %s\n", exc.what());
     } catch(...) {

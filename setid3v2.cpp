@@ -85,7 +85,6 @@ void w_fail::raise()
 extern "C" int w_handler(const char* oldn, const char* newn)
 {
     if(! cpfile(oldn, newn) ) {
-    {
         string emsg(" lost, new contents still in ");
         w_fail::err = newn + emsg + oldn;
     }
