@@ -1,6 +1,6 @@
 Changelog for 'id3'.
 
-2003-027 (W05):
+2004-027 (W05):                                ---------[v0.72]-----------
   [CLI] Now supports directory wildcards (e.g. "mp3root/*/*/*_*.mp3")
     Be careful with this, mkay? ;)
   sedit.cpp:capitalize: now handles punctuation properly
@@ -9,7 +9,7 @@ Changelog for 'id3'.
     removal of extraneous spaces (suppressed by the "%_" modifier)
   main.cpp: now uses ffindexp for solving wildcard match (see above)
 
-2003-019 (W04):
+2004-019 (W04):
   (Resumed development)
   varexp.h: added varexp::iterator class
   ffindexp.cpp: fleshed out base algorithm

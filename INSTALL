@@ -23,7 +23,7 @@ the contents of the source distribution:
 
  id3v1.*        - definitions & data relevant to ID3v1 tag data (C)
  id3v2.*        - basic ID3v2 reading/writing interface         (C)
- fileops.*      - auxilliary file functions                     (C)
+ fileops.*      - auxiliary file functions                      (C)
 
 ---------------------------------------------------------------
 | (c) squell 2003,2004 - copyright notice
@@ -103,7 +103,7 @@ See inside 'makefile' for more details.
 ===
 Customizing
 
-Some things you can tweak in the definition of the class `svar', in sedit.h:
+Some things you can tweak in the definition of the class 'svar', in sedit.h:
 
 Set the ZERO_BASED constant to 1 (or true), if you would like to start
 counting wildcards in the commandline parameters at 0 instead of 1, making the
