@@ -120,7 +120,7 @@ dist-check:
 	-rm -rf .tmp
 	@echo all release checks okay
 
-dist-clean:
+dist-clean: $(DISTFILES)
 	$(D_TMP)
 	-rm -rf *
 	mv .tmp/* `pwd`
