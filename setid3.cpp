@@ -86,7 +86,8 @@ const struct genre_map : map<string,int,bool (*)(const string&,const string&)> {
     genre_map()                                 // initialize associative map
     : map<string,int,key_compare>( clipped_compare )
     {
-        (*this)[ "Folk0" ] = 80;                // small kludges
+        (*this)[ "Psych" ] = 67;                // small kludges
+        (*this)[ "Folk0" ] = 80;
         (*this)[ "Humo"  ] = 100;
         for(int i=0; i < ID3v1_numgenres; i++) {
             (*this)[ capitalize(ID3v1_genre[i]) ] = i;
