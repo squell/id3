@@ -42,9 +42,9 @@ bool varexp::match(const char* mask, const char* test)
     } while(c);
 
     if(m != '\0') {
-       vars.resize(prevlen);
-       varl.resize(prevlen);
-       return 0;
+        vars.resize(prevlen);
+        varl.resize(prevlen);
+        return 0;
     }
     return 1;
 }
