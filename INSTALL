@@ -1,13 +1,13 @@
 ---------------------------------------------------------------
-| id3 mass tagger v0.74
+| id3 mass tagger v0.75
 -------------------------------------------------------------
 
 the contents of the source distribution:
 
- copying        - license
- install        - ... ? :)
- readme         - program documentation
- changes        - changelog
+ COPYING        - license
+ INSTALL        - ... ? :)
+ README         - program documentation
+ CHANGES        - changelog
 
  makefile       - generic (gnu) makefile
  makefile.dj    - makefile for djgpp2
@@ -19,9 +19,10 @@ the contents of the source distribution:
  set_base.*     - abstract patch class                          (C++)
  setid3.*       - + id3v1 implementation                        (C++)
  setid3v2.*     - + id3v2 implementation                        (C++)
+ setfname.*     - + file renamer                                (C++)
  varexp.*       - wildcard/pattern matching class               (C++)
  ffindexp.*     - filefinder/matcher                            (C++)
- auto_dir.*     - smart dirent pointer class                    (C++)
+ auto_dir.h     - smart dirent pointer class                    (C++)
 
  id3v1.*        - definitions & data relevant to ID3v1 tag data (C)
  id3v2.*        - basic ID3v2 reading/writing interface         (C)
@@ -96,7 +97,7 @@ Generic GNU/BSD makefile targets & variables:
  make uninstall     - uninstall (does not remove documentation)
 
 Because id3 does not have a configure script (yet), you can set
-these variables only the 'make' commandline:
+these variables only on the 'make' commandline:
 
  prefix             - the prefix directory       (def. "/usr/local")
  bindir             - dir for binaries           (def. "$(prefix)/bin")
