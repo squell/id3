@@ -136,10 +136,10 @@ _>|_||_)_> |_| |_|_||_|(_)| |
        matching of `sh'. It supports ?, * and [].
 
        In  an  ambiguous  situation,  the  pattern  matcher will
-       always  try  to  resolve  a  `*' wildcard to the shortest
-       possible  sequence  of  tokens.  This  differs  from  the
-       standard  behavior  of  regular  expressions,  however it
-       tends to make sense in the context of filenames.
+       always  resolve  a  `*' wildcard to the shortest possible
+       sequence  of  tokens.  This  differs  from  the  standard
+       behavior of regular expressions, however it tends to make
+       sense in the context of filenames.
 
        E.g.: `*_*', `1_foo_bar' -> %1 == `1', not `1_foo'.
 
@@ -180,8 +180,8 @@ _>|_||_)_> |_| |_|_||_|(_)| |
 ~~~~~~~~~~~~~~~~~
        squell ^ zf! (squell@xms.ms, squell@goth.net)
 
- _. __|_ _| 
-(_|(_)|_(_| 
+ _. __|_ _|
+(_|(_)|_(_|
 ~~|~~~~~~~~
        ALL FANATICS MUST DIE!
-            
+

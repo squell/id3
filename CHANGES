@@ -11,11 +11,11 @@ Changelog for 'id3'.
 
 2003-184 (W27):
   Readme
-  Added support for specifying genre per number.
+  Added specifying genre per number
 
 2003-185 (W27):
-  setid3v2.cpp: made w_ptr a live object + added bad_alloc checks
-  setid3v2.cpp: void* src -> voidp<> src
+  setid3v2.cpp:26: made w_ptr a live object + added bad_alloc checks
+  setid3v2.cpp:90: void* src -> voidp<> src
 
 Todo list:
 
