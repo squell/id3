@@ -55,7 +55,7 @@
 #include <vector>
 
 enum ID3set {
-    title, artist, album, year, cmnt, genre, track, ID3
+    title, artist, album, year, cmnt, track, genre, ID3
 };
 
 class smartID3 {
