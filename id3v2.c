@@ -246,15 +246,15 @@ int ID3_writef(const char *fname, void *src)
 
         orig = getsize(&rh);
 
-        if( size <= orig ) {                    /* enough reserved space */
-/***        setsize(&new_h, orig);
+        if( size && size <= orig ) {            /* enough reserved space */
+            setsize(&new_h, orig);
             rewind(f);
             fwrite(&new_h, sizeof new_h, 1, f);
             fwrite(src, size, 1, f);
-            paddfile(f, 0, orig-size);     (commented out for debugging)
+            paddfile(f, 0, orig-size);
             fclose(f);
             return 1;
- ***/   }
+        }
         fseek(f, orig, SEEK_CUR);
     } else {
         rewind(f);
