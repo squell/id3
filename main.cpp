@@ -88,7 +88,7 @@ void mass_tag::entered()
     verbose.reportd(path);
     edir = true;
 }
-                    
+
 void mass_tag::process()
 {
     verbose.reportf(path);
@@ -100,7 +100,7 @@ void write_tags(const char* spec, mass_tag& tag)
 {
     if(! tag(spec) )
         fprintf(err(), "id3: no %s matching %s\n",
-                       tag.edir? "files" : "directories", spec);
+                tag.edir? "files" : "directories", spec);
 }
 
 /* ====================================================== */
@@ -148,7 +148,7 @@ void help(const char* argv0)
 int main_(int argc, char *argv[])
 {
     enum parm_t {
-        no_value, stdfield,  customfield,
+        no_value, stdfield, customfield,
     } cmd = no_value;
 
     bool   w = false;                          // check against no-ops args
