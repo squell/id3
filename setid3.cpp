@@ -22,9 +22,6 @@
 #    include <unistd.h>
 #    define ftrunc(f)  ftruncate(fileno(f), ftell(f))
 #endif
-#if !defined(ZERO_BASED)                   // programmers set this to 1 :))
-#    define ZERO_BASED 0
-#endif
 
 using namespace std;
 
@@ -90,18 +87,13 @@ string smartID3::edit(string s, const base_container& v)
                 s.erase(pos, n);
                 break;
             case ':': s.erase(pos, 1); s[pos++] = '\0'; break;
-#ifdef NO_CRLF
-            case 'N': s.erase(pos, 1); s[pos++] = '\n'; break;
-#else
+            case VAR: s.erase(pos, 1);   pos++;         break; // "%%" -> "%"
             case 'N': s[pos++] = '\r'; s[pos++] = '\n'; break;
-#endif
-            case VAR: s.erase(pos, 1); pos++;           break; // "%%" -> "%"
+
             case '_': und = true; ++n; continue;
             case 'C': cap = true; ++n; continue;
-            case '0':
-#if !ZERO_BASED
-                c += 10;      // so it'll turn up as 9 when we subtract '1'
-#endif
+            
+            case '0': if(!ZERO_BASED) c += 10;
             case '1':
             case '2':
             case '3':

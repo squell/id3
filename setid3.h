@@ -62,6 +62,9 @@ enum ID3set {
 };
 
 class smartID3 {
+    static const bool ZERO_BASED = false;     // count starts at %0 ?
+    static const char VAR = '%';              // replacement char
+
     std::vector<const char*> mod;
 
 protected:
@@ -97,7 +100,6 @@ public:
     bool modify(const char* fn, const T& vars) const
     { return vmodify(fn, container<T>(vars)); }
 
-    static const char VAR = '%';              // replacement char
     static std::string edit(std::string, const base_container&);
 };
 

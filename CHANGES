@@ -27,5 +27,6 @@ Todo list:
   Shorthand Wildcards ("%n. %t.mp3" == -n %1 -t %2 "*. *.mp3")
   Join main.cpp & view.cpp
  !write_mp3s
+ !INSTALL
 
 
