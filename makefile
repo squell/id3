@@ -111,10 +111,10 @@ dist-check:
 	grep $(D_VER) INSTALL
 	grep $(D_VER) CHANGES
 	d=`(cat INSTALL | sed -n -e '/contents/,/---/!d' \
-	  -e '/(C)$$/   s:^ \([^ ]*\)[*].*:\1h \1c:p' \
-	  -e '/(C++)$$/ s:^ \([^ ]*\)[*].*:\1h \1cpp:p' \
-	  -e	       's:^ \([^ ]*\).*:\1:p'; \
-	    echo $(DISTFILES)) | tr ' ' '\n' | sort | uniq -u` && \
+	  -e '/(C++)$$/{ s/^ \([^ ]*\)[*].*/\1h/p; s/h$$/cpp/p;}' \
+	  -e '/(C)$$/  { s/^ \([^ ]*\)[*].*/\1h/p; s/h$$/c/p;  }' \
+	  -e		's/^ \([^ ]*\).*/\1/p'; \
+	    ls $(DISTFILES) | sed 's:/[^ ]*::g') | sort | uniq -u` && \
 	echo "$${d}"; test -z "$${d}"
 	$(D_TMP) && make -C .tmp all && mv .tmp/id3 .tmp/id3l `pwd`
 	-rm -rf .tmp
