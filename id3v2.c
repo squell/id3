@@ -279,7 +279,7 @@ int ID3_writef(const char *fname, void *src)
         fclose(f);
         fclose(nf);
         if(ok) {
-            rename(tmp, fname);
+            if(remove(fname) == 0) rename(tmp, fname);
         } else {
             remove(tmp);                                      /* failure */
             return 0;

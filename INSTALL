@@ -43,7 +43,7 @@ Successfully compiled with (x86 platforms only so far):
 
  - GCC 2.95.3       (DJGPP, GNU/Linux)
  - GCC 3.x          (DJGPP, GNU/Linux, MinGW)
- - Intel C++ 6      (GNU/Linux)
+ - Intel C++ 7.1    (GNU/Linux)
  - Borland C++ 5.5  (Win32)
 
 This program is mostly written in 100% portable ISO C/C++, so basically all

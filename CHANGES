@@ -1,10 +1,13 @@
 Changelog for 'id3'.
 
+2003-181 (W27):
+  Code clean up + minor improvements (e.g. added [] to wildcard match)
+  Bolted together (private) ID3v1 tagger & (private) ID3v2 sources
+
 2003-183 (W27):
   Started changelog.
-  Bolted together (private) ID3v1 tagger & (private) ID3v2 sources
-  Code clean up in the last 3 days (e.g. added [] to wildcard match)
   Documentation.
+  More code cleaning. Removed dependancy on rename() behaviour.
 
 Todo list:
 
