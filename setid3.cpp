@@ -5,6 +5,7 @@
 #include <string>
 #include <map>
 #include <algorithm>
+#include <new>
 #include "setid3.h"
 #include "id3v1.h"
 
@@ -147,17 +148,35 @@ bool smartID3::vmodify(const char* fn, const base_container& v) const
             tag.genre = (g==ID3_genre.end() ? x : g->second);
         }
 
+        bool err;  
+
         if( fresh && count(mod.begin(),mod.end(),(char*)0) == 7 ) {
-            ftrunc(f);
+            err = ftrunc(f) != 0;
         } else {
-            fwrite(&tag, 1, 128, f);
+            err = fwrite(&tag, 1, 128, f) != 128;
         }
 
         fclose(f);
+
+        if(err) {
+            string emsg("error writing ID3 tag to ");
+            failure e(emsg + fn);
+            throw e;
+        } 
+
         return 1;
     };
 
     return 0;
+}
+
+/* ====================================================== */
+
+smartID3::failure::failure(const string& s)
+: txt( new (nothrow) char[s.length()+1] )
+{
+    if(txt.get())
+        strcpy(txt.get(), s.c_str());
 }
 
 /*

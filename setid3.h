@@ -56,6 +56,8 @@
 
 #include <string>
 #include <vector>
+#include <exception>
+#include <memory>
 
 enum ID3set {
     title, artist, album, year, cmnt, track, genre, ID3
@@ -100,6 +102,16 @@ public:
     template<class T>                         // returns success/failure
     bool modify(const char* fn, const T& vars) const
     { return vmodify(fn, container<T>(vars)); }
+
+    class failure;
+};
+
+class smartID3::failure : public std::exception {
+    auto_ptr<char> txt;
+public:
+    failure(const std::string&);
+    virtual const char* what() const throw()
+    { return txt.get() ? txt.get() : "<null>"; }
 };
 
 #endif
