@@ -1,6 +1,6 @@
 #include <string>
 #include <cstdio>
-#include <ctype>
+#include <cctype>
 #include "setfname.h"
 #if defined(__WIN32__)
 #    include <io.h>
@@ -15,6 +15,8 @@
   see the file 'COPYING' for license conditions
 
 */
+
+using namespace std;
 
 namespace set_tag {
 
@@ -33,9 +35,9 @@ bool filename::vmodify(const char* fname, const subst& v) const
     if(!ftemplate)
         return false;
 
-    std::string name = edit(ftemplate, v).local();
+    string name = edit(ftemplate, v).local();
 
-    for(std::string::iterator p = name.begin(); p != name.end(); ++p) {
+    for(string::iterator p = name.begin(); p != name.end(); ++p) {
         *p = portable_fn(*p)? *p : '_';
     }
 

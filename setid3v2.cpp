@@ -107,7 +107,8 @@ static string binarize(string field, const cvtstring& src)
         if(x < ID3v1_numgenres) s = ID3v1_genre[x];
     }
     if(field[0] == 'T' || field == "IPLS" || field == "WXXX") {
-        bool t = field.compare(1,3,"XXX") == 0;
+ /*     bool t = field.compare(1,3,"XXX") == 0;  gcc 2.95 doesnt */
+        bool t = field[1]=='X' & field[2]=='X' & field[3]=='X';
         s.insert(string::size_type(0), 1+t, '\0');
     } else if(field[0] == 'W') {
         //
