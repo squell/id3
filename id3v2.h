@@ -13,11 +13,12 @@
   *tagsize (if != NULL). returns pointer on success, NULL on failure
   stores non-zero value in *tagsize if dangerous ID3v2 tag caused failure
 
-      int ID3_writef(const char *fname, void *buf);
+      int ID3_writef(const char *fname, void *buf, size_t reqsize);
 
   writes in-memory tag pointed to by buf to fname. returns true / false on
   success / failure. in-memory tag needs to be zero-terminated.
-  doesnt check consistency of fname (use ID3_readf first)!
+  if reqsize != 0, tries to write id3v2 tag of that size
+  [doesnt check consistency of fname (use ID3_readf first)!]
 
       void ID3_free(void *buf)
 
@@ -96,7 +97,7 @@ typedef struct _ID3FRAME {
 } ID3FRAME[1];
 
 extern void   *ID3_readf(const char *fname, size_t *tagsize);
-extern int     ID3_writef(const char *fname, void *buf);
+extern int     ID3_writef(const char *fname, void *buf, size_t reqsize);
 extern void    ID3_free(void *buf);
 
 extern void    ID3_start(ID3FRAME f, void *buf);

@@ -42,9 +42,12 @@ namespace set_tag {
     class single_tag;
     class combined_tag;
 
+    class reader;              // abc for reading tags
+
     class failure;             // exception class
 
 }
+
 
 #ifdef __BORLANDC__
 namespace set_tag {            // (borland craps w/o this?)
@@ -73,12 +76,25 @@ public:
     virtual handler& set(ID3field, const char*) = 0;
     virtual handler& clear() = 0;
 
+    virtual handler& reserve(size_t req = 0)
+    { return *this; }
+
   // free-form set methods (optional - default to no-op)
 
     virtual handler& set(std::string, std::string)
     { return *this; }
     virtual handler& rm(std::string)
     { return *this; }
+};
+
+  ///////////////////////////////////////////////////////
+  // tag reading interface                             //
+  ///////////////////////////////////////////////////////
+
+class set_tag::reader {
+public:
+    virtual string operator[](ID3field) const = 0;
+    virtual ~reader() { };
 };
 
   ///////////////////////////////////////////////////////

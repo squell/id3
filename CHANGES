@@ -1,5 +1,10 @@
 Changelog for 'id3'.
 
+2004-162 (W24):
+  main.cpp: [CLI] added -s switch for suggesting tag size
+  id3v2.c:249:added size-hint recognition
+  main.cpp:278: bugfix: -rXXXX didn't work anymore
+
 2004-148 (W22):                                ---------[v0.73]-----------
   makefile deGNUified (mostly), some size optimizations
 
@@ -125,6 +130,9 @@ Changelog for 'id3'.
 
 Todo list:
 
+  - autocounter
+  - "-rT???"
+
   - More things:
     + Support for Ogg Vorbis
     + Support for APEv2
@@ -132,8 +140,7 @@ Todo list:
     + File rename
   - Internationalization (Unicode)
     + Locale interaction
-    + Enable multibyte encodings for varexp
-  - Options for forcing re-packing id3v2 ("-s size")
+    + Enable multibyte encodings for varexp (?)
   - Tag handling(/removal) for ID3v2 prior 3
   - Fetch default data ("-j filename")
   - Shorthand Wildcards ("%n. %t.mp3" == -n %1 -t %2 "*. *.mp3")

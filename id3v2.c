@@ -201,7 +201,7 @@ abort:                                   /* close file and return failure */
 
 int (*ID3_wfail)(const char *srcname, const char *dstname) = cpfile;
 
-int ID3_writef(const char *fname, void *src)
+int ID3_writef(const char *fname, void *src, size_t reqsize)
 {
     struct raw_hdr new_h = { "ID3", 3, 0, 0, 0 };
     struct raw_hdr rh    = { { 0 } };                       /* duct tape */
@@ -221,7 +221,7 @@ int ID3_writef(const char *fname, void *src)
 
         orig = getsize(&rh);
 
-        if( size > 0 && size <= orig ) {        /* enough reserved space */
+        if( size>0 && size<=orig && !reqsize) { /* enough reserved space */
             setsize(&new_h, orig);
             rewind(f);
             fwrite(&new_h, sizeof new_h, 1, f);   /* i don't check these */
@@ -239,12 +239,17 @@ int ID3_writef(const char *fname, void *src)
         rewind(f);
     }
                                                         /* file rewriter */
-    {
+    {              
         ulong nsize = ((size+sizeof new_h+0x1FF) & ~0x1FF) - sizeof new_h;
         int ok;                                      /* rnd to 512 bytes */
 
         char *tmp;
         FILE *nf = opentemp(fname, &tmp);
+
+        if( reqsize ) {
+            reqsize = (reqsize < sizeof new_h)? 0 : reqsize - sizeof new_h;
+            nsize   = (size < reqsize)? reqsize : size;
+        }
 
         if( !nf )
             goto abort;

@@ -42,11 +42,13 @@ namespace set_tag {
 
 class ID3v2 : public single_tag {
     std::map<std::string,std::string> mod;
+    size_t resize;
 
 public:
-    ID3v2(bool f = true) : single_tag(f), mod() { }
+    ID3v2(bool f = true) : single_tag(f), mod(), resize(0) { }
 
     ID3v2& set(ID3field i, const char* m);        // set standard field
+    ID3v2& reserve(size_t);                       // set suggested size
 
     virtual bool vmodify(const char*, const base_container&) const;
 

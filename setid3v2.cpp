@@ -118,6 +118,12 @@ ID3v2& ID3v2::set(std::string field, std::string s)
     return *this;
 }
 
+ID3v2& ID3v2::reserve(size_t n)
+{
+    resize = n? n : 1;
+    return *this;
+}
+
 ID3v2& ID3v2::rm(std::string field)
 {
     mod[field].erase();
@@ -172,7 +178,7 @@ bool ID3v2::vmodify(const char* fn, const base_container& v) const
         }
     }
 
-    bool res = ID3_writef(fn, dst);
+    bool res = ID3_writef(fn, dst, resize);
     w_fail::raise();
 
     return res;

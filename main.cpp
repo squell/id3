@@ -12,7 +12,7 @@
 #  include "setid3v2.h"
 #endif
 
-#define _version_ "0.73 (2004148)"
+#define _version_ "0.74-alpha (2004162)"
 
 /*
 
@@ -157,12 +157,6 @@ void write_tags(const char* spec, mass_tag& tag)
 
 /* ====================================================== */
 
-void shelp()
-{
-    fprintf(err(), "Try `id3 -h' for more information.\n");
-    exit(exitc=1);
-}
-
 void help(const char* argv0)
 {
     printf(
@@ -209,6 +203,24 @@ void Copyright()
     exit(exitc=1);
 }
 
+void shelp()
+{
+    fprintf(err(), "Try `id3 -h' for more information.\n");
+    exit(exitc=1);
+}
+
+
+long argtol(const char* arg)                   // convert argument to long
+{
+    char* endp;
+    long n = strtol(arg, &endp, 0);
+    if(*endp != '\0') {
+        fprintf(err(), "id3: invalid argument `%s'\n", arg);
+        exit(exitc=1);
+    }
+    return n;
+}
+
 /* ====================================================== */
 
 using set_tag::ID3field;
@@ -218,7 +230,8 @@ int main_(int argc, char *argv[])
     mass_tag tag;
 
     enum parm_t {                              // parameter modes
-        no_value, force_fn, stdfield, customfield,
+        no_value, force_fn,
+        stdfield, customfield, suggest_size
     } cmd = no_value;
 
     ID3field field;
@@ -256,12 +269,18 @@ int main_(int argc, char *argv[])
                 case 'g': field = set_tag::genre;  cmd = stdfield; break;
                 case 'n': field = set_tag::track;  cmd = stdfield; break;
 #ifdef __ZF_SETID3V2
+                case 's':
+                    cmd = suggest_size; break;
                 case 'w':
-                    fieldID.assign(opt); opt = "";
-                    cmd = customfield; break;
+                    fieldID.assign(opt); cmd = customfield;
+                    opt = "";
+                    break;
                 case 'r':
-                    tag.rm(opt); opt = "";
-                    w = true; break;
+                    if(chosen) {
+                        chosen->rm(opt); w = true;
+                    }
+                    opt = "";
+                    break;
                 case '1':
                     (chosen = with<ID3>  (tag))->enable();
                     break;
@@ -288,12 +307,21 @@ int main_(int argc, char *argv[])
             break;
 
 #ifdef __ZF_SETID3V2
+        case suggest_size:                     // v2 - suggest size
+            long l; l = argtol(argv[i]);
+            if(chosen) {
+                chosen->reserve(l);
+                break;
+            }
+
         case customfield:                      // v2 - write a custom field
             if(chosen) {
                 chosen->set(fieldID, argv[i]);
+                break;
             }
-            fieldID.erase();
-            break;
+
+            cmd = no_value;                    // no-op fallthrough
+            continue;
 #endif
         };
         cmd = no_value;

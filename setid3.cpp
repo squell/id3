@@ -100,6 +100,11 @@ const struct genre_map : map<string,int,bool (*)(const string&,const string&)> {
 
 /* ====================================================== */
 
+set_tag::reader* ID3::read(const char* fn)
+{
+     return new read_tag::ID3(fn);
+}
+
 bool ID3::vmodify(const char* fn, const base_container& v) const
 {
     if(!enabled)
