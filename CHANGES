@@ -1,7 +1,10 @@
 Changelog for 'id3'.
 
+2004-148 (W22):                                ---------[v0.73]-----------
+  makefile deGNUified (mostly), some size optimizations
+
 2004-144 (W21):
-  charconv.pp: hacked together a converion to latin1 on systems that are
+  charconv.cpp: hacked together a converion to latin1 on systems that are
     fully unicode compliant (e.g. glibc2.2 and up)
   setid3.cpp: now upgrades old ID3v1.0 tags
   id3v2.c:186: fixed (rare) leak, added check to see if padding is zeroed

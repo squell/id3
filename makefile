@@ -32,7 +32,7 @@ INSTALL_DATA  = $(INSTALL) -m 644
 
 ## makefile setup ##########################################################
 
-.PHONY: all clean final
+.PHONY: all clean final default
 .PHONY: install install-strip install-full uninstall
 .PHONY: installdirs installman installdoc
 .PHONY: dist dist-zip
@@ -40,6 +40,8 @@ INSTALL_DATA  = $(INSTALL) -m 644
 .SUFFIXES: .c .cpp .o
 
 ## standard targets ########################################################
+
+default: id3
 
 all  : id3 id3l
 
