@@ -50,15 +50,13 @@ namespace set_tag {
 }
 
 
-#ifdef __BORLANDC__
-namespace set_tag {            // (borland craps w/o this?)
-#endif
+namespace set_tag {            // borland likes this better
 
   ///////////////////////////////////////////////////////
   // interface part                                    //
   ///////////////////////////////////////////////////////
 
-class set_tag::handler : protected string_parm {
+class handler : protected string_parm {
 public:
     virtual bool vmodify(const char*, const base_container&) const = 0;
 
@@ -86,7 +84,7 @@ public:
   // tag reading interface                             //
   ///////////////////////////////////////////////////////
 
-class set_tag::reader {
+class reader {
 public:
     typedef std::vector< std::pair<std::string, std::string> > array;
 
@@ -99,7 +97,7 @@ public:
   // less abstract base class (seperate common code)   //
   ///////////////////////////////////////////////////////
 
-class set_tag::single_tag : public handler {
+class single_tag : public handler {
 protected:
     single_tag(bool t = true)
     : enabled(t), fresh(false) { }
@@ -117,11 +115,11 @@ public:
   // (delegates all messages to registered handlers)   //
   ///////////////////////////////////////////////////////
 
-class set_tag::combined_tag : public handler {
-    std::vector<set_tag::single_tag*> tags;
+class combined_tag : public handler {
+    std::vector<single_tag*> tags;
 public:
   // registers a delegate tag
-    combined_tag& delegate(set_tag::single_tag& t)
+    combined_tag& delegate(single_tag& t)
     { tags.push_back(&t); return *this; }
 
   // standard state set methods (non-inline)
@@ -137,7 +135,7 @@ public:
   // severe error reporting                            //
   ///////////////////////////////////////////////////////
 
-class set_tag::failure : public std::exception {
+class failure : public std::exception {
     mutable char* txt;
 public:
     explicit failure(const char* err);
@@ -160,45 +158,37 @@ public:
       more work :)
   */
 
-inline set_tag::failure::failure(const std::string& err)
+inline failure::failure(const std::string& err)
 {
-#ifndef __BORLANDC__
-    using std::strcpy;
-#endif
-    txt = new (std::nothrow) char[err.length()+1];
+    using namespace std;
+    txt = new (nothrow) char[err.length()+1];
     if(txt) {
         strcpy(txt, err.c_str());
     }
 }
 
-inline set_tag::failure::failure(const char* err)
+inline failure::failure(const char* err)
 {
-#ifndef __BORLANDC__
-    using std::strcpy;
-#endif
-    txt = new (std::nothrow) char[std::strlen(err)+1];
+    using namespace std;
+    txt = new (nothrow) char[strlen(err)+1];
     if(txt) {
         strcpy(txt, err);
     }
 }
 
-inline set_tag::failure::failure(const char* err, const char* context)
+inline failure::failure(const char* err, const char* context)
 {
-#ifndef __BORLANDC__
-    using std::strcpy;
-#endif
-    std::size_t elen = std::strlen(err);
-    std::size_t clen = std::strlen(context);
-    txt = new (std::nothrow) char[elen+clen+1];
+    using namespace std;
+    size_t elen = strlen(err);
+    size_t clen = strlen(context);
+    txt = new (nothrow) char[elen+clen+1];
     if(txt) {
         strcpy(txt,      err);
         strcpy(txt+elen, context);
     }
 }
 
-#ifdef __BORLANDC__
 }
-#endif
 
 #endif
 

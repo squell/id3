@@ -101,19 +101,12 @@ namespace {
     template<class T> inline const T& with(const uses<T>& box) { return box.object; }
 }
 
-#ifdef __ZF_SETID3V2
-
-#  ifdef NO_FN
-struct metadata : uses<ID3v2>, uses<ID3> { };
-#  else
-struct metadata : uses<ID3v2>, uses<ID3>, uses<filename> { };
-#  endif
-
-#else
-
-typedef ID3 metadata;
-
+struct metadata :
+#ifndef NO_V2
+   uses<ID3v2>,
 #endif
+   uses<ID3> //, uses<filename>
+{ };
 
 /* ====================================================== */
 
@@ -154,7 +147,7 @@ void mass_tag::operator()(const char* spec)
 static void help()
 {
     printf(
-#ifdef __ZF_SETID3V2
+#ifndef NO_V2
         "%s " _version_ "\n"
         "usage: %s [-1 -2] [OPTIONS] filespec ...\n"
 #else
@@ -168,10 +161,10 @@ static void help()
         " -y <year>\t"     "\n"
         " -g <genre>\t"    "\n"
         " -c <comment>\t"  "\n"
-        " -f <filename>\t" "set filename\n"
+ //     " -f <filename>\t" "set filename\n"         disabled in 0.74
         " -v\t\t"          "give verbose output\n"
         " -V\t\t"          "print version info\n"
-#ifdef __ZF_SETID3V2
+#ifndef NO_V2
         "Only when -2:\n"
         " -rXXXX\t\terase all XXXX frames\n"
         " -wXXXX <data>\twrite a XXXX frame\n"
@@ -278,7 +271,7 @@ int main_(int argc, char *argv[])
                 case 'g': field = set_tag::genre;  cmd = stdfield; break;
                 case 'n': field = set_tag::track;  cmd = stdfield; break;
                 case 'f': cmd = set_rename; break;
-#ifdef __ZF_SETID3V2
+#ifndef NO_V2
                 case '1':
                     chosen = &tag.enable<ID3>();
                     break;
@@ -324,6 +317,7 @@ int main_(int argc, char *argv[])
             break;
 
         case set_rename:
+#if 0
             argpath(argv[i]);
             if(! with<filename>(tag).rename(argv[i]) ) {
                 eprintf("will not rename across directories\n");
@@ -332,8 +326,13 @@ int main_(int argc, char *argv[])
             if(!chosen)
                 chosen = &with<filename>(tag);
             break;
+#else
+            eprintf("%s: argument ignored", argv[i]);
+            cmd = no_value;
+            continue;
+#endif
 
-#ifdef __ZF_SETID3V2
+#ifndef NO_V2
         case suggest_size: {                   // v2 - suggest size
                 long l = argtol(argv[i]);
                 chosen->reserve(l);

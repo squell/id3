@@ -106,12 +106,12 @@ bool ID3v2::check_field(string& field, string& s)
             return false;
 
     if(field[0] == 'T' || field == "IPLS" || field == "WXXX") {
-        bool t = field[1]=='X' && field[2]=='X' && field[3]=='X';
-        s.insert(string::size_type(0), 1+t, '!');
+        bool t = (field[1]=='X' && field[2]=='X' && field[3]=='X');
+        s.insert(string::size_type(0), 1+t, '\0');
     } else if(field[0] == 'W') {
         //
     } else if(field == "COMM" || field == "USLT" || field == "USER") {
-        s.insert(string::size_type(0), "!xxx!", 4 + (field[3]!='R'));
+        s.insert(string::size_type(0), "\0xxx\0", 4 + (field[3]!='R'));
     } else if(field == "PCNT") {
         unsigned long t = strtol(s.c_str(), 0, 0);
         s.erase();
@@ -134,12 +134,11 @@ const char xlat[][5] = {
 ID3v2& ID3v2::set(ID3field i, const char* m)
 {
     if(i < FIELDS) {
-        const string prefix("\0xxx\0", i!=cmnt? 1 : 5);
         if(i == genre) {
             unsigned int x = atoi(m)-1;             // is portable
             if(x < ID3v1_numgenres) m = ID3v1_genre[x];
         }
-        mod.insert( db::value_type(xlat[i], prefix+m) );
+        set(xlat[i], m);
     }
     return *this;
 }
