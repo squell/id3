@@ -9,6 +9,7 @@ CXXFLAGS = $(CFLAGS)
 LDFLAGS  =
 
 STRIP	 = strip
+TAR	 = tar
 
 ## installation vars #######################################################
 
@@ -28,7 +29,7 @@ INSTALL_DIR   = $(INSTALL) -d
 INSTALL_STRIP = $(INSTALL) -s
 INSTALL_DATA  = $(INSTALL) -m 644
 
-############################################################################
+## standard targets ########################################################
 
 id3: main.o sedit.o varexp.o ffindexp.o \
      setid3.o setid3v2.o \
@@ -48,7 +49,7 @@ final: id3 id3l
 clean:
 	rm -f *.o id3 id3l
 
-############################################################################
+## installation ############################################################
 
 installdirs:
 	$(INSTALL_DIR) $(bindir) $(man1dir)
@@ -73,7 +74,29 @@ uninstall:
 	rm -f $(man1dir)/id3.$(manext)
 	rm -f $(bindir)/id3
 
-############################################################################
+## distribution ############################################################
+
+DISTFILES = INSTALL $(docdata) makefile makefile.dj makefile.bcc \
+	main.cpp auto_dir.h \
+	$(foreach f, sedit varexp ffindexp setid3 setid3v2, $(f).h $(f).cpp) \
+	$(foreach f, fileops id3v1 id3v2, $(f).c) \
+	id3.man
+
+D_PKG = pkg=id3-`sed -n -e "/_version_/{s!^[^0-9]*\([^ ]*\).*!\1!p;q}" \
+		main.cpp`; \
+	rm -f ../$${pkg}; \
+	ln -s `pwd` ../$${pkg}; \
+	cd ..
+
+D_FIL = `echo $(DISTFILES) | sed -e "s![^ ]*!$${pkg}/&!g"`
+
+dist: $(DISTFILES)
+	$(D_PKG); $(TAR) cfhz $${pkg}/$${pkg}.tar.gz $(D_FIL); rm -f $${pkg}
+
+dist-zip: $(DISTFILES)
+	$(D_PKG); zip -9l $${pkg}/$${pkg//.}s.zip $(D_FIL); rm -f $${pkg}
+
+## dependencies ############################################################
 
 main.o: main.cpp sedit.h ffindexp.h auto_dir.h setid3v2.h setid3.h
 	$(CC) $(CXXFLAGS) -c main.cpp

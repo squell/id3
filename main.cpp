@@ -15,6 +15,8 @@
 #  include "setid3v2.h"
 #endif
 
+#define _version_ "0.73pvt (2004xxx)"
+
 /*
 
   (c) 2003,2004 squell ^ zero functionality!
@@ -114,7 +116,7 @@ void shelp()
 void help(const char* argv0)
 {
     printf(
-        "id3 0.73pvt (2004xxx)\n"
+        "id3 " _version_ "\n"
 #ifdef __ZF_SETID3V2
         "usage: %s [-1 -2] [OPTIONS] filespec ...\n\n"
 #else
