@@ -36,6 +36,12 @@
   location to write the next frame to. automatically adds zero-bytes.
   if ID is invalid or src == NULL, performs *(char*)dest = 0
 
+      int (*ID3_wfail)(const char *dest, const char *src)
+
+  this function pointer gets called if the rename() in ID3_writef fails.
+  by default, this points to cpfile(). If this function returns 0, ID3_writef
+  will abort the program with an error.
+
   Example (reading a tag):
 
     void *buf = ID3_readf("filename",0);
@@ -88,6 +94,10 @@ extern void    ID3_start(ID3FRAME f, void *buf);
 extern int     ID3_frame(ID3FRAME f);
 
 extern void   *ID3_put(void *dest, const char ID[4], const void *src, size_t len);
+
+extern int   (*ID3_wfail)(const char *srcname, const char *dstname);
+
+extern int cpfile(const char *srcnam, const char *dstnam);
 
 #ifdef __cplusplus
 }
