@@ -104,6 +104,7 @@ dist-zip: $(DISTFILES)
 	$(D_PKG) && zip -9Tl $${pkg//.}s.zip $(D_FIL); rm -f $${pkg}
 
 dist-check:
+	echo !*; test ! -f !*
 	grep $(D_VER) INSTALL
 	grep $(D_VER) CHANGES
 	d=`(cat INSTALL | sed -n -e '/contents/,/---/!d' \
