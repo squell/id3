@@ -15,8 +15,10 @@ the contents of the source distribution:
 
  main.cpp       - main program file                             (C++)
  sedit.*        - string formatting                             (C++)
- setid3.*       - id3 patch class                               (C++)
- setid3v2.*     - id3v2 patch extension                         (C++)
+ charconv.*     - character conversion                          (C++)
+ set_base.*     - abstract patch class                          (C++)
+ setid3.*       - + id3v1 implementation                        (C++)
+ setid3v2.*     - + id3v2 implementation                        (C++)
  varexp.*       - wildcard/pattern matching class               (C++)
  ffindexp.*     - filefinder/matcher                            (C++)
  auto_dir.*     - smart dirent pointer class                    (C++)
@@ -28,7 +30,7 @@ the contents of the source distribution:
  id3.man        - raw man page                                  (troff -man)
 
 ---------------------------------------------------------------
-| (c) squell 2003,2004 - copyright notice
+| (c) squell 2003, 2004 - copyright notice
 -------------------------------------------------------------
 
 All files in this package are copyrighted. This is NOT public domain software.
@@ -48,8 +50,8 @@ which should be included in this source distribution.
 
 Successfully compiled with:
 
- - GCC 2.95.3       (DJGPP, GNU/Linux)
- - GCC 3.x          (DJGPP, GNU/Linux, MinGW)
+ - GCC 2.95.3       (GNU/Linux, DJGPP)
+ - GCC 3.x          (GNU/Linux, DJGPP, MinGW)
  - Intel C++ 7.1    (GNU/Linux)
  - Borland C++ 5.5  (Win32)
 
@@ -88,24 +90,27 @@ Win32/DOS systems. You should have. :)
 
 Generic GNU/BSD makefile targets & variables:
 
- make install       - installs into the directory "$(prefix)/bin"
+ make install       - installs the program
  make install-strip - like install, but strips executable of debug info
- make uninstall     - uninstall from "$(prefix)/bin"
+ make install-full  - also installs the documentation in $(datadir)/doc
+ make uninstall     - uninstall (does not remove documentation)
 
-Because id3 does not have a configure script (yet), you can only set
-these variables on the 'make' commandline:
+Because id3 does not have a configure script (yet), you can set
+these variables only the 'make' commandline:
 
- prefix             - the prefix directory name  (def. "/usr/local")
- bindir             - the binary directory name  (def. "$(prefix)/bin")
+ prefix             - the prefix directory       (def. "/usr/local")
+ bindir             - dir for binaries           (def. "$(prefix)/bin")
+ mandir             - dir for manpages           (def. "$(prefix)/man")
+ datadir            - dir for shared files       (def. "$(prefix)/share")
  binary             - name of the binary object  (def. "id3")
 
 E.g: "make install prefix=$HOME" to install in $HOME/bin instead.
-See inside 'makefile' for more details.
+See inside 'makefile' for more details (and more variables).
 
 ===
 Customizing
 
-Some things you can tweak in the definition of the class 'svar', in sedit.h:
+Things you can tweak in the definition of the class 'string_parm', in sedit.h:
 
 Set the ZERO_BASED constant to 1 (or true), if you would like to start
 counting wildcards in the commandline parameters at 0 instead of 1, making the
@@ -130,13 +135,13 @@ instead of mktemp() for generating temporary file names.
 (Win32) MinGW 2.0:
   http://www.mingw.org/
 
-(Linux, Win32) Intel C++ 7.1:       (30 day evaluation/non-commercial only)
+(Linux, Win32) Intel C++ 8.0:       (30 day evaluation/non-commercial only)
   http://www.intel.com/software/products/compilers/
 
 (Win32 -> DOS extender)             (Use Win32 compilers to create DOS apps)
   http://michael.tippach.bei.t-online.de/wdosx/
 
 ---------------------------------------------------------------
-| contact: (pri.) squell@goth.net, (alt.) squell@xms.ms
+| contact: (pri.) squell@goth.net, (alt.) squell@alumina.nl
 -------------------------------------------------------------
 

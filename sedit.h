@@ -24,7 +24,7 @@
   Restrictions:
 
   The only requirements of the container type is that it has a [] operator
-  defined, and that it contains data that can be converted into a std:string.
+  defined, and that it contains data that can be converted into a std::string.
   A standard C "array-of-char*" will do, as will std::vector<string>.
 
   If the container type does not perform bounds checking on the [] operator,
@@ -32,9 +32,9 @@
 
   Example:
 
-      sedit ed("%2%1");
-      char* tab[] = { "foo", "bar" };
-      cout << capitalize( ed(tab) );   // "Barfoo"
+	  sedit ed("%2%1");
+	  char* tab[] = { "foo", "bar" };
+	  cout << capitalize( ed(tab) );   // "Barfoo"
 
 */
 
@@ -50,39 +50,39 @@ class sedit;
   //
 
 class string_parm {
-    static const bool ZERO_BASED = false;     // count starts at %0 ?
-    static const char VAR = '%';              // replacement char
+	static const bool ZERO_BASED = false;	  // count starts at %0 ?
+	static const char VAR = '%';              // replacement char
 
 protected:
-    struct base_container {
-        virtual std::string operator[](unsigned) const = 0;
-    };
+	struct base_container {
+		virtual std::string operator[](unsigned) const = 0;
+	};
 
-    template<class T>                         // templatized wrapper
-    struct container : base_container {
-        const T& data;
+	template<class T>						  // templatized wrapper
+	struct container : base_container {
+		const T& data;
 
-        container(const T& t) : data(t) { }
+		container(const T& t) : data(t) { }
 
-        virtual std::string operator[](unsigned x) const
-        { return data[x]; }
-    };
+		virtual std::string operator[](unsigned x) const
+		{ return data[x]; }
+	};
 
-    static std::string edit(std::string, const base_container&);
+	static std::string edit(std::string, const base_container&);
 };
 
   // little excuse for making this a useful header :)
 
 class sedit : string_parm {
 public:
-    sedit(std::string msg) : fmt(msg) { }
+	sedit(std::string msg) : fmt(msg) { }
 
-    template<class T>
-      std::string operator()(const T& vars)
-    { return edit(fmt, container<T>(vars)); }
+	template<class T>
+	  std::string operator()(const T& vars)
+	{ return edit(fmt, container<T>(vars)); }
 
 private:
-    const std::string fmt;
+	const std::string fmt;
 };
 
 #endif

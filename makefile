@@ -79,7 +79,8 @@ uninstall:
 
 DISTFILES = INSTALL $(docdata) makefile makefile.dj makefile.bcc \
 	main.cpp auto_dir.h \
-	$(foreach f, sedit varexp ffindexp setid3 setid3v2, $(f).h $(f).cpp) \
+	$(foreach f, sedit varexp ffindexp charconv, $(f).h $(f).cpp) \
+	$(foreach f, set_base setid3 setid3v2, $(f).h $(f).cpp) \
 	$(foreach f, fileops id3v1 id3v2, $(f).h $(f).c) \
 	id3.man
 

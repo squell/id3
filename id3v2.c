@@ -177,7 +177,7 @@ void *ID3_readf(const char *fname, size_t *tagsize)
     }
 
     pad  = size;                                /* check semantics of tag */
-    size = calcsize(buf, size);    
+    size = calcsize(buf, size);
     if(tagsize) *tagsize = size;
 
     if(size == 0)                                /* semantic error in tag */

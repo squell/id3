@@ -48,7 +48,7 @@ public:
 
 	ID3v2& set(ID3field i, const char* m);		  // set standard field
 
-    virtual bool vmodify(const char*, const base_container&) const;
+	virtual bool vmodify(const char*, const base_container&) const;
 
   // extended set
 

@@ -65,16 +65,20 @@ names.
 show commandline help
 
 .TP
+.B \-V
+display version number and copyright
+
+.TP
 .B \-v
 be verbose
 
 .TP
 .B \-1
-write ID3 v1 tags (default). See `-2'.
+write ID3v1 tags (default). See `-2'.
 
 .TP
 .B \-2
-write ID3 v2 tags. If both -1 and -2 are specified, both tag formats will be
+write ID3v2 tags. If both -1 and -2 are specified, both tag formats will be
 written.
 
 .TP
@@ -227,7 +231,7 @@ ID3v2 v4.0 (yet?). It also does not support ID3v2 features as compression,
 encryption, ...
 
 .SH AUTHOR
-Written by Marc R. Schoolderman (squell)
+Written by Marc R. Schoolderman <squell@alumina.nl>.
 
 .SH COPYRIGHT
 This is free software; see the source for copying conditions. There is NO
@@ -235,3 +239,4 @@ warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
 .SH SEE ALSO
 Program homepage: http://home.wanadoo.nl/squell/id3.html
+

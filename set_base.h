@@ -37,15 +37,15 @@ namespace set_tag {
 
 	class handler;			   // abstract base class / interface
 
-    class single_tag;
-    class combined_tag;
+	class single_tag;
+	class combined_tag;
 
 	class failure;			   // exception class
 
 }
 
 #ifdef __BORLANDC__
-namespace set_tag {            // (borland craps w/o this?)
+namespace set_tag { 		   // (borland craps w/o this?)
 #endif
 
   ///////////////////////////////////////////////////////
@@ -54,19 +54,19 @@ namespace set_tag {            // (borland craps w/o this?)
 
 class set_tag::handler : protected string_parm {
 public:
-    virtual bool vmodify(const char*, const base_container&) const = 0;
+	virtual bool vmodify(const char*, const base_container&) const = 0;
 
-    template<class T>
+	template<class T>
 	  bool modify(const char* fn, const T& vars) const
-    { return vmodify(fn, container<T>(vars)); }
+	{ return vmodify(fn, container<T>(vars)); }
 
-    handler& enable()  { return active(1); }
-    handler& disable() { return active(0); }
+	handler& enable()  { return active(1); }
+	handler& disable() { return active(0); }
 
   // standard state set methods
 
 	virtual handler& active(bool) = 0;
-    virtual bool     active() const = 0;
+	virtual bool	 active() const = 0;
 
 	virtual handler& set(ID3field, const char*) = 0;
 	virtual handler& clear() = 0;
@@ -92,7 +92,7 @@ protected:
 	bool enabled;				   // should vmodify do anything?
 public:
 	handler& active(bool on) { enabled = on; }
-    bool     active() const  { return enabled; }
+	bool	 active() const  { return enabled; }
 
 	handler& clear()		 { fresh = true; return *this; }
 };
@@ -111,7 +111,7 @@ public:
 
   // standard state set methods (non-inline)
 	handler& active(bool);
-    bool     active() const;
+	bool	 active() const;
 	handler& set(ID3field, const char*);
 	handler& clear();
 };

@@ -141,7 +141,7 @@ bool ID3::vmodify(const char* fn, const base_container& v) const
 
         if(txt = mod[cmnt]) {
             ++n, strncpy(tag.cmnt,   edit(txt,v).c_str(), sizeof tag.cmnt);
-            if(tag.zero != '\0')                     
+            if(tag.zero != '\0')
                 tag.track = tag.zero = 0;               // ID3 v1.0 -> v1.1
         }
         if(txt = mod[track]) {
