@@ -4,7 +4,7 @@
 
 */
 
-extern const char *ID3v1_genres[] = {
+const char *ID3v1_genres[] = {
 
     "Blues", "Classic Rock", "Country", "Dance", "Disco", "Funk",
     "Grunge", "Hip-Hop", "Jazz", "Metal", "New Age", "Oldies",
