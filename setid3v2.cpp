@@ -17,7 +17,7 @@ using namespace std;
 /* ===================================== */
 
  // extra hairyness to prevent buffer overflows by re-allocating on the fly
- // this may seem like overkill, but i had to do a runtime check anyway, so
+ // this may seem like overkill, but i had to do a runtime check anyway, so.
 
 struct w_ptr {
     unsigned long avail;

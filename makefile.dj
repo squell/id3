@@ -5,36 +5,30 @@ CFLAGS	 = -g -O2
 
 ############################################################################
 
-id3: main.o setid3.o setid3v2.o varexp.o id3v1.o id3v2.o id3_fmt.o
+id3.exe: main.o varexp.o setid3.o setid3v2.o id3v1.o id3v2.o
 	$(CC) -o $@ $+
 
-id3l: mainl.o setid3.o varexp.o id3v1.o
+id3l.exe: mainl.o varexp.o setid3.o id3v1.o
 	$(CC) -o $@ $+
 
-all  : id3 id3l
+all  : id3.exe id3l.exe
 
-final: id3 id3l
-	upx --best -f -oID3.EXE $<
-
-dist :	main.cpp varexp.h varexp.cpp \
-    id3v1.h setid3.h setid3.cpp \
-    id3v2.h setid3v2.h setid3v2.cpp \
-    makefile.dj makefile.bcc makefile copying
-	pkzip -ex src.zip $+
-	pkzip -ex bin.zip readme copying id3.exe
-	tar cvfz src.tar.gz $+
+final: id3.exe id3l.exe
+	upx --best $+
 
 clean:
 	del *.o
 	del id3
 	del id3.exe
+	del id3l
+	del id3l.exe
 
 ############################################################################
 
-main.o: main.cpp setid3.h setid3v2.h varexp.h id3v1.h id3v2.h
+main.o: main.cpp varexp.h setid3.h setid3v2.h id3v1.h id3v2.h
 	$(CC) $(CFLAGS) -c main.cpp
 
-mainl.o: main.cpp setid3.h varexp.h id3v1.h
+mainl.o: main.cpp varexp.h setid3.h id3v1.h
 	$(CC) $(CFLAGS) -DNO_V2 -o $@ -c main.cpp
 
 setid3v2.o: id3v2.h setid3.h

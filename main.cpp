@@ -19,11 +19,7 @@
 
 using namespace std;
 
-struct take_action {
-    virtual bool operator()(const char*, varexp&) const = 0;
-};
-
-void for_files(const char* fspec, const take_action& action)
+void write_mp3s(const char* fspec, smartID3& tag)
 {
     char path[sizeof dirent().d_name * 2];
     strncpy(path, fspec, sizeof path);          // copy constant
@@ -46,7 +42,7 @@ void for_files(const char* fspec, const take_action& action)
     while( dirent* fn = readdir(dir) ) {
         varexp match(fspec, fn->d_name);
         strcpy(pname, fn->d_name);
-        if( match && ++m && !action(path, match) )
+        if( match && ++m && !tag.modify(path, match) )
             printf("err: could not access %s!\n", fn->d_name);
     }
     closedir(dir);
@@ -54,37 +50,6 @@ void for_files(const char* fspec, const take_action& action)
     if(!m)
         printf("err: no files matching %s\n", fspec);
 }
-
-  /*
-      Some history here: for_files() was called write_mp3s(),
-      and it was hard-wired to call 'tag.modify()'. I added yet another
-      layer of indirection to make this routine more versatile.
-   */
-
-/* ====================================================== */
-
-struct write_mp3s : take_action {
-    smartID3& tag;
-
-    write_mp3s(smartID3& tag) : tag(tag) { }
-
-    bool operator()(const char* path, varexp& vars) const
-    { return tag.modify(path, vars); }
-};
-
-#ifdef __ZF_SETID3V2
-#include "id3_scm.h"
-
-struct view_mp3s : take_action {
-    id3_print& prn;
-
-    view_mp3s(id3_print& prn) : prn(prn) { }
-
-    bool operator()(const char* path, varexp&) const
-    { return prn(path), true; }
-};
-
-#endif
 
 /* ====================================================== */
 
@@ -109,15 +74,18 @@ void help(const char* argv0)
     exit(0);
 }
 
+/* ====================================================== */
+
 int main(int argc, char *argv[])
 {
     if(argc <= 1) help(argv[0]);
 
-    bool   w = false;            // check against no-ops, not really needed
     ID3set t = ID3;
+    bool   w = false;            // check against no-ops, not really needed
 #ifdef __ZF_SETID3V2
-    smartID3v2 tag(true,false);  // default: write ID3v1, not v2
+    bool aux = false;            // check for -1 & -2 commands
     string opt;                  // v2
+    smartID3v2 tag(true,false);  // default: write ID3v1, not v2
 #else
     smartID3 tag;
 #endif
@@ -138,8 +106,7 @@ int main(int argc, char *argv[])
             if( argv[i][0] != '-' )
                 if(w)
                     try{
-                        for_files(argv[i], write_mp3s(tag));
-                    //  for_files(argv[i], view_mp3s());
+                        write_mp3s(argv[i], tag);
                     } catch(const out_of_range& x) {
                         printf("err: wildcard index out of range\n");
                     }
@@ -149,7 +116,7 @@ int main(int argc, char *argv[])
                 switch( toupper(argv[i][1]) ) {
 #ifdef __ZF_SETID3V2
                 case 'D':
-                    if( opt.assign(argv[i]+2,4) == "" )
+                    if( opt.assign(argv[i]+2) == "" )
                         tag.clear();
                     else
                         tag.rm(opt);
@@ -167,9 +134,9 @@ int main(int argc, char *argv[])
                 case 'G': t = genre;  break;
                 case 'N': t = track;  break;
 #ifdef __ZF_SETID3V2
-                case 'W': opt.assign(argv[i]+2,4); break;
-                case '2': tag.v2(true).v1(argv[i][2]=='+'); break;
-                case '1': tag.v1(true).v2(argv[i][2]=='+'); break;
+                case 'W': opt.assign(argv[i]+2); break;
+                case '2': tag.v2(true).v1(aux++); break;
+                case '1': tag.v1(true).v2(aux++); break;
 #endif
                 default:
                     printf("err: unrecognized switch: -%c\n", argv[i][1]);
