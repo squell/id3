@@ -161,6 +161,8 @@ int main_(int argc, char *argv[])
         printf("id3: missing file arguments\n");
     if(!u || !w)
         printf(shelp);
+
+    return 0;
 }
 
 
@@ -170,7 +172,7 @@ int main_(int argc, char *argv[])
 int main(int argc, char *argv[])
 {
     try {
-        main_(argc, argv);
+        return main_(argc, argv);
     } catch(const smartID3::failure& f) {
         printf("id3: %s\n", f.what());
     } catch(const out_of_range& x) {
@@ -181,3 +183,4 @@ int main(int argc, char *argv[])
         printf("id3: unexpected unhandled exception\n");
     }
 }
+

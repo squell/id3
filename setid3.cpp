@@ -38,7 +38,7 @@ static string capitalize(string s)
 {
     bool new_w = true;
     for(string::iterator p = s.begin(); p != s.end(); p++) {
-	new_w = !isalpha( *p = new_w? toupper(*p):tolower(*p) ); // heh =)
+        new_w = !isalpha( *p = new_w? toupper(*p):tolower(*p) ); // heh =)
     }
     return s;
 }
@@ -46,13 +46,13 @@ static string capitalize(string s)
 /* ====================================================== */
 
 const struct genre_map : map<string,int> {
-    typedef const_iterator iter;		// shorthand
+    typedef const_iterator iter;                // shorthand
 
-    genre_map() 				// initialize associative map
+    genre_map()                                 // initialize associative map
     {
-	for(int i=0; i < ID3v1_numgenres; i++) {
-	    (*this)[ capitalize(ID3v1_genre[i]) ] = i;
-	}
+        for(int i=0; i < ID3v1_numgenres; i++) {
+            (*this)[ capitalize(ID3v1_genre[i]) ] = i;
+        }
     }
 } ID3_genre;
 
@@ -63,43 +63,43 @@ string smartID3::edit(string s, const base_container& v)
     int pos = 0;
 
     while( (pos=s.find(VAR, pos)) >= 0 ) {
-	bool und = false;
-	bool cap = false;
-	char hex = 0;
-	int n = 1;
-	while( pos+n < s.length() ) {
-	    switch( char c = toupper(s[pos+n]) ) {
-	    default:
-		s.erase(pos, n);
-		break;
-	    case ':': s.erase(pos, 1); s[pos++] = '\0'; break;
-	    case VAR: s.erase(pos, 1);	 pos++; 	break; // "%%" -> "%"
-	    case 'N': s[pos++] = '\r'; s[pos++] = '\n'; break;
+        bool und = false;
+        bool cap = false;
+        char hex = 0;
+        int n = 1;
+        while( pos+n < s.length() ) {
+            switch( char c = toupper(s[pos+n]) ) {
+            default:
+                s.erase(pos, n);
+                break;
+            case ':': s.erase(pos, 1); s[pos++] = '\0'; break;
+            case VAR: s.erase(pos, 1);   pos++;         break; // "%%" -> "%"
+            case 'N': s[pos++] = '\r'; s[pos++] = '\n'; break;
 
-	    case '_': und = true; ++n; continue;
-	    case 'C': cap = true; ++n; continue;
+            case '_': und = true; ++n; continue;
+            case 'C': cap = true; ++n; continue;
 
-	    case '0': if(!ZERO_BASED) c += 10;
-	    case '1':
-	    case '2':
-	    case '3':
-	    case '4':
-	    case '5':
-	    case '6':
-	    case '7':
-	    case '8':
-	    case '9':
-		string tmp = v[c-'1' +ZERO_BASED];
-		if(cap)
-		    tmp = capitalize(tmp);
-		if(!und)
-		    replace(tmp.begin(), tmp.end(), '_', ' ');
-		s.replace(pos, n+1, tmp);
-		pos += tmp.length();
-		break;
-	    }
-	    break;	   // turn switch-breaks into while-breaks
-	}
+            case '0': if(!ZERO_BASED) c += 10;
+            case '1':
+            case '2':
+            case '3':
+            case '4':
+            case '5':
+            case '6':
+            case '7':
+            case '8':
+            case '9':
+                string tmp = v[c-'1' +ZERO_BASED];
+                if(cap)
+                    tmp = capitalize(tmp);
+                if(!und)
+                    replace(tmp.begin(), tmp.end(), '_', ' ');
+                s.replace(pos, n+1, tmp);
+                pos += tmp.length();
+                break;
+            }
+            break;         // turn switch-breaks into while-breaks
+        }
     }
     return s;
 }
@@ -108,62 +108,62 @@ string smartID3::edit(string s, const base_container& v)
 
 bool smartID3::vmodify(const char* fn, const base_container& v) const
 {
-    ID3v1 tag = { { 0 } };		      // duct tape
+    ID3v1 tag = { { 0 } };                    // duct tape
 
     if( FILE* f = fopen(fn, "rb+") ) {
-	fseek(f, -128, SEEK_END);
-	fread(&tag, 128, 1, f);
-	fseek(f,    0, SEEK_CUR);	      // * BUG * annotated below
+        fseek(f, -128, SEEK_END);
+        fread(&tag, 128, 1, f);
+        fseek(f,    0, SEEK_CUR);             // * BUG * annotated below
 
-	if( memcmp(tag.TAG, "TAG", 3) == 0 )
-	    fseek(f, -128, SEEK_END);	      // overwrite existing tag
-	else
-	    tag = synth_tag;		      // create new tag
+        if( memcmp(tag.TAG, "TAG", 3) == 0 )
+            fseek(f, -128, SEEK_END);         // overwrite existing tag
+        else
+            tag = synth_tag;                  // create new tag
 
-	if(fresh) tag = synth_tag;
+        if(fresh) tag = synth_tag;
 
-	const char* txt;		      // reading aid
+        const char* txt;                      // reading aid
 
-	if(txt = mod[title])
-	    strncpy(tag.title,	edit(txt,v).c_str(), sizeof tag.title);
+        if(txt = mod[title])
+            strncpy(tag.title,  edit(txt,v).c_str(), sizeof tag.title);
 
-	if(txt = mod[artist])
-	    strncpy(tag.artist, edit(txt,v).c_str(), sizeof tag.artist);
+        if(txt = mod[artist])
+            strncpy(tag.artist, edit(txt,v).c_str(), sizeof tag.artist);
 
-	if(txt = mod[album])
-	    strncpy(tag.album,	edit(txt,v).c_str(), sizeof tag.album);
+        if(txt = mod[album])
+            strncpy(tag.album,  edit(txt,v).c_str(), sizeof tag.album);
 
-	if(txt = mod[year])
-	    strncpy(tag.year,	edit(txt,v).c_str(), sizeof tag.year);
+        if(txt = mod[year])
+            strncpy(tag.year,   edit(txt,v).c_str(), sizeof tag.year);
 
-	if(txt = mod[cmnt])
-	    strncpy(tag.cmnt,	edit(txt,v).c_str(), sizeof tag.cmnt);
+        if(txt = mod[cmnt])
+            strncpy(tag.cmnt,   edit(txt,v).c_str(), sizeof tag.cmnt);
 
-	if(txt = mod[track])
-	    tag.track = atoi( edit(txt,v).c_str() );
+        if(txt = mod[track])
+            tag.track = atoi( edit(txt,v).c_str() );
 
-	if(txt = mod[genre]) {
-	    unsigned int    x = atoi(txt) - 1;
-	    genre_map::iter g = ID3_genre.find( capitalize(edit(txt,v)) );
-	    tag.genre = (g==ID3_genre.end() ? x : g->second);
-	}
+        if(txt = mod[genre]) {
+            unsigned int    x = atoi(txt) - 1;
+            genre_map::iter g = ID3_genre.find( capitalize(edit(txt,v)) );
+            tag.genre = (g==ID3_genre.end() ? x : g->second);
+        }
 
-	bool err;
+        bool err;
 
-	if( fresh && count(mod.begin(),mod.end(),(char*)0) == 7 ) {
-	    err = ftrunc(f) != 0;
-	} else {
-	    err = fwrite(&tag, 1, 128, f) != 128;
-	}
+        if( fresh && count(mod.begin(),mod.end(),(char*)0) == 7 ) {
+            err = ftrunc(f) != 0;
+        } else {
+            err = fwrite(&tag, 1, 128, f) != 128;
+        }
 
-	fclose(f);
+        fclose(f);
 
-	if(err) {
-	    string emsg("error writing ID3 tag to ");
-	    throw failure(emsg + fn);
-	}
+        if(err) {
+            string emsg("error writing ID3 tag to ");
+            throw failure(emsg + fn);
+        }
 
-	return 1;
+        return 1;
     };
 
     return 0;
@@ -175,7 +175,7 @@ smartID3::failure::failure(const string& s)
 : txt( new (nothrow) char[s.length()+1] )
 {
     if(txt.get())
-	strcpy(txt.get(), s.c_str());
+        strcpy(txt.get(), s.c_str());
 }
 
 /*

@@ -53,7 +53,6 @@ char* w_ptr::put(char* dst, const char* ID, const void* src, size_t len)
         dst      = base + size;      // translate current pointer
     }
 
-
     avail -= (len+10);
     return (char*) ID3_put(dst,ID,src,len);
 }
