@@ -1,23 +1,19 @@
 /*
 
-  verbose_t class
+  verbose_t class (main.cpp include)
 
   (c) 2005 squell ^ zero functionality!
   see the file 'COPYING' for license conditions
 
 */
 
-#ifndef __ZF_VERBOSE_HPP
-#define __ZF_VERBOSE_HPP
-
 struct verbose_t {
-    int&          exitc;
     bool          show;
-    clock_t       time;
+    clock_t  time;
     unsigned long numfiles;
 
-    verbose_t(int& _ec)
-    : show(false), time(clock()), numfiles(0), exitc(_ec) { }
+    verbose_t()
+    : show(false), time(clock()), numfiles(0) { }
     void on()
     { show = true; }
 
@@ -43,8 +39,5 @@ struct verbose_t {
     {
         if(show && *s) fprintf(stderr, "%s\n", s);
     }
-};
-
-
-#endif
+} static verbose;
 

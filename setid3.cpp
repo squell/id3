@@ -61,7 +61,7 @@ static inline bool issep(int c)
     return !isalnum(c);
 }
 
-bool clipped_compare(const string& is, const string& js)
+static bool clipped_compare(const string& is, const string& js)
 {
     string::const_iterator i = is.begin();
     string::const_iterator j = js.begin();
@@ -84,7 +84,7 @@ bool clipped_compare(const string& is, const string& js)
 
 /* ====================================================== */
 
-const struct genre_map : map<string,int,bool (*)(const string&,const string&)> {
+struct genre_map : map<string,int,bool (*)(const string&,const string&)> {
     typedef const_iterator iter;                // shorthand
 
     genre_map()                                 // initialize associative map
@@ -97,7 +97,7 @@ const struct genre_map : map<string,int,bool (*)(const string&,const string&)> {
             (*this)[ capitalize(ID3v1_genre[i]) ] = i;
         }
     }
-} ID3_genre;
+} const ID3_genre;
 
 /* ====================================================== */
 

@@ -74,9 +74,8 @@ bool filefindexp::nested(auto_dir dir, char* wpath, char* fnmatch)
             if(match) {
                 nwpath = pathcpy( pathcpy(wpath, fn->d_name), "/" );
                 if(auto_dir newdir = auto_dir(path)) {
-                    for(varexp::iterator i = match.begin(); i != match.end(); ++i) {
+                    for(varexp::iterator i = match.begin(); i != match.end(); ++i)
                         var.push_back(*i);
-                    }
                     w = nested(newdir, nwpath, fndirsep) || w;
                     var.resize(prevlen);
                 }
@@ -98,9 +97,8 @@ bool filefindexp::nested(auto_dir dir, char* wpath, char* fnmatch)
         pathcpy(wpath, fn->c_str());
         direxp match(fnmatch, wpath);
         if(match) {
-            for(varexp::iterator i = match.begin(); i != match.end(); ++i) {
+            for(varexp::iterator i = match.begin(); i != match.end(); ++i)
                 var.push_back(*i);
-            }
             process();
             w = true;
             var.resize(prevlen);

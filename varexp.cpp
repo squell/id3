@@ -16,7 +16,7 @@
 
 bool varexp::match(const char* mask, const char* test)
 {
-    std::vector<int>::size_type prevlen = varl.size();   // backup value
+    pairvec::size_type prevlen = var.size();   // backup value
     bool flag = false;
 
     char m, c;
@@ -31,19 +31,17 @@ bool varexp::match(const char* mask, const char* test)
             break;
 
         case '*':
-            if(!flag) {
-                vars.push_back(test-1);   // add entry for new variable
-                varl.push_back(0);        // + length count
+            if(!flag) {                   // add entry for new variable
+                var.push_back(pairvec::value_type(test-1, 0));
                 flag = true;
             }
             if( match(mask,test-1) ) return 1;
-            --mask, ++varl.back();
+            --mask, ++var.back().second;
         }
     } while(c);
 
     if(m != '\0') {
-        vars.resize(prevlen);
-        varl.resize(prevlen);
+        var.resize(prevlen);
         return 0;
     }
     return 1;

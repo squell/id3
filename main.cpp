@@ -2,13 +2,12 @@
 #include <cstdio>
 #include <cstdarg>
 #include <cstring>
+#include <ctime>
 #include <cctype>
 #include <climits>
-#include <ctime>
 #include <stdexcept>
 #include <string>
 #include "ffindexp.h"
-#include "verbose.h"
 
 #include "set_base.h"
 #include "setid3.h"
@@ -35,7 +34,6 @@ using namespace std;
 
 static char*     name  = "id3";
 static int       exitc = 0;
-static verbose_t verbose(exitc);
 
 static void eprintf(const char* msg, ...)
 {
@@ -46,6 +44,8 @@ static void eprintf(const char* msg, ...)
     vfprintf (stderr, msg, args);
     va_end(args);
 }
+
+#include "verbose.cpp"
 
 /* ====================================================== */
 
@@ -303,16 +303,19 @@ namespace {
         set_rename, set_query,
     };
 
-    enum oper_t {                          // operation states
+    enum oper_t {                          // state information
         scan = 1,                          // checking for no-file args?
         w    = 2,                          // write  requested?
         ren  = 4,                          // rename requested?
         ro   = 8,                          // read   requested?
     };
 
-    oper_t& operator+=(oper_t& x, oper_t y) { return x = oper_t(x|y);  }
-    oper_t& operator-=(oper_t& x, oper_t y) { return x = oper_t(x&~y); }
-    oper_t& operator^=(oper_t& x, oper_t y) { return x = oper_t(x^y);  }
+  // reading aids
+
+    oper_t& operator+=(oper_t& x, int y) { return x = oper_t(x|y);  }
+    oper_t& operator-=(oper_t& x, int y) { return x = oper_t(x&~y); }
+    oper_t& operator^=(oper_t& x, int y) { return x = oper_t(x^y);  }
+    oper_t  operator% (oper_t x,  int y) { return oper_t(x & y);    }
 }
 
 int main_(int argc, char *argv[])
@@ -341,9 +344,9 @@ int main_(int argc, char *argv[])
                 defaults(tag, chosen, source);
                 argpath(argv[i]);
                 state -= scan;
-                if(state&(w|ro) == w)          // no-op check
+                if(state%(w|ro) == w)          // no-op check
                     apply(tag, argv[i], *source);
-                else if(state&(ren|ro) == ren)
+                else if(state%(ren|ro) == ren)
                     apply(with<filename>(tag), argv[i], *source);
                 else if(state == ro)
                     apply(display, argv[i], *source);
@@ -469,7 +472,7 @@ int main_(int argc, char *argv[])
         state += w;                            // set operation done flag
     }
 
-    if(state & scan)
+    if(state % scan)
         eprintf("missing file arguments\n");
     if(state == scan)
         shelp();
