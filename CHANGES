@@ -1,10 +1,17 @@
 Changelog for 'id3'.
 
+2004-093 (W14):
+  main.cpp: Added "--" option (stops scanning for more options)
+
+2004-053 (W08):
+  Replaced smartID3 functionality with something more extensible.
+
 2004-030 (W05):
+  Added a lot of makefile fluff (install-full, dist, dist-zip)
   main.cpp:178: made options case sensitive
 
 2004-029 (W05):
-  created a unix manpage. (whew.)
+  Created a unix manpage. (Whew!)
 
 2004-027 (W05):                                ---------[v0.72]-----------
   [CLI] Now supports directory wildcards (e.g. "mp3root/*/*/*_*.mp3")
@@ -107,7 +114,11 @@ Changelog for 'id3'.
 
 Todo list:
 
-  - Restructure smartID3 inheritance
+  ? Malformed ID3v2 tags
+  ? error (rollback/inconsistent/success)
+  ? ID3v1.0
+
+  - More things:
     + Support for Ogg Vorbis
     + Support for APEv2
     + Support for Lyrics3 v2.0 (?)
@@ -118,11 +129,10 @@ Todo list:
   - Options for forcing re-packing id3v2 ("-s size")
   - Tag handling(/removal) for ID3v2 prior 3
   - Fetch default data ("-j filename")
-  - Extend substitution capabilities (slices? i/o? script?)
   - Shorthand Wildcards ("%n. %t.mp3" == -n %1 -t %2 "*. *.mp3")
-  - Options for re-using existing tag values
-  ? Malformed ID3v2 tags
-  ? Make varexp use fnmatch on UNIX
+  - Options for re-using existing tag values ("%a, %t ..")
+  - Extend substitution capabilities (i/o?)
 
 Thanks go out to everybody who has responded with questions, suggestions,
 and bug reports!
+
