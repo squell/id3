@@ -20,26 +20,33 @@ typedef std::map<std::string,std::string> db;
 /* ===================================== */
 
  // extra hairyness to prevent buffer overflows by re-allocating on the fly
- // this may seem like overkill, but i had to do a runtime check anyway, so.
+ // overkill, but i had to do a runtime check anyway, so.
 
 struct w_ptr {
-    unsigned long avail;
-    char*         data;
+    size_t avail;
+    char*  base;
+
+    operator char*()  { return base; }
+
+    w_ptr(size_t len) { base = (char*) malloc(avail=len); }
+   ~w_ptr()           { free(base); }
+
+    char* put(char* dst, const char* ID, const void* src, size_t len);
 };
 
-char* put(char* dst, const char* ID, const void* src, size_t len, w_ptr& base)
+char* w_ptr::put(char* dst, const char* ID, const void* src, size_t len)
 {
-    static unsigned long factor = 0x1000;  // start reallocing in 4k blocks
+    static size_t factor = 0x1000;      // start reallocing in 4k blocks
 
-    if(len+10 > base.avail) {
+    if(len+10 > avail) {
         while(len+10 > factor) factor *= 2;
-        int size   = dst - base.data;
-        base.avail = factor;
-        base.data  = (char*) realloc(base.data, size+factor);
-        dst        = base.data + size;     // translate current pointer
+        int size = dst - base;
+        avail    = factor;
+        base     = (char*) realloc(base, size+factor);
+        dst      = base + size;      // translate current pointer
     }
 
-    base.avail -= (len+10);
+    avail -= (len+10);
     return (char*) ID3_put(dst,ID,src,len);
 }
 
@@ -68,14 +75,12 @@ bool smartID3v2::vmodify(const char* fn, const base_container& v) const
     if(v1 && !v2)
         return smartID3::vmodify(fn, v);
 
-    w_ptr dst;
-    void* src = ID3_readf(fn, &dst.avail);
-                dst.avail = dst.avail+0x1000;
-    char* out = dst.data  = (char*) malloc(dst.avail);
+    size_t temp;
+    void* src ( ID3_readf(fn, &temp) );
+    w_ptr dst ( temp+0x1000 );
+    db    cmod( mod2 );
 
-    db cmod(mod2);
-
-    ID3_put(out, 0, 0, 0);                          // initialize
+    char* out = (char*) ID3_put(dst,0,0,0);         // initialize
 
     if(!fresh) {                                    // update existing tags
         ID3FRAME f;
@@ -84,11 +89,11 @@ bool smartID3v2::vmodify(const char* fn, const base_container& v) const
         while(ID3_frame(f)) {
             db::iterator p = cmod.find(f->ID);
             if(p == cmod.end())
-                out = put(out, f->ID, f->data, f->size, dst);
+                out = dst.put(out, f->ID, f->data, f->size);
             else
                 if(p->second != "") {               // else: erase frames
                     string s = edit(p->second, v);
-                    out = put(out, f->ID, s.c_str(), s.length(), dst);
+                    out = dst.put(out, f->ID, s.c_str(), s.length());
                     cmod.erase(p);
                 }
         }
@@ -97,13 +102,12 @@ bool smartID3v2::vmodify(const char* fn, const base_container& v) const
     for(db::iterator p = cmod.begin(); p != cmod.end(); ++p) {
         if(p->second != "") {
             string s = edit(p->second, v);
-            out = put(out, p->first.c_str(), s.c_str(), s.length(), dst);
+            out = dst.put(out, p->first.c_str(), s.c_str(), s.length());
         }
     }
 
-    bool res = ID3_writef(fn, dst.data);
+    bool res = ID3_writef(fn, dst);
     ID3_free(src);
-    free(dst.data);
 
     if(v1 && res)
         return smartID3::vmodify(fn, v);

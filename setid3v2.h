@@ -28,9 +28,9 @@
 
   a. - when updating a frame type which has multiple instances, the first one
        will be replaced and the rest will be left unaltered.
-    
+
   b. - smartID3v2 will never add multiple instances of the same frame type.
-  
+
   c. - deleting a frame using .rm() deletes *ALL* frames of a specific type.
 
   (a) requires an extra distinguisher function.
