@@ -62,7 +62,7 @@ smartID3v2& smartID3v2::set(ID3set i, const char* m)
 
 bool smartID3v2::vmodify(const char* fn, const base_container& v) const
 {
-    if(v1_ && !v2_)
+    if(v1 && !v2)
         return smartID3::vmodify(fn, v);
 
     w_ptr dst;
@@ -102,7 +102,7 @@ bool smartID3v2::vmodify(const char* fn, const base_container& v) const
     ID3_free(src);
     free(dst.data);
 
-    if(v1_ && res)
+    if(v1 && res)
         return smartID3::vmodify(fn, v);
     else
         return res;

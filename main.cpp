@@ -78,10 +78,8 @@ void help(const char* argv0)
 
 int main(int argc, char *argv[])
 {
-    if(argc <= 1) help(argv[0]);
-
     ID3set t = ID3;
-    bool   w = false;            // check against no-ops, not really needed
+    bool   w = false;            // check against no-ops
 #ifdef __ZF_SETID3V2
     bool aux = false;            // check for -1 & -2 commands
     string opt;                  // v2
@@ -134,9 +132,9 @@ int main(int argc, char *argv[])
                 case 'G': t = genre;  break;
                 case 'N': t = track;  break;
 #ifdef __ZF_SETID3V2
-                case 'W': opt.assign(argv[i]+2);  break;
-                case '2': tag.v2(true).v1(aux++); break;
-                case '1': tag.v1(true).v2(aux++); break;
+                case 'W': opt.assign(argv[i]+2); break;
+                case '2': tag.opt(aux++,true); break;
+                case '1': tag.opt(true,aux++); break;
 #endif
                 default:
                     printf("err: unrecognized switch: -%c\n", argv[i][1]);
@@ -145,5 +143,7 @@ int main(int argc, char *argv[])
 
         }
     }
+
+    if(!w) help(argv[0]);
 }
 

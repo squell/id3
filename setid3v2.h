@@ -14,7 +14,7 @@
       Does not chain back, e.g. setting "TIT2" does not set ID3v1 "title".
   .rm(ID)
       Remove specific ID3v2 frames from a tag.
-  .v1(yes/no) .v2(yes/no)
+  .v1 .v2
       Wether or not to write a ID3v1 / ID3v2 tag.
       Default: write ID3v2 only.
 
@@ -49,8 +49,10 @@
 
 class smartID3v2 : public smartID3 {
 public:
-    smartID3v2(bool w1 = 0, bool w2 = 1) : v1_(w1), v2_(w2)
+    smartID3v2(bool w1 = 0, bool w2 = 1) : v1(w1), v2(w2)
     { }
+
+    smartID3v2& set(ID3set i, const char* m);
 
     smartID3v2& set(std::string i, std::string m)     // set ID3v2 frame
     { mod2[i] = m; return *this; }
@@ -58,21 +60,16 @@ public:
     smartID3v2& rm(std::string i)                     // remove ID3v2 frame
     { mod2[i].erase(); return *this; }
 
-    smartID3v2& v1(bool f)                            // toggle ID3v1 writer
-    { v1_ = f; return *this; }
+    smartID3v2& opt(bool n1, bool n2)                 // toggle v1/v2 writer
+    { v1 = n1, v2 = n2; return *this; }
 
-    smartID3v2& v2(bool f)                            // toggle ID3v2 writer
-    { v2_ = f; return *this; }
-
-    smartID3v2& set(ID3set i, const char* m);
+    bool v1, v2;
 
 protected:
     virtual bool vmodify(const char*, const base_container&) const;
 
 private:
     typedef std::map<std::string,std::string> db;
-
-    bool v1_, v2_;
     db mod2;
 };
 
