@@ -1,13 +1,13 @@
 Changelog for 'id3'.
 
 2003-027 (W05):
-  [CLI] Now supports directory wildcards ("mp3root/*/*/*_*.mp3")
-  main.cpp: now uses ffindexp for solving wildcard match
-  main.cpp: cleaned main loop
+  [CLI] Now supports directory wildcards (e.g. "mp3root/*/*/*_*.mp3")
+    Be careful with this, mkay? ;)
   sedit.cpp:capitalize: now handles punctuation properly
     (so it will be "Love's" and "2nd", not "Love'S" and "2Nd")
-  sedit.cpp: added removal of extra spaces (suppressed by %_ modifier)
-  sedit.cpp: added "-" modifier (lowercase)
+  sedit.cpp: Added a "%-" modifier (all characters lowercase), and added
+    removal of extraneous spaces (suppressed by the "%_" modifier)
+  main.cpp: now uses ffindexp for solving wildcard match (see above)
 
 2003-019 (W04):
   (Resumed development)
@@ -24,7 +24,6 @@ Changelog for 'id3'.
 2003-299 (W43):
   main:cpp: error messages to stderr instead of stdout, program now gives
     meaningful result codes.
-  id3v1.c:77: 'psychadelic'. Typo in the genre list copied from id3.org :(
   id3v2.c:11: fixed copyright notice. :)
   id3v2.c<>fileops.c: split into two components.
   fileops.c: replaced fopentmp with something conceptually simpler.
