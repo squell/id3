@@ -113,7 +113,7 @@ D_PKG = pkg=id3-$(D_VER); \
 D_FIL = `echo $(DISTFILES) | sed "s:[^ ]*:$${pkg}/&:g"`
 
 D_TMP = rm -rf .tmp; mkdir .tmp && \
-	tar cf - $(DISTFILES) | tar xfC - .tmp
+	tar cf - $(DISTFILES) | tar Cxf .tmp -
 
 dist: $(DISTFILES)
 	$(D_PKG) && $(TAR) chofz $${pkg}.tar.gz $(D_FIL); rm -f $${pkg}
