@@ -50,7 +50,7 @@ namespace {
 
  // Capitalize A Text-string Like This.
 
-inline string capitalize(string s)
+string capitalize(string s)
 {
     bool new_w = true;
     for(string::iterator p = s.begin(); p != s.end(); p++) {
@@ -112,7 +112,7 @@ string svar::edit(string s, const base_container& v)
                 string tmp = v[c-'1' +ZERO_BASED];
                 if(!raw) {                                  // remove gunk
                     replace(tmp.begin(), tmp.end(), '_', ' ');
-                    compress(tmp);
+                    tmp = compress(tmp);
                 }
                 switch(caps) {
                 case name:
