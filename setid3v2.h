@@ -2,7 +2,7 @@
 
   smartID3 applicative class - extension for ID3v2
 
-  (c) 2000 squell ^ zero functionality!
+  (c) 2003 squell ^ zero functionality!
   see the file 'COPYING' for license conditions
 
   See setid3.h

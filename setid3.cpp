@@ -7,6 +7,13 @@
 #include <algorithm>
 #include "setid3.h"
 
+/*
+
+  (c) 2003 squell ^ zero functionality!
+  see the file 'COPYING' for license conditions
+
+*/
+
 #if defined(__WIN32__)
 #    include <io.h>
 #    define ftrunc(f)  chsize(fileno(f), ftell(f))
@@ -14,13 +21,6 @@
 #    include <unistd.h>
 #    define ftrunc(f)  ftruncate(fileno(f), ftell(f))
 #endif
-
-/*
-
-  (c) 2000 squell ^ zero functionality!
-  see the file 'COPYING' for license conditions
-
-*/
 
 using namespace std;
 
@@ -82,8 +82,6 @@ static struct genre_map : map<string,int> {
 } ID3_genre;
 
 /* ====================================================== */
-
-const char VAR = '%';             // character signifying a replacement code
 
 string smartID3::edit(string s, const base_container& v)
 {

@@ -4,7 +4,7 @@
 
 /*
 
-  (c) 2000 squell ^ zero functionality!
+  (c) 2003 squell ^ zero functionality!
   see the file 'COPYING' for license conditions
 
   an adapted version of a smaller, simpler wildcard match routine to

@@ -2,7 +2,7 @@
 
   smartID3 applicative class
 
-  (c) 2000 squell ^ zero functionality!
+  (c) 2003 squell ^ zero functionality!
   see the file 'COPYING' for license conditions
 
   Usage:
@@ -94,6 +94,7 @@ public:
     bool modify(const char* fn, const T& vars)
     { return vmodify(fn, container<T>(vars)); }
 
+    static const char VAR = '%';              // replacement char
     static std::string edit(std::string, const base_container&);
 };
 
