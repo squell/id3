@@ -1,5 +1,5 @@
 ---------------------------------------------------------------
-| id3 v0.72
+| id3 v0.73
 -------------------------------------------------------------
 
 the contents of the source distribution:
@@ -24,6 +24,8 @@ the contents of the source distribution:
  id3v1.*        - definitions & data relevant to ID3v1 tag data (C)
  id3v2.*        - basic ID3v2 reading/writing interface         (C)
  fileops.*      - auxiliary file functions                      (C)
+
+ id3.man        - raw man page                                  (troff -man)
 
 ---------------------------------------------------------------
 | (c) squell 2003,2004 - copyright notice
