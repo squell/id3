@@ -35,11 +35,11 @@ struct filefind : record {
 
 bool find::operator()(const char* filemask)
 {
-    filefind ff;
-    strncpy(ff.mask, filemask, sizeof ff.mask); // copy constant
-    ff.path[0] = '\0';                          // duct tape
-    ff.invoker = this;
-    return ff.nested(auto_dir("./"), ff.path, ff.mask);
+    filefind t;
+    strncpy(t.mask, filemask, sizeof t.mask);   // copy constant
+    t.path[0] = t.mask[sizeof t.mask-1] = '\0'; // duct tape
+    t.invoker = this;
+    return t.nested(auto_dir("./"), t.path, t.mask);
 }
 
 struct filefind::direxp : varexp {              // special dotfile handling
