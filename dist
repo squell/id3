@@ -1,5 +1,7 @@
 auto_dir.h
 bindist
+bla
+bla2
 CHANGES
 charconv.cpp
 charconv.h
@@ -18,6 +20,9 @@ id3v2.c
 id3v2.h
 INSTALL
 main.cpp
+main.s
+main2.cpp
+main2.s
 makefile
 makefile.bcc
 makefile.dj

@@ -5,7 +5,7 @@ SHELL	 = /bin/sh
 CC	 = gcc
 CXX	 = g++
 CFLAGS	 = -g -O2
-CXXFLAGS = $(CFLAGS)
+CXXFLAGS = $(CFLAGS) -fno-rtti
 LDFLAGS  =
 
 STRIP	 = strip
@@ -84,7 +84,7 @@ DISTFILES = INSTALL $(docdata) makefile makefile.dj makefile.bcc \
 	$(foreach f, fileops id3v1 id3v2, $(f).h $(f).c) \
 	id3.man
 
-D_PKG = pkg=id3-`sed -n -e "/_version_/{s:^[^0-9]*\([^ ]*\).*$$:\1:p;q}" \
+D_PKG = pkg=id3-`sed -n -e "/_version_/{s:^[^0-9]*\([^ ]*\).*$$:\1:p;q;}" \
 		main.cpp`; \
 	rm -f $${pkg}; \
 	ln -s `pwd` $${pkg}
