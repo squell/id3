@@ -38,9 +38,6 @@ char* put(char* dst, const char* ID, const void* src, size_t len, w_ptr& base)
         while(len+10 > factor) factor *= 2;
         int size   = dst-base.data;
         base.avail = factor;
-/* */
-        printf("[realoc %d]", size+factor);  
-/* */
         base.data  = (char*) realloc(base.data, size+factor);
         dst        = base.data + size;     // translate current pointer
     }
@@ -68,30 +65,23 @@ smartID3v2& smartID3v2::set(ID3set i, const char* m)
 
 bool smartID3v2::vmodify(const char* fn, const base_container& v)
 {
+    if(v1_ && !v2_)
+        return smartID3::vmodify(fn, v);
+
     w_ptr dst;
     void* src = ID3_readf(fn, &dst.avail);
                 dst.avail = dst.avail+0x1000;
     char* out = dst.data  = (char*) malloc(dst.avail);
-
-/* */
-    printf("[%s - %d] ------------------------------ \n", fn, bool(src));
-/* */
 
     db cmod(mod2);
 
     *out = 0;
 
     if(!fresh) {                                    // update existing tags
-/* */
-        printf("{ ");
-/* */
         ID3FRAME f;
         ID3_start(f, src);
 
         while(ID3_frame(f)) {
-/* */
-            printf("%s(%.*s)", f->ID, f->size-1, f->data+1);
-/* */
             db::iterator p = cmod.find(f->ID);
             if(p == cmod.end())
                 out = put(out, f->ID, f->data, f->size, dst);
@@ -100,14 +90,7 @@ bool smartID3v2::vmodify(const char* fn, const base_container& v)
                     string s = edit(p->second, v);
                     out = put(out, f->ID, s.c_str(), s.length(), dst);
                     cmod.erase(p);
-/* */
-                    printf(" <- %s", s.c_str()+1);
-/* */
                 }
-/* */
-                else printf(" [DEL]");
-            printf("\n  ");
-/* */
         }
     }
 
@@ -115,15 +98,16 @@ bool smartID3v2::vmodify(const char* fn, const base_container& v)
         if(p->second != "") {
             string s = edit(p->second, v);
             out = put(out, p->first.c_str(), s.c_str(), s.length(), dst);
-/* */
-            printf("+ %s(%s)\n", p->first.c_str(), s.c_str()+1);
-/* */
         }
     }
 
     bool res = ID3_writef(fn, dst.data);
     ID3_free(src);
     free(dst.data);
-    return res;
+
+    if(v1_ && res)
+        return smartID3::vmodify(fn, v);
+    else
+        return res;
 }
 
