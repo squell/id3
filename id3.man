@@ -1,4 +1,4 @@
-.TH ID3 1 id3-0.72
+.TH ID3 1 "id3 mass tagger"
 .SH NAME
 id3 \- a commandline mass tagger
 
