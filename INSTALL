@@ -1,0 +1,111 @@
+---------------------------------------------------------------
+| id3 v0.60
+-------------------------------------------------------------
+
+the contents of the source distribution:
+
+ copying        - license
+ install        - ... ? :)
+ readme         - program documentation
+
+ makefile       - generic (gnu) makefile
+ makefile.dj    - makefile for djgpp2
+ makefile.bcc   - makefile for borland c++
+
+ main.cpp       - main program file                             (C++)
+ varexp.*       - wildcard/pattern matching class               (C++)
+ setid3.*       - id3 patch class                               (C++)
+ setid3v2.*     - id3v2 patch extension                         (C++)
+
+ id3v1.*        - definitions & date relevant to ID3v1 tag data (C)
+ id3v2.*        - basic ID3v2 reading/writing interface         (C)
+
+---------------------------------------------------------------
+| (c) squell 2003 - copyright notice
+-------------------------------------------------------------
+
+All files in this package are copyrighted. This is NOT public domain software.
+
+This software has a Cryptix/BSD style license, which (in short) means you can
+pretty much do with it as you please (including redistribution under another
+license such as the GNU GPL), as long as copyright is acknowledged.
+
+It also means you can't sue me if anything terrible happens.
+
+For the actual licensing conditions you should read the file 'COPYING',
+which should be included in this source distribution.
+
+---------------------------------------------------------------
+| building it on your system
+-------------------------------------------------------------
+
+Successfully compiled with (x86 platforms only so far):
+
+ - GCC 2.95.3       (DJGPP, GNU/Linux)
+ - GCC 3.x          (DJGPP, GNU/Linux, MinGW)
+ - Intel C++ 6      (GNU/Linux)
+ - Borland C++ 5.5  (Win32)
+
+This program is mostly written in 100% portable ISO C/C++, so basically all
+you need is a modern, standards-compliant C/C++ compiler. I'm not sure if
+this includes MS Visual C++.
+
+I recommend using DJGPP to build a 32bit DPMI program if you're using a
+version of Windows 9X (e.g. 95, 98, Me) because of the kludgy support for
+native Win32 console apps. Likewise, if you're using something based on NT
+such as NT4, 2000 or XP, you should definitely build a native Win32 app.
+
+===
+Makefiles
+
+Pick the makefile you need and rename it to 'makefile' or use 'make -f':
+
+  'makefile'  is meant for generic GNU/BSD systems. If you want to use
+  Intel C++ instead of GCC you will have to edit it. You can also use this
+  file for building with MinGW (but 'clean' will probably not work.)
+
+  'makefile.dj'  is for DOS systems using DJGPP v2
+
+  'makefile.bcc'  is for building a Win32 executable for Borland C++ 5.5
+  You might be able to use this file as a starting point when trying to
+  compile with Intel C++ under Windows. I don't know.
+
+===
+Standard make targets
+
+ make id3      - fully enabled executable (default)
+ make id3l     - id3v1 only executable
+ make all      - both executables
+ make final    - same as all, but tries to strip / pack the executables
+ make clean    - removes all files produced by make
+
+'final' assumes you have UPX (http://upx.sourceforge.net/) installed on
+Win32/DOS systems. You should have. :)
+
+===
+Customizing
+
+You can set the 'ZERO_BASED' define to '1' in setid.cpp (or add -DZERO_BASED
+to CFLAGS in your makefile) if you would like to start counting wildcards
+in the commandline parameters at 0 instead of 1, making the range %0..%9 map
+to the 1st .. 10th wildcard (instead of having %0 match the 10th wildcard)
+
+---------------------------------------------------------------
+| links
+-------------------------------------------------------------
+
+(DOS) DJGPP v2:
+  http://www.delorie.com/djgpp/
+
+(Win32) Borland C++ 5.5:
+  ftp://ftpd.borland.com/download/bcppbuilder/freecommandLinetools.exe
+
+(Win32) MinGW 2.0:
+  http://www.mingw.org/
+
+(Linux, Win32) Intel C++ 7.1:       (30 day evaluation/non-commercial only)
+  http://www.intel.com/software/products/compilers/
+
+---------------------------------------------------------------
+| contact: (pri.) squell@xms.ms, (alt.) squell@goth.net
+-------------------------------------------------------------
