@@ -61,7 +61,7 @@ struct dirvector : vector<string> {
     dirvector(const char* path);
     operator bool()
     { return success; }
-    
+
     bool success;
 };
 
@@ -96,7 +96,7 @@ void write_mp3s(const char* fspec, smartID3& tag)
 
     dirvector dir(path);
     if(!dir)
-        return (void) printf("id3: could not read %s\n", path);
+        return (void) fprintf(stderr, "id3: could not read %s\n", path);
 
     bool m = false;                             // idle flag
 
@@ -105,16 +105,20 @@ void write_mp3s(const char* fspec, smartID3& tag)
         varexp match(fspec, pname);
         verbose.report(path, match);
         if( match && ++m && !tag.modify(path, match) )
-            printf("id3: could not access %s!\n", pname);
+            fprintf(stderr, "id3: could not access %s!\n", pname);
     }
 
     if(!m)
-        printf("id3: no files matching %s\n", fspec);
+        fprintf(stderr, "id3: no files matching %s\n", fspec);
 }
 
 /* ====================================================== */
 
-const char shelp[] = "Try `id3 -h' for more information.\n";
+void shelp()
+{
+    fprintf(stderr, "Try `id3 -h' for more information.\n");
+    exit(1);
+}
 
 void help(const char* argv0)
 {
@@ -185,16 +189,9 @@ int main_(int argc, char *argv[])
                 if(w)
                     u=true, write_mp3s(argv[i], tag);
                 else
-                    u=true, printf("id3: nothing to do with %s\n", argv[i]);
+                    u=true, fprintf(stderr, "id3: nothing to do with %s\n", argv[i]);
             else
                 switch( toupper(*opt++) ) {
-#ifdef __ZF_SETID3V2
-                case 'R':
-                    tag.rm(opt);
-                    w   = true;
-                    opt = "";
-                    break;
-#endif
                 case 'V': verbose.on(); break;
                 case 'D': tag.clear(); w = true; break;
                 case 'T': t = title;  break;
@@ -205,23 +202,27 @@ int main_(int argc, char *argv[])
                 case 'G': t = genre;  break;
                 case 'N': t = track;  break;
 #ifdef __ZF_SETID3V2
+                case 'R':
+                    tag.rm(opt);
+                    w   = true;
+                    opt = "";
+                    break;
                 case 'W': fieldID.assign(opt); opt = ""; break;
                 case '2': tag.opt(aux++,true); break;
                 case '1': tag.opt(true,aux++); break;
 #endif
                 case 'H': help(argv[0]);
                 default:
-                    printf("id3: unrecognized switch: -%c\n", opt[-1]);
-                    printf(shelp);
-                    exit(1);
+                    fprintf(stderr, "id3: unrecognized switch: -%c\n", opt[-1]);
+                    shelp();
                 }
         }
     }
 
     if(!u)
-        printf("id3: missing file arguments\n");
+        fprintf(stderr, "id3: missing file arguments\n");
     if(!u || !w)
-        printf(shelp);
+        shelp();
 
     return 0;
 }
@@ -235,13 +236,13 @@ int main(int argc, char *argv[])
     try {
         return main_(argc, argv);
     } catch(const smartID3::failure& f) {
-        printf("id3: %s\n", f.what());
+        fprintf(stderr, "id3: %s\n", f.what());
     } catch(const out_of_range& x) {
-        printf("id3: %s\n", x.what());
+        fprintf(stderr, "id3: %s\n", x.what());
     } catch(const exception& exc) {
-        printf("id3: unhandled exception: %s\n", exc.what());
+        fprintf(stderr, "id3: unhandled exception: %s\n", exc.what());
     } catch(...) {
-        printf("id3: unexpected unhandled exception\n");
+        fprintf(stderr, "id3: unexpected unhandled exception\n");
     }
 }
 

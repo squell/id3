@@ -1,5 +1,9 @@
 Changelog for 'id3'.
 
+2003-299 (W43):
+  Fixed the 'psychadelic' typo in the genre list (copied from id3.org!)
+  Error messages to stderr instead of stdout, corrected program result code
+
 2003-296 (W43):                                ---------[v0.71]-----------
   main.cpp:dirvector: reads directory as a whole to avoid order mangling
   main.cpp: added version info to -h, and added verbose mode with timing
@@ -71,11 +75,16 @@ Changelog for 'id3'.
 
 Todo list:
 
+  - File permissions
+  - Fuzzy genre matching
+  - Options for forcing re-packing id3v2 ("-s size")
   - Restructure smartID3 inheritance.
     + Support for Ogg Vorbis
+    + Support for APEv2
+    + Support for Lyrics3 v2.0
   - Directory wildcards ("mp3root/*/*/*_*.mp3")
   - Options for re-using existing tag values
-  - Options for forcing re-packing id3v2
+  - Extend substitution capabilities.
   ? Shorthand Wildcards ("%n. %t.mp3" == -n %1 -t %2 "*. *.mp3")
   ? Join main.cpp & view.cpp
 

@@ -165,7 +165,7 @@ _>|_||_)_> |_| |_|_||_|(_)| |
        Do  NOT  add ID3 tags to files for which it does not make
        sense,  i.e,  add  them only to MP3 files. In particular,
        do  not  add  ID3v2  tags  to OGG files, since ID3v2 tags
-       start  at the beginning of the file, and thus will result
+       start  at  the  beginning  of the file, thereby resulting
        in  corrupted  OGG  files.  Support for the OGG container
        format is planned in a future release.
 
@@ -188,7 +188,8 @@ _>|_||_)_> |_| |_|_||_|(_)| |
        ID3v1,  id3  tries  to  find  the specified genre in this
        list.   Capitalization   doesn't  matter,  however  exact
        spelling  does.  For  the genre numbers and spelling, see
-       `id3v1.c' in the source distribution.
+       `id3v1.c'  in  the  source  distribution.  An empty genre
+       field is assigned the number 0.
 
        id3  does not support ID3v2 v2.0 or earlier, neither does
        it  support  the  new ID3v2 v4.0 (yet?). It also does not

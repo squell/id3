@@ -1,11 +1,23 @@
 ## generic GNU makefile ####################################################
 
-SHELL	 = /bin/sh
+SHELL  = /bin/sh
 
-CC	 = gcc
-CFLAGS	 = -g -O2
+CC     = gcc
+CXX    = g++
+CFLAGS = -g -O2
 
-CXX	 = g++
+STRIP  = strip
+
+## installation vars #######################################################
+
+prefix = /usr/local
+bindir = $(prefix)/bin
+
+binary = id3
+
+INSTALL       = install
+INSTALL_DIR   = $(INSTALL) -d
+INSTALL_STRIP = $(INSTALL) -s
 
 ############################################################################
 
@@ -18,13 +30,24 @@ id3l: mainl.o varexp.o setid3.o id3v1.o
 all  : id3 id3l
 
 final: id3 id3l
-	strip $+
+	$(STRIP) $+
 
 clean:
 	rm *.o id3 id3l
 
-install: all
-	@echo Move the file "id3" or "id3l" to the desired directory
+############################################################################
+
+installdirs:
+	$(INSTALL_DIR) $(bindir)
+
+install: installdirs $(binary)
+	$(INSTALL) $(binary) $(bindir)/id3
+
+install-strip: installdirs $(binary)
+	$(INSTALL_STRIP) $(binary) $(bindir)/id3
+
+uninstall:
+	rm -f $(bindir)/id3
 
 ############################################################################
 

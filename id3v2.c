@@ -334,7 +334,7 @@ int ID3_writef(const char *fname, void *src)
         fclose(nf);
         if(ok && remove(fname) == 0) {
             if( rename(tmp, fname) != 0 && !ID3_wfail(tmp, fname) ) {
-                printf("%s -> %s: %s\n", tmp, fname, strerror(errno));
+                fprintf(stderr, "%s -> %s: %s\n", tmp, fname, strerror(errno));
                 exit(255);                                  /* sayonara! */
             }
         } else {
