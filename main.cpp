@@ -123,10 +123,10 @@ void help(const char* argv0)
         " -d\tclear existing tag\n"
         " -t <title>\n"
         " -a <artist>\n"
-        " -g <genre>\n"
-        " -n <tracknr>\n"
         " -l <album>\n"
+        " -n <tracknr>\n"
         " -y <year>\n"
+        " -g <genre>\n"
         " -c <comment>\n"
         "\tset ID3 fields\n"
 #ifdef __ZF_SETID3V2
