@@ -56,8 +56,12 @@ void write_mp3s(const char* fspec, smartID3& tag)
 void help(const char* argv0)
 {
     printf(
+#ifdef __ZF_SETID3V2
+        "usage: %s [-1 -2] [OPTIONS] filespec ...\n\n"
+#else
         "usage: %s [OPTIONS] filespec ...\n\n"
-        " -d \tclear existing tag\n"
+#endif
+        " -d\tclear existing tag\n"
         " -t <title>\n"
         " -a <artist>\n"
         " -l <album>\n"
@@ -65,8 +69,13 @@ void help(const char* argv0)
         " -c <comment>\n"
         " -g <genre>\n"
         " -n <track>\n"
-        "\tset ID3 fields\n\n"
-        "Any occurences of the form \"%%i\" in an ID3 field value will be substituted by\n"
+        "\tset ID3 fields\n"
+#ifdef __ZF_SETID3V2
+        "\nonly when -2:\n"
+        " -dXXXX\terase all XXXX frames\n"
+        " -wXXXX <data>\n\tdirectwrite an XXXX frame\n"
+#endif
+        "\nAny occurences of the form \"%%i\" in an ID3 field value will be substituted by\n"
         "the portion of the actual filename matched by the i'th \"*\" wildcard, where i\n"
         "is a digit in the range [1..9,0].\n",
         argv0
