@@ -42,16 +42,13 @@ int fpadd(FILE *dest, char c, size_t len)
     return w == len;
 }
 
-FILE *fopentmp(const char *hint, char **name)            /* free() name! */
+char *tmpnam_alloc(const char *hint)
 {
     char *buf;
-    FILE *f;
 #ifdef USE_TMPNAM
     if(buf = malloc(L_tmpnam)) {
-        if(tmpnam(buf) && (f = fopen(buf, "wb"))) {
-            *name = buf;
-            return f;
-        }
+        if(tmpnam(buf))
+            return buf;
         free(buf);
     }
 #else
@@ -61,13 +58,28 @@ FILE *fopentmp(const char *hint, char **name)            /* free() name! */
     if(buf = malloc(idx + 8 + 1)) {
         strncpy(buf, hint, idx);
         strcpy (buf+idx, "idXXXXXX");
-        if(mktemp(buf) && (f = fopen(buf, "wb"))) {
-            *name = buf;
+        if(mktemp(buf))
+            return buf;
+        free(buf);
+    }
+#endif
+    return 0;
+}
+
+FILE *opentemp(const char *hint, char **name)            /* free() name! */
+{
+    char *buf;
+    FILE *f;
+
+    if(buf = tmpnam_alloc(hint)) {
+        if(f = fopen(buf, "wb")) {
+            if(name) *name = buf;
+            else     free(buf);
             return f;
         }
         free(buf);
     }
-#endif
+
     return 0;
 }
 

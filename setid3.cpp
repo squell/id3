@@ -7,6 +7,7 @@
 #include <algorithm>
 #include <new>
 #include "setid3.h"
+#include "sedit.h"
 #include "id3v1.h"
 
 /*
@@ -40,79 +41,58 @@ const ID3v1 synth_tag = {
 
 /* ====================================================== */
 
-// Capitalize A Text-String Like This.
+ /*
+    This is basically an enhanced lexicographical_compare which ignores
+    certain parts of a string during comparison:
 
-static string capitalize(string s)
+    Any plain character compared against a seperator gets 'eaten'
+    e.g. "Alt Rock" will match "Alternative Rock" exactly.
+
+    Every seperator matches every other seperator.
+    e.g. "Fast Fusion" matches "Fast-Fusion"
+  */
+
+static inline bool issep(int c)
 {
-    bool new_w = true;
-    for(string::iterator p = s.begin(); p != s.end(); p++) {
-        new_w = !isalpha( *p = new_w? toupper(*p):tolower(*p) ); // heh =)
+    return !isalnum(c);
+}
+
+bool clipped_compare(const string& is, const string& js)
+{
+    string::const_iterator i = is.begin();
+    string::const_iterator j = js.begin();
+
+    for( ; i != is.end() && j != js.end(); ++i, ++j) {
+        if(issep(*i)) {
+            if(!issep(*j)) --i;
+        } else {
+            if( issep(*j)) --j; else {
+                if(*i < *j)
+                   return true;
+                if(*i > *j)
+                   return false;
+            }
+        }
     }
-    return s;
+    return find_if(i, is.end(), issep) == is.end() &&
+           find_if(j, js.end(), issep) != js.end();
 }
 
 /* ====================================================== */
 
-const struct genre_map : map<string,int> {
+const struct genre_map : map<string,int,bool (*)(const string&,const string&)> {
     typedef const_iterator iter;                // shorthand
 
     genre_map()                                 // initialize associative map
+    : map<string,int,key_compare>( clipped_compare )
     {
         for(int i=0; i < ID3v1_numgenres; i++) {
-            (*this)[ capitalize(ID3v1_genre[i]) ] = i;
+            if(i==80)  (*this)[ "Folk0" ] = i;  // small kludges ;)
+            if(i==100) (*this)[ "Humo" ] = i;
+            else       (*this)[ capitalize(ID3v1_genre[i]) ] = i;
         }
     }
 } ID3_genre;
-
-/* ====================================================== */
-
-string smartID3::edit(string s, const base_container& v)
-{
-    int pos = 0;
-
-    while( (pos=s.find(VAR, pos)) >= 0 ) {
-        bool und = false;
-        bool cap = false;
-        char hex = 0;
-        int n = 1;
-        while( pos+n < s.length() ) {
-            switch( char c = toupper(s[pos+n]) ) {
-            default:
-                s.erase(pos, n);
-                break;
-            case '@':
-            case ':': s.erase(pos, 1); s[pos++] = '\0'; break;
-            case VAR: s.erase(pos, 1);   pos++;         break; // "%%" -> "%"
-            case 'N':
-            case ',': s[pos++] = '\r'; s[pos++] = '\n'; break;
-
-            case '_': und = true; ++n; continue;
-            case 'C': cap = true; ++n; continue;
-
-            case '0': if(!ZERO_BASED) c += 10;
-            case '1':
-            case '2':
-            case '3':
-            case '4':
-            case '5':
-            case '6':
-            case '7':
-            case '8':
-            case '9':
-                string tmp = v[c-'1' +ZERO_BASED];
-                if(cap)
-                    tmp = capitalize(tmp);
-                if(!und)
-                    replace(tmp.begin(), tmp.end(), '_', ' ');
-                s.replace(pos, n+1, tmp);
-                pos += tmp.length();
-                break;
-            }
-            break;         // turn switch-breaks into while-breaks
-        }
-    }
-    return s;
-}
 
 /* ====================================================== */
 

@@ -7,21 +7,31 @@
 
   Usage:
 
-	  int cpfile(const char *srcnam, const char *dstnam);
+      char *tmpnam_alloc(const char *hint)
+
+  generates a temporary filename "near" the filename 'hint', and stores
+  this in freshly allocated memory. returns NULL on failure.
+
+      FILE *opentemp(const char *hint, char **name)
+
+  like tmpnam_alloc, but tries to open the file at the same time, storing
+  the filename in *name if name != NULL
+
+      int cpfile(const char *srcnam, const char *dstnam)
 
   copies src to dest, using fcopy.
 
-	  int fcopy(FILE *dest, FILE *src);
+      int fcopy(FILE *dest, FILE *src)
 
   copies (remainder of) file src to dest (both must be opened/usable)
   returns success or failure
 
-	  int fpadd(FILE *dest, char c, size_t len);
+      int fpadd(FILE *dest, char c, size_t len)
 
   writes len times the character c to the file opened as dest.
   returns success or failure
 
-	  FILE *fopentmp(const char *hint, char **name);
+      FILE *fopentmp(const char *hint, char **name)
 
   tries to open a temporary file "near" the filename 'hint'. returns the
   file opened on success, NULL on failure. The filename generated is
@@ -41,9 +51,10 @@ extern "C" {
 extern int	 fcopy(FILE *dest, FILE *src);
 extern int	 fpadd(FILE *dest, char c, size_t len);
 
-extern FILE *fopentmp(const char *hint, char **name);
+char        *tmpnam_alloc(const char *hint);
+FILE        *opentemp(const char *hint, char **name);
 
-extern int	 cpfile(const char *srcnam, const char *dstnam);
+extern int   cpfile(const char *srcnam, const char *dstnam);
 
 #ifdef __cplusplus
 }

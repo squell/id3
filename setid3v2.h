@@ -46,6 +46,7 @@
 #include <map>
 
 #include "setid3.h"
+#include "sedit.h"
 
 class smartID3v2 : public smartID3 {
 public:

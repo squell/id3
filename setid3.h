@@ -60,36 +60,19 @@
 #include <vector>
 #include <exception>
 #include <memory>
+#include "sedit.h"
 
 enum ID3set {
     title, artist, album, year, cmnt, track, genre, ID3_MAX
 };
 
-class smartID3 {
-    static const bool ZERO_BASED = false;     // count starts at %0 ?
-    static const char VAR = '%';              // replacement char
-
+class smartID3 : protected svar {
     std::vector<const char*> mod;
 
 protected:
-    struct base_container {
-        virtual std::string operator[](unsigned) const = 0;
-    };
-
-    template<class T>                         // templatized wrapper
-    struct container : base_container {
-        const T& data;
-
-        container(const T& t) : data(t) { }
-
-        virtual std::string operator[](unsigned x) const
-        { return data[x]; }
-    };
-
     bool fresh;                               // clear existing?
 
     virtual bool vmodify(const char*, const base_container&) const;
-    static std::string edit(std::string, const base_container&);
 
 public:
     smartID3() : mod(ID3_MAX,(char*)0), fresh(false)
@@ -121,3 +104,4 @@ public:
 };
 
 #endif
+

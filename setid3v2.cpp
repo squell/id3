@@ -4,6 +4,7 @@
 #include <cctype>
 #include <cstdlib>
 #include "setid3v2.h"
+#include "sedit.h"
 #include "id3v1.h"
 #include "id3v2.h"
 #include "fileops.h"

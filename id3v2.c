@@ -237,7 +237,7 @@ int ID3_writef(const char *fname, void *src)
         int ok;                                      /* rnd to 512 bytes */
 
         char *tmp;
-        FILE *nf = fopentmp(fname, &tmp);
+        FILE *nf = opentemp(fname, &tmp);
 
         if( !nf )
             goto abort;

@@ -66,7 +66,7 @@ const char *const ID3v1_genre[] = {
 /* 57*/ "Southern Rock",
 /* 58*/ "Comedy",
 /* 59*/ "Cult",
-/* 60*/ "Gangsta",
+/* 60*/ "Gangsta Rap",
 /* 61*/ "Top 40",
 /* 62*/ "Christian Rap",
 /* 63*/ "Pop/Funk",

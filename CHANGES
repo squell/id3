@@ -1,12 +1,19 @@
 Changelog for 'id3'.
 
+2003-301 (W44):
+  setid3.cpp:clipped_compare: added a more intelligent ID3v1 genre-lookup,
+    so saying "alt" and "alternative", "prog.rock" and "progressive rock",
+    "fast fusion" and "fast-fusion", "humour" and "humor", etc, etc, will
+    all resolve to the correct genre.
+  setid3.cpp<>sedit.cpp: made smartID3::edit an independent function
+
 2003-299 (W43):
   main:cpp: error messages to stderr instead of stdout, program now gives
     meaningful result codes.
-  id3v1.c:77: 'psychadelic'. Typo in the genre list (copied from id3.org!)
+  id3v1.c:77: 'psychadelic'. Typo in the genre list copied from id3.org :(
   id3v2.c:11: fixed copyright notice. :)
   id3v2.c<>fileops.c: split into two components.
-  id3v2.c: added code for preserving file permissions when copying
+  fileops.c: replaced fopentmp with something conceptually simpler.
 
 2003-296 (W43):                                ---------[v0.71]-----------
   main.cpp:dirvector: reads directory as a whole to avoid order mangling
@@ -79,13 +86,12 @@ Changelog for 'id3'.
 
 Todo list:
 
-  - File permissions
-  - Fuzzy genre matching
-  - Options for forcing re-packing id3v2 ("-s size")
   - Restructure smartID3 inheritance.
     + Support for Ogg Vorbis
     + Support for APEv2
     + Support for Lyrics3 v2.0 (?)
+  - Options for forcing re-packing id3v2 ("-s size")
+  - Fuzzy genre matching
   - Directory wildcards ("mp3root/*/*/*_*.mp3")
   - Options for re-using existing tag values
   - Extend substitution capabilities.
