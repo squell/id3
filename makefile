@@ -26,10 +26,11 @@ datadir  = $(prefix)/share
 docdir	 = $(datadir)/doc/id3
 docdata  = README CHANGES COPYING
 
-INSTALL       = install
-INSTALL_DIR   = $(INSTALL) -d
-INSTALL_STRIP = $(INSTALL) -s
-INSTALL_DATA  = $(INSTALL) -m 644
+INSTALL 	= install
+INSTALL_PROGRAM = $(INSTALL)
+INSTALL_DATA	= $(INSTALL) -m 644
+INSTALL_DIR	= $(INSTALL) -d
+INSTALL_STRIP	= $(INSTALL_PROGRAM) -s
 
 ## makefile setup ##########################################################
 
