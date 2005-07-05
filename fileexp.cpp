@@ -20,11 +20,11 @@
 
 */
 
-using namespace std;
-
-#if !defined(_XOPEN_UNIX)                       // readlink dummy define
-#    define readlink(path, buf, n) (-1)
+#if defined(__DJGPP__) || defined(__WIN32__)
+#    define readlink(path, buf, n) (-1)         // readlink dummy
 #endif
+
+using namespace std;
 
 namespace fileexp {
 
