@@ -15,6 +15,17 @@
    * http://www.thecodeproject.com/audio/MPEGAudioInfo.asp (vbr headers)
    * http://gabriel.mp3-tech.org/mp3infotag.htm            (lame header)
 
+  To do;
+  - testing all possibile combinations of hz/bitrate, header/scan
+  - make sure hz and bitrate stays the same during one mp3
+  - analyse how malicious mp3's are handled
+  - (not in this file) figure out syntax for variable use
+
+   %m min       ?
+   %s sec
+   %r rate
+   %b bitrate
+
   */
 
 #define MAX_SYNC    0xC000U
