@@ -142,6 +142,25 @@ private:
     bool edir;
 };
 
+ // variable mapping for substitution
+ // - only reads tag data from file when actually requested
+
+class mass_tag::substvars {
+public:
+    cvtstring operator[](char field) const;
+
+    substvars(const set_tag::provider& proto, const char* fn)
+    : tag(proto), filename(fn), tag_data(0) { }
+   ~substvars() { delete tag_data; }
+
+private:
+    mutable const set_tag::reader* tag_data;
+    static unsigned counter;
+
+    const set_tag::provider& tag;
+    const char* const filename;
+};
+
  // range checked, boxed, constrained vector
 
 class mass_tag::r_vector {
@@ -154,22 +173,6 @@ public:
           throw out_of_range("variable index out of range");
         return vec[i];
     }
-};
-
- // variable mapping for substitution
- // - only reads tag data from file when actually requested
-
-class mass_tag::substvars {
-    const set_tag::provider* const tag;
-    const char*              const filename;
-    mutable const set_tag::reader* tag_data;
-    static unsigned counter;
-public:
-    cvtstring operator[](char field) const;
-
-    substvars(const set_tag::provider& proto, const char* fn)
-    : tag(&proto), filename(fn), tag_data(0) { }
-   ~substvars() { delete tag_data; }
 };
 
 void mass_tag::operator()(const set_tag::handler& h, const char* spec, const set_tag::provider& p)
@@ -204,7 +207,7 @@ cvtstring mass_tag::substvars::operator[](char c) const
     default:
         i = char_as_ID3field(c);
         if(i < set_tag::FIELDS) {
-            if(!tag_data) tag_data = tag->read(filename);
+            if(!tag_data) tag_data = tag.read(filename);
             return (*tag_data)[i];
         }
         break;
@@ -216,9 +219,9 @@ cvtstring mass_tag::substvars::operator[](char c) const
         return filename;
     case 'f':
         if(const char* p = strrchr(filename,'/'))
-              return cvtstring::local(p+1);
+              return p+1;
           else
-              return cvtstring::local(filename);
+              return filename;
     };
     eprintf("unknown variable: %%%c\n", c);
     shelp();
@@ -542,6 +545,7 @@ int main_(int argc, char *argv[])
             cmd = no_value;
             continue;
         };
+
         add(state, w);                         // set operation done flag
         cmd = no_value;
     }
