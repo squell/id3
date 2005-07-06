@@ -91,6 +91,7 @@ namespace {
 #endif
     using set_tag::ID3;
     using set_tag::filename;
+    using set_tag::echo;
 
    // this template class:
    // - boxes a handler to make it safe for (multiple) inheritance,
@@ -115,7 +116,8 @@ struct metadata :
    uses<ID3v2>,
 #endif
    uses<ID3>,
-   uses<filename>
+   uses<filename>,
+   uses<echo>
 {
     template<class Tag> Tag* enable()
     { return (Tag*) &with<Tag>(*this).active(true); }
@@ -384,9 +386,40 @@ const char* setpattern::operator[](unsigned)
 
 /* ====================================================== */
 
+/*
+static fileexp::find& instantiate
+   (op::oper_t state, metadata& tag,
+    set_tag::provider* src_ptr, const char* format)
+{
+    using namespace op;
+    if(!src_ptr) src_ptr = &tag.enable<ID3>();
+
+    struct null_op : fileexp::find {
+        bool operator()(const char* arg)
+        { eprintf("nothing to do with %s\n", arg); return 1; }
+        void file(const char*, const fileexp::record&)
+        { }
+    };
+
+    bool rec = state % recur;
+    rem(state, recur);
+
+    if(state%(w|rd) == w)
+        return *new mass_tag(tag, *src_ptr, recur);
+    if(state%(ren|rd) == ren)                  // optimization
+        return *new mass_tag(with<filename>(tag), *src_ptr, recur);
+    if(state == rd)
+        return *new mass_tag(with<echo>(tag), *src_ptr, recur);
+    if(!state)
+        return *new null_op();
+
+    eprintf("incompatible operation requested\n");
+    shelp();
+}
+*/
+
 int main_(int argc, char *argv[])
 {
-    set_tag::echo display;
     metadata tag;
     mass_tag apply;
 
@@ -423,7 +456,7 @@ int main_(int argc, char *argv[])
                 else if(state%(ren|rd) == ren)
                     apply(with<filename>(tag), argv[i], *source, state%recur);
                 else if(state%(w|ren|rd) == rd)
-                    apply(display, argv[i], *source, state%recur);
+                    apply(with<echo>(tag), argv[i], *source, state%recur);
                 else if(!(state%~recur))
                     eprintf("nothing to do with %s\n", argv[i]);
                 else {
@@ -545,7 +578,7 @@ int main_(int argc, char *argv[])
                 eprintf("empty format string rejected\n");
                 shelp();
             } else
-                display.format(argv[i]);
+                with<echo>(tag).format(argv[i]);
             add(state, rd);
             cmd = no_value;
             continue;
