@@ -51,7 +51,7 @@ FILE *ftemp(char *templ, const char *mode)
 #ifndef _XOPEN_UNIX
     FILE *fc;
     if(mktemp(templ) && (fc = fopen(templ, "wb+"))) {
-        if(f = freopen(0, mode, fc)) return f;
+        if(f = freopen(templ, mode, fc)) return f;
         fclose(fc);
 #else
     int fd = mkstemp(templ);
@@ -74,7 +74,7 @@ FILE *opentemp(const char *hint, char **name)            /* free() name! */
 
     if(buf = malloc(prefix + sizeof template)) {
         strncpy(buf, hint, prefix);
-        strcpy (buf+prefix, template);
+        strncpy(buf+prefix, template, 8+1);
         if(f = ftemp(buf, "wb")) {
             if(name) *name = buf;
             else     free(buf);

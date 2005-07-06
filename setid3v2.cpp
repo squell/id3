@@ -230,7 +230,7 @@ bool ID3v2::vmodify(const char* fn, const subst& v) const
     }
 
     bool result = ID3_writef(fn, tag, resize);
-    guard::raise();
+    guard::raise();                                 // deferred exception?
 
     return result;
 }
