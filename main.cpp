@@ -125,21 +125,23 @@ struct metadata :
 
  // adaptation of filefindexp with verbose output
 
-class mass_tag : fileexp::find {
+class mass_tag : public fileexp::find {
 public:
     mass_tag() : recursive(0), edir(0) { }
-    void operator()
-      ( const set_tag::handler&, const char* spec, const set_tag::provider& );
+
+    void operator()( const set_tag::handler&, const char* spec, const set_tag::provider& );
     bool recursive;
 
     class substvars;
     class r_vector;
+
 private:
     const set_tag::handler*  tag;
     const set_tag::provider* info;
-    void file(const char* name, const fileexp::record&);
-    bool dir (const char* path);
     bool edir;
+
+    virtual void file(const char* name, const fileexp::record&);
+    virtual bool dir (const char* path);
 };
 
  // variable mapping for substitution
