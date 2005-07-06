@@ -288,15 +288,14 @@ static long argtol(const char* arg)            // convert argument to long
     return n;
 }
 
-#if defined(__DJGPP__) || defined(__WIN32__)
-static void argpath(char* arg)                 // convert backslashes
+inline static char* argpath(char* arg)
 {
-    for(char* p = arg; *p; ++p)
+#if defined(__DJGPP__) || defined(__WIN32__)
+    for(char* p = arg; *p; ++p)                // convert backslashes
         if(*p == '\\') *p = '/';
-}
-#else
-static inline void argpath(char* arg) { }      // dummy
 #endif
+    return arg;
+}
 
 static void defaults(metadata& tag, set_tag::handler*& target, set_tag::provider*& source)
 {
@@ -523,16 +522,15 @@ int main_(int argc, char *argv[])
         case set_rename:                       // specify rename format
             if(strrchr(argv[i],'/')) {
                 eprintf("will not rename across directories\n");
+                shelp();
             } else if(*argv[i] == '\0') {
                 eprintf("empty format string rejected\n");
-            } else {
-                argpath(argv[i]);
-                tag.enable<filename>()->rename(argv[i]);
-                add(state, ren);
-                cmd = no_value;
-                continue;
-            }
-            shelp();
+                shelp();
+            } else
+                tag.enable<filename>()->rename(argpath(argv[i]));
+            add(state, ren);
+            cmd = no_value;
+            continue;
 
         case set_query:                        // specify echo format
             if(*argv[i] == '\0') {
