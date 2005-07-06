@@ -33,8 +33,8 @@ using namespace std;
 
  // exitcodes: 0 - ok, 1 - syntax, 2 - errors, 3 - fatal errors
 
-static char*	 name  = "id3";
-static int	 exitc = 0;
+static char*     name  = "id3";
+static int       exitc = 0;
 
 static void eprintf(const char* msg, ...)
 {
@@ -57,40 +57,27 @@ static void shelp()
 /* ====================================================== */
 
 namespace {
-    namespace op {                             // state information
-        enum oper_t {
-            no_op =  0,
-            scan  =  1,                        // checking for no-file args?
-            w     =  2,                        // write  requested?
-            ren   =  4,                        // rename requested?
-            rd    =  8,                        // read   requested?
-        };
-        oper_t  operator %(oper_t x,  int y) { return oper_t(x & y);    }
-        oper_t& add(oper_t& x, oper_t y)     { return x = oper_t(x|y);  }
-        oper_t& rem(oper_t& x, int y)        { return x = oper_t(x&~y); }
-    }
-
     static set_tag::ID3field char_as_ID3field(char c)
     {
          switch(c) {                           // map from chars <-> ID3field
-	 case 't': return set_tag::title;
-	 case 'a': return set_tag::artist;
-	 case 'l': return set_tag::album;
-	 case 'y': return set_tag::year;
-	 case 'c': return set_tag::cmnt;
-	 case 'n': return set_tag::track;
-	 case 'g': return set_tag::genre;
-	 default : return set_tag::FIELDS;
-	 }
+         case 't': return set_tag::title;
+         case 'a': return set_tag::artist;
+         case 'l': return set_tag::album;
+         case 'y': return set_tag::year;
+         case 'c': return set_tag::cmnt;
+         case 'n': return set_tag::track;
+         case 'g': return set_tag::genre;
+         default : return set_tag::FIELDS;
+         }
     }
 
     const char ID3field_as_char[] = "talycng";
 
     inline static char* ID3field_as_asciiz(int i)
     {
-	static char fmt[] = "%_";
-	fmt[1] = ID3field_as_char[i];
-	return fmt;
+        static char fmt[] = "%_";
+        fmt[1] = ID3field_as_char[i];
+        return fmt;
     }
 }
 
@@ -111,15 +98,15 @@ namespace {
    // - delegates it into a most-derived-shared combined object
 
     template<class T> struct uses : virtual set_tag::combined {
-	uses()
-	{ delegate( object.active(false) ); }
+        uses()
+        { delegate( object.active(false) ); }
 
-	T object;
+        T object;
     };
 
     // next function acts like a cast operator on the above
 
-    template<class T> inline T& with(uses<T>& box)	       { return box.object; }
+    template<class T> inline T& with(uses<T>& box)             { return box.object; }
     template<class T> inline const T& with(const uses<T>& box) { return box.object; }
 }
 
@@ -190,7 +177,7 @@ void mass_tag::operator()(const set_tag::handler& h, const char* spec, const set
     tag  = &h;
     info = &p;
     if(! fileexp::find::operator()(spec) )
-	eprintf("no %s matching %s\n", edir? "files" : "directories", spec);
+        eprintf("no %s matching %s\n", edir? "files" : "directories", spec);
 }
 
 bool mass_tag::dir(const char* path)
@@ -243,25 +230,25 @@ static void Help()
 {
     printf(
 #ifndef NO_V2
-	"%s " _version_ "\n"
+        "%s " _version_ "\n"
         "usage: %s [-1 -2] [OPTIONS] filespec ...\n"
 #else
-	"usage: %s [OPTIONS] filespec ...\n"
+        "usage: %s [OPTIONS] filespec ...\n"
 #endif
-	" -d\t\t"          "clear existing tag\n"
-	" -t <title>\t"    "set fields\n"
-	" -a <artist>\t"   "\n"
-	" -l <album>\t"    "\n"
-	" -n <tracknr>\t"  "\n"
-	" -y <year>\t"     "\n"
+        " -d\t\t"          "clear existing tag\n"
+        " -t <title>\t"    "set fields\n"
+        " -a <artist>\t"   "\n"
+        " -l <album>\t"    "\n"
+        " -n <tracknr>\t"  "\n"
+        " -y <year>\t"     "\n"
         " -g <genre>\t"    "\n"
-	" -c <comment>\t"  "\n"
-	" -f <filename>\t" "set filename\n"
+        " -c <comment>\t"  "\n"
+        " -f <filename>\t" "set filename\n"
         " -m <pattern>\t"  "match fields to pattern\n"
-	" -q <string>\t"   "print string on stdout\n"
+        " -q <string>\t"   "print string on stdout\n"
         " -R\t\t"          "recurse into directories\n"
         " -v\t\t"          "give verbose output\n"
-	" -V\t\t"          "print version info\n"
+        " -V\t\t"          "print version info\n"
 #ifndef NO_V2
         "Only on last selected tag:\n"
         " -rXXXX\t\t"      "erase all XXXX frames\n"
@@ -270,22 +257,22 @@ static void Help()
 #endif
         " -!\t\t"          "force rewrite of tag\n"
         "\nReport bugs to <squell@alumina.nl>.\n",
-	name,
-	name
+        name,
+        name
     );
     exit(exitc=1);
 }
 
 static void Copyright()
 {
- //	 |=======================64 chars wide==========================|
+ //      |=======================64 chars wide==========================|
     printf(
-	"%s " _version_ ", Copyright (C) 2003, 04, 05 Marc R. Schoolderman\n"
-	"This program comes with ABSOLUTELY NO WARRANTY.\n\n"
-	"This is free software, and you are welcome to redistribute it\n"
-	"under certain conditions; see the file named COPYING in the\n"
-	"source distribution for details.\n",
-	name
+        "%s " _version_ ", Copyright (C) 2003, 04, 05 Marc R. Schoolderman\n"
+        "This program comes with ABSOLUTELY NO WARRANTY.\n\n"
+        "This is free software, and you are welcome to redistribute it\n"
+        "under certain conditions; see the file named COPYING in the\n"
+        "source distribution for details.\n",
+        name
     );
     exit(exitc=1);
 }
@@ -295,17 +282,17 @@ static long argtol(const char* arg)            // convert argument to long
     char* endp;
     long n = strtol(arg, &endp, 0);
     if(*endp != '\0') {
-	eprintf("invalid argument `%s'\n", arg);
-	exit(exitc=1);
+        eprintf("invalid argument `%s'\n", arg);
+        exit(exitc=1);
     }
     return n;
 }
 
 #if defined(__DJGPP__) || defined(__WIN32__)
-static void argpath(char* arg)		       // convert backslashes
+static void argpath(char* arg)                 // convert backslashes
 {
     for(char* p = arg; *p; ++p)
-	if(*p == '\\') *p = '/';
+        if(*p == '\\') *p = '/';
 }
 #else
 static inline void argpath(char* arg) { }      // dummy
@@ -315,6 +302,22 @@ static void defaults(metadata& tag, set_tag::handler*& target, set_tag::provider
 {
     if(!target) target = &with<ID3>(tag).active(true);
     if(!source) source = &with<ID3>(tag);
+}
+
+/* ====================================================== */
+
+namespace op {                                 // state information bitset
+    enum oper_t {
+        no_op =  0x00,
+        scan  =  0x01,                         // checking for no-file args?
+        w     =  0x02,                         // write  requested?
+        ren   =  0x04,                         // rename requested?
+        rd    =  0x08,                         // read   requested?
+        recur =  0x10,                         // recursion requested?
+    };
+    oper_t  operator %(oper_t x,  int y) { return oper_t(x & y);    }
+    oper_t& add(oper_t& x, oper_t y)     { return x = oper_t(x|y);  }
+    oper_t& rem(oper_t& x, int y)        { return x = oper_t(x&~y); }
 }
 
 /* ====================================================== */
@@ -381,174 +384,174 @@ int main_(int argc, char *argv[])
     mass_tag apply;
 
     ID3field field;
-    string fieldID;			       // free form field selector
+    string fieldID;                            // free form field selector
 
-    set_tag::provider* source = 0;	       // pointer to first enabled
-    set_tag::handler*  chosen = 0;	       // pointer to last enabled
+    set_tag::provider* source = 0;             // pointer to first enabled
+    set_tag::handler*  chosen = 0;             // pointer to last enabled
 
     using namespace op;
-    enum parm_t {			       // parameter modes
-	no_value, force_fn, pattern_fn,
-	stdfield, customfield, suggest_size,
-	set_rename, set_query,
+    enum parm_t {                              // parameter modes
+        no_value, force_fn, pattern_fn,
+        stdfield, customfield, suggest_size,
+        set_rename, set_query,
     };
 
-    parm_t cmd	 = no_value;
+    parm_t cmd   = no_value;
     oper_t state = scan;
-    char*  opt	 = "";                         // used for command stacking
+    char*  opt   = "";                         // used for command stacking
     bool   check = false;                      // foolproof check
 
     for(int i=1; i < argc; i++) {
-	switch( cmd ) {
-	case no_value:			       // process a command argument
-	    if(*opt != '\0') --i; else
-		if(argv[i][0] == '-' && scan) opt = argv[i]+1;
-	    if(*opt == '\0') {
-	case force_fn:			       // argument is filespec
-		defaults(tag, chosen, source);
-		argpath(argv[i]);
-		rem(state, scan);
+        switch( cmd ) {
+        case no_value:                         // process a command argument
+            if(*opt != '\0') --i; else
+                if(argv[i][0] == '-' && scan) opt = argv[i]+1;
+            if(*opt == '\0') {
+        case force_fn:                         // argument is filespec
+                defaults(tag, chosen, source);
+                argpath(argv[i]);
+                rem(state, scan);
                 if(state%(w|rd) == w)          // no-op check
-		    apply(tag, argv[i], *source);
+                    apply(tag, argv[i], *source);
                 else if(state%(ren|rd) == ren)
-		    apply(with<filename>(tag), argv[i], *source);
+                    apply(with<filename>(tag), argv[i], *source);
                 else if(state == rd)
-		    apply(display, argv[i], *source);
-		else if(!state)
-		    eprintf("nothing to do with %s\n", argv[i]);
-		else {
-		    eprintf("incompatible operation requested\n");
-		    shelp();
-		}
-	    } else {
-		switch( *opt++ ) {	       // argument is a switch
-		case 'v': verbose.on(); break;
+                    apply(display, argv[i], *source);
+                else if(!state)
+                    eprintf("nothing to do with %s\n", argv[i]);
+                else {
+                    eprintf("incompatible operation requested\n");
+                    shelp();
+                }
+            } else {
+                switch( *opt++ ) {             // argument is a switch
+                case 'v': verbose.on(); break;
                 case 'R': apply.recursive = true; break;
-		case 'm': cmd = pattern_fn; break;
-		case 'f': cmd = set_rename; break;
-		case 'q': cmd = set_query;  break;
-		case 'd': tag.clear(); add(state, w); break;
-		case 't':
-		case 'a':
-		case 'l':
-		case 'y':
-		case 'c':
-		case 'g':
-		case 'n':
-		    field = char_as_ID3field(opt[-1]); cmd = stdfield; break;
+                case 'm': cmd = pattern_fn; break;
+                case 'f': cmd = set_rename; break;
+                case 'q': cmd = set_query;  break;
+                case 'd': tag.clear(); add(state, w); break;
+                case 't':
+                case 'a':
+                case 'l':
+                case 'y':
+                case 'c':
+                case 'g':
+                case 'n':
+                    field = char_as_ID3field(opt[-1]); cmd = stdfield; break;
 #ifndef NO_V2
-		case '1':
-		    chosen = tag.enable<ID3>();
-		    if(!source) source = &with<ID3>(tag);
-		    break;
-		case '2':
-		    chosen = tag.enable<ID3v2>();
-		    if(!source) source = &with<ID3v2>(tag);
-		    break;
+                case '1':
+                    chosen = tag.enable<ID3>();
+                    if(!source) source = &with<ID3>(tag);
+                    break;
+                case '2':
+                    chosen = tag.enable<ID3v2>();
+                    if(!source) source = &with<ID3v2>(tag);
+                    break;
 
-		case 's':                      // tag specific switches
-		    if(chosen) {
-			cmd = suggest_size; break;
-		    }
-		case 'w':
-		    if(chosen) {
-			fieldID.assign(opt); cmd = customfield;
-			opt = "";
-			break;
-		    }
-		case 'r':
-		    if(chosen) {
-			chosen->rm(opt); add(state, w);
-			opt = "";
-			break;
-		    }
+                case 's':                      // tag specific switches
+                    if(chosen) {
+                        cmd = suggest_size; break;
+                    }
+                case 'w':
+                    if(chosen) {
+                        fieldID.assign(opt); cmd = customfield;
+                        opt = "";
+                        break;
+                    }
+                case 'r':
+                    if(chosen) {
+                        chosen->rm(opt); add(state, w);
+                        opt = "";
+                        break;
+                    }
 #endif
-		case '!':
-		    if(chosen) {
+                case '!':
+                    if(chosen) {
                         if(check) {
                             eprintf("-! must come before any fields\n");
                             shelp();
                         }
-			for(int i = 0; i < set_tag::FIELDS; ++i)
-			    chosen->set(ID3field(i), ID3field_as_asciiz(i));
-			add(state, w);
-			break;
-		    }
+                        for(int i = 0; i < set_tag::FIELDS; ++i)
+                            chosen->set(ID3field(i), ID3field_as_asciiz(i));
+                        add(state, w);
+                        break;
+                    }
 
-		    eprintf("specify tag format before -%c\n", opt[-1]);
-		    shelp();
+                    eprintf("specify tag format before -%c\n", opt[-1]);
+                    shelp();
 
                 case 'h': Help();
-		case 'V': Copyright();
-		case '-':
-		    if(opt == argv[i]+2 && *opt == '\0') {
-		       cmd = force_fn;
-		       break;
-		    }
-		default:
-		    eprintf("unrecognized switch: -%c\n", opt[-1]);
-		    shelp();
-		}
-	    }
-	    continue;
+                case 'V': Copyright();
+                case '-':
+                    if(opt == argv[i]+2 && *opt == '\0') {
+                       cmd = force_fn;
+                       break;
+                    }
+                default:
+                    eprintf("unrecognized switch: -%c\n", opt[-1]);
+                    shelp();
+                }
+            }
+            continue;
 
-	case stdfield:			       // write a standard field
+        case stdfield:                         // write a standard field
             tag.set(field, argv[i]);
             check = true;
-	    break;
+            break;
 
 #ifndef NO_V2
-	case suggest_size: {		       // v2 - suggest size
-		long l = argtol(argv[i]);
-		chosen->reserve(l);
-	    }
-	    break;
+        case suggest_size: {                   // v2 - suggest size
+                long l = argtol(argv[i]);
+                chosen->reserve(l);
+            }
+            break;
 
-	case customfield:		       // v2 - write a custom field
-	    if(! chosen->set(fieldID, argv[i]) ) {
-		eprintf("cannot write `%s' frames\n", fieldID.c_str());
-		shelp();
-	    }
+        case customfield:                      // v2 - write a custom field
+            if(! chosen->set(fieldID, argv[i]) ) {
+                eprintf("cannot write `%s' frames\n", fieldID.c_str());
+                shelp();
+            }
             check = true;
             break;
 #endif
-	case pattern_fn:		       // filename pattern shorthand
+        case pattern_fn:                       // filename pattern shorthand
             add(state, setpattern(tag, argv[i--]));
-	    cmd = force_fn;
-	    continue;
+            cmd = force_fn;
+            continue;
 
-	case set_rename:		       // specify rename format
-	    if(strrchr(argv[i],'/')) {
-		eprintf("will not rename across directories\n");
-	    } else if(*argv[i] == '\0') {
-		eprintf("empty format string rejected\n");
-	    } else {
-		argpath(argv[i]);
-		tag.enable<filename>()->rename(argv[i]);
-		add(state, ren);
-		cmd = no_value;
-		continue;
-	    }
-	    shelp();
+        case set_rename:                       // specify rename format
+            if(strrchr(argv[i],'/')) {
+                eprintf("will not rename across directories\n");
+            } else if(*argv[i] == '\0') {
+                eprintf("empty format string rejected\n");
+            } else {
+                argpath(argv[i]);
+                tag.enable<filename>()->rename(argv[i]);
+                add(state, ren);
+                cmd = no_value;
+                continue;
+            }
+            shelp();
 
-	case set_query: 		       // specify echo format
-	    if(*argv[i] == '\0') {
-		eprintf("empty format string rejected\n");
-		shelp();
-	    } else
-		display.format(argv[i]);
+        case set_query:                        // specify echo format
+            if(*argv[i] == '\0') {
+                eprintf("empty format string rejected\n");
+                shelp();
+            } else
+                display.format(argv[i]);
             add(state, rd);
-	    cmd = no_value;
-	    continue;
-	};
+            cmd = no_value;
+            continue;
+        };
         add(state, w);                         // set operation done flag
-	cmd = no_value;
+        cmd = no_value;
     }
 
     if(state % scan)
-	eprintf("missing file arguments\n");
+        eprintf("missing file arguments\n");
     if(state == scan)
-	shelp();
+        shelp();
 
     return exitc;
 }
@@ -558,7 +561,7 @@ int main_(int argc, char *argv[])
 
 int main(int argc, char *argv[])
 {
-    argpath(name=argv[0]);		      // set up program name
+    argpath(name=argv[0]);                    // set up program name
     if(char* p = strrchr(argv[0], '/')) name = p+1;
 
 #if defined(__DJGPP__) || defined(__WIN32__)
@@ -568,15 +571,15 @@ int main(int argc, char *argv[])
 #endif
 
     try {
-	return main_(argc, argv);
+        return main_(argc, argv);
     } catch(const set_tag::failure& f) {
-	eprintf("%s\n", f.what());
+        eprintf("%s\n", f.what());
     } catch(const out_of_range& x) {
-	eprintf("%s\n", x.what());
+        eprintf("%s\n", x.what());
     } catch(const exception& exc) {
-	eprintf("unhandled exception: %s\n", exc.what());
+        eprintf("unhandled exception: %s\n", exc.what());
     } catch(...) {
-	eprintf("unexpected unhandled exception\n");
+        eprintf("unexpected unhandled exception\n");
     }
     return 3;
 }
