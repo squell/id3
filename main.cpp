@@ -129,8 +129,9 @@ class mass_tag : public fileexp::find {
 public:
     mass_tag() : recursive(0), edir(0) { }
 
-    void operator()( const set_tag::handler&, const char* spec, const set_tag::provider& );
-    bool recursive;
+    void operator()(
+       const set_tag::handler&, const char* spec, const set_tag::provider&,
+       bool rec = false );
 
     class substvars;
     class r_vector;
@@ -138,6 +139,7 @@ public:
 private:
     const set_tag::handler*  tag;
     const set_tag::provider* info;
+    bool recursive;
     bool edir;
 
     virtual void file(const char* name, const fileexp::record&);
@@ -177,10 +179,11 @@ public:
     }
 };
 
-void mass_tag::operator()(const set_tag::handler& h, const char* spec, const set_tag::provider& p)
+void mass_tag::operator()(const set_tag::handler& h, const char* spec, const set_tag::provider& p, bool rec)
 {
     tag  = &h;
     info = &p;
+    recursive = rec;
     if(! fileexp::find::operator()(spec) )
         eprintf("no %s matching %s\n", edir? "files" : "directories", spec);
 }
@@ -416,12 +419,12 @@ int main_(int argc, char *argv[])
                 argpath(argv[i]);
                 rem(state, scan);
                 if(state%(w|rd) == w)          // no-op check
-                    apply(tag, argv[i], *source);
+                    apply(tag, argv[i], *source, state%recur);
                 else if(state%(ren|rd) == ren)
-                    apply(with<filename>(tag), argv[i], *source);
-                else if(state == rd)
-                    apply(display, argv[i], *source);
-                else if(!state)
+                    apply(with<filename>(tag), argv[i], *source, state%recur);
+                else if(state%(w|ren|rd) == rd)
+                    apply(display, argv[i], *source, state%recur);
+                else if(!(state%~recur))
                     eprintf("nothing to do with %s\n", argv[i]);
                 else {
                     eprintf("incompatible operation requested\n");
@@ -430,7 +433,7 @@ int main_(int argc, char *argv[])
             } else {
                 switch( *opt++ ) {             // argument is a switch
                 case 'v': verbose.on(); break;
-                case 'R': apply.recursive = true; break;
+                case 'R': add(state, recur); break;
                 case 'm': cmd = pattern_fn; break;
                 case 'f': cmd = set_rename; break;
                 case 'q': cmd = set_query;  break;
