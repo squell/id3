@@ -95,7 +95,6 @@ namespace {
 
    // this template class:
    // - boxes a handler to make it safe for (multiple) inheritance,
-   // - defaults the handler to 'disabled',
    // - delegates it into a most-derived-shared combined object
 
     template<class T> struct uses : virtual set_tag::combined {
@@ -129,19 +128,21 @@ struct metadata :
 
 class mass_tag : public fileexp::find {
 public:
-    mass_tag() : recursive(0), edir(0) { }
+    mass_tag(
+      const set_tag::handler&  tag,
+      const set_tag::provider& info,
+      bool rec = false
+    ) : tag(tag), info(info), recursive(rec), edir(0) { }
 
-    void operator()(
-       const set_tag::handler&, const char* spec, const set_tag::provider&,
-       bool rec = false );
+    virtual bool operator()(const char* spec);
 
     class substvars;
     class r_vector;
 
 private:
-    const set_tag::handler*  tag;
-    const set_tag::provider* info;
-    bool recursive;
+    const set_tag::handler&  tag;
+    const set_tag::provider& info;
+    const bool recursive;
     bool edir;
 
     virtual void file(const char* name, const fileexp::record&);
@@ -181,13 +182,12 @@ public:
     }
 };
 
-void mass_tag::operator()(const set_tag::handler& h, const char* spec, const set_tag::provider& p, bool rec)
+bool mass_tag::operator()(const char* spec)
 {
-    tag  = &h;
-    info = &p;
-    recursive = rec;
-    if(! fileexp::find::operator()(spec) )
+    const bool res = fileexp::find::operator()(spec);
+    if(!res)
         eprintf("no %s matching %s\n", edir? "files" : "directories", spec);
+    return res;
 }
 
 bool mass_tag::dir(const char* path)
@@ -200,7 +200,7 @@ bool mass_tag::dir(const char* path)
 void mass_tag::file(const char* name, const fileexp::record& f)
 {
     verbose.reportf(name);
-    if(! tag->modify(f.path, r_vector(f.var), substvars(*info, f.path)) )
+    if(! tag.modify(f.path, r_vector(f.var), substvars(info, f.path)) )
         return (void) eprintf("could not edit tag in %s\n", f.path);
 }
 
@@ -307,12 +307,6 @@ inline static char* argpath(char* arg)
     return arg;
 }
 
-static void defaults(metadata& tag, set_tag::handler*& target, set_tag::provider*& source)
-{
-    if(!target) target = &with<ID3>(tag).active(true);
-    if(!source) source = &with<ID3>(tag);
-}
-
 /* ====================================================== */
 
 namespace op {                                 // state information bitset
@@ -386,13 +380,14 @@ const char* setpattern::operator[](unsigned)
 
 /* ====================================================== */
 
-/*
+  // dynamically create a suitably initialized function object
+
 static fileexp::find& instantiate
    (op::oper_t state, metadata& tag,
     set_tag::provider* src_ptr, const char* format)
 {
     using namespace op;
-    if(!src_ptr) src_ptr = &tag.enable<ID3>();
+    if(!src_ptr) src_ptr = tag.enable<ID3>();
 
     struct null_op : fileexp::find {
         bool operator()(const char* arg)
@@ -402,7 +397,12 @@ static fileexp::find& instantiate
     };
 
     bool rec = state % recur;
-    rem(state, recur);
+    rem(state, recur|scan);
+
+    if(state%ren)
+        tag.enable<filename>()->rename(format);
+    if(state%rd)
+        tag.enable<echo>()->format(format);
 
     if(state%(w|rd) == w)
         return *new mass_tag(tag, *src_ptr, recur);
@@ -416,15 +416,16 @@ static fileexp::find& instantiate
     eprintf("incompatible operation requested\n");
     shelp();
 }
-*/
+
+  // contains CLI interface loop
 
 int main_(int argc, char *argv[])
 {
     metadata tag;
-    mass_tag apply;
 
     ID3field field;
     string fieldID;                            // free form field selector
+    const char* format = 0;                    // format string (-q & -f)
 
     set_tag::provider* source = 0;             // pointer to first enabled
     set_tag::handler*  chosen = 0;             // pointer to last enabled
@@ -448,21 +449,11 @@ int main_(int argc, char *argv[])
                 if(argv[i][0] == '-' && scan) opt = argv[i]+1;
             if(*opt == '\0') {
         case force_fn:                         // argument is filespec
-                defaults(tag, chosen, source);
-                argpath(argv[i]);
+                static fileexp::find& apply
+                  = instantiate(state, tag, source, format);
+
+                apply( argpath(argv[i]) );
                 rem(state, scan);
-                if(state%(w|rd) == w)          // no-op check
-                    apply(tag, argv[i], *source, state%recur);
-                else if(state%(ren|rd) == ren)
-                    apply(with<filename>(tag), argv[i], *source, state%recur);
-                else if(state%(w|ren|rd) == rd)
-                    apply(with<echo>(tag), argv[i], *source, state%recur);
-                else if(!(state%~recur))
-                    eprintf("nothing to do with %s\n", argv[i]);
-                else {
-                    eprintf("incompatible operation requested\n");
-                    shelp();
-                }
             } else {
                 switch( *opt++ ) {             // argument is a switch
                 case 'v': verbose.on(); break;
@@ -568,7 +559,7 @@ int main_(int argc, char *argv[])
                 eprintf("empty format string rejected\n");
                 shelp();
             } else
-                tag.enable<filename>()->rename(argpath(argv[i]));
+                format = argpath(argv[i]);
             add(state, ren);
             cmd = no_value;
             continue;
@@ -578,7 +569,7 @@ int main_(int argc, char *argv[])
                 eprintf("empty format string rejected\n");
                 shelp();
             } else
-                with<echo>(tag).format(argv[i]);
+                format = argv[i];
             add(state, rd);
             cmd = no_value;
             continue;
