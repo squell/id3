@@ -22,7 +22,7 @@ struct verbose_t {
         time = clock() - time;
         if(show) {
             if(exitc!=0) fprintf(stderr, "Errors were encountered\n");
-            if(exitc!=1) fprintf(stderr, "(%d files in %.3fs) done\n", numfiles, double(time) / CLOCKS_PER_SEC);
+            if(exitc!=1) fprintf(stderr, "(%lu files in %.3fs) done\n", numfiles, double(time) / CLOCKS_PER_SEC);
         }
     }
 

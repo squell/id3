@@ -157,5 +157,5 @@ const char *const ID3v1_genre[] = {
 /*148*/ "Synthpop",
 };
 
-const int ID3v1_numgenres = sizeof ID3v1_genre / sizeof *ID3v1_genre;
+const unsigned char ID3v1_numgenres = sizeof ID3v1_genre / sizeof *ID3v1_genre;
 
