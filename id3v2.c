@@ -242,7 +242,7 @@ int ID3_writef(const char *fname, void *src, size_t reqsize)
         rewind(f);
     }
                                                         /* file rewriter */
-    {              
+    {
         ulong nsize = ((size+sizeof new_h+0x1FF) & ~0x1FF) - sizeof new_h;
         int ok;                                      /* rnd to 512 bytes */
 

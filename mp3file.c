@@ -132,13 +132,13 @@ end:
     }
     fclose(f);
     return report;
-                
+
 frame:
     DEBUG_log("\n");
     c = getc(f);
     id  = c >> 3 & 0x3;                             /* 3=mp1 2=mp2 0=mp2.5 */
     id  = id ^ id>>1 ^ 0x2;                         /* 0=mp1 1=mp2 2=mp2.5 */
-    crc = c & 0x01;                                
+    crc = c & 0x01;
     if((c & 0xE6) != 0xE2 || id == 3) {             /* only support layer3 */
 #ifdef DEBUG
         if((c & 0xE6) != 0xE0 || id == 3 || (c & 0x6) == 0)
@@ -167,7 +167,7 @@ frame:
     case 0:                                         /* for compiler opts   */
         n = (bps[(-id>>1)&1][bitrate] << (id>>1))*1440UL/441UL + pad;
         break;
-    case 1:               
+    case 1:
         n = (bps[(-id>>1)&1][bitrate] << (id>>1))*1440UL/480UL + pad;
         break;
     case 2:

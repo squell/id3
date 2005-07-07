@@ -60,7 +60,7 @@ FILE *ftemp(char *templ, const char *mode)
         close(fd);
 #endif
         unlink(templ);
-    } 
+    }
     return 0;
 }
 

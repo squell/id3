@@ -55,12 +55,14 @@ namespace fileexp {
         virtual void file(const char* name, const record&) = 0;
         virtual bool dir (const char* path)
         { return 0; }
+
+        virtual ~find() { }
     };
 
     struct find_recursive : find {
         virtual bool dir (const char*)
         { return 1; }
-    };   
+    };
 
 }
 
