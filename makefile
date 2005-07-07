@@ -103,7 +103,7 @@ DIR_DEBIAN  = control rules copyright changelog
 DIR_FREEBSD = Makefile pkg-descr
 
 DISTFILES = INSTALL $(docdata) makefile makefile.dj makefile.bcc \
-	main.cpp auto_dir.h $(SRC_CPP:=.h) $(SRC_C:=.h) \
+	main.cpp verbose.cpp auto_dir.h $(SRC_CPP:=.h) $(SRC_C:=.h) \
 	$(SRC_CPP:=.cpp) $(SRC_C:=.c) id3.man \
 	$(DIR_DEBIAN:%=debian/%) \
 	$(DIR_FREEBSD:%=FreeBSD/%)
