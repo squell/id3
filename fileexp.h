@@ -50,7 +50,7 @@ namespace fileexp {
     };
 
     struct find {
-        bool operator()(const char* filemask);
+        virtual bool operator()(const char* filemask);
 
         virtual void file(const char* name, const record&) = 0;
         virtual bool dir (const char* path)
