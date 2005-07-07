@@ -33,22 +33,22 @@ using namespace std;
 
  // exitcodes: 0 - ok, 1 - syntax, 2 - errors, 3 - fatal errors
 
-static char*     name  = "id3";
-static int       exitc = 0;
+static const char* Name  = "id3";
+static int         exitc = 0;
 
 static void eprintf(const char* msg, ...)
 {
     exitc = 2;
     va_list args;
     va_start(args, msg);
-    fprintf  (stderr, "%s: ", name);
+    fprintf  (stderr, "%s: ", Name);
     vfprintf (stderr, msg, args);
     va_end(args);
 }
 
 static void shelp()
 {
-    fprintf(stderr, "Try `%s -h' for more information.\n", name);
+    fprintf(stderr, "Try `%s -h' for more information.\n", Name);
     exit(exitc=1);
 }
 
@@ -124,10 +124,10 @@ struct metadata :
 class mass_tag : public fileexp::find {
 public:
     mass_tag(
-      const set_tag::handler&  tag,
-      const set_tag::provider& info,
+      const set_tag::handler&  writer,
+      const set_tag::provider& reader,
       bool rec = false
-    ) : tag(tag), info(info), recursive(rec), edir(0) { }
+    ) : tag(writer), info(reader), recursive(rec), edir(0) { }
 
     virtual bool operator()(const char* spec);
 
@@ -152,7 +152,7 @@ public:
     cvtstring operator[](char field) const;
 
     substvars(const set_tag::provider& proto, const char* fn)
-    : tag(proto), filename(fn), tag_data(0) { }
+    : tag_data(0), tag(proto), filename(fn) { }
    ~substvars() { delete tag_data; }
 
 private:
@@ -262,8 +262,8 @@ static void Help()
 #endif
         " -!\t\t"          "force rewrite of tag\n"
         "\nReport bugs to <squell@alumina.nl>.\n",
-        name,
-        name
+        Name,
+        Name
     );
     exit(exitc=1);
 }
@@ -277,7 +277,7 @@ static void Copyright()
         "This is free software, and you are welcome to redistribute it\n"
         "under certain conditions; see the file named COPYING in the\n"
         "source distribution for details.\n",
-        name
+        Name
     );
     exit(exitc=1);
 }
@@ -395,7 +395,7 @@ static fileexp::find* instantiate
     static null_op dummy;
     set_tag::handler* selected;
 
-    bool rec = state % recur;
+    bool recursive = state % recur;
     rem(state, recur|scan);
 
     if(state%ren)                              // add rename as final
@@ -414,7 +414,7 @@ static fileexp::find* instantiate
         shelp();
     }
 
-    return new mass_tag(*selected, *src_ptr, recur);
+    return new mass_tag(*selected, *src_ptr, recursive);
 }
 
   // contains CLI interface loop
@@ -430,6 +430,8 @@ int main_(int argc, char *argv[])
     set_tag::handler*  chosen = 0;             // pointer to last enabled
 
     using namespace op;
+    char none[1] = "";
+
     enum parm_t {                              // parameter modes
         no_value, force_fn, pattern_fn,
         stdfield, customfield, suggest_size,
@@ -438,7 +440,7 @@ int main_(int argc, char *argv[])
 
     parm_t cmd   = no_value;
     oper_t state = scan;
-    char*  opt   = "";                         // used for command stacking
+    char*  opt   = none;                       // used for command stacking
 
     for(int i=1; i < argc; i++) {
         switch( cmd ) {
@@ -485,13 +487,13 @@ int main_(int argc, char *argv[])
                 case 'w':
                     if(chosen) {
                         fieldID.assign(opt); cmd = customfield;
-                        opt = "";
+                        opt = none;
                         break;
                     }
                 case 'r':
                     if(chosen) {
                         chosen->rm(opt); add(state, w);
-                        opt = "";
+                        opt = none;
                         break;
                     }
 #endif
@@ -584,15 +586,15 @@ int main_(int argc, char *argv[])
 
 int main(int argc, char *argv[])
 {
-    argpath(name=argv[0]);                    // set up program name
-    if(char* p = strrchr(argv[0], '/')) name = p+1;
-
+    if(char* prog = argv[0]) {                // set up program name
+        if(char* p = strrchr(argpath(prog), '/')) prog = p+1;
 #if defined(__DJGPP__) || defined(__WIN32__)
-    char* end = strchr(name, '\0');           // make "unixy" in appearance
-    for(char* p = name; p != end; ++p) *p = tolower(*p);
-    if(end-name > 4 && strcmp(end-4, ".exe") == 0) end[-4] = '\0';
+        char* end = strchr(prog, '\0');       // make "unixy" in appearance
+        for(char* p = prog; p != end; ++p) *p = tolower(*p);
+        if(end-prog > 4 && strcmp(end-4, ".exe") == 0) end[-4] = '\0';
 #endif
-
+        Name = prog;
+    }
     try {
         return main_(argc, argv);
     } catch(const set_tag::failure& f) {
