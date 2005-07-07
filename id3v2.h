@@ -88,12 +88,12 @@ typedef struct _ID3FRAME {
     char *data;                           /* pointer to contents of frame */
     unsigned long size;                   /* length of frame contents     */
     char ID[5];                           /* ID of frame                  */
-    int tag_volit  : 1;
-    int file_volit : 1;
-    int readonly   : 1;
-    int packed     : 1;
-    int encrypted  : 1;
-    int grouped    : 1;
+    unsigned tag_volit  : 1;
+    unsigned file_volit : 1;
+    unsigned readonly   : 1;
+    unsigned packed     : 1;
+    unsigned encrypted  : 1;
+    unsigned grouped    : 1;
 } ID3FRAME[1];
 
 extern void   *ID3_readf(const char *fname, size_t *tagsize);
