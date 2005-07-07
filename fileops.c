@@ -48,7 +48,7 @@ int fpadd(FILE *dest, char c, size_t len)
 FILE *ftemp(char *templ, const char *mode)
 {
     FILE *f;
-#ifndef _XOPEN_UNIX
+#if defined(__DJGPP__) || defined(__WIN32__)
     FILE *fc;
     if(mktemp(templ) && (fc = fopen(templ, "wb+"))) {
         if(f = freopen(templ, mode, fc)) return f;
