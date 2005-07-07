@@ -6,66 +6,102 @@
 */
 
 #include <vector>
+#include <string>
 #include "set_base.h"
 
 using namespace std;
 
 namespace set_tag {
 
-namespace {
-    typedef vector<single_tag*>::const_iterator iter;
+ /* Internal implementation details.
+    - seperated from main header for ease of compilation */
+
+struct combined::internal {
+    typedef pair<ID3field, string>           command;
+    typedef vector<handler*>::const_iterator iterator;
+
+    vector<handler*> tags;
+    vector<command>  args;
+
+    static const command clear;                 // sentinel value
+
+    iterator begin() const { return tags.begin(); }
+    iterator end()   const { return tags.end();   }
+
+    void transfer();
+};
+
+const combined::internal::command combined::internal::clear(FIELDS, "");
+
+combined::combined()
+: impl(new internal)
+{
+}
+
+combined::~combined()
+{
+    delete impl;
 }
 
  /* This class does NOT delegate the free form methods. This is simply
     because all tag formats use different naming conventions, so it would
     be really pointless anyhow. */
 
+combined& combined::set(ID3field i, string data)
+{
+    if(i < FIELDS)
+        impl->args.push_back( internal::command(i, data) );
+    return *this;
+}
+
 combined& combined::clear()
 {
-    for(iter p = tags.begin(); p != tags.end(); )
-        (*p++)->clear();
+    impl->args.push_back( internal::clear );
     return *this;
 }
 
-combined& combined::set(ID3field field, const char* data)
+combined& combined::delegate(handler& h)
 {
-    for(iter p = tags.begin(); p != tags.end(); )
-        (*p++)->set(field, data);
+    for(internal::iterator p = impl->begin(); p != impl->end(); ++p) {
+        if(*p == &h) return *this;
+    }
+    impl->tags.push_back(&h);
     return *this;
 }
 
-combined& combined::active(bool state)
+ /* Note that if delegates are added after a transfer, the original
+    set functions will have been lost on it. This can be remedied,
+    but it would cost more code size (and complexity), and have little
+    practical value. */
+
+void combined::internal::transfer()
 {
-    for(iter p = tags.begin(); p != tags.end(); )
-        (*p++)->active(state);
-    return *this;
+    for(vector<command>::iterator a = args.begin(); a != args.end(); ++a) {
+        for(iterator p = begin(); p != end(); ++p)
+            if(*a == clear)
+                (*p)->clear();
+            else
+                (*p)->set(a->first, a->second);
+    }
+    args.clear();
 }
 
- /* This function logically OR's all active() states together */
-
-bool combined::active() const
-{
-    for(iter p = tags.begin(); p != tags.end(); )
-        if((*p++)->active())
-            return true;
-    return false;
-}
-
- /* implementation of combined vmodify()
+ /* Implementation of combined vmodify()
     - obeys the vmodify restrictions of set_base.h */
 
 bool combined::vmodify(const char* fn, const subst& val) const
 {
-    bool e = false;
-    for(iter p = tags.begin(); p != tags.end(); ++p) {
-        const single_tag* sub = *p;
-        if(sub->active()) {
-            if( !sub->vmodify(fn, val) ) {
-                if(e) throw failure("partial tag written: ", fn);
-                else  return false;
-            }
-            e = true;
+    if(! impl->args.empty() ) {
+        impl->transfer();
+    }
+
+    bool e = false;                     // process delegates
+    for(internal::iterator p = impl->begin(); p != impl->end(); ++p) {
+        if( !(*p)->vmodify(fn, val) ) {
+            if(e) throw failure("partial tag written: ", fn);
+            else  return false;
         }
+        e = true;
     }
     return e;
 }

@@ -40,12 +40,12 @@
 
 namespace set_tag {
 
-class ID3v2 : public single_tag, public provider {
+class ID3v2 : public handler, public provider {
 public:
     ID3v2() : mod(), resize(0), fresh(false)
     { }
 
-    ID3v2& set(ID3field i, const char* m);        // set standard field
+    ID3v2& set(ID3field i, std::string m);        // set standard field
     ID3v2& reserve(size_t);                       // set suggested size
     ID3v2& clear();                               // erase previous tag?
 

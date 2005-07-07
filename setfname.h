@@ -28,17 +28,17 @@
 
 namespace set_tag {
 
-class filename : public single_tag {
+class filename : public handler {
     std::string ftemplate;
 public:
-    filename& rename(const char* fname)
+    filename& rename(std::string fname)
     { ftemplate=fname; return *this; }
 
     virtual bool vmodify(const char*, const subst&) const;
 
   // standard set - dummies
 
-    filename& set(ID3field, const char*)
+    filename& set(ID3field, std::string)
     { return *this; }
 
     filename& clear()

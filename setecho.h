@@ -20,10 +20,10 @@
 
 namespace set_tag {
 
-class echo : public single_tag {
+class echo : public handler {
     std::string fmt;
 public:
-    echo& format(const char* s)
+    echo& format(std::string s)
     { fmt=s; return *this; }
 
     virtual bool vmodify(const char*, const subst&) const;
@@ -31,7 +31,7 @@ public:
 
   // standard set - dummies
 
-    echo& set(ID3field, const char*)
+    echo& set(ID3field, std::string)
     { return *this; }
 
     echo& clear()

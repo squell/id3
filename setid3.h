@@ -30,7 +30,7 @@
 
 namespace set_tag {
 
-class ID3 : public single_tag, public provider {
+class ID3 : public handler, public provider {
 public:
     ID3() : mod(), fresh(false)
     { }
@@ -40,7 +40,7 @@ public:
 
   // standard set
 
-    ID3& set(ID3field i, const char* m)     // set ID3 field i to value m
+    ID3& set(ID3field i, std::string m)     // set ID3 field i to value m
     { if(i < FIELDS) mod[i] = m; return *this; }
 
     ID3& clear()
@@ -48,7 +48,7 @@ public:
 
 private:
     struct pair : public std::pair<std::string, bool> {
-        void operator=(const char* p)       { first = p, second = true;  }
+        void operator=(std::string p)       { first = p, second = true;  }
         operator const std::string*() const { return second? &first : 0; }
     };
     pair mod[FIELDS];                // modification data

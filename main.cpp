@@ -90,36 +90,31 @@ namespace {
     using set_tag::ID3v2;
 #endif
     using set_tag::ID3;
-    using set_tag::filename;
-    using set_tag::echo;
 
    // this template class:
    // - boxes a handler to make it safe for (multiple) inheritance,
-   // - delegates it into a most-derived-shared combined object
 
-    template<class T> struct uses : virtual set_tag::combined {
-        uses()
-        { delegate( object.active(false) ); }
-
+    template<class T> struct uses {
         T object;
     };
-
-    // next function acts like a cast operator on the above
-
-    template<class T> inline T& with(uses<T>& box)             { return box.object; }
-    template<class T> inline const T& with(const uses<T>& box) { return box.object; }
 }
 
 struct metadata :
+  set_tag::combined,
 #ifndef NO_V2
-   uses<ID3v2>,
+  uses<ID3v2>,
 #endif
-   uses<ID3>,
-   uses<filename>,
-   uses<echo>
+  uses<ID3>,
+  uses<set_tag::filename>,
+  uses<set_tag::echo>
 {
-    template<class Tag> Tag* enable()
-    { return (Tag*) &with<Tag>(*this).active(true); }
+    const char* format;              // for free format 'pseudo formats'
+
+    template<class Tag> Tag* activate()
+    { delegate(uses<Tag>::object);
+      return &this->uses<Tag>::object; }
+
+    metadata() : format(0) { }
 };
 
 /* ====================================================== */
@@ -139,9 +134,9 @@ public:
     class substvars;
     class r_vector;
 
-private:
     const set_tag::handler&  tag;
     const set_tag::provider& info;
+private:
     const bool recursive;
     bool edir;
 
@@ -362,7 +357,9 @@ const char* setpattern::operator[](char c)
     if(field < set_tag::FIELDS) {
         add(state, op::w);   tag.set(field, match);
     } else if(c == 'f') {
-        add(state, op::ren); tag.enable<filename>()->rename(match);
+        add(state, op::ren); tag.format = match;
+    } else if(c == 'q') {
+        add(state, op::rd);  tag.format = match;
     } else if(c == 'x') {
         ;                                      // pass over in silence
     } else {
@@ -382,39 +379,42 @@ const char* setpattern::operator[](unsigned)
 
   // dynamically create a suitably initialized function object
 
-static fileexp::find& instantiate
-   (op::oper_t state, metadata& tag,
-    set_tag::provider* src_ptr, const char* format)
-{
-    using namespace op;
-    if(!src_ptr) src_ptr = tag.enable<ID3>();
+struct null_op : fileexp::find {
+    bool operator()(const char* arg)
+    { eprintf("nothing to do with %s\n", arg); return 1; }
+    void file(const char*, const fileexp::record&)
+    { }
+};
 
-    struct null_op : fileexp::find {
-        bool operator()(const char* arg)
-        { eprintf("nothing to do with %s\n", arg); return 1; }
-        void file(const char*, const fileexp::record&)
-        { }
-    };
+static fileexp::find* instantiate
+   (op::oper_t state, metadata& tag, const set_tag::provider* src_ptr)
+{
+    if(!src_ptr) src_ptr = tag.activate<ID3>();
+    using namespace op;
+
+    static null_op dummy;
+    set_tag::handler* selected;
 
     bool rec = state % recur;
     rem(state, recur|scan);
 
-    if(state%ren)
-        tag.enable<filename>()->rename(format);
-    if(state%rd)
-        tag.enable<echo>()->format(format);
+    if(state%ren)                              // add rename as final
+        tag.activate<set_tag::filename>()->rename(tag.format);
 
-    if(state%(w|rd) == w)
-        return *new mass_tag(tag, *src_ptr, recur);
-    if(state%(ren|rd) == ren)                  // optimization
-        return *new mass_tag(with<filename>(tag), *src_ptr, recur);
-    if(state == rd)
-        return *new mass_tag(with<echo>(tag), *src_ptr, recur);
     if(!state)
-        return *new null_op();
+        return &dummy;
+    else if(state%(w|rd) == w)
+        selected = &tag;
+    else if(state%(ren|rd) == ren)             // optimization
+        selected = &tag.uses<set_tag::filename>::object;
+    else if(state == rd)
+        selected = &tag.uses<set_tag::echo>::object.format(tag.format);
+    else {
+        eprintf("incompatible operation requested\n");
+        shelp();
+    }
 
-    eprintf("incompatible operation requested\n");
-    shelp();
+    return new mass_tag(*selected, *src_ptr, recur);
 }
 
   // contains CLI interface loop
@@ -425,7 +425,6 @@ int main_(int argc, char *argv[])
 
     ID3field field;
     string fieldID;                            // free form field selector
-    const char* format = 0;                    // format string (-q & -f)
 
     set_tag::provider* source = 0;             // pointer to first enabled
     set_tag::handler*  chosen = 0;             // pointer to last enabled
@@ -440,7 +439,6 @@ int main_(int argc, char *argv[])
     parm_t cmd   = no_value;
     oper_t state = scan;
     char*  opt   = "";                         // used for command stacking
-    bool   check = false;                      // foolproof check
 
     for(int i=1; i < argc; i++) {
         switch( cmd ) {
@@ -450,7 +448,7 @@ int main_(int argc, char *argv[])
             if(*opt == '\0') {
         case force_fn:                         // argument is filespec
                 static fileexp::find& apply
-                  = instantiate(state, tag, source, format);
+                  = *instantiate(state, tag, source);
 
                 apply( argpath(argv[i]) );
                 rem(state, scan);
@@ -472,12 +470,12 @@ int main_(int argc, char *argv[])
                     field = char_as_ID3field(opt[-1]); cmd = stdfield; break;
 #ifndef NO_V2
                 case '1':
-                    chosen = tag.enable<ID3>();
-                    if(!source) source = &with<ID3>(tag);
+                    chosen = tag.activate<ID3>();
+                    if(!source) source = &tag.uses<ID3>::object;
                     break;
                 case '2':
-                    chosen = tag.enable<ID3v2>();
-                    if(!source) source = &with<ID3v2>(tag);
+                    chosen = tag.activate<ID3v2>();
+                    if(!source) source = &tag.uses<ID3v2>::object;
                     break;
 
                 case 's':                      // tag specific switches
@@ -499,10 +497,6 @@ int main_(int argc, char *argv[])
 #endif
                 case '!':
                     if(chosen) {
-                        if(check) {
-                            eprintf("-! must come before any fields\n");
-                            shelp();
-                        }
                         for(int i = 0; i < set_tag::FIELDS; ++i)
                             chosen->set(ID3field(i), ID3field_as_asciiz(i));
                         add(state, w);
@@ -528,7 +522,6 @@ int main_(int argc, char *argv[])
 
         case stdfield:                         // write a standard field
             tag.set(field, argv[i]);
-            check = true;
             break;
 
 #ifndef NO_V2
@@ -543,7 +536,6 @@ int main_(int argc, char *argv[])
                 eprintf("cannot write `%s' frames\n", fieldID.c_str());
                 shelp();
             }
-            check = true;
             break;
 #endif
         case pattern_fn:                       // filename pattern shorthand
@@ -559,7 +551,7 @@ int main_(int argc, char *argv[])
                 eprintf("empty format string rejected\n");
                 shelp();
             } else
-                format = argpath(argv[i]);
+                tag.format = argpath(argv[i]);
             add(state, ren);
             cmd = no_value;
             continue;
@@ -569,7 +561,7 @@ int main_(int argc, char *argv[])
                 eprintf("empty format string rejected\n");
                 shelp();
             } else
-                format = argv[i];
+                tag.format = argv[i];
             add(state, rd);
             cmd = no_value;
             continue;

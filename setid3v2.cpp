@@ -140,7 +140,7 @@ const static char xlat[][5] = {                     // ID3field order!
     "TIT2", "TPE1", "TALB", "TYER", "COMM", "TRCK", "TCON"
 };
 
-ID3v2& ID3v2::set(ID3field i, const char* m)
+ID3v2& ID3v2::set(ID3field i, std::string m)
 {
     if(i < FIELDS)
         set(xlat[i], m);

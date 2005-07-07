@@ -43,7 +43,6 @@ namespace set_tag {
 
     class handler;             // abstract base class / interface
 
-    class single_tag;
     class combined;
 
     class provider;            // extra interface for providing readers
@@ -78,7 +77,7 @@ public:
 
   // standard state set methods
 
-    virtual handler& set(ID3field, const char*) = 0;
+    virtual handler& set(ID3field, std::string) = 0;
     virtual handler& clear() = 0;
 
     virtual handler& reserve(std::size_t req = 0)
@@ -102,7 +101,6 @@ protected:                     // disable outside destruction
 class provider {
 public:
     virtual reader* read(const char*) const = 0;
-
 protected:
     ~provider() { }
 };
@@ -117,36 +115,23 @@ public:
 };
 
   ///////////////////////////////////////////////////////
-  // less abstract base class (seperate common code)   //
-  ///////////////////////////////////////////////////////
-
-class single_tag : public handler {
-protected:
-    single_tag(bool t = true)
-    : enabled(t) { }
-    bool enabled;                  // should vmodify be called?
-public:
-    single_tag& active(bool on) { enabled = on; return *this; }
-    bool        active() const  { return enabled; }
-};
-
-  ///////////////////////////////////////////////////////
   // generic implementation                            //
   // (delegates all messages to registered handlers)   //
   ///////////////////////////////////////////////////////
 
 class combined : public handler {
-    std::vector<single_tag*> tags;
+    struct internal;
+    internal* impl;
 public:
+    combined();
+   ~combined();
+
   // registers a delegate tag
-    combined& delegate(single_tag& t)
-    { tags.push_back(&t); return *this; }
+    combined& delegate(handler& h);
 
   // standard state set methods (non-inline)
-    combined& active(bool);
-    bool      active() const;
-    combined& set(ID3field, const char*);
     combined& clear();
+    combined& set(ID3field, std::string);
 
     bool vmodify(const char*, const subst&) const;
 };
