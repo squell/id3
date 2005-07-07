@@ -311,7 +311,7 @@ namespace op {                                 // state information bitset
         w     =  0x02,                         // write  requested?
         ren   =  0x04,                         // rename requested?
         rd    =  0x08,                         // read   requested?
-        recur =  0x10,                         // recursion requested?
+        recur =  0x10                          // recursion requested?
     };
     oper_t  operator %(oper_t x,  int y) { return oper_t(x & y);    }
     oper_t& add(oper_t& x, oper_t y)     { return x = oper_t(x|y);  }
@@ -435,7 +435,7 @@ int main_(int argc, char *argv[])
     enum parm_t {                              // parameter modes
         no_value, force_fn, pattern_fn,
         stdfield, customfield, suggest_size,
-        set_rename, set_query,
+        set_rename, set_query
     };
 
     parm_t cmd   = no_value;
