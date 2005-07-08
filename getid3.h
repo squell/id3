@@ -25,7 +25,7 @@ namespace set_tag {
         class ID3 : public reader {
             ID3v1 tag;
         public:
-            ID3(const char* fn);
+            explicit ID3(const char* fn);
             cvtstring operator[](ID3field field) const;
             array listing() const;
         };

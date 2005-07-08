@@ -90,8 +90,13 @@ public:
     virtual bool rm(std::string)
     { return false; }
 
-protected:                     // disable outside destruction
+protected:                     // disable outside destruction and copying
+    handler() { }
     ~handler() { }
+
+private:
+    void operator=(const handler&);
+    handler(const handler&);
 };
 
   ///////////////////////////////////////////////////////
@@ -107,11 +112,16 @@ protected:
 
 class reader {
 public:
+    reader() { }
     typedef std::vector< std::pair<std::string, cvtstring> > array;
 
     virtual cvtstring operator[](ID3field) const = 0;
     virtual array     listing() const = 0;
-    virtual ~reader() { };
+    virtual ~reader() { }
+
+private:                       // prevent copying of classes
+    void operator=(const reader&);
+    reader(const reader&);
 };
 
   ///////////////////////////////////////////////////////
@@ -146,8 +156,10 @@ public:
     explicit failure(const char* err);
     explicit failure(const char* err, const char* context);
     explicit failure(const std::string& err);
-    failure(const failure& other) : txt( other.txt )
-    { other.txt = 0; }
+    failure(const failure& other)
+    { *this = other; }
+    void operator=(const failure& other)
+    { txt = other.txt; other.txt = 0; }
     virtual ~failure() throw()
     { delete[] txt; }
     virtual const char* what() const throw()

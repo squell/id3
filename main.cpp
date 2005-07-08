@@ -123,22 +123,17 @@ struct metadata :
 
 class mass_tag : public fileexp::find {
 public:
-    mass_tag(
-      const set_tag::handler&  writer,
-      const set_tag::provider& reader,
-      bool rec = false
-    ) : tag(writer), info(reader), recursive(rec), edir(0) { }
-
+    inline mass_tag(const set_tag::handler&, const set_tag::provider&, bool);
     virtual bool operator()(const char* spec);
 
     class substvars;
     class r_vector;
 
-    const set_tag::handler&  tag;
-    const set_tag::provider& info;
+    const set_tag::handler&  tag_update;
+    const set_tag::provider& tag_info;
 private:
-    const bool recursive;
-    bool edir;
+    const bool do_recur;
+    unsigned counter;
 
     virtual void file(const char* name, const fileexp::record&);
     virtual bool dir (const char* path);
@@ -151,16 +146,19 @@ class mass_tag::substvars {
 public:
     cvtstring operator[](char field) const;
 
-    substvars(const set_tag::provider& proto, const char* fn)
-    : tag_data(0), tag(proto), filename(fn) { }
-   ~substvars() { delete tag_data; }
+    substvars(const set_tag::provider& info, const char* fn, unsigned x)
+    : tag_data(0), tag(&info), filename(fn), num(x) { }
+   ~substvars()
+    { delete tag_data; }
 
 private:
     mutable const set_tag::reader* tag_data;
-    static unsigned counter;
 
-    const set_tag::provider& tag;
-    const char* const filename;
+    const set_tag::provider* const tag;
+    const char*              const filename;
+    unsigned int             const num;
+
+    substvars(const substvars&);       // don't copy
 };
 
  // range checked, boxed, constrained vector
@@ -177,29 +175,38 @@ public:
     }
 };
 
+ //
+
+mass_tag::mass_tag(const set_tag::handler& writer, const set_tag::provider& reader, bool recursive)
+: tag_update(writer), tag_info(reader), do_recur(recursive)
+{
+    counter = 0;
+}
+
 bool mass_tag::operator()(const char* spec)
 {
     const bool res = fileexp::find::operator()(spec);
     if(!res)
-        eprintf("no %s matching %s\n", edir? "files" : "directories", spec);
+        eprintf("no %s matching %s\n", counter? "files" : "directories", spec);
     return res;
 }
 
 bool mass_tag::dir(const char* path)
 {
     verbose.reportd(path);
-    edir = true;
-    return recursive;
+    counter = 1;
+    return do_recur;
 }
 
 void mass_tag::file(const char* name, const fileexp::record& f)
 {
+    substvars letter_vars(tag_info, f.path, counter++);
+    r_vector  number_vars(f.var);
+
     verbose.reportf(name);
-    if(! tag.modify(f.path, r_vector(f.var), substvars(info, f.path)) )
+    if(! tag_update.modify(f.path, number_vars, letter_vars) )
         return (void) eprintf("could not edit tag in %s\n", f.path);
 }
-
-unsigned mass_tag::substvars::counter = 0;
 
 cvtstring mass_tag::substvars::operator[](char c) const
 {
@@ -209,13 +216,12 @@ cvtstring mass_tag::substvars::operator[](char c) const
     default:
         i = char_as_ID3field(c);
         if(i < set_tag::FIELDS) {
-            if(!tag_data) tag_data = tag.read(filename);
+            if(!tag_data) tag_data = tag->read(filename);
             return (*tag_data)[i];
         }
         break;
     case 'x':
-        counter = (counter+1) & 0xFFFF;
-        sprintf(buf, "%u", counter);
+        sprintf(buf, "%u", num & 0xFFFFu);
         return cvtstring::latin1(buf);
     case 'F':
         return filename;

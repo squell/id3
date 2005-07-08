@@ -38,15 +38,20 @@ namespace {
         char *base, *dest;
 
     public:
-        operator char*()   { return base; }
+        explicit writer(size_t len)
+                         { base = (char*) malloc(avail=len);
+                           if(!base) throw bad_alloc();
+                           dest = (char*) ID3_put(base,0,0,0); }
 
-        writer(size_t len) { base = (char*) malloc(avail=len);
-                             if(!base) throw bad_alloc();
-                             dest = (char*) ID3_put(base,0,0,0); }
+        operator char*() { return base; }
 
-       ~writer()           { free(base); }
+       ~writer()         { free(base); }
 
         void put(const char* ID, const void* src, size_t len);
+
+    private:
+        writer(writer&);                    // non-copyable
+        void operator=(writer&);
     };
 
     void writer::put(const char* ID, const void* src, size_t len)
@@ -186,13 +191,6 @@ set_tag::reader* ID3v2::read(const char* fn) const
     return new read::ID3v2(fn);
 }
 
-template<void dispose(void*)> struct voidp {        // auto-ptr like
-    void* data;
-    operator void*() { return data;   }
-    voidp(void* p)   { data = p;      }
-   ~voidp()          { dispose(data); }
-};
-
 bool ID3v2::vmodify(const char* fn, const subst& v) const
 {
     size_t check;
@@ -201,9 +199,14 @@ bool ID3v2::vmodify(const char* fn, const subst& v) const
     if(!buf && check != 0)                          // evil ID3 tag
         return false;
 
-    voidp<ID3_free> src  ( fresh? (void*)0 : buf );
-    writer          tag  ( 0x1000 );
-    db              table( mod );
+    struct wrapper {
+        void* const data;
+        operator void*() { return data;  }
+       ~wrapper()        { ID3_free(data); }
+    };
+    wrapper src = { fresh? (void*)0 : buf };
+    writer  tag   ( 0x1000 );
+    db      table ( mod );
 
     if( src ) {                                     // update existing tags
         ID3FRAME f;
