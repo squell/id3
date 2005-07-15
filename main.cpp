@@ -541,7 +541,7 @@ int main_(int argc, char *argv[])
 
         case customfield:                      // v2 - write a custom field
             if(! chosen->set(fieldID, argv[i]) ) {
-                eprintf("cannot write `%s' frames\n", fieldID.c_str());
+                eprintf("selected tag cannot write `%s' frames\n", fieldID.c_str());
                 shelp();
             }
             break;
