@@ -1,14 +1,11 @@
 Changelog for 'id3'.
 
 2005-187 (W27):
-  increased design seperation
   main.cpp:136: [bug] %x could get incremented more than once for each file
+  code cleanup/redesign
 
 2005-060 (W09):
   id3v2.c:128:[bug] since v0.75, rejected id3v2 tags w/o padding
-
-2005-048 (W07):
-  fileexp.cpp:133: don't follow symlinks
 
 2005-040 (W06):
   fileops.c:48: now use mkstemp on systems that indicate support for it
@@ -17,7 +14,6 @@ Changelog for 'id3'.
   sedit.cpp:89: [CLI] "#" prefixes in vars get processed better now: only
     numbers found inside the string will get padded. E.g. [1/5] -> [01/05]
   setid3[v2].cpp: regression: setting dupe fields overrides again
-  fileexp: refactoring of ffindexp, making it cleaner
   fileexp.cpp:110: optimized speed for cases where the shell has handled
     wildcards (saves sorting and scanning a whole dir for each file)
   fileexp.cpp:132: [CLI] added -R for recursive directory search
@@ -30,7 +26,6 @@ Changelog for 'id3'.
 
 2005-035 (W05):
   code cleanup.
-  setid3.h: now owns the data it receives trough 'set'.
 
 2005-034 (W05):                                ---------[v0.75]-----------
   updated documentation
