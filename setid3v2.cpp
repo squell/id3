@@ -200,7 +200,7 @@ bool ID3v2::vmodify(const char* fn, const subst& v) const
         return false;
 
     struct wrapper {
-        void* const data;
+        void* data;
         operator void*() { return data;  }
        ~wrapper()        { ID3_free(data); }
     };
