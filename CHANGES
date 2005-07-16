@@ -1,5 +1,8 @@
 Changelog for 'id3'.
 
+2005-198 (W28):
+  id3v2.c:177: [bug] fixed another class of id3v2 rejections (sigh)
+
 2005-187 (W27):
   main.cpp:136: [bug] %x could get incremented more than once for each file
   code cleanup/redesign

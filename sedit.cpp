@@ -51,8 +51,8 @@ namespace {
         switch(caps) {
         case name:
             return capitalize(s);
-        case camel:
-            return padcamels(s);
+  //    case camel:                    disabled
+  //        return padcamels(s);
         case lowr:
             transform(s.begin(), s.end(), s.begin(), to_lower());
         }
@@ -86,6 +86,7 @@ string capitalize(string s)
     return s;
 }
 
+#if 0
  // ReformatAStringLikeThis -> Reformat A String Like This
 
 string padcamels(const string s)
@@ -100,6 +101,7 @@ string padcamels(const string s)
     }
     return r;
 }
+#endif
 
  // padnumeric("(300/4)=75", 4) -> "0300/0004=0075"
 
@@ -145,7 +147,7 @@ cvtstring string_parm::edit(const cvtstring& fmt, const subst& var, const char* 
             case ',': s.replace(pos, n, "\r\n", 2); pos += 2; break;
 
             case '_': raw  = true; continue;
-            case '*': caps = camel;continue;
+    //      case '*': caps = camel;continue;   disabled //
             case '+': caps = name; continue;
             case '-': caps = lowr; continue;
             case '#': ++npad;      continue;

@@ -48,7 +48,6 @@
 
 extern std::string capitalize(std::string);
 extern std::string padnumeric(std::string, unsigned);
-extern std::string padcamels (std::string);
 
 template<class T>
   inline std::string sedit(const std::string&, const T&);

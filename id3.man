@@ -80,12 +80,12 @@ be verbose
 process ID3v1 tags (default). See `-2'.
 .TP
 .B \-2
-process ID3v2 tags. If both -1 and -2 are specified, both tag formats will be
-written.
+process ID3v2 tags. If both -1 and -2 are specified, both tag formats are
+selected.
 .TP
 .B \-d
 do not re-use existing tag data. If no new tag information is specified in
-conjunction with this, all selected tags will be removed.
+conjunction with this option, all selected tags will be removed.
 .PP
 .BI \-t " title
 .br
@@ -101,8 +101,8 @@ conjunction with this, all selected tags will be removed.
 .br
 .BI \-g " genre
 .IP
-add/replace  the  specified  fields  in all selected tags with the values
-given. Field values are scanned for substitution commands, see
+add/replace the specified fields in all selected tags with the values
+given. Field values are scanned for substitution variables, see
 .B SUBSTITUTION
 below.
 
@@ -111,46 +111,45 @@ regardless of tag format.
 .TP
 .BI \-f " filename-template
 rename files encountered according to \fIfilename-template\fR.
-The argument is scanned for substitution commands, and empty variables will
-by default get replaced with the string \*(lqUnknown\*(rq. Trying to rename
-to an already existing file will cause an error.
+The argument is scanned for substitution variables. An empty variable will by
+default get replaced with \*(lqUnknown\*(rq.
+Trying to rename to an already existing file will cause an error.
 .TP
 .BI \-m " filename-template
-the reverse of -f; process all files that match \fIfilename-template\fR,
-setting the tag accordingly. For example, `-m\ "%a\ -\ %t.mp3"' is
-shorthand for `-a\ %1\ -t\ %2\ "*\ -\ *.mp3"'
-.B SUBSTITUTION
-below.
+the inverse of -f; process all files that match \fIfilename-template\fR,
+setting the tag accordingly. Thus, `-m\ "%a\ -\ %t.mp3"' is shorthand for
+`-a\ %1\ -t\ %2\ "*\ -\ *.mp3"'.
 .TP
 .BI \-q " format
 for each file encountered, \fIformat\fR will get scanned for substitution
-commands, and written to standard output.
+variables, and written to standard output.
 .TP
 .B \-R
+EXPLAIN MORE
 recursively descend into all subdirectories to look for matching files,
 instead of just the the base directory. Use with caution - in most cases,
 it's more flexible to use wildcards for processing multiple directories.
 .PP
-The following options operate on the last tag selected before them, and only
+The following options operate on the tag most recently selected, and only
 have meaning where relevant.
 .TP
 .BI \-!
-fill all standard tag fields with information from the source tag. This is
-similar to writing `-talnygc %t %a %l %n %y %g %c', but only operates
-on the most recent tag. It is possible for the source and destination tag to
-be the same.
+copy all standard tag fields from the source tag. This is similar to writing
+`-talnygc %t %a %l %n %y %g %c', but only operates on the most recent tag.
+It is possible for the source and destination tag to be the same.
 .TP
 .BI \-s " size
 try to write a new tag using exactly \fIsize\fR bytes, adding / removing
-padding as necessary.
+padding as necessary. The resulting tag will have no padding if \fIsize\fR
+is smaller than the actual size necessary.
 .TP
 .B \-r\fIFRAME
-remove all occurrences of frames named \fIFRAME\fR from the  tag. Consult the
+remove all occurrences of frames named \fIFRAME\fR from the tag. Consult the
 format documentation for valid \fIFRAME\fR names.
 .TP
 .BI \-w\fIFRAME " data
-add / update  a frame named \fIFRAME\fR with \fIdata\fR in the  tag.
-\fIdata\fR is scanned for substitution commands. Again, consult the format
+add / update a frame named \fIFRAME\fR with \fIdata\fR in the  tag.
+\fIdata\fR is scanned for substitution variables. Again, consult the format
 documentation. See \fICOMPATIBILITY\fR for more information.
 .PP
 Individual options can be stacked in a single argument for more convenience.
@@ -161,6 +160,7 @@ For example, running
 is equivalent to:
 
    id3 -2 -d -a "Artist" -l "Album" -t "Title" *.mp3
+
 .SH SUBSTITUTION
 id3 can perform \*(lqprintf-like\*(rq substitution on the values prior to
 writing them to a tag. Note that if you want to use pattern matching, you
@@ -196,11 +196,11 @@ replaced by values according to the following table:
 .br
 .BR %x " auto-increasing\ counter
 .PP
-All values get read (where applicable) from the source tag, which is specified
-by the left-most specified tag format on the command line, and reflect the
-state of the file before any modifications were made. Similarly, \fI%f\fR is
-always the original filename. The \fI%x\fR value gets increased each time it
-is substituted, and is intended to be used for auto-numbering.
+Values get read (where applicable) from the source tag, which is the left-most
+tag selected on the command line, and reflect the state of the file before
+any modifications were made. Similarly, \fI%f\fR is always the original
+filename. The \fI%x\fR value gets increased for each file encountered in a
+directory, and is intended to be used for auto-numbering.
 .RE
 .TP
 .B %%
@@ -220,13 +220,13 @@ Convert all characters to lowercase
 Do not replace underscores with spaces, and do not compress empty space.
 .TP
 .BR # " (hash\ or\ pound\ sign)
-Prefix a zero before the substituted value to pad it out, if necessary.
-Multiple hash signs can be stacked for more padding. Intended for numeric
-fields only.
+Pad all numeric values within the substituted value, if necessary.
+Multiple hash signs can be stacked to increase desired width. If there are
+no numeric values, this modifier has no effect.
 .TP
 .BI | fallback |
 If substitution would yield an empty value, substitute with \fIfallback\fR
-instead. \fIfallback\fR itself may contain other substitutions, but no other
+instead. \fIfallback\fR itself may contain other variables, but no other
 .B |
 (pipe) symbols or fallbacks.
 .RE
@@ -242,19 +242,22 @@ Removes all ID3v1 tags from all mp3's.
 \fBid3 -2 -1! fs_song.mp3
 Copy ID3v2 tag to ID3v1 tag in selected file.
 .TP
-\fBid3 -a "TAFKAT" -n "%1" -t "%c2" "*. *.mp3"
-Sets tag fields correspondingly:
-  01. my_song.mp3  [=>] "01" "My Song"
-  02. untitled.mp3 [=>] "02" "Untitled"    etc..
+\fBid3 -a "TAFKAT" -n "%1" -t "%+2" "*. *.mp3"
+Update tag fields similar to this;
+  01. my_song.mp3  [=>] artist "TAFKAT", track "01" title "My Song"
+  02. untitled.mp3 [=>] artist "TAFKAT", track "02" title "Untitled"
 .TP
 \fBid3 -2 -f "%a - %t.mp3" blaet.mp3
 Rename file to a standard format, using ID3v2 values.
 .TP
+\fBid3 -a %t -t %a "*.mp3"
+Swap artist and title fields in all mp3's.
+.TP
 \fBid3 -2 -rAPIC -s 0 *.mp3
 Removes embedded images and padding from all mp3's.
 .TP
-\fBid3 -2 -!d *.mp3
-Rewrite ID3v2 tag, removing spaces, keeping only the basic fields.
+\fBid3 -2d -! *.mp3
+Rewrite ID3v2 tag while keeping only the basic fields.
 .TP
 \fBid3 -2 -wUSLT "foo, bar%,lalala!%," blaet.mp3
 Adds an ID3v2 lyric frame to blaet.mp3.
@@ -262,8 +265,11 @@ Adds an ID3v2 lyric frame to blaet.mp3.
 \fBid3 -v -g alt-rock -alnt "The Author" %1 %2 %3 "Author - */(*) *.mp3"
 Process multiple directories at once.
 .TP
-\fBid3 -1 -2! -c "Was: %f" -f "%|TAFKAT|a - %|Untitled (%x)|t.mp3" "*.mp3"
-More advanced rename. Save previous filename in the comment field, and copies ID3v1 to ID3v2.
+\fBid3 -v -g alt-rock -a "The Author" -m "Author - %l/(%n) %t.mp3"
+Shorthand for the previous example.
+.TP
+\fBid3 -2 -c "Was: %_f" -f "%|Nobody|a - %|Untitled (%x)|t.mp3" "*.mp3"
+Advanced rename. Saves previous filename in the comment field.
 .SH NOTES
 The internal pattern matching emulates the normal pattern matching of
 \*(lqsh\*(rq. It supports ?, * and [].
@@ -274,13 +280,12 @@ well (to arbitrary depths), in which case a search will be performed.
 
 In an ambiguous situation, the pattern matcher will always resolve a
 \*(lq*\*(rq wildcard to the shortest possible sequence of tokens. This differs
-from the standard behavior of regular expressions, however it tends to make
-sense in the context of filenames.
+from the behavior of regular expressions, however it tends to make sense in
+the context of filenames.
 
 Do NOT add ID3 tags to files for which it does not make sense, i.e, add them
 only to MP3 files. In particular, do not add ID3v2 tags to Ogg files, since
-ID3v2 tags start at the beginning of the file, thereby resulting in corrupted
-Ogg files.
+ID3v2 tags start at the beginning of the file.
 .SH COMPATIBILITY
 id3 has a built-in genre list of 148 genres. If you pass the -g parameter a
 string instead of a number when using ID3v1, id3 tries to find the specified

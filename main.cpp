@@ -260,11 +260,11 @@ static void Help()
         " -V\t\t"          "print version info\n"
 #ifndef NO_V2
         "Only on last selected tag:\n"
+        " -s <size>\t"     "set tag size\n"
+        " -!\t\t"          "copy standard fields\n"
         " -rXXXX\t\t"      "erase all XXXX frames\n"
         " -wXXXX <data>\t" "write a XXXX frame\n"
-        " -s <size>\t"     "force size of final tag\n"
 #endif
-        " -!\t\t"          "force rewrite of tag\n"
         "\nReport bugs to <squell@alumina.nl>.\n",
         Name,
         Name
