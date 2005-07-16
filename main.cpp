@@ -402,6 +402,9 @@ static fileexp::find* instantiate
     bool recursive = state % recur;
     rem(state, recur|scan);
 
+    if(state%w == 0 && tag.handlers().size() != 1)
+        eprintf("multiple selected tags ignored when only reading\n");
+
     if(state%ren)                              // add rename as final
         tag.activate<set_tag::filename>()->rename(tag.format);
 

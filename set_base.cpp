@@ -43,6 +43,11 @@ combined::~combined()
     delete impl;
 }
 
+const vector<handler*>& combined::handlers() const
+{
+    return impl->tags;
+}
+
  /* This class does NOT delegate the free form methods. This is simply
     because all tag formats use different naming conventions, so it would
     be really pointless anyhow. */

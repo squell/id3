@@ -142,6 +142,9 @@ public:
     combined& set(ID3field, std::string);
 
     bool vmodify(const char*, const subst&) const;
+
+  // inspect
+    const std::vector<handler*>& handlers() const;
 };
 
   ///////////////////////////////////////////////////////
