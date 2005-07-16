@@ -95,15 +95,11 @@ bool combined::vmodify(const char* fn, const subst& val) const
         impl->transfer();
     }
 
-    bool e = false;                     // process delegates
+    bool ok = true;                      // process delegates
     for(internal::iterator p = impl->begin(); p != impl->end(); ++p) {
-        if( !(*p)->vmodify(fn, val) ) {
-            if(e) throw failure("partial tag written: ", fn);
-            else  return false;
-        }
-        e = true;
+        ok &= (*p)->vmodify(fn, val);
     }
-    return e;
+    return ok;
 }
 
 }

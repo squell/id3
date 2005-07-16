@@ -602,7 +602,7 @@ int main(int argc, char *argv[])
     try {
         return main_(argc, argv);
     } catch(const set_tag::failure& f) {
-        eprintf("%s\n", f.what());
+        eprintf("%s (tagging aborted)\n", f.what());
     } catch(const out_of_range& x) {
         eprintf("%s\n", x.what());
     } catch(const exception& exc) {

@@ -15,9 +15,7 @@
 
   Restrictions:
 
-  vmodify() should only return when there is a consistent state (e.g. the
-  operation has succeeded completely,or failed completely). In all other
-  cases it should throw set_tag::failure.
+  vmodify() should throw set_tag::failure on critical errors.
 
   virtual destructor in set_tag::handler and set_tag::provider ommitted for
   filesize issues with gcc3.
