@@ -7,9 +7,6 @@ Changelog for 'id3'.
 2005-060 (W09):
   id3v2.c:128:[bug] since v0.75, rejected id3v2 tags w/o padding
 
-2005-040 (W06):
-  fileops.c:48: now use mkstemp on systems that indicate support for it
-
 2005-039 (W06):
   sedit.cpp:89: [CLI] "#" prefixes in vars get processed better now: only
     numbers found inside the string will get padded. E.g. [1/5] -> [01/05]
