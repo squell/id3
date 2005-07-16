@@ -74,7 +74,7 @@ FILE *opentemp(const char *hint, char **name)            /* free() name! */
 
     if(buf = malloc(prefix + sizeof template)) {
         strncpy(buf, hint, prefix);
-        strncpy(buf+prefix, template, 8+1);
+        strncpy(buf+prefix, template, sizeof template);
         if(f = ftemp(buf, "wb")) {
             if(name) *name = buf;
             else     free(buf);
