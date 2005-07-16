@@ -108,13 +108,11 @@ struct metadata :
   uses<set_tag::filename>,
   uses<set_tag::echo>
 {
-    const char* format;              // for free format 'pseudo formats'
+    string format;                   // for free format 'pseudo formats'
 
     template<class Tag> Tag* activate()
     { delegate(uses<Tag>::object);
       return &this->uses<Tag>::object; }
-
-    metadata() : format(0) { }
 };
 
 /* ====================================================== */
