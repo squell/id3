@@ -174,7 +174,7 @@ void *ID3_readf(const char *fname, size_t *tagsize)
         size = unsync_dec(buf, size) - buf;
 
     if( rh.flags & XTND ) {                 /* get rid of extended header */
-        ulong xsiz = ul4(buf);
+        ulong xsiz = ul4(buf) + 4;
         size -= xsiz;
         memmove(&buf[0], &buf[xsiz], size);
     }
