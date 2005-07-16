@@ -44,13 +44,15 @@ namespace {
 
  // choose capitalization
 
-    enum style { as_is, name, lowr };
+    enum style { as_is, name, lowr, camel };
 
     string stylize(string s, style caps)
     {
         switch(caps) {
         case name:
             return capitalize(s);
+        case camel:
+            return padcamels(s);
         case lowr:
             transform(s.begin(), s.end(), s.begin(), to_lower());
         }
@@ -82,6 +84,21 @@ string capitalize(string s)
         new_w = isspace(*p) || !isalnum(*p) && new_w;
     }
     return s;
+}
+
+ // ReformatAStringLikeThis -> Reformat A String Like This
+
+string padcamels(const string s)
+{
+    string::const_iterator p;
+    bool word = false;
+    string r;
+    for(p = s.begin(); p != s.end(); r.push_back(*p++)) {
+        if(isupper(*p) && word)
+            r.push_back(' ');
+        word = !isspace(*p);
+    }
+    return r;
 }
 
  // padnumeric("(300/4)=75", 4) -> "0300/0004=0075"
@@ -123,12 +140,12 @@ cvtstring string_parm::edit(const cvtstring& fmt, const subst& var, const char* 
         int n = 1;
         while( pos+n < s.length() ) {
             cvtstring svar;
-
             switch( char c = s[pos + (n++)] ) {
             case VAR: s.replace(pos++, n, 1, VAR ); break;   // "%%" -> "%"
             case ',': s.replace(pos, n, "\r\n", 2); pos += 2; break;
 
             case '_': raw  = true; continue;
+            case '*': caps = camel;continue;
             case '+': caps = name; continue;
             case '-': caps = lowr; continue;
             case '#': ++npad;      continue;
