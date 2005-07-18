@@ -38,28 +38,49 @@ struct filefind : record {
     find* invoker;
 };
 
-bool find::operator()(const char* filemask)
+bool find::glob(const char* filemask)
 {
     filefind t;
-    strncpy(t.mask, filemask, sizeof t.mask);   // copy constant
+    strncpy(t.mask, filemask, sizeof t.mask);
     t.path[0] = t.mask[sizeof t.mask-1] = '\0'; // duct tape
     t.invoker = this;
     t.recurse = false;
     return t.nested(auto_dir("./"), t.path, t.mask);
 }
 
+bool find::pattern(const char* root, const char* pathmask)
+{
+    filefind t;
+    char* p = t.pathcpy(t.path, root);
+    if(p == t.path || p[-1] != '/') {           // append slash?
+        p = t.pathcpy(p, "/");
+    }
+    strncpy(t.mask, pathmask, sizeof t.mask);
+    t.mask[sizeof t.mask-1] = '\0';             // duct tape
+    t.invoker = this;
+    t.recurse = true;
+    return t.nested(auto_dir(t.path), p, t.mask);
+}
+
 struct filefind::direxp : varexp {              // special dotfile handling
+    inline static bool is_special(const char* fn)
+    {
+         return (fn[0] == '.') && (!fn[1] || fn[1] == '.' && !fn[2]);
+    }
+
     direxp(const char* mask, const char* test)
     {
-        if(test[0] != '.')
+#if defined(__DJGPP__) || defined(__WIN32__)
+        if(test[0] != '.' || mask[0] == '.' && !is_special(test))
             result = match(mask, test);
-        else if(mask[0] == '.') {
-            if(!test[1] || test[1] == '.' && !test[2])
-                result = 0;                     // ignore '.' and '..'
-            else
-                result = match(mask, test);
-        } else
+        else
             result = 0;
+#else
+        if(test[0] != '.' || mask[0] == '.')    // conform to Bourne shell
+            result = match(mask, test);
+        else
+            result = 0;
+#endif
     }
 };
 
@@ -73,8 +94,8 @@ char* filefind::pathcpy(char* dest, const char* src)
 }
 
   // recursive file search routine, leaves this->mask nonsensical on success
-  // wpath   - write position (inside path)
-  // fnmatch - read position  (inside mask)
+  // pathpos  - write position (inside path)
+  // filespec - read position  (inside mask)
 
 bool filefind::nested(auto_dir dir, char* pathpos, char* filespec)
 {
@@ -84,13 +105,13 @@ bool filefind::nested(auto_dir dir, char* pathpos, char* filespec)
 
     bool w = false;                             // idle check
 
-    while( char* fndirsep = strchr(filespec, '/') ) {
+    if(!recurse) while( char* fndirsep = strchr(filespec, '/') ) {
         *fndirsep++ = '\0';                     // isolate name part
 
-        wpos = pathcpy( pathcpy(pathpos, filespec), "/" );
+        wpos = pathcpy(pathpos, filespec);
         if(auto_dir newdir = auto_dir(path)) {
             dir      = newdir;                  // if allready a valid
-            pathpos  = wpos;                    //   directory, use as is
+            pathpos  = pathcpy(wpos, "/");      //   directory, use as is
             filespec = fndirsep;
             continue;                           // (tail recursion)
         }
@@ -98,11 +119,11 @@ bool filefind::nested(auto_dir dir, char* pathpos, char* filespec)
         while( dirent* fn = dir.read() ) {      // search cur open dir
             direxp match(filespec, fn->d_name);
             if(match) {
-                wpos = pathcpy( pathcpy(pathpos, fn->d_name), "/" );
+                wpos = pathcpy(pathpos, fn->d_name);
                 if(auto_dir newdir = auto_dir(path)) {
                     for(varexp::iterator i = match.begin(); i != match.end(); ++i)
                         var.push_back(*i);
-                    w = nested(newdir, wpos, fndirsep) || w;
+                    w = nested(newdir, pathcpy(wpos, "/"), fndirsep) || w;
                     var.resize(prevlen);
                 }
             }
@@ -111,23 +132,27 @@ bool filefind::nested(auto_dir dir, char* pathpos, char* filespec)
         return w;
     }
 
-    bool recursive = invoker->dir(path);
+    if(! invoker->dir(path) ) {
+        return false;
+    }
 
-    if(!recursive && access(filespec, F_OK) == 0) {
-        wpos = pathcpy(pathpos, filespec);      // check if file is 'simple'
+    if(access(filespec, F_OK) == 0) {
+        pathcpy(pathpos, filespec);             // check if file is 'simple'
         invoker->file(filespec, *this);         // (speeds up simple cases)
         return true;
     }
 
     strvec files;
-    while( dirent* fn = dir.read() )            // read all files in dir
-        files.push_back(fn->d_name);
+    while( dirent* fn = dir.read() ) {          // read all files in dir
+        if(!direxp::is_special(fn->d_name))
+            files.push_back(fn->d_name);
+    }
 
     sort(files.begin(), files.end());
 
     for(strvec::iterator fn = files.begin(); fn != files.end(); ++fn) {
         wpos = pathcpy(pathpos, fn->c_str());
-        direxp match(filespec, pathpos);
+        direxp match(filespec, recurse? path : pathpos);
         if(match) {
             for(varexp::iterator i = match.begin(); i != match.end(); ++i)
                 var.push_back(*i);
@@ -135,11 +160,14 @@ bool filefind::nested(auto_dir dir, char* pathpos, char* filespec)
             w = true;
             var.resize(prevlen);
         }
-        char buf[1];
-        if(recursive && *pathpos != '.' && readlink(path, buf, 1) < 0) {
-            if(auto_dir newdir = auto_dir(path))
-                w = nested(newdir, pathcpy(wpos, "/"), filespec) || w;
-        }
+    }
+
+    if(recurse) for(strvec::iterator fn = files.begin(); fn != files.end(); ++fn) {
+        wpos = pathcpy(pathpos, fn->c_str());
+        auto_dir newdir(path);
+        char sympath[1];
+        if(newdir && readlink(path, sympath, sizeof sympath) < 0)
+            w = nested(newdir, pathcpy(wpos, "/"), filespec) || w;
     }
 
     return w;

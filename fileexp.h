@@ -1,21 +1,26 @@
 /*
 
-  basic varexp based findfile class
+  varexp based findfile class
 
   (c) 2004, 2005 squell ^ zero functionality!
   see the file 'COPYING' for license conditions
 
   Usage:
 
-  When a fileexp::find-derived object is used as a function object, it looks
-  for files matching the wildcard spec, and calls the overridden members as
-  appropriate: file() for each file, dir() for each dir entered.
+  find::glob() and find::pattern() look for files matching the wildcard spec,
+  and call the overridden members as appropriate: file() for each file, dir()
+  for each dir entered. After a call to dir(), all successive calls to file()
+  are for files to that dir.
 
-  dir() should return true or false, indicating whether to perform a recursive
-  search in the directory entered.
+  glob() searches for files matching the wildcard spec like a POSIX shell
+  would, pattern() searches a directory hierarchy recursively for pathnames
+  matching the wildcard spec.
 
-  The first argument to file() points in the associated, to the start of the
-  actual filename sans directory prefix.
+  dir() should return true or false, indicating whether to process the
+  directory passed as an argument.
+
+  The first argument to file() points in the associated record, to the start
+  of the actual filename sans directory prefix.
 
   Example:
 
@@ -28,7 +33,7 @@
   {
       showfiles ls;
       for(int x=1; x<argc; ++x)
-          ls(argv[x]) || puts("ffind: none found!");
+          ls.glob(argv[x]) || puts("ffind: none found!");
   }
 
 */
@@ -50,18 +55,14 @@ namespace fileexp {
     };
 
     struct find {
-        virtual bool operator()(const char* filemask);
+        bool glob   (const char* filemask);
+        bool pattern(const char* root, const char* pathmask);
 
         virtual void file(const char* name, const record&) = 0;
         virtual bool dir (const char* path)
-        { return 0; }
+        { return 1; }
 
         virtual ~find() { }
-    };
-
-    struct find_recursive : find {
-        virtual bool dir (const char*)
-        { return 1; }
     };
 
 }
