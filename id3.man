@@ -32,25 +32,22 @@ id3 \- a commandline mass tagger
 .br
 .RB [ \-f
 .IR filename ]
-.RB [ \-m
-.IR pattern ]
 .RB [ \-q
 .IR string ]
-.RB [ \-R ]
+.RB [ \-m
+.IR string ]
+.RB [ \-R
+.IR pattern ]
 .RI [ " \*(lqfilespec\*(rq
 \& ... ]
 .SH DESCRIPTION
-id3 is a mass tagger for audio files. This means it is intended to be used for
-non-interactively performing operations on the meta-data in a number of files
-with just a single command.
+.I id3
+mass tagger is a tool for manipulating id3 and id3v2 tags in multiple
+files. It can generate tag fields from the filename and other variables,
+and/or rename files, using an intuitive syntax.
 
-Operations performed might consist of replacing certain fields, or adding,
-replacing, or removing all meta-data present in an audio file.
-
-To take advantage of this, it has the ability to use portions of the
-filenames to fill in portions of the tag.
-
-id3 currently supports the old-style ID3 format with track-number extension
+.I id3
+currently supports the old-style ID3 format with track-number extension
 (ID3 v1.1), as well as the more complicated ID3v2 (ID3 v2.3.0) format. This
 also means use is pretty much limited to audio files which use these formats,
 e.g, MPEG-1 Layer III.
@@ -61,7 +58,9 @@ Order of the options is only important where specified.
 specifies the file(s) to be affected by the command.
 
 If you use wildcards, it is recommended to enclose the specification in double
-quotes (""). id3 has internal shell pattern matching which will not work if
+quotes ("").
+.I id3
+has internal shell pattern matching which will not work if
 your shell performs this function.
 
 The shell pattern matching can be applied to both filenames and directory
@@ -80,7 +79,7 @@ be verbose
 process ID3v1 tags (default). See `-2'.
 .TP
 .B \-2
-process ID3v2 tags. If both -1 and -2 are specified, both tag formats are
+process ID3v2 tags. If both `-1' and `-2' are specified, both tag formats are
 selected.
 .TP
 .B \-d
@@ -115,8 +114,9 @@ The argument is scanned for substitution variables. An empty variable will by
 default get replaced with \*(lqUnknown\*(rq.
 Trying to rename to an already existing file will cause an error.
 .TP
+WHAT TO DO
 .BI \-m " filename-template
-the inverse of -f; process all files that match \fIfilename-template\fR,
+the inverse of `-f'; process all files that match \fIfilename-template\fR,
 setting the tag accordingly. Thus, `-m\ "%a\ -\ %t.mp3"' is shorthand for
 `-a\ %1\ -t\ %2\ "*\ -\ *.mp3"'.
 .TP
@@ -124,11 +124,15 @@ setting the tag accordingly. Thus, `-m\ "%a\ -\ %t.mp3"' is shorthand for
 for each file encountered, \fIformat\fR will get scanned for substitution
 variables, and written to standard output.
 .TP
-.B \-R
-EXPLAIN MORE
-recursively descend into all subdirectories to look for matching files,
-instead of just the the base directory. Use with caution - in most cases,
-it's more flexible to use wildcards for processing multiple directories.
+.BI \-R " pattern
+search the directory hierarachy rooted at each given \fIfilespec\fR for files
+whose relative path matches \fIpattern\fR. If no \fIfilespec\FR is supplied,
+starts searching in the current directory.
+Wildcards in \fIpattern\fR do not treat `.' or `/' specially when performing
+this search, so `./t*.mp3' matches `/test/misc/foo.mp3'. Using this option
+also affects variable substition, see
+.B SUBSTITUTION
+below.
 .PP
 The following options operate on the tag most recently selected, and only
 have meaning where relevant.
@@ -170,8 +174,10 @@ to prevent your shell from expanding any wildcards.
 .BI % <modifiers>N
 .SM where \fIN\fR <- [0..9]
 
-replaced with the portion of the filename matching the \fIn\fRth \*(lq*\*(rq
-wildcard in the file specification. 0 is taken to mean 10.
+replaced with the portion of the filename matching the \fIn\fRth `*'
+(asterisk) wildcard in the file specification. 0 is taken to mean 10.
+If the `-R \fIpattern\fR' option is used, the filename is matched against
+\fIpattern\fR instead.
 .TP
 .BI % <modifiers>c
 .SM where \fIc\fR <- [a..z]
@@ -197,10 +203,11 @@ replaced by values according to the following table:
 .BR %x " auto-increasing\ counter
 .PP
 Values get read (where applicable) from the source tag, which is the left-most
-tag selected on the command line, and reflect the state of the file before
-any modifications were made. Similarly, \fI%f\fR is always the original
-filename. The \fI%x\fR value gets increased for each file encountered in a
-directory, and is intended to be used for auto-numbering.
+tag selected on the command line, and reflect the state of the file before any
+modifications were made, unless they only appear in
+`-f \fIfilename-template\fR'.
+\fI%f\fR is always the original filename. The \fI%x\fR value gets increased
+for each matched file in a directory, and is intended for auto-numbering.
 .RE
 .TP
 .B %%
@@ -244,8 +251,9 @@ Copy ID3v2 tag to ID3v1 tag in selected file.
 .TP
 \fBid3 -a "TAFKAT" -n "%1" -t "%+2" "*. *.mp3"
 Update tag fields similar to this;
-  01. my_song.mp3  [=>] artist "TAFKAT", track "01" title "My Song"
-  02. untitled.mp3 [=>] artist "TAFKAT", track "02" title "Untitled"
+.nf
+  -a "TAFKAT" -n "01" -t "My Song"  "01. my_song.mp3"
+  -a "TAFKAT" -n "02" -t "Untitled" "02. untitled.mp3"
 .TP
 \fBid3 -2 -f "%a - %t.mp3" blaet.mp3
 Rename file to a standard format, using ID3v2 values.

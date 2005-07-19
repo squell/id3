@@ -3,12 +3,9 @@
 #include <cstdarg>
 #include <cstring>
 #include <ctime>
-#include <cctype>
-#include <climits>
 #include <stdexcept>
 #include <string>
 #include "fileexp.h"
-
 #include "sedit.h"
 #include "set_base.h"
 #include "setid3.h"
@@ -18,7 +15,7 @@
 #    include "setid3v2.h"
 #endif
 
-#define _version_ "0.76-tvf (2005197)"
+#define _version_ "0.76-dev (2005xxx)"
 
 /*
 
@@ -99,7 +96,7 @@ namespace {
     };
 }
 
-struct metadata :
+struct metadata :                    // owns the data it contains
   set_tag::combined,
 #ifndef NO_V2
   uses<ID3v2>,
@@ -117,12 +114,11 @@ struct metadata :
 
 /* ====================================================== */
 
- // adaptation of filefindexp with verbose output
+ // implementation of fileexp::find using set_tag objects
 
 class mass_tag : public fileexp::find {
 public:
-    inline mass_tag(const set_tag::handler&, const set_tag::provider&, bool);
-    virtual bool operator()(const char* spec);
+    inline mass_tag(const set_tag::handler&, const set_tag::provider&);
 
     class substvars;
     class r_vector;
@@ -130,10 +126,9 @@ public:
     const set_tag::handler&  tag_update;
     const set_tag::provider& tag_info;
 private:
-    const bool do_recur;
     unsigned counter;
 
-    virtual void file(const char* name, const fileexp::record&);
+    virtual bool file(const char* name, const fileexp::record&);
     virtual bool dir (const char* path);
 };
 
@@ -168,42 +163,34 @@ public:
     inline const string& operator[](size_t i) const
     {
         if(i >= vec.size())
-          throw out_of_range("variable index out of range");
+            throw out_of_range("variable index out of range");
         return vec[i];
     }
 };
 
  //
 
-mass_tag::mass_tag(const set_tag::handler& writer, const set_tag::provider& reader, bool recursive)
-: tag_update(writer), tag_info(reader), do_recur(recursive)
+mass_tag::mass_tag(const set_tag::handler& writer, const set_tag::provider& reader)
+: tag_update(writer), tag_info(reader), counter(0)
 {
-    counter = 0;
-}
-
-bool mass_tag::operator()(const char* spec)
-{
-    const bool res = fileexp::find::operator()(spec);
-    if(!res)
-        eprintf("no %s matching %s\n", counter? "files" : "directories", spec);
-    return res;
 }
 
 bool mass_tag::dir(const char* path)
 {
     verbose.reportd(path);
-    counter = 1;
-    return do_recur;
+    return (counter = 1);
 }
 
-void mass_tag::file(const char* name, const fileexp::record& f)
+bool mass_tag::file(const char* name, const fileexp::record& f)
 {
     substvars letter_vars(tag_info, f.path, counter++);
     r_vector  number_vars(f.var);
 
     verbose.reportf(name);
     if(! tag_update.modify(f.path, number_vars, letter_vars) )
-        return (void) eprintf("could not edit tag in %s\n", f.path);
+        return eprintf("could not edit tag in %s\n", f.path), false;
+
+    return true;
 }
 
 cvtstring mass_tag::substvars::operator[](char c) const
@@ -235,6 +222,29 @@ cvtstring mass_tag::substvars::operator[](char c) const
 
 /* ====================================================== */
 
+ // adapter/decorator for fileexp::find that handles general recursion
+
+class recursive_find : public fileexp::find {
+public:
+    const char*    const mask;
+    fileexp::find& backend;
+    inline recursive_find(fileexp::find&, const char*);
+private:
+    virtual bool file(const char*, const fileexp::record&);
+};
+
+recursive_find::recursive_find(fileexp::find& search, const char* pattern)
+: backend(search), mask(pattern)
+{
+}
+
+bool recursive_find::file(const char* name, const fileexp::record& f)
+{
+    return backend.pattern(f.path, mask);
+}
+
+/* ====================================================== */
+
 static void Help()
 {
     printf(
@@ -244,19 +254,19 @@ static void Help()
 #else
         "usage: %s [OPTIONS] filespec ...\n"
 #endif
+        " -v\t\t"          "give verbose output\n"
         " -d\t\t"          "clear existing tag\n"
-        " -t <title>\t"    "set fields\n"
+        " -t <title>\t"    "set tag fields\n"
         " -a <artist>\t"   "\n"
         " -l <album>\t"    "\n"
         " -n <tracknr>\t"  "\n"
         " -y <year>\t"     "\n"
         " -g <genre>\t"    "\n"
         " -c <comment>\t"  "\n"
-        " -f <filename>\t" "set filename\n"
-        " -m <pattern>\t"  "match fields to pattern\n"
-        " -q <string>\t"   "print string on stdout\n"
-        " -R\t\t"          "recurse into directories\n"
-        " -v\t\t"          "give verbose output\n"
+        " -m\t\t"          "bla\n"
+        " -f <format>\t"   "rename files according to format\n"
+        " -q <format>\t"   "print formatted string on standard output\n"
+        " -R <pattern>\t"  "search directories recursively for pattern\n"
         " -V\t\t"          "print version info\n"
 #ifndef NO_V2
         "Only on last selected tag:\n"
@@ -289,9 +299,9 @@ static void Copyright()
 static long argtol(const char* arg)            // convert argument to long
 {
     char* endp;
-    long n = strtol(arg, &endp, 0);
+    long n = strtol(arg, &endp, 10);
     if(*endp != '\0') {
-        eprintf("invalid argument `%s'\n", arg);
+        eprintf("%s: invalid argument\n", arg);
         exit(exitc=1);
     }
     return n;
@@ -315,11 +325,11 @@ namespace op {                                 // state information bitset
         w     =  0x02,                         // write  requested?
         ren   =  0x04,                         // rename requested?
         rd    =  0x08,                         // read   requested?
-        recur =  0x10                          // recursion requested?
+        patrn =  0x10                          // match  requested?
     };
-    oper_t  operator %(oper_t x,  int y) { return oper_t(x & y);    }
-    oper_t& add(oper_t& x, oper_t y)     { return x = oper_t(x|y);  }
-    oper_t& rem(oper_t& x, int y)        { return x = oper_t(x&~y); }
+    oper_t operator %=(oper_t& x,  int y)   { return x = oper_t(x&y); }
+    oper_t operator |=(oper_t& x, oper_t y) { return x = oper_t(x|y); }
+    oper_t operator % (oper_t x,   int y)   { return x %= y;          }
 }
 
 /* ====================================================== */
@@ -329,18 +339,19 @@ namespace op {                                 // state information bitset
  // - assumes sedit() processes variables left-to-right
 
 struct setpattern {
-    setpattern(metadata& _tag, char*& arg);    // call as if a function
+    setpattern(metadata& _tag, char*& _arg);   // call as if a function
     operator op::oper_t() const { return state; }
     const char* operator[](unsigned);
     const char* operator[](char c);
 private:
     metadata&  tag;
+    char*&     arg;
     op::oper_t state;
     char       match[3];
 };
 
-setpattern::setpattern(metadata& _tag, char*& arg)
-: tag(_tag), state(op::no_op)
+setpattern::setpattern(metadata& _tag, char*& _arg)
+: tag(_tag), arg(_arg), state(op::no_op)
 {
     string::size_type pos(0);                  // replace '*' with stubs
     string s(arg);
@@ -354,28 +365,24 @@ setpattern::setpattern(metadata& _tag, char*& arg)
 const char* setpattern::operator[](char c)
 {
     if(match[1]++ == '9') {                    // limit reached
-        eprintf("too many variables in pattern\n");
+        eprintf("%s: too many variables in pattern\n", arg);
         shelp();
     }
     ID3field field = char_as_ID3field(c);
     if(field < set_tag::FIELDS) {
-        add(state, op::w);   tag.set(field, match);
-    } else if(c == 'f') {
-        add(state, op::ren); tag.format = match;
-    } else if(c == 'q') {
-        add(state, op::rd);  tag.format = match;
+        state |= op::w; tag.set(field, match);
     } else if(c == 'x') {
         ;                                      // pass over in silence
     } else {
-        eprintf("illegal variable: %%%c\n", c);
+        eprintf("%s: illegal variable %%%c\n", arg, c);
         shelp();
     }
     return "*";
 }
 
-const char* setpattern::operator[](unsigned)
+const char* setpattern::operator[](unsigned i)
 {
-    eprintf("illegal use of variable index\n");
+    eprintf("%s: illegal variable %%%c\n", arg, (i+1) % 10 + '0');
     shelp();
 }
 
@@ -384,23 +391,20 @@ const char* setpattern::operator[](unsigned)
   // dynamically create a suitably initialized function object
 
 struct null_op : fileexp::find {
-    bool operator()(const char* arg)
-    { eprintf("nothing to do with %s\n", arg); return 1; }
-    void file(const char*, const fileexp::record&)
-    { }
+    bool file(const char*, const fileexp::record& r)
+    { return eprintf("nothing to do with %s\n", r.path), true; }
 };
 
-static fileexp::find* instantiate
-   (op::oper_t state, metadata& tag, const set_tag::provider* src_ptr)
+static fileexp::find* instantiate(op::oper_t state, metadata& tag,
+  const set_tag::provider* src_ptr, const char* recurse)
 {
     if(!src_ptr) src_ptr = tag.activate<ID3>();
     using namespace op;
 
-    static null_op dummy;
     set_tag::handler* selected;
+    static null_op dummy;
 
-    bool recursive = state % recur;
-    rem(state, recur|scan);
+    state %= w|rd|ren;
 
     if(state%w == 0 && tag.handlers().size() != 1)
         eprintf("multiple selected tags ignored when only reading\n");
@@ -408,20 +412,28 @@ static fileexp::find* instantiate
     if(state%ren)                              // add rename as final
         tag.activate<set_tag::filename>()->rename(tag.format);
 
-    if(!state)
-        return &dummy;
-    else if(state%(w|rd) == w)
-        selected = &tag;
-    else if(state%(ren|rd) == ren)             // optimization
-        selected = &tag.uses<set_tag::filename>::object;
-    else if(state == rd)
-        selected = &tag.uses<set_tag::echo>::object.format(tag.format);
-    else {
-        eprintf("incompatible operation requested\n");
-        shelp();
-    }
+    fileexp::find* routine = &dummy;
 
-    return new mass_tag(*selected, *src_ptr, recursive);
+    do {
+        if(!state)
+            break;
+        else if(state%(w|rd) == w)
+            selected = &tag;
+        else if(state%(ren|rd) == ren)             // optimization
+            selected = &tag.uses<set_tag::filename>::object;
+        else if(state == rd)
+            selected = &tag.uses<set_tag::echo>::object.format(tag.format);
+        else {
+            eprintf("incompatible operation requested\n");
+            shelp();
+        }
+        routine = new mass_tag(*selected, *src_ptr);
+    } while(0);
+
+    if(!recurse)
+        return routine;
+    else
+        return new recursive_find(*routine, recurse);
 }
 
   // contains CLI interface loop
@@ -431,17 +443,17 @@ int main_(int argc, char *argv[])
     metadata tag;
 
     ID3field field;
-    string fieldID;                            // free form field selector
 
-    set_tag::provider* source = 0;             // pointer to first enabled
-    set_tag::handler*  chosen = 0;             // pointer to last enabled
+    set_tag::provider* source  = 0;            // pointer to first enabled
+    set_tag::handler*  chosen  = 0;            // pointer to last enabled
+    const char*        recmask = 0;            // path pattern (if recursive)
 
     using namespace op;
     char none[1] = "";
 
     enum parm_t {                              // parameter modes
-        no_value, force_fn, pattern_fn,
-        stdfield, customfield, suggest_size,
+        no_value, force_fn, recurse_expr,
+        std_field, custom_field, suggest_size,
         set_rename, set_query
     };
 
@@ -456,19 +468,27 @@ int main_(int argc, char *argv[])
                 if(argv[i][0] == '-' && scan) opt = argv[i]+1;
             if(*opt == '\0') {
         case force_fn:                         // argument is filespec
-                static fileexp::find& apply
-                  = *instantiate(state, tag, source);
+                argpath(argv[i]);
+                if(state % patrn)              // filename pattern shorthand
+                     state |= setpattern(tag, argv[i]);
 
-                apply( argpath(argv[i]) );
-                rem(state, scan);
+                static fileexp::find& apply
+                  = *instantiate(state%=~scan, tag, source, recmask);
+
+                if(! apply.glob(argv[i]) ) {
+                    if(!recmask)
+                        eprintf("no files matching %s\n", argv[i]);
+                    else
+                        eprintf("no files matching `%s' in %s\n", recmask, argv[i]);
+                }
             } else {
                 switch( *opt++ ) {             // argument is a switch
                 case 'v': verbose.on(); break;
-                case 'R': add(state, recur); break;
-                case 'm': cmd = pattern_fn; break;
-                case 'f': cmd = set_rename; break;
-                case 'q': cmd = set_query;  break;
-                case 'd': tag.clear(); add(state, w); break;
+                case 'R': cmd = recurse_expr; break;
+                case 'm': state |= patrn;     break;
+                case 'f': cmd = set_rename;   break;
+                case 'q': cmd = set_query;    break;
+                case 'd': tag.clear(); state |= w; break;
                 case 't':
                 case 'a':
                 case 'l':
@@ -476,7 +496,7 @@ int main_(int argc, char *argv[])
                 case 'c':
                 case 'g':
                 case 'n':
-                    field = char_as_ID3field(opt[-1]); cmd = stdfield; break;
+                    field = char_as_ID3field(opt[-1]); cmd = std_field; break;
 #ifndef NO_V2
                 case '1':
                     chosen = tag.activate<ID3>();
@@ -489,26 +509,41 @@ int main_(int argc, char *argv[])
 
                 case 's':                      // tag specific switches
                     if(chosen) {
-                        cmd = suggest_size; break;
+                        if(*opt == '\0')
+                            cmd = suggest_size;
+                        else {
+                            long n = argtol(opt);
+                            chosen->reserve(n);
+                            state |= w;
+                        }
+                        opt = none;
+                        break;
                     }
                 case 'w':
                     if(chosen) {
-                        fieldID.assign(opt); cmd = customfield;
-                        opt = none;
+                        cmd = custom_field;
                         break;
                     }
                 case 'r':
                     if(chosen) {
-                        chosen->rm(opt); add(state, w);
+                        if(! chosen->rm(opt) ) {
+                            eprintf("selected tag does not have `%s' frames\n", opt);
+                            shelp();
+                        }
+                        state |= w;
                         opt = none;
                         break;
                     }
 #endif
                 case '!':
                     if(chosen) {
+                        if(opt != '\0') {
+                            eprintf("%s: invalid combination\n", opt-1);
+                            shelp();
+                        }
                         for(int i = 0; i < set_tag::FIELDS; ++i)
                             chosen->set(ID3field(i), ID3field_as_asciiz(i));
-                        add(state, w);
+                        state |= w;
                         break;
                     }
 
@@ -523,35 +558,31 @@ int main_(int argc, char *argv[])
                        break;
                     }
                 default:
-                    eprintf("unrecognized switch: -%c\n", opt[-1]);
+                    eprintf("-%c: unrecognized switch\n", opt[-1]);
                     shelp();
                 }
             }
             continue;
 
-        case stdfield:                         // write a standard field
+        case std_field:                        // write a standard field
             tag.set(field, argv[i]);
             break;
 
 #ifndef NO_V2
-        case suggest_size: {                   // v2 - suggest size
-                long l = argtol(argv[i]);
-                chosen->reserve(l);
+        case custom_field:                     // v2 - write a custom field
+            if(! chosen->set(opt, argv[i]) ) {
+                eprintf("selected tag does not have `%s' frames\n", opt);
+                shelp();
             }
+            opt = none;
             break;
 
-        case customfield:                      // v2 - write a custom field
-            if(! chosen->set(fieldID, argv[i]) ) {
-                eprintf("selected tag cannot write `%s' frames\n", fieldID.c_str());
-                shelp();
+        case suggest_size: {                   // v2 - suggest size
+                long n = argtol(argv[i]);
+                chosen->reserve(n);
             }
             break;
 #endif
-        case pattern_fn:                       // filename pattern shorthand
-            add(state, setpattern(tag, argv[i--]));
-            cmd = force_fn;
-            continue;
-
         case set_rename:                       // specify rename format
             if(strrchr(argv[i],'/')) {
                 eprintf("will not rename across directories\n");
@@ -561,7 +592,7 @@ int main_(int argc, char *argv[])
                 shelp();
             } else
                 tag.format = argpath(argv[i]);
-            add(state, ren);
+            state |= ren;
             cmd = no_value;
             continue;
 
@@ -571,17 +602,27 @@ int main_(int argc, char *argv[])
                 shelp();
             } else
                 tag.format = argv[i];
-            add(state, rd);
+            state |= rd;
+            cmd = no_value;
+            continue;
+
+        case recurse_expr:                     // enable recursion (ugh)
+            recmask = argpath(argv[i]);
             cmd = no_value;
             continue;
         };
 
-        add(state, w);                         // set operation done flag
+        state |= w;                            // set operation done flag
         cmd = no_value;
     }
 
-    if(state % scan)
-        eprintf("missing file arguments\n");
+    if(state % scan) {
+        if(!recmask)
+            eprintf("missing file arguments\n");
+        else if(! instantiate(state, tag, source, recmask)->glob(".") ) {
+                eprintf("no files matching `%s' in %s\n", recmask, ".");
+             }
+    }
     if(state == scan)
         shelp();
 
