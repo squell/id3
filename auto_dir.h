@@ -29,7 +29,7 @@ public:
     explicit auto_dir(const char* path)  { dirp = opendir(path); }
    ~auto_dir()                           { if(dirp) closedir(dirp); }
 
-    operator bool()                      { return dirp; }
+    operator bool() const                { return dirp; }
     dirent* read()                       { return readdir(dirp); }
     void rewind()                        { rewinddir(dirp); }
 

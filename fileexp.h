@@ -58,7 +58,7 @@ namespace fileexp {
         bool glob   (const char* filemask);
         bool pattern(const char* root, const char* pathmask);
 
-        virtual void file(const char* name, const record&) = 0;
+        virtual bool file(const char* name, const record&) = 0;
         virtual bool dir (const char* path)
         { return 1; }
 
