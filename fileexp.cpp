@@ -137,15 +137,15 @@ bool filefind::nested(auto_dir dir, char* pathpos, char* filespec)
         return w;
     }
 
-    if(! invoker->dir(path) )
+    if(! invoker->dir(*this) )
         return false;
 
     if(*filespec == '\0')
-        return invoker->file(".", *this);
+        return invoker->file(pathpos, *this);
 
     if(access(filespec, F_OK) == 0) {
         pathcpy(pathpos, filespec);             // check if file is 'simple'
-        return invoker->file(filespec, *this);  // (speeds up simple cases)
+        return invoker->file(pathpos, *this);   // (speeds up simple cases)
     }
 
     strvec files;

@@ -26,6 +26,9 @@
 
 using namespace std;
 
+ //  this file is definately too big - should be split up into seperate
+ //  components that are agnostic of eachother.
+
 /* ====================================================== */
 
  // exitcodes: 0 - ok, 1 - syntax, 2 - errors, 3 - fatal errors
@@ -129,7 +132,7 @@ private:
     unsigned counter;
 
     virtual bool file(const char* name, const fileexp::record&);
-    virtual bool dir (const char* path);
+    virtual bool dir (const fileexp::record&);
 };
 
  // variable mapping for substitution
@@ -175,9 +178,9 @@ mass_tag::mass_tag(const set_tag::handler& writer, const set_tag::provider& read
 {
 }
 
-bool mass_tag::dir(const char* path)
+bool mass_tag::dir(const fileexp::record& d)
 {
-    verbose.reportd(path);
+    verbose.reportd(d.path);
     return (counter = 1);
 }
 
@@ -325,7 +328,6 @@ namespace op {                                 // state information bitset
         w     =  0x02,                         // write  requested?
         ren   =  0x04,                         // rename requested?
         rd    =  0x08,                         // read   requested?
-        patrn =  0x10                          // match  requested?
     };
     oper_t operator %=(oper_t& x,  int y)   { return x = oper_t(x&y); }
     oper_t operator |=(oper_t& x, oper_t y) { return x = oper_t(x|y); }
@@ -365,7 +367,7 @@ setpattern::setpattern(metadata& _tag, char*& _arg)
 const char* setpattern::operator[](char c)
 {
     if(match[1]++ == '9') {                    // limit reached
-        eprintf("%s: too many variables in pattern\n", arg);
+        eprintf("in %s: too many variables in pattern\n", arg);
         shelp();
     }
     ID3field field = char_as_ID3field(c);
@@ -374,7 +376,7 @@ const char* setpattern::operator[](char c)
     } else if(c == 'x') {
         ;                                      // pass over in silence
     } else {
-        eprintf("%s: illegal variable %%%c\n", arg, c);
+        eprintf("in %s: illegal variable %%%c\n", arg, c);
         shelp();
     }
     return "*";
@@ -382,7 +384,7 @@ const char* setpattern::operator[](char c)
 
 const char* setpattern::operator[](unsigned i)
 {
-    eprintf("%s: illegal variable %%%c\n", arg, (i+1) % 10 + '0');
+    eprintf("in %s: illegal variable %%%c\n", arg, (i+1) % 10 + '0');
     shelp();
 }
 
@@ -452,7 +454,7 @@ int main_(int argc, char *argv[])
     char none[1] = "";
 
     enum parm_t {                              // parameter modes
-        no_value, force_fn, recurse_expr,
+        no_value, force_fn, recurse_expr, pattern_fn,
         std_field, custom_field, suggest_size,
         set_rename, set_query
     };
@@ -469,9 +471,6 @@ int main_(int argc, char *argv[])
             if(*opt == '\0') {
         case force_fn:                         // argument is filespec
                 argpath(argv[i]);
-                if(state % patrn)              // filename pattern shorthand
-                     state |= setpattern(tag, argv[i]);
-
                 static fileexp::find& apply
                   = *instantiate(state%=~scan, tag, source, recmask);
 
@@ -485,7 +484,7 @@ int main_(int argc, char *argv[])
                 switch( *opt++ ) {             // argument is a switch
                 case 'v': verbose.on(); break;
                 case 'R': cmd = recurse_expr; break;
-                case 'm': state |= patrn;     break;
+                case 'm': cmd = pattern_fn; break;
                 case 'f': cmd = set_rename;   break;
                 case 'q': cmd = set_query;    break;
                 case 'd': tag.clear(); state |= w; break;
@@ -538,7 +537,7 @@ int main_(int argc, char *argv[])
                 case '!':
                     if(chosen) {
                         if(opt != '\0') {
-                            eprintf("%s: invalid combination\n", opt-1);
+                            eprintf("%s: invalid argument\n", opt-1);
                             shelp();
                         }
                         for(int i = 0; i < set_tag::FIELDS; ++i)
@@ -583,6 +582,11 @@ int main_(int argc, char *argv[])
             }
             break;
 #endif
+        case pattern_fn:                       // filename pattern shorthand
+            state |= setpattern(tag, argv[i--]);
+            cmd = force_fn;
+            continue;
+
         case set_rename:                       // specify rename format
             if(strrchr(argv[i],'/')) {
                 eprintf("will not rename across directories\n");

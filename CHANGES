@@ -1,6 +1,6 @@
 Changelog for 'id3'.
 
-2005-198 (W28):
+2005-198 (W28):                                ---------[v0.76]-----------
   id3v2.c:177: [bug] fixed another class of id3v2 rejections (sigh)
 
 2005-187 (W27):
@@ -212,6 +212,7 @@ Todo list:
   - Reading MP3 data (Bitrate, length, etc. Half done.)
   - Cross-directory renaming/moving
   - Conditional expressions
+  - Long options
   - More things:
     + Support for Ogg Vorbis
     + Support for APEv2

@@ -11,9 +11,10 @@ struct verbose_t {
     bool          show;
     clock_t       time;
     unsigned long numfiles;
+    const char*   dir;
 
     verbose_t()
-    : show(false), time(clock()), numfiles(0) { }
+    : show(false), dir(0), time(clock()), numfiles(0) { }
     void on()
     { show = true; }
 
@@ -26,17 +27,19 @@ struct verbose_t {
         }
     }
 
-    void reportf(const char* s)                     // reporting a filename
+    void reportd(const char* s)     // reporting a dir
+    {                               // always call reportd before reportf
+        dir = s;
+    }
+
+    void reportf(const char* s)     // reporting a filename
     {
         if(show) {
             ++numfiles;
-            fprintf(stderr, "\t%s\n", s);
+            if(s-dir) fprintf(stderr, "%.*s\n", s-dir, dir);
+            if(*s)    fprintf(stderr, "\t%s\n", s);
         }
     }
 
-    void reportd(const char* s)                     // reporting a dir
-    {
-        if(show && *s) fprintf(stderr, "%s\n", s);
-    }
 } static verbose;
 

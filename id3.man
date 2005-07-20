@@ -114,7 +114,6 @@ The argument is scanned for substitution variables. An empty variable will by
 default get replaced with \*(lqUnknown\*(rq.
 Trying to rename to an already existing file will cause an error.
 .TP
-WHAT TO DO
 .BI \-m " filename-template
 the inverse of `-f'; process all files that match \fIfilename-template\fR,
 setting the tag accordingly. Thus, `-m\ "%a\ -\ %t.mp3"' is shorthand for
@@ -122,7 +121,8 @@ setting the tag accordingly. Thus, `-m\ "%a\ -\ %t.mp3"' is shorthand for
 .TP
 .BI \-q " format
 for each file encountered, \fIformat\fR will get scanned for substitution
-variables, and written to standard output.
+variables, and written to standard output. This option cannot be combined with
+any modifying operation.
 .TP
 .BI \-R " pattern
 search the directory hierarachy rooted at each given \fIfilespec\fR for files
@@ -159,7 +159,7 @@ documentation. See \fICOMPATIBILITY\fR for more information.
 Individual options can be stacked in a single argument for more convenience.
 For example, running
 
-   id3 -2 -dalt "Artist" "Album" "Title" *.mp3
+   id3 -2d -alt "Artist" "Album" "Title" *.mp3
 
 is equivalent to:
 
