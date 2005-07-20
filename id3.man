@@ -33,7 +33,7 @@ id3 \- a commandline mass tagger
 .br
 .RB [ \-s
 .IR size ]
-.RB [ \-! ]
+.RB [ \-u ]
 .RB [ \-r\fIFRAME ]
 .RB [ \-w\fIFRAME
 .IR data ]
@@ -141,13 +141,14 @@ files that start with a `-' (dash).
 .B SUBSTITUTION
 below.
 .PP
-The following options operate on the tag most recently selected, and only
-have meaning where relevant.
+The following options only apply on the tag most recently selected before
+them, and only have meaning where relevant.
 .TP
-.BI \-!
-copy all standard tag fields from the source tag. This is similar to writing
-`-talnygc %t %a %l %n %y %g %c', but only operates on the most recent tag.
-It is possible for the source and destination tag to be the same.
+.BI \-u
+update all standard tag fields by copying them from the source tag. This is
+similar to writing `-talnygc %t %a %l %n %y %g %c', but only operates on the
+most recent tag. It is possible for the source and destination tag to be the
+same.
 .TP
 .BI \-s " size
 try to write a new tag using exactly \fIsize\fR bytes, adding / removing
@@ -253,7 +254,7 @@ Add a simple tag to a file.
 \fBid3 -d *.mp3
 Removes all ID3v1 tags from all mp3's.
 .TP
-\fBid3 -2 -1! fs_song.mp3
+\fBid3 -2 -1u fs_song.mp3
 Copy ID3v2 tag to ID3v1 tag in selected file.
 .TP
 \fBid3 -a "TAFKAT" -n "%1" -t "%+2" "*. *.mp3"
@@ -271,7 +272,7 @@ Swap artist and title fields in all mp3's.
 \fBid3 -2 -rAPIC -s 0 *.mp3
 Removes embedded images and padding from all mp3's.
 .TP
-\fBid3 -2d -! *.mp3
+\fBid3 -2d -u *.mp3
 Rewrite ID3v2 tag while keeping only the basic fields.
 .TP
 \fBid3 -2 -wUSLT "foo, bar%,lalala!%," blaet.mp3
