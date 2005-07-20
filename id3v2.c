@@ -235,7 +235,7 @@ int ID3_writef(const char *fname, void *src, size_t reqsize)
         }
         fseek(f, orig, SEEK_CUR);
     } else {
-        if(size == 0) {
+        if(size == 0 && !reqsize) {
             fclose(f);
             return 1;
         }
@@ -257,7 +257,7 @@ int ID3_writef(const char *fname, void *src, size_t reqsize)
         if( !nf )
             goto abort;
 
-        if(size != 0) {
+        if(size != 0 || reqsize) {
             setsize(&new_h, nsize);
             ok = fwrite(&new_h, sizeof new_h, 1, nf) == 1
               && fwrite(src, size, 1, nf)            == 1
