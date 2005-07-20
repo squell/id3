@@ -274,7 +274,7 @@ static void Help()
 #ifndef NO_V2
         "Only on last selected tag:\n"
         " -s <size>\t"     "set tag size\n"
-        " -!\t\t"          "copy standard fields\n"
+        " -u\t\t"          "update all standard fields\n"
         " -rXXXX\t\t"      "erase all XXXX frames\n"
         " -wXXXX <data>\t" "write a XXXX frame\n"
 #endif
@@ -540,12 +540,10 @@ int main_(int argc, char *argv[])
                         break;
                     }
 #endif
-                case '!':
+                case '!':             // deprecated
+                    eprintf("-! will be removed, use -u instead");
+                case 'u':
                     if(chosen) {
-                        if(*opt != '\0') {
-                            eprintf("%s: invalid argument\n", opt-1);
-                            shelp();
-                        }
                         for(int i = 0; i < set_tag::FIELDS; ++i)
                             chosen->set(ID3field(i), ID3field_as_asciiz(i));
                         state |= w;
