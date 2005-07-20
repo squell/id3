@@ -251,8 +251,8 @@ bool recursive_find::file(const char* name, const fileexp::record& f)
 static void Help()
 {
     printf(
-#ifndef NO_V2
         "%s " _version_ "\n"
+#ifndef NO_V2
         "usage: %s [-1 -2] [OPTIONS] filespec ...\n"
 #else
         "usage: %s [OPTIONS] filespec ...\n"

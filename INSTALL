@@ -57,7 +57,7 @@ Successfully compiled with (non-exhaustive list):
 
  - GCC 3.x, 4.0     (GNU/Linux, FreeBSD, Solaris, DJGPP, MinGW32)
  - GCC 2.95.x       (GNU/Linux, FreeBSD, DJGPP, MinGW32)
- - Intel C++ 7.1    (GNU/Linux)
+ - Intel C++ 8.1    (GNU/Linux)
  - Borland C++ 5.5  (Win32)
  - Compaq C++ 6.5   (Alpha)
 
