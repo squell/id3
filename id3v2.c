@@ -108,7 +108,7 @@ static void setsize(struct raw_hdr *h, ulong size)
     h->size[3] = (size      ) & 0x7F;
 }
 
-static ulong getsize(struct raw_hdr *h)
+static long getsize(struct raw_hdr *h)
 {
     return (h->size[0] & 0x7F) << 21
          | (h->size[1] & 0x7F) << 14
@@ -116,7 +116,7 @@ static ulong getsize(struct raw_hdr *h)
          | (h->size[3] & 0x7F);
 }
 
-static ulong calcsize(uchar *buf, ulong max)
+static long calcsize(uchar *buf, long max)
 {
     struct raw_frm *frame;
     ulong size = 0;
@@ -128,7 +128,7 @@ static ulong calcsize(uchar *buf, ulong max)
         size += step;
         buf  += step;
     }
-    return size<=max? size : 0;
+    return size<=max? size : -1;
 }
 
 static int checkid(const char ID[])
@@ -145,7 +145,7 @@ void *ID3_readf(const char *fname, size_t *tagsize)
 {
     struct raw_hdr rh;
     uchar *buf;
-    ulong size, pad;
+    long size, pad;
 
     FILE *f = fopen(fname, "rb");
 
@@ -183,7 +183,7 @@ void *ID3_readf(const char *fname, size_t *tagsize)
     size = calcsize(buf, size);
     if(tagsize) *tagsize = size;
 
-    if(size == 0)                                /* semantic error in tag */
+    if(size < 0)                                 /* semantic error in tag */
         goto abort_mem;
 
     while(size < pad) {
@@ -208,16 +208,16 @@ int ID3_writef(const char *fname, void *src, size_t reqsize)
 {
     struct raw_hdr new_h = { "ID3", 3, 0, 0, { 0, } };
     struct raw_hdr rh    = { { 0 } };                       /* duct tape */
-    ulong size = calcsize(src,ULONG_MAX);
+    long size = calcsize(src, LONG_MAX);
 
     FILE *f = fopen(fname, "rb+");
 
-    if(!f) return 0;
+    if(!f || size < 0) return 0;                      /* error in caller */
 
     fread(&rh, sizeof(struct raw_hdr), 1, f);
 
     if( memcmp(rh.ID, "ID3", 3) == 0 ) {             /* allready tagged? */
-        ulong orig;
+        long orig;
 
         if( rh.ver != 3 )
             goto abort;                          /* only handles ID3v2.3 */
@@ -229,13 +229,13 @@ int ID3_writef(const char *fname, void *src, size_t reqsize)
             rewind(f);
             fwrite(&new_h, sizeof new_h, 1, f);   /* i don't check these */
             fwrite(src, size, 1, f);
-            fpadd(f, 0, orig-size);
+            fpadd(0, orig-size, f);
             fclose(f);
             return 1;
         }
         fseek(f, orig, SEEK_CUR);
     } else {
-        if(size == 0 && !reqsize) {
+        if(size == 0) {
             fclose(f);
             return 1;
         }
@@ -257,11 +257,11 @@ int ID3_writef(const char *fname, void *src, size_t reqsize)
         if( !nf )
             goto abort;
 
-        if(size != 0 || reqsize) {
+        if(size != 0) {
             setsize(&new_h, nsize);
-            ok = fwrite(&new_h, sizeof new_h, 1, nf) == 1
-              && fwrite(src, size, 1, nf)            == 1
-              && fpadd(nf, 0, nsize-size)
+            ok = fwrite(&new_h, 1, sizeof new_h, nf) == sizeof new_h
+              && fwrite(src, 1, size, nf)            == size
+              && fpadd(0, nsize-size, nf)            == nsize-size
               && fcopy(nf, f);
         } else {
             ok = fcopy(nf, f);                  /* remove ID3v2 tag only */
