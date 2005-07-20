@@ -25,7 +25,6 @@
 #define __ZF_SETID3
 
 #include <string>
-#include <utility>
 #include "set_base.h"
 
 namespace set_tag {

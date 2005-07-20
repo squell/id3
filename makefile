@@ -125,7 +125,7 @@ dist: $(DISTFILES)
 dist-zip: $(DISTFILES)
 	$(D_PKG) && zip -9Tl $${pkg//.}s.zip $(D_FIL); rm -f $${pkg}
 
-dist-check:
+dist-check: all $(DISTFILES)
 	if [ -f !* ]; then echo !*; false; fi
 	test `sed -n '/^#define _version_.*(\(.*\)).*/s//\1/p' < main.cpp` \
 	   = `date +%Y%j`
@@ -137,8 +137,6 @@ dist-check:
 	  -e		's/^ \([^ ]*\).*/\1/p'; \
 	    ls $(DISTFILES) | sed 's:/[^ ]*::g') | sort | uniq -u` && \
 	echo "$${d}"; test -z "$${d}"
-	$(D_TMP) && make -C .tmp all && mv .tmp/*.o .tmp/id3 .tmp/id3l `pwd`
-	-rm -rf .tmp
 	@echo all release checks okay
 
 dist-clean: $(DISTFILES)
@@ -200,10 +198,10 @@ MKALLDEP += $(MKDEP) $(CFLAGS)	 $(SRC_C:=.c)
 
 ## dependencies -MM ########################################################
 
-main.o: main.cpp fileexp.h auto_dir.h sedit.h charconv.h set_base.h \
-  setid3.h setfname.h setecho.h setid3v2.h
-mainl.o: main.cpp fileexp.h auto_dir.h sedit.h charconv.h set_base.h \
-  setid3.h setfname.h setecho.h
+main.o: main.cpp fileexp.h sedit.h charconv.h set_base.h setid3.h \
+  setfname.h setecho.h setid3v2.h verbose.cpp
+mainl.o: main.cpp fileexp.h sedit.h charconv.h set_base.h setid3.h \
+  setfname.h setecho.h verbose.cpp
 sedit.o: sedit.cpp sedit.h charconv.h
 varexp.o: varexp.cpp varexp.h
 fileexp.o: fileexp.cpp varexp.h auto_dir.h fileexp.h

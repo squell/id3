@@ -1,6 +1,4 @@
 #include "varexp.h"
-#include <vector>
-#include <cstring>
 
 /*
 

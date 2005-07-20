@@ -2,13 +2,11 @@
 #include <cstring>
 #include <cstdlib>
 #include <cctype>
-#include <string>
 #include <algorithm>
 #include <map>
 #include <new>
 #include "setid3.h"
 #include "getid3.h"
-#include "sedit.h"
 #include "id3v1.h"
 
 /*

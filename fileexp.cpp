@@ -1,8 +1,5 @@
-#include <vector>
-#include <string>
 #include <stdexcept>
 #include <algorithm>
-#include <climits>
 #include "varexp.h"
 #include "auto_dir.h"
 #include "fileexp.h"

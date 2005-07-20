@@ -1,3 +1,11 @@
+id3mtag (0.76) unstable; urgency=low
+
+  * Added -m switch for shorthand tagging (-m "%a.mp3" == -a %1 "*.mp3")
+  * Added -R switch for GNU find-like recursive searching
+  * Fixed some cases of ID3v2 tag rejection
+
+ -- Marc R. Schoolderman <squell@alumina.nl>  Wed, 20 Jul 2005 07:16:36 +0200
+
 id3mtag (0.75) unstable; urgency=low
 
   * First Debianization; see `CHANGES' for further history.

@@ -322,7 +322,7 @@ inline static char* argpath(char* arg)
 /* ====================================================== */
 
 namespace op {                                 // state information bitset
-    enum oper_t {
+    enum {
         no_op =  0x00,
         scan  =  0x01,                         // checking for no-file args?
         w     =  0x02,                         // write  requested?
@@ -330,6 +330,7 @@ namespace op {                                 // state information bitset
         rd    =  0x08,                         // read   requested?
         patrn =  0x10,                         // match  requested?
     };
+    typedef int oper_t;
 }
 
 /* ====================================================== */

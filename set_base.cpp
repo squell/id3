@@ -5,8 +5,6 @@
 
 */
 
-#include <vector>
-#include <string>
 #include "set_base.h"
 
 using namespace std;

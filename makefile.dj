@@ -52,10 +52,10 @@ mainl.o:
 
 ## dependencies -MM ########################################################
 
-main.o: main.cpp fileexp.h auto_dir.h sedit.h charconv.h set_base.h \
-  setid3.h setfname.h setecho.h setid3v2.h verbose.cpp
-mainl.o: main.cpp fileexp.h auto_dir.h sedit.h charconv.h set_base.h \
-  setid3.h setfname.h setecho.h
+main.o: main.cpp fileexp.h sedit.h charconv.h set_base.h setid3.h \
+  setfname.h setecho.h setid3v2.h verbose.cpp
+mainl.o: main.cpp fileexp.h sedit.h charconv.h set_base.h setid3.h \
+  setfname.h setecho.h verbose.cpp
 sedit.o: sedit.cpp sedit.h charconv.h
 varexp.o: varexp.cpp varexp.h
 fileexp.o: fileexp.cpp varexp.h auto_dir.h fileexp.h
@@ -74,4 +74,3 @@ id3v1.o: id3v1.c id3v1.h
 id3v2.o: id3v2.c fileops.h id3v2.h
 
 ############################################################################
-

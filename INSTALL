@@ -14,6 +14,7 @@ the contents of the source distribution:
  makefile.bcc   - makefile for borland c++
 
  main.cpp       - main program file                             (C++)
+ verbose.cpp    - + auxiliary file                              (C++)
  sedit.*        - string formatting                             (C++)
  charconv.*     - character conversion                          (C++)
  set_base.*     - abstract patch class                          (C++)
@@ -24,7 +25,7 @@ the contents of the source distribution:
  setfname.*     - + file renamer                                (C++)
  setecho.*      - + stdout formatter                            (C++)
  varexp.*       - wildcard/pattern matching class               (C++)
- ffindexp.*     - filefinder/matcher                            (C++)
+ fileexp.*      - filefinder/matcher                            (C++)
  auto_dir.h     - smart dirent pointer class                    (C++)
 
  id3v1.*        - definitions & data relevant to ID3v1 tag data (C)

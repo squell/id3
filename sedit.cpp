@@ -1,4 +1,3 @@
-#include <string>
 #include <cctype>
 #include <algorithm>
 #include "sedit.h"
