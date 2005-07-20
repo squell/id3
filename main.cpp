@@ -330,9 +330,6 @@ namespace op {                                 // state information bitset
         rd    =  0x08,                         // read   requested?
         patrn =  0x10,                         // match  requested?
     };
-    oper_t operator %=(oper_t& x,  int y)   { return x = oper_t(x&y); }
-    oper_t operator |=(oper_t& x, oper_t y) { return x = oper_t(x|y); }
-    oper_t operator % (oper_t x,   int y)   { return x %= y;          }
 }
 
 /* ====================================================== */
@@ -407,7 +404,7 @@ static fileexp::find* instantiate(op::oper_t state, metadata& tag,
     set_tag::handler* selected;
     static null_op dummy;
 
-    state %= w|rd|ren;
+    state &= w|rd|ren;
 
     if(state%w == 0 && tag.handlers().size() != 1)
         eprintf("multiple selected tags ignored when only reading\n");
@@ -472,11 +469,11 @@ int main_(int argc, char *argv[])
             if(*opt == '\0') {
         case force_fn:                         // argument is filespec
                 argpath(argv[i]);
-                if(state % patrn)              // filename pattern shorthand
+                if(state & patrn)              // filename pattern shorthand
                     state |= setpattern(tag, argv[i]);
 
                 static fileexp::find& apply
-                  = *instantiate(state%=~scan, tag, source, recmask);
+                  = *instantiate(state&=~scan, tag, source, recmask);
 
                 if(! apply.glob(argv[i]) ) {
                     if(!recmask)
@@ -615,7 +612,7 @@ int main_(int argc, char *argv[])
             continue;
 
         case recurse_expr:                     // enable recursion (ugh)
-            if(state % patrn) {
+            if(state & patrn) {
                 eprintf("cannot use -R and -m at the same time\n");
                 shelp();
             }
@@ -629,7 +626,7 @@ int main_(int argc, char *argv[])
         cmd = no_value;
     }
 
-    if(state % scan) {                         // code duplication is awful.
+    if(state & scan) {                         // code duplication is awful.
         if(!recmask)
             eprintf("missing file arguments\n");
         else if(! instantiate(state, tag, source, recmask)->glob(".") ) {
