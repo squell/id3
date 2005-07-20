@@ -213,19 +213,22 @@ bool ID3v2::vmodify(const char* fn, const subst& v) const
             db::iterator p = table.find(f->ID);
             if(p == table.end())
                 tag.put(f->ID, f->data, f->size);
-            else
-                if(!p->second.empty()) {            // else: erase frames
-                    string s = binarize(p->first, edit(p->second, v));
-                    tag.put(f->ID, s.data(), s.length());
+            else {
+                cvtstring s = edit(p->second, v);
+                if(!s.empty()) {                    // else: erase frames
+                    string b = binarize(p->first, s);
+                    tag.put(f->ID, b.data(), b.length());
                     table.erase(p);
                 }
+            }
         }
     }
 
     for(db::iterator p = table.begin(); p != table.end(); ++p) {
-        if(p->second != "") {
-            string s = binarize(p->first, edit(p->second, v));
-            tag.put(p->first.c_str(), s.data(), s.length());
+        cvtstring s = edit(p->second, v);
+        if(!s.empty()) {
+            string b = binarize(p->first, s);
+            tag.put(p->first.c_str(), b.data(), b.length());
         }
     }
 

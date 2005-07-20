@@ -149,8 +149,9 @@ orig ?= `pwd`.tar.gz
 
 diff:
 	rm -rf .tmp; mkdir .tmp && ln -s `pwd` .tmp/{current}
+	ln -s `pwd`-$(D_VER).diff.gz .tmp/.diff
 	tar Cxfz .tmp $(orig)
-	diff -x '.*' -durN .tmp/* | gzip -9 > `pwd`-$(D_VER).diff.gz
+	cd .tmp; diff -x '.*' -durN * | gzip -9 > .diff
 	-rm -rf .tmp
 
 URI	 = http://home.wanadoo.nl/squell

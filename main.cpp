@@ -191,7 +191,7 @@ bool mass_tag::file(const char* name, const fileexp::record& f)
 
     verbose.reportf(name);
     if(! tag_update.modify(f.path, number_vars, letter_vars) )
-        return eprintf("could not edit tag in %s\n", f.path), false;
+        eprintf("could not edit tag in %s\n", f.path);
 
     return true;
 }
@@ -407,10 +407,10 @@ static fileexp::find* instantiate(op::oper_t state, metadata& tag,
 
     state &= w|rd|ren;
 
-    if(state%w == 0 && tag.handlers().size() != 1)
+    if(!(state&w) && tag.handlers().size() != 1)
         eprintf("multiple selected tags ignored when only reading\n");
 
-    if(state%ren)                              // add rename as final
+    if(state&ren)                              // add rename as final
         tag.activate<set_tag::filename>()->rename(tag.format);
 
     fileexp::find* routine = &dummy;
@@ -418,9 +418,9 @@ static fileexp::find* instantiate(op::oper_t state, metadata& tag,
     do {
         if(!state)
             break;
-        else if(state%(w|rd) == w)
+        else if((state&(w|rd)) == w)
             selected = &tag;
-        else if(state%(ren|rd) == ren)             // optimization
+        else if((state&(ren|rd)) == ren)       // optimization
             selected = &tag.uses<set_tag::filename>::object;
         else if(state == rd)
             selected = &tag.uses<set_tag::echo>::object.format(tag.format);
@@ -541,7 +541,9 @@ int main_(int argc, char *argv[])
                     }
 #endif
                 case '!':             // deprecated
-                    eprintf("-! will be removed, use -u instead");
+                    if(chosen) {
+                        eprintf("-! is deprecated, use -u instead\n");
+                    }
                 case 'u':
                     if(chosen) {
                         for(int i = 0; i < set_tag::FIELDS; ++i)

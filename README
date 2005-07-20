@@ -8,9 +8,9 @@
 _>\/| |(_)|_)_>|_> 
 ~~/~~~~~~~|~~~~~~~
        id3 [-v] [-12] [-d] [-t title] [-a artist] [-l album]
-	 [-n tracknr] [-y year] [-g genre] [-c comment]
-	 [-f template] [-q format] [-m] [-R pattern]
-	 [-s size] [-u] [-rFRAME] [-wFRAME data] [ "filespec"  ... ]
+         [-n tracknr] [-y year] [-g genre] [-c comment]
+         [-f template] [-q format] [-m] [-R pattern]
+         [-s size] [-u] [-rFRAME] [-wFRAME data] [ "filespec"  ... ]
 
                           
  _| _  _ _._o.__|_o _ ._  
@@ -21,8 +21,8 @@ _>\/| |(_)|_)_>|_>
        ables, and/or rename files, using an intuitive syntax.
 
        id3  currently  supports  the  old-style  ID3  format with track-number
-       extension (ID3 v1.1), as  well  as  the	more  complicated  ID3v2  (ID3
-       v2.3.0)	format.  This  also  means use is pretty much limited to audio
+       extension (ID3 v1.1), as  well  as  the  more  complicated  ID3v2  (ID3
+       v2.3.0)  format.  This  also  means use is pretty much limited to audio
        files which use these formats, e.g, MPEG-1 Layer III.
 
                   
@@ -32,15 +32,15 @@ _>\/| |(_)|_)_>|_>
        Order of the options is only important where specified.
 
        filespec ...
-	      specifies the file(s) to be affected by the command.
+              specifies the file(s) to be affected by the command.
 
-	      If you use wildcards, it is STRONGLY recommended to enclose  the
-	      specification  in  double  quotes  ("").	id3 has internal shell
-	      pattern matching which will not work if your shell also performs
-	      this function.
+              If you use wildcards, it is STRONGLY recommended to enclose  the
+              specification  in  double  quotes  ("").  id3 has internal shell
+              pattern matching which will not work if your shell also performs
+              this function.
 
-	      The  shell pattern matching can be applied to both filenames and
-	      directory names.
+              The  shell pattern matching can be applied to both filenames and
+              directory names.
 
        -h     show commandline help
 
@@ -51,11 +51,11 @@ _>\/| |(_)|_)_>|_>
        -1     process ID3v1 tags (default). See `-2'.
 
        -2     process ID3v2 tags. If both `-1' and `-2'  are  specified,  both
-	      tag formats are selected.
+              tag formats are selected.
 
        -d     do  not  re-use  existing tag data. If no new tag information is
-	      specified in conjunction with this  option,  all	selected  tags
-	      will be removed.
+              specified in conjunction with this  option,  all  selected  tags
+              will be removed.
 
        -t title
        -a artist
@@ -65,73 +65,73 @@ _>\/| |(_)|_)_>|_>
        -g genre
        -c comment
 
-	      add/replace  the	specified fields in all selected tags with the
-	      values given. Field values are scanned  for  substitution  vari-
-	      ables, see SUBSTITUTION below.
+              add/replace  the  specified fields in all selected tags with the
+              values given. Field values are scanned  for  substitution  vari-
+              ables, see SUBSTITUTION below.
 
-	      Genres  can  be specified either directly or with their assigned
-	      number, regardless of tag format.
+              Genres  can  be specified either directly or with their assigned
+              number, regardless of tag format.
 
        -f filename-template
-	      rename files encountered according  to  filename-template.   The
-	      argument	is  scanned for substitution variables. An empty vari-
-	      able will by default get replaced  with  "Unknown".   Trying  to
-	      rename to an already existing file will cause an error.
+              rename files encountered according  to  filename-template.   The
+              argument  is  scanned for substitution variables. An empty vari-
+              able will by default get replaced  with  "Unknown".   Trying  to
+              rename to an already existing file will cause an error.
 
        -q format
-	      for each file encountered, format will get scanned for substitu-
-	      tion variables, and  written  to	standard  output.  Using  this
-	      option will block any attempt to modify files.
+              for each file encountered, format will get scanned for substitu-
+              tion variables, and  written  to  standard  output.  Using  this
+              option will block any attempt to modify files.
 
        -m     match  mode;  interpret  any  variables found in a filespec as a
-	      wildcard, and set the corresponding tag  field  to  the  matched
-	      wildcard.     Thus,   `-m "%a - %t.mp3"'	 is   equivalent   for
-	      `-a %1 -t %2 "* - *.mp3"'.  This option is  merely  a  shorthand
-	      and  does  not add any intelligence; in particular, any variable
-	      interpreted still counts as a wildcard, see SUBSTITUTION	below.
+              wildcard, and set the corresponding tag  field  to  the  matched
+              wildcard.     Thus,   `-m "%a - %t.mp3"'   is   equivalent   for
+              `-a %1 -t %2 "* - *.mp3"'.  This option is  merely  a  shorthand
+              and  does  not add any intelligence; in particular, any variable
+              interpreted still counts as a wildcard, see SUBSTITUTION  below.
 
        -R pattern
-	      search  the  directory  hierarachy  rooted  at each filespec for
-	      files whose relative path matches pattern. If  no  filespec  are
-	      supplied,  starts searching in the current directory.  Wildcards
-	      in pattern do not treat `.' or  `/'  specially  when  performing
-	      this  search,  so `./t*.mp3' matches `/test/misc/foo.mp3'. Using
-	      this option also affects variable substition, see
+              search  the  directory  hierarachy  rooted  at each filespec for
+              files whose relative path matches pattern. If  no  filespec  are
+              supplied,  starts searching in the current directory.  Wildcards
+              in pattern do not treat `.' or  `/'  specially  when  performing
+              this  search,  so `./t*.mp3' matches `/test/misc/foo.mp3'. Using
+              this option also affects variable substition, see
 
        --     force the following argument to be interpreted  as  a  filename.
-	      Use  this  for files that start with a `-' (dash).  SUBSTITUTION
-	      below.
+              Use  this  for files that start with a `-' (dash).  SUBSTITUTION
+              below.
 
        The following options only apply on  the  tag  most  recently  selected
        before them, and only have meaning where relevant.
 
        -u     update  all  standard tag fields by copying them from the source
-	      tag. This is similar to writing `-talnygc %t %a %l %n %y %g %c',
-	      but only operates on the most recent tag. It is possible for the
-	      source and destination tag to be the same.
+              tag. This is similar to writing `-talnygc %t %a %l %n %y %g %c',
+              but only operates on the most recent tag. It is possible for the
+              source and destination tag to be the same.
 
        -s size
-	      try to write a new tag using exactly size bytes, adding / remov-
-	      ing padding as necessary. The resulting tag will have no padding
-	      if size is smaller than the actual size necessary.
+              try to write a new tag using exactly size bytes, adding / remov-
+              ing padding as necessary. The resulting tag will have no padding
+              if size is smaller than the actual size necessary.
 
        -rFRAME
-	      remove all occurrences of frames named FRAME from the tag.  Con-
-	      sult the format documentation for valid FRAME names.
+              remove all occurrences of frames named FRAME from the tag.  Con-
+              sult the format documentation for valid FRAME names.
 
        -wFRAME data
-	      add / update a frame named FRAME with data in the  tag.  data is
-	      scanned for substitution variables. Again,  consult  the	format
-	      documentation. See COMPATIBILITY for more information.
+              add / update a frame named FRAME with data in the  tag.  data is
+              scanned for substitution variables. Again,  consult  the  format
+              documentation. See COMPATIBILITY for more information.
 
        Individual  options can be stacked in a single argument for more conve-
-       nience.	For example, running
+       nience.  For example, running
 
-	  id3 -2d -alt "Artist" "Album" "Title" *.mp3
+          id3 -2d -alt "Artist" "Album" "Title" *.mp3
 
        is equivalent to:
 
-	  id3 -2 -d -a "Artist" -l "Album" -t "Title" *.mp3
+          id3 -2 -d -a "Artist" -l "Album" -t "Title" *.mp3
 
 
                               
@@ -144,33 +144,33 @@ _>|_||_)_> |_| |_|_||_|(_)| |
        quotes to prevent your shell from expanding any wildcards.
 
        %<modifiers>N
-	      where N <- [0..9]
+              where N <- [0..9]
 
-	      replaced	with  the portion of the filename matching the nth `*'
-	      (asterisk) wildcard in the file specification.  0  is  taken  to
-	      mean  10.   If  the `-R pattern' option is used, the filename is
-	      matched against pattern instead.
+              replaced  with  the portion of the filename matching the nth `*'
+              (asterisk) wildcard in the file specification.  0  is  taken  to
+              mean  10.   If  the `-R pattern' option is used, the filename is
+              matched against pattern instead.
 
        %<modifiers>c
-	      where c <- [a..z]
-	      replaced by values according to the following table:
+              where c <- [a..z]
+              replaced by values according to the following table:
 
-	      %t title
-	      %a artist
-	      %l album title
-	      %n track number
-	      %y year
-	      %g genre
-	      %c comment field
-	      %f filename
-	      %x auto-increasing counter
+              %t title
+              %a artist
+              %l album title
+              %n track number
+              %y year
+              %g genre
+              %c comment field
+              %f filename
+              %x auto-increasing counter
 
-	      Values get read (where applicable) from the source tag, which is
-	      the  left-most tag selected on the command line, and reflect the
-	      state of the file before any  modifications  were  made,	unless
-	      they  only  appear  in `-f filename-template'.  %f is always the
-	      original filename. The %x value gets increased for each  matched
-	      file in a directory, and is intended for auto-numbering.
+              Values get read (where applicable) from the source tag, which is
+              the  left-most tag selected on the command line, and reflect the
+              state of the file before any  modifications  were  made,  unless
+              they  only  appear  in `-f filename-template'.  %f is always the
+              original filename. The %x value gets increased for each  matched
+              file in a directory, and is intended for auto-numbering.
 
        %%     replaced with a single "%"
 
@@ -178,25 +178,25 @@ _>|_||_)_> |_| |_|_||_|(_)| |
 
    Available <modifiers> (optional):
        + (plus sign)
-	      Capitalize the substituted value
+              Capitalize the substituted value
 
        - (minus sign)
-	      Convert all characters to lowercase
+              Convert all characters to lowercase
 
        _ (underscore)
-	      Do  not  replace	underscores  with  spaces, and do not compress
-	      empty space.
+              Do  not  replace  underscores  with  spaces, and do not compress
+              empty space.
 
        # (hash or pound sign)
-	      Pad all numeric values within the substituted value,  if	neces-
-	      sary.   Multiple	hash  signs can be stacked to increase desired
-	      width. If there are no numeric  values,  this  modifier  has  no
-	      effect.
+              Pad all numeric values within the substituted value,  if  neces-
+              sary.   Multiple  hash  signs can be stacked to increase desired
+              width. If there are no numeric  values,  this  modifier  has  no
+              effect.
 
        |fallback|
-	      If  substitution	would  yield  an  empty value, substitute with
-	      fallback instead. fallback itself may contain  other  variables,
-	      but no other | (pipe) symbols or fallbacks.
+              If  substitution  would  yield  an  empty value, substitute with
+              fallback instead. fallback itself may contain  other  variables,
+              but no other | (pipe) symbols or fallbacks.
 
                        
  _    _.._ _ ._ | _  _ 
@@ -205,42 +205,42 @@ _>|_||_)_> |_| |_|_||_|(_)| |
        Here are some examples of using id3:
 
        id3 -a "Stallman" -t "Free Software Song" fs_song.mp3"
-	      Add a simple tag to a file.
+              Add a simple tag to a file.
 
        id3 -d *.mp3
-	      Removes all ID3v1 tags from all mp3's.
+              Removes all ID3v1 tags from all mp3's.
 
        id3 -2 -1u fs_song.mp3
-	      Copy ID3v2 tag to ID3v1 tag in selected file.
+              Copy ID3v2 tag to ID3v1 tag in selected file.
 
        id3 -a "TAFKAT" -n "%1" -t "%+2" "*. *.mp3"
-	      Update tag fields similar to this;
-		-a "TAFKAT" -n "01" -t "My Song"  "01. my_song.mp3"
-		-a "TAFKAT" -n "02" -t "Untitled" "02. untitled.mp3"
+              Update tag fields similar to this;
+                -a "TAFKAT" -n "01" -t "My Song"  "01. my_song.mp3"
+                -a "TAFKAT" -n "02" -t "Untitled" "02. untitled.mp3"
 
        id3 -2 -f "%a - %t.mp3" blaet.mp3
-	      Rename file to a standard format, using ID3v2 values.
+              Rename file to a standard format, using ID3v2 values.
 
        id3 -a %t -t %a "*.mp3"
-	      Swap artist and title fields in all mp3's.
+              Swap artist and title fields in all mp3's.
 
        id3 -2 -rAPIC -s 0 *.mp3
-	      Removes embedded images and padding from all mp3's.
+              Removes embedded images and padding from all mp3's.
 
        id3 -2d -u *.mp3
-	      Rewrite ID3v2 tag while keeping only the basic fields.
+              Rewrite ID3v2 tag while keeping only the basic fields.
 
        id3 -2 -wUSLT "foo, bar%,lalala!%," blaet.mp3
-	      Adds an ID3v2 lyric frame to blaet.mp3.
+              Adds an ID3v2 lyric frame to blaet.mp3.
 
        id3 -v -g alt-rock -alnt "The Author" %1 %2 %3 "Author - */(*) *.mp3"
-	      Process multiple directories at once.
+              Process multiple directories at once.
 
        id3 -v -g alt-rock -a "The Author" -m "Author - %l/(%n) %t.mp3"
-	      Shorthand for the previous example.
+              Shorthand for the previous example.
 
        id3 -2 -c "Was: %_f" -f "%|Nobody|a - %|Untitled (%x)|t.mp3" "*.mp3"
-	      Advanced rename. Saves previous filename in the comment field.
+              Advanced rename. Saves previous filename in the comment field.
 
               
 ._  __|_ _  _ 
@@ -276,13 +276,13 @@ _>|_||_)_> |_| |_|_||_|(_)| |
 ~~~~~~~~~~|~~~~~~~~~~~~~~~~~~/~
        id3 has a built-in genre list of 148 genres. If you pass the -g parame-
        ter a string instead of a number when using ID3v1, id3  tries  to  find
-       the  specified  genre  in  this	list, and selects the closest possible
+       the  specified  genre  in  this  list, and selects the closest possible
        match (if any). For the genre numbers and exact spelling,  see  id3v1.c
-       in  the	source distribution. An empty or invalid genre is assigned the
+       in  the  source distribution. An empty or invalid genre is assigned the
        number 0.
 
-       The  -wFRAME  parameter	only  knows  the following ID3v2 frames:  Txxx
-       (text),	Wxxx  (links),	COMM (comment), IPLS (involved	people),  USLT
+       The  -wFRAME  parameter  only  knows  the following ID3v2 frames:  Txxx
+       (text),  Wxxx  (links),  COMM (comment), IPLS (involved  people),  USLT
        (lyrics), USER (tos) and PCNT (numeric play counter). It is a no-op for
        ID3v1.
 

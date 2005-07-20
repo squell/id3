@@ -61,7 +61,8 @@ bool find::pattern(const char* root, const char* pathmask)
     t.mask[sizeof t.mask-1] = '\0';             // duct tape
     t.invoker = this;
     t.recurse = true;
-    return t.nested(auto_dir(t.path), p, t.mask);
+    auto_dir start(t.path);
+    return start && t.nested(start, p, t.mask);
 }
 
 struct filefind::direxp : varexp {              // special dotfile handling
@@ -140,7 +141,7 @@ bool filefind::nested(auto_dir dir, char* pathpos, char* filespec)
     if(*filespec == '\0')
         return invoker->file(pathpos, *this);
 
-    if(access(filespec, F_OK) == 0) {
+    if(!recurse && access(filespec, F_OK) == 0) {
         pathcpy(pathpos, filespec);             // check if file is 'simple'
         return invoker->file(pathpos, *this);   // (speeds up simple cases)
     }
@@ -165,11 +166,11 @@ bool filefind::nested(auto_dir dir, char* pathpos, char* filespec)
     }
 
     if(recurse) for(strvec::iterator fn = files.begin(); fn != files.end(); ++fn) {
-        wpos = pathcpy(pathcpy(pathpos, fn->c_str()), "/");
+        wpos = pathcpy(pathpos, fn->c_str());
         auto_dir newdir(path);
         char sympath[1];
         if(newdir && readlink(path, sympath, sizeof sympath) < 0)
-            w |= nested(newdir, wpos, filespec);
+            w |= nested(newdir, pathcpy(wpos, "/"), filespec);
     }
 
     return w;
