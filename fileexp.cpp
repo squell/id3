@@ -154,7 +154,7 @@ bool filefind::nested(auto_dir dir, char* pathpos, char* filespec)
             files.push_back(fn->d_name);
     }
 
-    sort(files.begin(), files.end());
+    sort(files.begin(), files.end());            // speeds things up!? wow
 
     for(strvec::iterator fn = files.begin(); fn != files.end(); ++fn) {
         wpos = pathcpy(pathpos, fn->c_str());

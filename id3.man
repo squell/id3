@@ -11,33 +11,32 @@ id3 \- a commandline mass tagger
 .IR title ]
 .RB [ \-a
 .IR artist ]
-.RB [ \-g
-.IR genre ]
+.RB [ \-l
+.IR album ]
 .br
 .RB [ \-n
 .IR tracknr ]
-.RB [ \-l
-.IR album ]
 .RB [ \-y
 .IR year ]
+.RB [ \-g
+.IR genre ]
 .RB [ \-c
 .IR comment ]
 .br
-.RB [ \-! ]
+.RB [ \-f
+.IR template ]
+.RB [ \-q
+.IR format ]
+.RB [ \-m ]
+.RB [ \-R
+.IR pattern ]
+.br
 .RB [ \-s
 .IR size ]
+.RB [ \-! ]
 .RB [ \-r\fIFRAME ]
 .RB [ \-w\fIFRAME
 .IR data ]
-.br
-.RB [ \-f
-.IR filename ]
-.RB [ \-q
-.IR string ]
-.RB [ \-m
-.IR string ]
-.RB [ \-R
-.IR pattern ]
 .RI [ " \*(lqfilespec\*(rq
 \& ... ]
 .SH DESCRIPTION
@@ -57,11 +56,11 @@ Order of the options is only important where specified.
 .B filespec ...
 specifies the file(s) to be affected by the command.
 
-If you use wildcards, it is recommended to enclose the specification in double
-quotes ("").
+If you use wildcards, it is STRONGLY recommended to enclose the specification
+in double quotes ("").
 .I id3
-has internal shell pattern matching which will not work if
-your shell performs this function.
+has internal shell pattern matching which will not work if your shell also
+performs this function.
 
 The shell pattern matching can be applied to both filenames and directory
 names.
@@ -96,9 +95,9 @@ conjunction with this option, all selected tags will be removed.
 .br
 .BI \-y " year
 .br
-.BI \-c " comment
-.br
 .BI \-g " genre
+.br
+.BI \-c " comment
 .IP
 add/replace the specified fields in all selected tags with the values
 given. Field values are scanned for substitution variables, see
@@ -114,23 +113,31 @@ The argument is scanned for substitution variables. An empty variable will by
 default get replaced with \*(lqUnknown\*(rq.
 Trying to rename to an already existing file will cause an error.
 .TP
-.BI \-m " filename-template
-the inverse of `-f'; process all files that match \fIfilename-template\fR,
-setting the tag accordingly. Thus, `-m\ "%a\ -\ %t.mp3"' is shorthand for
-`-a\ %1\ -t\ %2\ "*\ -\ *.mp3"'.
-.TP
 .BI \-q " format
 for each file encountered, \fIformat\fR will get scanned for substitution
-variables, and written to standard output. This option cannot be combined with
-any modifying operation.
+variables, and written to standard output. Using this option will block any
+attempt to modify files.
+.TP
+.B \-m
+match mode; interpret any variables found in a \fIfilespec\fR as a wildcard,
+and set the corresponding tag field to the matched wildcard.
+Thus, `-m\ "%a\ -\ %t.mp3"' is equivalent for `-a\ %1\ -t\ %2\ "*\ -\ *.mp3"'.
+This option is merely a shorthand and does not add any intelligence;
+in particular, any variable interpreted still counts as a wildcard, see
+.B SUBSTITUTION
+below.
 .TP
 .BI \-R " pattern
-search the directory hierarachy rooted at each given \fIfilespec\fR for files
-whose relative path matches \fIpattern\fR. If no \fIfilespec\FR is supplied,
+search the directory hierarachy rooted at each \fIfilespec\fR for files
+whose relative path matches \fIpattern\fR. If no \fIfilespec\FR are supplied,
 starts searching in the current directory.
 Wildcards in \fIpattern\fR do not treat `.' or `/' specially when performing
 this search, so `./t*.mp3' matches `/test/misc/foo.mp3'. Using this option
 also affects variable substition, see
+.TP
+.B \--
+force the following argument to be interpreted as a filename. Use this for
+files that start with a `-' (dash).
 .B SUBSTITUTION
 below.
 .PP
@@ -188,13 +195,13 @@ replaced by values according to the following table:
 .br
 .BR %a " artist
 .br
-.BR %g " genre
+.BR %l " album\ title
 .br
 .BR %n " track\ number
 .br
-.BR %l " album\ title
-.br
 .BR %y " year
+.br
+.BR %g " genre
 .br
 .BR %c " comment\ field
 .br
@@ -294,6 +301,10 @@ the context of filenames.
 Do NOT add ID3 tags to files for which it does not make sense, i.e, add them
 only to MP3 files. In particular, do not add ID3v2 tags to Ogg files, since
 ID3v2 tags start at the beginning of the file.
+.SH BUGS
+id3 currently does not handle (and can't remove) the older ID3v2.2 tags.
+This is unfortunate because the popular iTunes program seems to prefer
+writing in that format by default.
 .SH COMPATIBILITY
 id3 has a built-in genre list of 148 genres. If you pass the -g parameter a
 string instead of a number when using ID3v1, id3 tries to find the specified

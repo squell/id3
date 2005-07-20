@@ -27,7 +27,7 @@ int fcopy(FILE *dest, FILE *src)
     return feof(src);
 }
 
-int fpadd(FILE *dest, char c, size_t len)
+size_t fpadd(char c, size_t len, FILE *dest)
 {
     char buffer[0x4000];                              /* 16kb buffer */
     size_t w;
@@ -42,7 +42,7 @@ int fpadd(FILE *dest, char c, size_t len)
 
     w = fwrite(buffer, 1, len, dest);
 
-    return w == len;
+    return w;
 }
 
 FILE *ftemp(char *templ, const char *mode)

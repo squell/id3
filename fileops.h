@@ -21,10 +21,10 @@
   copies (remainder of) file src to dest (both must be opened/usable)
   returns success or failure
 
-      int fpadd(FILE *dest, char c, size_t len)
+      size_t fpadd(char c, size_t len, FILE *dest)
 
   writes len times the character c to the file opened as dest.
-  returns success or failure
+  returns number of character actually written
 
       FILE *ftemp(char *templ, const char *mode)
 
@@ -41,13 +41,13 @@ extern "C" {
 
 #include <stdio.h>
 
-extern int   fcopy(FILE *dest, FILE *src);
-extern int   fpadd(FILE *dest, char c, size_t len);
-extern FILE *ftemp(char *templ, const char *mode);
+extern int    fcopy(FILE *dest, FILE *src);
+extern size_t fpadd(char c, size_t len, FILE *dest);
+extern FILE  *ftemp(char *templ, const char *mode);
 
-extern FILE *opentemp(const char *hint, char **name);
+extern FILE  *opentemp(const char *hint, char **name);
 
-extern int   cpfile(const char *srcnam, const char *dstnam);
+extern int    cpfile(const char *srcnam, const char *dstnam);
 
 #ifdef __cplusplus
 }

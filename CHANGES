@@ -209,6 +209,7 @@ Changelog for 'id3'.
 
 Todo list:
 
+  - Document %F (Unless it becomes %p)
   - Reading MP3 data (Bitrate, length, etc. Half done.)
   - Cross-directory renaming/moving
   - Conditional expressions

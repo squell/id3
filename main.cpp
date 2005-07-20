@@ -15,7 +15,7 @@
 #    include "setid3v2.h"
 #endif
 
-#define _version_ "0.76-dev (2005xxx)"
+#define _version_ "0.76 (2005201)"
 
 /*
 
@@ -26,8 +26,8 @@
 
 using namespace std;
 
- //  this file is definately too big - should be split up into seperate
- //  components that are agnostic of eachother.
+ // this file is definately too complicated - it should be split up into
+ // seperate  components that are agnostic of eachother.
 
 /* ====================================================== */
 
@@ -261,15 +261,15 @@ static void Help()
         " -d\t\t"          "clear existing tag\n"
         " -t <title>\t"    "set tag fields\n"
         " -a <artist>\t"   "\n"
-        " -l <album>\t"    "\n"
-        " -n <tracknr>\t"  "\n"
-        " -y <year>\t"     "\n"
+        " -l <album>\t"    "\t(i'th matched `*' wildcard  = %%1-%%9,%%0\n"
+        " -n <tracknr>\t"  "\t file name/counter          = %%f %%x\n"
+        " -y <year>\t"     "\t value of tag field in file = %%t %%a %%l %%n %%y %%g %%c)\n"
         " -g <genre>\t"    "\n"
         " -c <comment>\t"  "\n"
-        " -m\t\t"          "bla\n"
-        " -f <format>\t"   "rename files according to format\n"
+        " -f <template>\t" "rename files according to template\n"
         " -q <format>\t"   "print formatted string on standard output\n"
-        " -R <pattern>\t"  "search directories recursively for pattern\n"
+        " -m\t\t"          "match variables in filespec\n"
+        " -R <pattern>\t"  "search directories recursively for wildcard pattern\n"
         " -V\t\t"          "print version info\n"
 #ifndef NO_V2
         "Only on last selected tag:\n"
@@ -328,6 +328,7 @@ namespace op {                                 // state information bitset
         w     =  0x02,                         // write  requested?
         ren   =  0x04,                         // rename requested?
         rd    =  0x08,                         // read   requested?
+        patrn =  0x10,                         // match  requested?
     };
     oper_t operator %=(oper_t& x,  int y)   { return x = oper_t(x&y); }
     oper_t operator |=(oper_t& x, oper_t y) { return x = oper_t(x|y); }
@@ -426,7 +427,7 @@ static fileexp::find* instantiate(op::oper_t state, metadata& tag,
         else if(state == rd)
             selected = &tag.uses<set_tag::echo>::object.format(tag.format);
         else {
-            eprintf("incompatible operation requested\n");
+            eprintf("cannot combine -q with any modifying operation\n");
             shelp();
         }
         routine = new mass_tag(*selected, *src_ptr);
@@ -471,6 +472,9 @@ int main_(int argc, char *argv[])
             if(*opt == '\0') {
         case force_fn:                         // argument is filespec
                 argpath(argv[i]);
+                if(state % patrn)              // filename pattern shorthand
+                    state |= setpattern(tag, argv[i]);
+
                 static fileexp::find& apply
                   = *instantiate(state%=~scan, tag, source, recmask);
 
@@ -483,8 +487,12 @@ int main_(int argc, char *argv[])
             } else {
                 switch( *opt++ ) {             // argument is a switch
                 case 'v': verbose.on(); break;
+                case 'm': if(recmask) {
+                              eprintf("cannot use -R and -m at the same time\n");
+                              shelp();
+                          }
+                          state |= patrn;     break;
                 case 'R': cmd = recurse_expr; break;
-                case 'm': cmd = pattern_fn; break;
                 case 'f': cmd = set_rename;   break;
                 case 'q': cmd = set_query;    break;
                 case 'd': tag.clear(); state |= w; break;
@@ -536,7 +544,7 @@ int main_(int argc, char *argv[])
 #endif
                 case '!':
                     if(chosen) {
-                        if(opt != '\0') {
+                        if(*opt != '\0') {
                             eprintf("%s: invalid argument\n", opt-1);
                             shelp();
                         }
@@ -582,10 +590,6 @@ int main_(int argc, char *argv[])
             }
             break;
 #endif
-        case pattern_fn:                       // filename pattern shorthand
-            state |= setpattern(tag, argv[i--]);
-            cmd = force_fn;
-            continue;
 
         case set_rename:                       // specify rename format
             if(strrchr(argv[i],'/')) {
@@ -611,23 +615,28 @@ int main_(int argc, char *argv[])
             continue;
 
         case recurse_expr:                     // enable recursion (ugh)
+            if(state % patrn) {
+                eprintf("cannot use -R and -m at the same time\n");
+                shelp();
+            }
             recmask = argpath(argv[i]);
             cmd = no_value;
             continue;
+
         };
 
         state |= w;                            // set operation done flag
         cmd = no_value;
     }
 
-    if(state % scan) {
+    if(state % scan) {                         // code duplication is awful.
         if(!recmask)
             eprintf("missing file arguments\n");
         else if(! instantiate(state, tag, source, recmask)->glob(".") ) {
-                eprintf("no files matching `%s' in %s\n", recmask, ".");
-             }
+            eprintf("no files matching `%s' in %s\n", recmask, ".");
+        }
     }
-    if(state == scan)
+    if(state == scan && !recmask)
         shelp();
 
     return exitc;

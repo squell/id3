@@ -53,7 +53,7 @@ mainl.o:
 ## dependencies -MM ########################################################
 
 main.o: main.cpp fileexp.h auto_dir.h sedit.h charconv.h set_base.h \
-  setid3.h setfname.h setecho.h setid3v2.h
+  setid3.h setfname.h setecho.h setid3v2.h verbose.cpp
 mainl.o: main.cpp fileexp.h auto_dir.h sedit.h charconv.h set_base.h \
   setid3.h setfname.h setecho.h
 sedit.o: sedit.cpp sedit.h charconv.h

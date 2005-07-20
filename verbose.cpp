@@ -28,7 +28,7 @@ struct verbose_t {
     }
 
     void reportd(const char* s)     // reporting a dir
-    {                               // always call reportd before reportf
+    {
         dir = s;
     }
 
@@ -36,8 +36,9 @@ struct verbose_t {
     {
         if(show) {
             ++numfiles;
-            if(s-dir) fprintf(stderr, "%.*s\n", s-dir, dir);
-            if(*s)    fprintf(stderr, "\t%s\n", s);
+            if(dir && s-dir) fprintf(stderr, "%.*s\n", s-dir, dir);
+            if(*s)           fprintf(stderr, "\t%s\n", s);
+            dir = 0;
         }
     }
 
