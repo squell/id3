@@ -1,5 +1,5 @@
 ---------------------------------------------------------------
-| id3 mass tagger v0.75
+| id3 mass tagger v0.76
 -------------------------------------------------------------
 
 the contents of the DOS/Win32 binary distribution:
@@ -11,7 +11,7 @@ the contents of the DOS/Win32 binary distribution:
  readme         - program documentation
  changes        - changelog
 
- id3.exe        - program file - `%' as escape char
+ id3.exe        - program file
 
 ---------------------------------------------------------------
 | (c) squell 2003-2005 - copyright notice

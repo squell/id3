@@ -1,5 +1,5 @@
 ---------------------------------------------------------------
-| id3 mass tagger v0.75
+| id3 mass tagger v0.76
 -------------------------------------------------------------
 
 the contents of the source distribution:
@@ -52,15 +52,15 @@ which should be included in this source distribution.
 | building it on your system
 -------------------------------------------------------------
 
-Successfully compiled with:
+Successfully compiled with (non-exhaustive list):
 
- - GCC 3.x          (GNU/Linux, FreeBSD, Solaris, DJGPP, MinGW)
- - GCC 2.95.x       (GNU/Linux, FreeBSD, DJGPP, MinGW)
+ - GCC 3.x, 4.0     (GNU/Linux, FreeBSD, Solaris, DJGPP, MinGW32)
+ - GCC 2.95.x       (GNU/Linux, FreeBSD, DJGPP, MinGW32)
  - Intel C++ 7.1    (GNU/Linux)
  - Borland C++ 5.5  (Win32)
  - Compaq C++ 6.5   (Alpha)
 
-This program is mostly written in 100% portable ISO C/C++, so basically all
+This program is mostly written in 100% portable ISO C/C++ so basically all
 you need is a modern, standards-compliant C/C++ compiler.
 
 I recommend using DJGPP to build a 32bit DPMI program if you're using a
@@ -75,7 +75,7 @@ Pick the makefile you need and rename it to 'makefile' or use 'make -f':
 
   'makefile'  is meant for generic GNU/BSD systems. You will have to edit it
   if you want to/need to use different settings. (You can also use this
-  file for building with MinGW)
+  file for building with mingw32-make)
 
   'makefile.dj'  is for DOS systems using DJGPP v2
 
@@ -99,6 +99,7 @@ Generic GNU/BSD makefile targets & variables:
  make install-strip - like install, but strips executable of debug info
  make install-full  - also installs the documentation in $(datadir)/doc
  make uninstall     - uninstall (does not remove documentation)
+ make help          - lists all makefile targets and variables
 
 Because id3 does not have a configure script (yet), you can set
 these variables only on the 'make' commandline:
@@ -109,8 +110,8 @@ these variables only on the 'make' commandline:
  datadir            - dir for shared files       (def. "$(prefix)/share")
  binary             - the binary to install      (def. "id3")
 
-E.g: "make install prefix=$HOME" to install in $HOME/bin instead.
-See inside 'makefile' for more details (and more variables).
+E.g: "make install prefix=$HOME" to install in $HOME/bin instead. See inside
+'makefile' or try `make help' for more details (and more variables).
 
 ===
 Customizing
