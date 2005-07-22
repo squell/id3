@@ -26,8 +26,8 @@ namespace {
         const char* end;
         bool        e;
 
-        wide_input(const char* ptr, size_t cnt)
-        : len(cnt), end(ptr+cnt), e(false)
+        wide_input(const string& s)
+        : len(s.size()), end(s.data()+cnt), e(false)
         { mbtowc(0, 0, 0); }                 // clear internal state
 
         bool operator>>(wchar_t& wc)
@@ -52,7 +52,7 @@ namespace {
         string str;
 
         wide_output()
-        { wctomb(0,0); }
+        { str.reserve(256); wctomb(0,0); }
 
         void operator<<(wchar_t wc)
         {
@@ -65,7 +65,7 @@ namespace {
 
     string make_latin(const string& str)
     {
-        wide_input widestr(str.c_str(), str.length());
+        wide_input widestr(str);
         wchar_t    wc;
         string     out;
 
@@ -101,7 +101,7 @@ const char* cvtstring::system_charset()
     return instance.loc;
 }
 
-#ifdef __STDC_ISO_10646__
+#if defined( __STDC_ISO_10646__ )
 
 cvtstring::initialize::initialize() : loc(setlocale(LC_CTYPE, ""))
 {
@@ -109,8 +109,8 @@ cvtstring::initialize::initialize() : loc(setlocale(LC_CTYPE, ""))
         conv_to_internal = make_latin;
         conv_to_locale   = make_system;
     } else {
-        conv_to_internal = fallback;
-        conv_to_locale   = fallback;
+        conv_to_internal = fallback;            // assume latin1 if POSIX
+        conv_to_locale   = fallback;            // (so don't support EBCDIC;)
     }
 }
 
@@ -120,4 +120,59 @@ cvtstring::initialize::initialize() : loc("C")
 { }
 
 #endif
+
+ /*
+   Notes:
+
+   __STDC_ISO_10646__ is a C99 constant. If defined, wchar_t is
+   guaranteed to be a coded representation of the Unicode set in all
+   locales. This is bliss. glibc2.2 defines it, so this covers Linux.
+
+
+   On Windows, you need to fight the jargon first;
+
+   "Unicode" = UCS2 16bit chars
+   "ANSI"    = "Windows codepage" (such as CP1252)
+   "OEM"     = "DOS codepage"     (such as CP437, CP850, CP858)
+
+   In true Microsoft fashion, ANSI and OEM are two different beasts, and so
+   there are always *two* codepages active! You CAN use ANSI codepages on the
+   Win32 commandline in NT/2K/XP, and also UTF8 ("codepage 65001"), but these
+   will only display properly with a TrueType font.
+
+   Commandlines are apparently converted to "ANSI" codepage before being
+   passed. If you want the "Unicode" version, there's GetCommandLineW in
+   windows.h.
+
+   So; arguments a program get will be in "correct" ANSI codepage, but I/O
+   (e.g., pipes, console output) will not be. Console output should be in OEM
+   but file output should (probably) be in ANSI. File routines can be either
+   OEM or ANSI style.
+
+   Windows also has two locales for converting multibyte chars. The ISO C mb
+   functions from stdlib.h and wchar.h listens to setlocale(), but most MS
+   runtime functions listen to _setmbcp.
+
+   Second, setlocale(LC_CTYPE, "") might get the active ANSI or OEM codepage!
+   MinGW does the former, Borland C++ the latter.
+
+   So the problem is not converting to Unicode - mbtowc does this! - but to
+   actually select the proper locale.
+
+   Related routines, without stupid MS typedefs;
+    wchar_t* GetCommandLineW(void)
+    char*    GetCommandLineA(void)
+    bool     AreFileApisANSI(void)
+    void     SetFileApisToOEM(void)
+    void     SetFileApisToANSI(void)
+    unsigned GetACP(void)
+    unsigned GetOEMACP(void)
+    unsigned GetConsoleOutputCP(void)  // why two ?
+    unsigned GetConsoleCP(void)
+    unsigned SetConsoleOutputCP(void)  // NT only! since 9x has no console
+    unsigned SetConsoleCP(void)        // NT only! since 9x has no console
+
+   I have had to read MSDN to get this info. I am utterly disgusted.
+
+  */
 
