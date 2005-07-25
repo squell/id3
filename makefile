@@ -84,7 +84,7 @@ install: $(binary) installdirs installman
 install-strip: $(binary) installdirs installman
 	$(INSTALL_STRIP) $(binary) $(bindir)/id3
 
-install-full: installdoc install-strip
+install-full: install-strip installdoc
 
 uninstall:
 	-rm -f $(man1dir)/id3.$(manext)
