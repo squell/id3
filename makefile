@@ -6,7 +6,7 @@ CC	 = gcc
 CXX	 = g++
 CFLAGS	 = -g -O2
 CXXFLAGS = $(CFLAGS) -fno-rtti
-LDFLAGS  =
+LDFLAGS  = $(CXXFLAGS)
 
 STRIP	 = strip
 TAR	 = tar
