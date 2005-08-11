@@ -78,8 +78,10 @@ static uchar *unsync_enc(uchar *buf, ulong size)
     dst = src = buf;                          /* in-place en-unsync'ing */
     while(size--);
 
-     /* to be 'ritten ;) */
+     /* to be 'ritten ;)
+       Does ANY implementation in fact write unsync'd tags? */
 
+    return 0;
 }
 
 /* ==================================================== */
@@ -219,8 +221,8 @@ int ID3_writef(const char *fname, void *src, size_t reqsize)
     if( memcmp(rh.ID, "ID3", 3) == 0 ) {             /* allready tagged? */
         long orig;
 
-        if( rh.ver != 3 )
-            goto abort;                          /* only handles ID3v2.3 */
+        if( rh.ver < 2 || rh.ver > 3 )
+            goto abort;                       /* handles ID3v2.2 and 2.3 */
 
         orig = getsize(&rh);
 
