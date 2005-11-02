@@ -218,7 +218,13 @@ abort:
     return 0;
 }
 
-int (*ID3_wfail)(const char *srcname, const char *dstname) = cpfile;
+static void _wfail(const char *srcname, const char *dstname)
+{
+    fprintf(stderr, "%s -> %s: %s\n", srcname, dstname, strerror(errno));
+    exit(255);                                              /* sayonara! */
+}
+
+void (*ID3_wfail)(const char *srcname, const char *dstname) = _wfail;
 
 int ID3_writef(const char *fname, void *buf, size_t reqsize)
 {
@@ -287,19 +293,16 @@ int ID3_writef(const char *fname, void *buf, size_t reqsize)
         fclose(f);
         fclose(nf);
 
-        if(ok && remove(fname) == 0) {
-            if( rename(tmp, fname) != 0 && !ID3_wfail(tmp, fname) ) {
-                fprintf(stderr, "%s -> %s: %s\n", tmp, fname, strerror(errno));
-                exit(255);                                  /* sayonara! */
-            }
+        if(ok) {
+            ok = mvfile(tmp, fname);
+            if(!ok)
+                ID3_wfail(tmp, fname);                 /* grievous error */
         } else {
             remove(tmp);                                      /* failure */
-            free(tmp);
-            return 0;
         }
         free(tmp);
+        return ok;
     }
-    return 1;
 
 abort:                                  /* close file and return failure */
     fclose(f);

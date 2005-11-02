@@ -2,8 +2,10 @@
 #include <stdio.h>
 #include <string.h>
 #include "fileops.h"
-#if !defined(__WIN32__)
-#    include <unistd.h>
+#include <sys/stat.h>
+#if !defined(S_IFLNK)
+#    define  lstat   (stat)
+#    define  S_IFLNK (~S_IFMT)
 #endif
 
 /*
@@ -101,5 +103,25 @@ int cpfile(const char *srcnam, const char *dstnam)
         fclose(src);
     }
     return result;
+}
+
+int mvfile(const char *srcnam, const char *dstnam)
+{
+    struct stat fs;
+    int file = 0, slow = 0;
+
+    if(lstat(dstnam, &fs) == 0) {
+        file = (fs.st_mode&S_IFMT) != S_IFLNK;
+        slow = fs.st_nlink > 1 || !file;                   /* honour links */
+        slow = slow || remove(dstnam) != 0;
+    }
+    if(slow || rename(srcnam, dstnam) != 0) {
+        if(!cpfile(srcnam, dstnam))
+            return 0;        /* could not rename, could not copy - give up */
+        (void) remove(srcnam);                        /* dont check result */
+    }
+    if(file)
+         (void) chmod(dstnam, fs.st_mode);
+    return 1;                               /* successful rename (or copy) */
 }
 

@@ -40,11 +40,10 @@
   must be 2 or 3 (for ID3v2.2 or ID3v2.3). A mixed version tag will not be
   written by ID3_writef. returns dest to indicate error.
 
-      int (*ID3_wfail)(const char *dest, const char *src)
+      void (*ID3_wfail)(const char *dest, const char *src)
 
-  this function pointer gets called if the rename() in ID3_writef fails.
-  by default, this points to cpfile(). If this function returns 0, ID3_writef
-  will abort the program with an error.
+  this function pointer gets called if the mvfile() in ID3_writef fails.
+  by default, this points to an abort.
 
   Example (reading a tag):
 
@@ -111,7 +110,7 @@ extern int     ID3_frame(ID3FRAME f);
 
 extern void   *ID3_put(void *dest, ID3VER version, const char ID[4], const void *src, size_t len);
 
-extern int   (*ID3_wfail)(const char *srcname, const char *dstname);
+extern void  (*ID3_wfail)(const char *srcname, const char *dstname);
 
 #ifdef __cplusplus
 }

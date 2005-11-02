@@ -16,6 +16,10 @@
 
   copies src to dest, using fcopy.
 
+      int mvfile(const char *srcnam, const char *dstnam)
+
+  moves src to dest, using rename or cpfile
+
       int fcopy(FILE *dest, FILE *src)
 
   copies (remainder of) file src to dest (both must be opened/usable)
@@ -48,6 +52,7 @@ extern FILE  *ftemp(char *templ, const char *mode);
 extern FILE  *opentemp(const char *hint, char **name);
 
 extern int    cpfile(const char *srcnam, const char *dstnam);
+extern int    mvfile(const char *srcnam, const char *dstnam);
 
 #ifdef __cplusplus
 }

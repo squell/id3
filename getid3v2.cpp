@@ -1,5 +1,4 @@
 #include <vector>
-#include <limits>
 #include <cstdio>
 #include "getid3v2.h"
 #include "id3v2.h"
@@ -63,8 +62,9 @@ ID3v2::array ID3v2::listing() const
 
     array vec;
     if(tag) {
-        ID3VER v = ID3_start(f, tag);
-        vec.push_back( array::value_type("ID3v2", string(1,v+'0') ) );
+        ID3VER version = ID3_start(f, tag);
+        char   vstr[2] = { version+'0' };
+        vec.push_back( array::value_type("ID3v2", vstr) );
         while(ID3_frame(f)) {
             vec.push_back( array::value_type(f->ID, unbinarize(f)) );
         }
@@ -91,16 +91,16 @@ static bool getframe(void* tag, ID3FRAME f, int n, const char* field)
 
 static cvtstring unbinarize(ID3FRAME f)
 {
-    const char   nul[2] = { };
+    const char   nul[2] = { 0 };
     const string field  = f->ID;
     const char*  p      = f->data + 1;
 
     if(ID3v2::is_counter(field)) {
-        char buf[numeric_limits<unsigned long>::digits10 + 3];
+        char buf[12];                          // enough for 32bits
         unsigned long t = 0;
         for(size_t n = 0; n < f->size; ++n)
             t = t << 8 | (f->data[n] & 0xFF);
-        sprintf(buf, "%lu", t);
+        sprintf(buf, "%lu", t & 0xFFFFFFFFul);
         return cvtstring::latin1(buf);
     }
 

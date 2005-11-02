@@ -3,6 +3,9 @@ Changelog for 'id3'.
 2005-305 (W44):
   setid3v2.cpp: rewrote binarize (using shared categorisations)
   getid3v2.cpp: rewrote unbinarize, and reading ID3v2.2
+  sedit.cpp: underscores prevented capitalization
+  fileops.c: added mvfile(), which honours hard and sym links
+  id3v2.c: replaced lightning-stricken part with calls to mvfile()
 
 2005-299 (W43):
   id3v2.c: added transparant support for id3v2.2 tags (iTunes default)

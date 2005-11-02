@@ -199,12 +199,12 @@ cvtstring string_parm::edit(const cvtstring& fmt, const subst& var, const char* 
                     svar = edit(alt, var);
                     err = raw = true;
                 }
-                string tmp = stylize((svar.*conv)(), caps);
+                string tmp = (svar.*conv)();
                 if(!raw) {                                     // remove gunk
                     replace_if(tmp.begin(), tmp.end(), filtered_char(), ' ');
                     compress(tmp);
                 }
-                s.replace(pos, n, padnumeric(tmp, npad));
+                s.replace(pos, n, padnumeric(stylize(tmp, caps), npad));
                 pos += tmp.length();
             }
 

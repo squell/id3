@@ -74,10 +74,10 @@ namespace {
 
  // convert C handler to a C++ exception at program startup
 
-    extern "C" int copy_on_fail(const char*, const char*);
+    extern "C" void copy_failure(const char*, const char*);
 
     struct guard {
-        guard()            { ID3_wfail = copy_on_fail; }
+        guard()            { ID3_wfail = copy_failure; }
         static string err;
         static void raise();
     } static fail_inst;
@@ -92,13 +92,10 @@ namespace {
             throw set_tag::failure(emsg);
     }
 
-    extern "C" int copy_on_fail(const char* oldn, const char* newn)
+    extern "C" void copy_failure(const char* oldn, const char* newn)
     {
-        if(! cpfile(oldn, newn) ) {
-            string emsg(" lost, new contents still in ");
-            guard::err = newn + emsg + oldn;
-        }
-        return 1;
+        string emsg(" lost, new contents still in ");
+        guard::err = newn + emsg + oldn;
     }
 
 }
@@ -127,7 +124,7 @@ static string binarize(const string field, cvtstring content)
         data.push_back(t       & 0xFF);
         return data;
     }
-    const char nul[2] = { };
+    const char nul[2] = { 0 };
     data = char(0);                    // unicode to be implemented
     if(ID3v2::has_lang(field))
         data.append("xxx");

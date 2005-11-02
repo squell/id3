@@ -52,9 +52,10 @@ namespace set_tag {
 
             static bool is_valid(const std::string field)
             {
-                 std::string::size_type n;
+                 using namespace std;
+                 string::size_type n;
                  for(n = 0; n < field.length(); ++n) {
-                     if(!std::isupper(field[n]) && !std::isdigit(field[n]))
+                     if(!isupper(field[n]) && !isdigit(field[n]))
                          return false;
                  }
                  return n == 3 || n == 4;
