@@ -128,8 +128,8 @@ static long getsize(struct raw_hdr *h)
 static long calcsize(uchar *buf, long max)
 {
     union raw_frm *frame;
-    ulong size = 0;
-    ulong step;
+    long size = 0;
+    long step;
     int version = buf[-1];
 
     while(size < max && *buf) {            /* terminates if used properly */
