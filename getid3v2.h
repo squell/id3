@@ -15,6 +15,7 @@
 #define __ZF_GETID3V2
 
 #include <string>
+#include <cctype>
 #include "set_base.h"
 #include "charconv.h"
 
@@ -28,6 +29,36 @@ namespace set_tag {
            ~ID3v2();
             cvtstring operator[](ID3field field) const;
             array listing() const;
+
+            static bool has_lang(const std::string field)  // implies has_enc
+            { return field == "COMM" || field == "COM" ||
+                     field == "USLT" || field == "ULT" ||
+                     field == "USER"; }
+
+            static bool has_desc(const std::string field)  // implies has_enc
+            { return field == "TXXX" || field == "TXX" ||
+                     field == "WXXX" || field == "WXX" ||
+                     field == "COMM" || field == "COM" ||
+                     field == "USLT" || field == "ULT"; }
+
+            static bool is_counter(const std::string field)
+            { return field == "PCNT" || field == "CNT"; }
+
+            static bool is_url(const std::string field)
+            { return field[0] == 'W'; }
+
+            static bool is_text(const std::string field)
+            { return field[0] == 'T' || field == "IPLS" || field == "IPL"; }
+
+            static bool is_valid(const std::string field)
+            {
+                 std::string::size_type n;
+                 for(n = 0; n < field.length(); ++n) {
+                     if(!std::isupper(field[n]) && !std::isdigit(field[n]))
+                         return false;
+                 }
+                 return n == 3 || n == 4;
+            }
         };
 
     }

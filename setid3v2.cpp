@@ -33,15 +33,17 @@ namespace {
     class writer {
         size_t avail;
         char *base, *dest;
+        ID3VER version;
 
     public:
-        explicit writer(size_t len)
+        void init(ID3VER v, size_t len)
                          { base = (char*) malloc(avail=len);
                            if(!base) throw bad_alloc();
-                           dest = (char*) ID3_put(base,0,0,0); }
+                           dest = (char*) ID3_put(base,version=v,0,0,0); }
 
         operator char*() { return base; }
 
+        writer()         { }
        ~writer()         { free(base); }
 
         void put(const char* ID, const void* src, size_t len);
@@ -65,7 +67,7 @@ namespace {
         }
 
         avail -= (len+10);
-        dest = (char*) ID3_put(dest, ID, src, len);
+        dest = (char*) ID3_put(dest, version, ID, src, len);
     }
 
 /* ===================================== */
@@ -103,49 +105,60 @@ namespace {
 
 /* ===================================== */
 
- // checks if a given field is valid
+ // code for constructing ID3v2 frames. rather hairy, but hey, ID3v2 sucks
 
-static string binarize(string field, const cvtstring& src)
+static string binarize(const string field, cvtstring content)
 {
-    string s = src.latin1();
+    if(field == "TCON" || field == "TCO") {                // genre by number
+        unsigned int x = atoi(content.latin1().c_str())-1; // is portable
+        if(x < ID3v1_numgenres) content = ID3v1_genre[x];
+    }
 
-    if(field == "TCON") {                             // genre by number
-        unsigned int x = atoi(s.c_str())-1;           // is portable
-        if(x < ID3v1_numgenres) s = ID3v1_genre[x];
+    using set_tag::read::ID3v2;
+
+    string data;
+    if(!ID3v2::is_valid(field))
+        return data;
+    if(ID3v2::is_counter(field)) {
+        unsigned long t = strtol(content.latin1().c_str(), 0, 0);
+        data.push_back(t >> 24 & 0xFF);
+        data.push_back(t >> 16 & 0xFF);
+        data.push_back(t >>  8 & 0xFF);
+        data.push_back(t       & 0xFF);
+        return data;
     }
-    if(field[0] == 'T' || field == "IPLS" || field == "WXXX") {
- /*     bool t = field.compare(1,3,"XXX") == 0;  gcc 2.95 doesnt */
-        bool t = (field[1]=='X' & field[2]=='X' & field[3]=='X');
-        s.insert(string::size_type(0), 1+t, '\0');
-    } else if(field[0] == 'W') {
-        //
-    } else if(field == "COMM" || field == "USLT" || field == "USER") {
-        s.insert(string::size_type(0), "\0xxx\0", 4 + (field[3]!='R'));
-    } else if(field == "PCNT") {
-        unsigned long t = strtol(s.c_str(), 0, 0);
-        s.erase();
-        s.push_back(t >> 24 & 0xFF);
-        s.push_back(t >> 16 & 0xFF);
-        s.push_back(t >>  8 & 0xFF);
-        s.push_back(t       & 0xFF);
+    const char nul[2] = { };
+    data = char(0);                    // unicode to be implemented
+    if(ID3v2::has_lang(field))
+        data.append("xxx");
+    if(ID3v2::has_desc(field))
+        data.append(""), data.append(nul, 1);
+
+    if(data.length() > 1 || ID3v2::is_text(field)) {
+        return data + content.latin1();
+    } else if(ID3v2::is_url(field)) {
+        return content.latin1();
     } else {
-        s.erase();
+        return string();
     }
-    return s;
 }
 
 /* ===================================== */
 
 typedef map<string,string> db;
 
-const static char xlat[][5] = {                     // ID3field order!
-    "TIT2", "TPE1", "TALB", "TYER", "COMM", "TRCK", "TCON"
-};
-
-ID3v2& ID3v2::set(ID3field i, std::string m)
+ID3v2& ID3v2::set(ID3field i, string m)
 {
-    if(i < FIELDS)
-        set(xlat[i], m);
+    const static char xlat2[][4] = {                     // ID3field order!
+        "TT2", "TP1", "TAL", "TYE", "COM", "TRK", "TCO"
+    };
+    const static char xlat3[][5] = {
+        "TIT2", "TPE1", "TALB", "TYER", "COMM", "TRCK", "TCON"
+    };
+    if(i < FIELDS) {
+        set(xlat2[i], m);      // let error handling decide between them.
+        set(xlat3[i], m);
+    }
     return *this;
 }
 
@@ -161,13 +174,8 @@ ID3v2& ID3v2::clear()
     return *this;
 }
 
-bool ID3v2::set(std::string field, std::string s)
+bool ID3v2::set(string field, string s)
 {
-    if(field.length() != 4)
-        return false;
-    for(int n = 0; n < 4; ++n)
-        if(!isalnum(field[n] = toupper(field[n])))
-            return false;
     if( binarize(field, "0").length() != 0 ) {      // test a dummy string
         mod[field] = s;                             // was: mod.insert
         return true;
@@ -202,12 +210,12 @@ bool ID3v2::vmodify(const char* fn, const subst& v) const
        ~wrapper()        { ID3_free(data); }
     };
     wrapper src = { fresh? (void*)0 : buf };
-    writer  tag   ( 0x1000 );
+    writer  tag;
     db      table ( mod );
 
     if( src ) {                                     // update existing tags
         ID3FRAME f;
-        ID3_start(f, src);
+        tag.init(ID3_start(f, src), (check+0xFFF)&~0xFFF);
 
         while(ID3_frame(f)) {
             db::iterator p = table.find(f->ID);
@@ -222,6 +230,8 @@ bool ID3v2::vmodify(const char* fn, const subst& v) const
                 }
             }
         }
+    } else {
+        tag.init(ID3_v2_3, 0x1000);                 // ID3v2.3 per default
     }
 
     for(db::iterator p = table.begin(); p != table.end(); ++p) {

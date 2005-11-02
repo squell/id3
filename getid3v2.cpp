@@ -1,4 +1,5 @@
 #include <vector>
+#include <limits>
 #include <cstdio>
 #include "getid3v2.h"
 #include "id3v2.h"
@@ -15,8 +16,8 @@ using namespace std;
 using set_tag::read::ID3v2;
 using set_tag::ID3field;
 
-static bool getframe(void*, ID3FRAME, const char*);
-static cvtstring unbinarize(ID3FRAME);
+static bool getframe(void*, ID3FRAME, int n, const char*);
+static cvtstring unbinarize(ID3FRAME); 
 
 ID3v2::ID3v2(const char* fn) : tag(ID3_readf(fn,0))
 {
@@ -29,32 +30,28 @@ ID3v2::~ID3v2()
 
 cvtstring ID3v2::operator[](ID3field field) const
 {
+    const char* const fieldtag[FIELDS][2] = {          // ID3field order!
+        { "TT2"  "TT3"  "TOF",
+          "TIT2" "TIT3" "TOFN" "TRSN" },
+        { "TP1"  "TCM"  "TP2"  "TP3"  "TP4"  "TXT"  "TOA"  "TOL"  "TPB",
+          "TPE1" "TCOM" "TPE2" "TPE3" "TPE4" "TEXT" "TOPE" "TOLY" "TPUB" "TRSO" },
+        { "TAL"  "TOT",
+          "TALB" "TOAL" },
+        { "TYE"  "TOR",
+          "TYER" "TORY" },
+        { "COM"  "TCR",
+          "COMM" "TCOP" "USER" },
+        { "TRK"  "TPA",
+          "TRCK" "TPOS" },
+        { "TCO"  "TT1",
+          "TCON" "TIT1" }
+    };
+
     ID3FRAME f;
+    bool v  = ID3_start(f, tag) > 2;
     bool ok = false;
-    if(tag)
-        switch( field ) {
-        case title:
-            ok = getframe(tag, f, "TIT2" "TIT3" "TOFN" "TRSN");
-            break;
-        case artist:
-            ok = getframe(tag, f, "TPE1" "TPE2" "TPE3" "TPE4" "TCOM"
-                                  "TEXT" "TOPE" "TOLY" "TPUB" "TRSO");
-            break;
-        case album:
-            ok = getframe(tag, f, "TALB" "TPOS" "TOAL");
-            break;
-        case year:
-            ok = getframe(tag, f, "TYER" "TORY" "TRDA" "TDAT");
-            break;
-        case cmnt:
-            ok = getframe(tag, f, "COMM" "WPUB" "TCOP" "WCOP");
-            break;
-        case track:
-            ok = getframe(tag, f, "TRCK" "TIME");
-            break;
-        case genre:
-            ok = getframe(tag, f, "TCON" "TIT1");
-        }
+    if(tag && field < FIELDS)
+        ok = getframe(tag, f, 3+v, fieldtag[field][v]);
     return ok? unbinarize(f) : cvtstring();
 }
 
@@ -63,24 +60,26 @@ cvtstring ID3v2::operator[](ID3field field) const
 ID3v2::array ID3v2::listing() const
 {
     ID3FRAME f;
-    ID3_start(f, tag);
 
     array vec;
-    vec.push_back( array::value_type("ID3v2", "2.3") );
-    while(ID3_frame(f)) {
-        vec.push_back( array::value_type(f->ID, unbinarize(f)) );
+    if(tag) {
+        ID3VER v = ID3_start(f, tag);
+        vec.push_back( array::value_type("ID3v2", string(1,v+'0') ) );
+        while(ID3_frame(f)) {
+            vec.push_back( array::value_type(f->ID, unbinarize(f)) );
+        }
     }
     return vec;
 }
 
 /* ====================================================== */
 
-static bool getframe(void* tag, ID3FRAME f, const char* field)
+static bool getframe(void* tag, ID3FRAME f, int n, const char* field)
 {
-    for( ; *field != '\0'; field+=4) {
+    for( ; *field != '\0'; field+=n) {
         ID3_start(f, tag);
         while(ID3_frame(f))
-            if(strncmp(field, f->ID, 4) == 0) {
+            if(strncmp(field, f->ID, n) == 0) {
                 if(f->ID[0] == 'T') {
                     if(f->size > 1) return 1;
                 } else
@@ -90,54 +89,55 @@ static bool getframe(void* tag, ID3FRAME f, const char* field)
     return 0;
 }
 
- // sigh.
-
 static cvtstring unbinarize(ID3FRAME f)
 {
-    const char sep[] = ": ";
-    if(f->ID[0] == 'T' && f->ID[3] != 'X' || strcmp(f->ID, "IPLS") == 0 || strcmp(f->ID, "USER") == 0) {
-        int skip((f->ID[0]=='U')? 4 : 1);
-        string s(f->data+skip, f->size-skip);
-        switch(f->data[0]) {
-        case 0:  return cvtstring::latin1(s);
-        default: return cvtstring::latin1("?");
-        }
-    } else if(f->ID[0] == 'W' && f->ID[3] != 'X') {
-        string s(f->data+1, f->size-1);
-        return cvtstring::latin1(s);
-    } else if(strcmp(f->ID, "COMM") == 0 || strcmp(f->ID, "USLT") == 0 ||
-              strcmp(f->ID, "TXXX") == 0 || strcmp(f->ID, "WXXX") == 0) {
-        int skip((f->ID[3]=='X')? 1 : 4);
-        string s(f->data+skip, f->size-skip);                    // *note
-        int    i;
-        switch(f->data[0]) {
-        case 0 :            //    s = cvtstring::latin1(s).latin(); no-op
-            break;
-        default:
-            return cvtstring::latin1("?");
-        }
-        s.erase(i = s.find('\0'), 1);
-        if(i > 0) s.insert(i, sep);
-        return cvtstring::latin1(s);
-    } else if(strcmp(f->ID, "PCNT") == 0) {
+    const char   nul[2] = { };
+    const string field  = f->ID;
+    const char*  p      = f->data + 1;
+
+    if(ID3v2::is_counter(field)) {
+        char buf[numeric_limits<unsigned long>::digits10 + 3];
         unsigned long t = 0;
-        char buf[12];                    // long enough to hold a 32bit digit
-        t = (f->data[0] & 0xFF) << 24 | (f->data[1] & 0xFF) << 16 |
-            (f->data[2] & 0xFF) <<  8 | (f->data[3] & 0xFF);
+        for(size_t n = 0; n < f->size; ++n)
+            t = t << 8 | (f->data[n] & 0xFF);
         sprintf(buf, "%lu", t);
         return cvtstring::latin1(buf);
     }
-    return cvtstring::latin1("<unsupported>");
+
+    if(ID3v2::has_lang(field))
+        p += 3;                                // skip-ignore language field
+    if(ID3v2::has_desc(field)) {
+        const int   skip = !!*f->data;
+        const char* lim  = f->data + f->size - skip;  // safety
+        const char* q;
+        for(q = p; q < lim && (*q || q[-skip]); )
+            ++(q += skip);                     // find null (grmbl)
+        if(q++ == lim)
+            return cvtstring();                // error
+        p = q;
+    }
+
+    size_t hdrsiz = p - f->data;
+    if(hdrsiz > 1 || ID3v2::is_text(field)) {
+        switch(*f->data) {
+        case  0:
+            return cvtstring::latin1(string(p, f->size-hdrsiz));
+        default:
+            return cvtstring::latin1("<unsupported encoding>");
+        };
+    } else if(ID3v2::is_url(field)) {
+        return cvtstring::latin1(string(f->data, f->size));
+    } else {
+        return cvtstring();
+    }
 }
 
 /*
 
- note:
+ Personal note.
 
- One of many things wrong with ID3v2, a WXXX frame is composed out of a
- zero-terminated description (encoding dependant), which is followed by a
- string (always ISO-8859-1). We can't simply ignore this aberrant frame
- because e.g. WinAmp uses it as its general URL field.
+ I admire M. Nilsson for being brave enough to put his name above documents
+ such as the various ID3v2 standards.
 
 */
 

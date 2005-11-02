@@ -1,5 +1,12 @@
 Changelog for 'id3'.
 
+2005-305 (W44):
+  setid3v2.cpp: rewrote binarize (using shared categorisations)
+  getid3v2.cpp: rewrote unbinarize, and reading ID3v2.2
+
+2005-299 (W43):
+  id3v2.c: added transparant support for id3v2.2 tags (iTunes default)
+
 2005-198 (W28):                                ---------[v0.76]-----------
   id3v2.c:177: [bug] fixed another class of id3v2 rejections (sigh)
 

@@ -45,14 +45,21 @@ struct raw_hdr {
     uchar size [4];
 };
 
-struct raw_frm {
-    uchar ID   [4];
-    uchar size [4];
-    uchar flags[2];
+union raw_frm {
+    uchar ID[4];
+    struct raw_frm_2 {
+        uchar ID   [3];
+        uchar size [3];
+    } v2;
+    struct raw_frm_3 {
+        uchar ID   [4];
+        uchar size [4];
+        uchar flags[2];
+    } v3;
 };
 
 typedef int raw_hdr_size_check [sizeof(struct raw_hdr)==10 ? 1 : -1];
-typedef int raw_frm_size_check [sizeof(struct raw_frm)==10 ? 1 : -1];
+typedef int raw_frm_size_check [sizeof(union  raw_frm)==10 ? 1 : -1];
 
 /* ==================================================== */
 
@@ -120,25 +127,31 @@ static long getsize(struct raw_hdr *h)
 
 static long calcsize(uchar *buf, long max)
 {
-    struct raw_frm *frame;
+    union raw_frm *frame;
     ulong size = 0;
     ulong step;
+    int version = buf[-1];
 
     while(size < max && *buf) {            /* terminates if used properly */
-        frame = (struct raw_frm*)buf;
-        step  = sizeof(*frame) + ul4(frame->size);
+        frame = (union raw_frm*)buf;
+        switch(version) {
+            case  2: step = sizeof(frame->v2) + (ul4(frame->v2.size) >> 8); break;
+            case  3: step = sizeof(frame->v3) + ul4(frame->v3.size);        break;
+            default: return -1;
+        }
         size += step;
         buf  += step;
     }
     return size<=max? size : -1;
 }
 
-static int checkid(const char ID[])
+static int checkid(const char *ID, size_t n)    /* check ID for A..Z0..9 */
 {
-    return (isupper(ID[0]) || isdigit(ID[0]))
-        && (isupper(ID[1]) || isdigit(ID[1]))
-        && (isupper(ID[2]) || isdigit(ID[2]))
-        && (isupper(ID[3]) || isdigit(ID[3]));
+    while(n--) {
+        if( !isupper(*ID) && !isdigit(*ID) ) return 0;
+        ++ID;
+    }
+    return 1;
 }
 
 /* ==================================================== */
@@ -147,37 +160,37 @@ void *ID3_readf(const char *fname, size_t *tagsize)
 {
     struct raw_hdr rh;
     uchar *buf;
-    long size, pad;
+    long pad, size = 0;
 
     FILE *f = fopen(fname, "rb");
 
-    if(tagsize) *tagsize = 0;                                   /* clear */
-
-    if( !f ) return 0;
+    if( !f )
+        goto abort;
 
     if( fread(&rh, sizeof(struct raw_hdr), 1, f) != 1 )
-        goto abort;                                          /* IO error */
+        goto abort_file;                                     /* IO error */
 
-    if( memcmp(rh.ID, "ID3", 3) != 0 || rh.ver != 3 )
-        goto abort;                                /* not an ID3v2.3 tag */
+    if( memcmp(rh.ID, "ID3", 3) != 0 || (rh.ver|1) != 3 )
+        goto abort_file;                          /* not an ID3v2/2.3 tag */
 
     size = getsize(&rh);
 
-    buf = malloc(size+4);                          /* over-alloc 4 chars */
+    buf = malloc(size+1+4);                      /* over-alloc 4+1 chars */
     if(!buf)                                         /* ohhhhhhh.. crap. */
-        goto abort_mem;
+        goto abort_file;
 
+    (++buf)[-1] = rh.ver;                        /* prepend version byte */
     buf[size] = 0;       /* make sure we have a pseudoframe to terminate */
 
     if( fread(buf,size,1,f) != 1 )
-        goto abort_mem;                            /* IO error part deux */
+        goto abort_mem;                        /* empty tag, or IO error */
 
-    if( rh.flags & UNSYNC )
+    if( rh.flags & UNSYNC )                                  /* UNTESTED */
         size = unsync_dec(buf, size) - buf;
 
     if( rh.flags & XTND ) {                 /* get rid of extended header */
-        ulong xsiz = ul4(buf) + 4;
-        size -= xsiz;
+        ulong xsiz = ul4(buf) + 4;      /* note: compression bit in v2.2, */
+        size -= xsiz;                                   /* but try anyway */
         memmove(&buf[0], &buf[xsiz], size);
     }
 
@@ -194,34 +207,37 @@ void *ID3_readf(const char *fname, size_t *tagsize)
     }
 
     fclose(f);
-    return buf;
+    return --buf;
 
 abort_mem:                     /* de-alloc, close file and return failure */
-    if(tagsize) *tagsize = (size_t)-1;                  /* evil ID3v2 tag */
-    free(buf);
-abort:                                   /* close file and return failure */
+    free(--buf);
+abort_file:                              /* close file and return failure */
     fclose(f);
+abort:
+    if(tagsize) *tagsize = size;
     return 0;
 }
 
 int (*ID3_wfail)(const char *srcname, const char *dstname) = cpfile;
 
-int ID3_writef(const char *fname, void *src, size_t reqsize)
+int ID3_writef(const char *fname, void *buf, size_t reqsize)
 {
-    struct raw_hdr new_h = { "ID3", 3, 0, 0, { 0, } };
+    struct raw_hdr new_h = { "ID3", 0, 0, 0, { 0, } };
     struct raw_hdr rh    = { { 0 } };                       /* duct tape */
-    long size = calcsize(src, LONG_MAX);
+    uchar* src = (uchar*)buf + 1;
+    long size  = calcsize(src, LONG_MAX);
 
     FILE *f = fopen(fname, "rb+");
 
     if(!f || size < 0) return 0;                      /* error in caller */
 
     fread(&rh, sizeof(struct raw_hdr), 1, f);
+    new_h.ver = src[-1];
 
     if( memcmp(rh.ID, "ID3", 3) == 0 ) {             /* allready tagged? */
         long orig;
 
-        if( rh.ver < 2 || rh.ver > 3 )
+        if( (rh.ver|1) != 3)
             goto abort;                       /* handles ID3v2.2 and 2.3 */
 
         orig = getsize(&rh);
@@ -297,49 +313,70 @@ void ID3_free(void *buf)
 
 /* ==================================================== */
 
-void ID3_start(ID3FRAME f, void *buf)
+static const size_t raw_frm_sizeof[2]
+  = { sizeof(struct raw_frm_2), sizeof(struct raw_frm_3) };
+
+ID3VER ID3_start(ID3FRAME f, void *buf)
 {
+    register uchar ver = *(uchar*)buf;
+    f->ID[3] = ver == 3;                 /* set to indicate tag version */
     f->ID[4] = 0;
-    f->data = buf;
-    f->size = 0;
+    f->data  = (char*)buf + 1;
+    f->size  = 0;
+
+    return (ver|1) == 3 ? ver : 0;
 }
 
 int ID3_frame(ID3FRAME f)
 {
-    struct raw_frm *frame;
+    union raw_frm *frame = (union raw_frm*)(f->data + f->size);
+    int ver = !!f->ID[3];
 
-    f->data += f->size + sizeof *frame;
-    frame = (struct raw_frm*)f->data - 1;
+    f->data += f->size + raw_frm_sizeof[ver];
 
-    f->size = ul4(frame->size);                        /* copy essentials */
-    memcpy(f->ID, frame->ID, 4);
-    f->tag_volit  = frame->flags[0] & TAP;
-    f->file_volit = frame->flags[0] & FAP;
+    memcpy(f->ID, frame->ID, 3+ver);
 
-    f->readonly   = frame->flags[0] & RO;
-    f->packed     = frame->flags[1] & PACK;
-    f->encrypted  = frame->flags[1] & ENC;
-    f->grouped    = frame->flags[1] & GRP;
+    if(ver) {                                           /* ID3v2.3 stuff */
+        f->size       = ul4(frame->v3.size);          /* copy essentials */
+        f->tag_volit  = frame->v3.flags[0] & TAP;
+        f->file_volit = frame->v3.flags[0] & FAP;
 
-    return checkid(f->ID);
+        f->readonly   = frame->v3.flags[0] & RO;
+        f->packed     = frame->v3.flags[1] & PACK;
+        f->encrypted  = frame->v3.flags[1] & ENC;
+        f->grouped    = frame->v3.flags[1] & GRP;
+    } else {
+        f->size       = ul4(frame->v2.size) >> 8;
+    }
+
+    return checkid(f->ID, 3+ver);
 }
 
 /* ==================================================== */
 
-void *ID3_put(void *dest, const char ID[4], const void *src, size_t len)
+void *ID3_put(void *dest, ID3VER version, const char ID[4], const void *src, size_t len)
 {
-    struct raw_frm *frame = (struct raw_frm*)dest;
-    char *cdest           = (char*)dest + sizeof *frame;
+    union raw_frm *frame = (union raw_frm*)dest;
+    uchar *cdest         = dest;
 
-    if(!ID || !checkid(ID))
-        return (*(char*)dest=0), dest;
+    if(!ID) {
+        (++cdest)[-1] = version;                         /* initialize */
+        cdest[0]      = 0;
+        return cdest;
+    } else if((version|1) != 3 || !checkid(ID, version+1) || ID[version+1]) {
+        return cdest;
+    }
 
-    memcpy(frame->ID, ID, 4);
-    nbo4(frame->size, len);
-    frame->flags[0] = 0;
-    frame->flags[1] = 0;
+    memcpy(frame->ID, ID, version+1);
+    if(version == 3) {                                   /* ID3v2.3 stuff */
+        nbo4(frame->v3.size, len);
+        frame->v3.flags[0] = 0;
+        frame->v3.flags[1] = 0;
+    } else {
+        nbo4(frame->v2.size, len << 8);      /* extra byte doesn't matter */
+    }
 
-    memcpy(cdest, src, len);
+    cdest = memcpy(cdest + raw_frm_sizeof[version==3], src, len);
     cdest[len] = 0;                                        /* suffixing 0 */
     return cdest + len;
 }

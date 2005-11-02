@@ -24,7 +24,7 @@
 
   frees pointer obtained by ID3_readf()
 
-      void ID3_start(ID3FRAME f, void *buf)
+      ID3VER ID3_start(ID3FRAME f, void *buf)
 
   initializes frame-iterator for stepping through tag pointed to by buf
 
@@ -32,12 +32,13 @@
 
   steps through a tag using iterator f. returns 0 if no more frames.
 
-      void *ID3_put(void *dest, const char ID[4], const void *src, size_t len)
+      void *ID3_put(void *dest, ID3VER version, const char ID[4], const void *src, size_t len)
 
-  writes a frame of type ID with contents *src (with size len) to the
-  in-memory tag location pointed to by dest. returns the next memory
-  location to write the next frame to. automatically adds zero-bytes.
-  if ID is invalid or src == NULL, performs *(char*)dest = 0
+  writes a frame of type ID with contents *src (size len) to the in-memory tag
+  location pointed to by dest. returns the next memory location to write the
+  next frame to. first call with ID null to perform initialization. version
+  must be 2 or 3 (for ID3v2.2 or ID3v2.3). A mixed version tag will not be
+  written by ID3_writef. returns dest to indicate error.
 
       int (*ID3_wfail)(const char *dest, const char *src)
 
@@ -65,7 +66,7 @@
     for( .. frames to write .. )
         out = ID3_put(out, ..id, ..&data, ..sizeof data);
 
-    ID3_writef("filename", buf);
+    ID3_writef("filename", buf, 0);
 
   Notes:
 
@@ -96,14 +97,19 @@ typedef struct _ID3FRAME {
     unsigned grouped    : 1;
 } ID3FRAME[1];
 
+typedef enum {
+    ID3_v2_2 = 2,
+    ID3_v2_3 = 3
+} ID3VER;
+
 extern void   *ID3_readf(const char *fname, size_t *tagsize);
 extern int     ID3_writef(const char *fname, void *buf, size_t reqsize);
 extern void    ID3_free(void *buf);
 
-extern void    ID3_start(ID3FRAME f, void *buf);
+extern ID3VER  ID3_start(ID3FRAME f, void *buf);
 extern int     ID3_frame(ID3FRAME f);
 
-extern void   *ID3_put(void *dest, const char ID[4], const void *src, size_t len);
+extern void   *ID3_put(void *dest, ID3VER version, const char ID[4], const void *src, size_t len);
 
 extern int   (*ID3_wfail)(const char *srcname, const char *dstname);
 
