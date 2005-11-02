@@ -6,6 +6,7 @@
 #if !defined(__WIN32__)
 #    include <unistd.h>
 #else
+#    include <io.h>
 #    define  lstat   (stat)
 #    define  S_IFLNK (~S_IFMT)
 #endif

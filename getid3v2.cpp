@@ -91,7 +91,6 @@ static bool getframe(void* tag, ID3FRAME f, int n, const char* field)
 
 static cvtstring unbinarize(ID3FRAME f)
 {
-    const char   nul[2] = { 0 };
     const string field  = f->ID;
     const char*  p      = f->data + 1;
 
