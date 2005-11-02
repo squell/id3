@@ -3,7 +3,9 @@
 #include <string.h>
 #include "fileops.h"
 #include <sys/stat.h>
-#if !defined(S_IFLNK)
+#if !defined(__WIN32__)
+#    include <unistd.h>
+#else
 #    define  lstat   (stat)
 #    define  S_IFLNK (~S_IFMT)
 #endif
