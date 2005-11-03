@@ -7,6 +7,8 @@
 #    include <unistd.h>
 #else
 #    include <io.h>
+#endif
+#if !defined(S_IFLNK)
 #    define  lstat   (stat)
 #    define  S_IFLNK (~S_IFMT)
 #endif

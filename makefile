@@ -95,7 +95,7 @@ uninstall:
 
 ## distribution ############################################################
 
-SRC_CPP     = sedit varexp fileexp charconv
+SRC_CPP     = sedit varexp fileexp charconv mass_tag pattern
 SRC_CPP    += set_base setid3 setid3v2 setfname setecho
 SRC_CPP    += getid3 getid3v2
 SRC_C	    = fileops id3v1 id3v2
@@ -103,7 +103,7 @@ DIR_DEBIAN  = control rules copyright changelog
 DIR_FREEBSD = Makefile pkg-descr
 
 DISTFILES = INSTALL $(docdata) makefile makefile.dj makefile.bcc \
-	main.cpp verbose.cpp auto_dir.h $(SRC_CPP:=.h) $(SRC_C:=.h) \
+        main.cpp auto_dir.h $(SRC_CPP:=.h) $(SRC_C:=.h) \
 	$(SRC_CPP:=.cpp) $(SRC_C:=.c) id3.man \
 	$(DIR_DEBIAN:%=debian/%) \
 	$(DIR_FREEBSD:%=FreeBSD/%)
@@ -171,7 +171,7 @@ curl-orig:
 
 ## build rules #############################################################
 
-OBJ_GEN = sedit varexp fileexp charconv
+OBJ_GEN = sedit varexp fileexp charconv mass_tag pattern
 OBJ_1	= setid3 getid3 id3v1
 OBJ_2	= setid3v2 getid3v2 id3v2 fileops
 OBJ_F	= setfname setecho
@@ -200,9 +200,9 @@ MKALLDEP += $(MKDEP) $(CFLAGS)	 $(SRC_C:=.c)
 ## dependencies -MM ########################################################
 
 main.o: main.cpp fileexp.h sedit.h charconv.h set_base.h setid3.h \
-  setfname.h setecho.h setid3v2.h verbose.cpp
+  setfname.h setecho.h setid3v2.h
 mainl.o: main.cpp fileexp.h sedit.h charconv.h set_base.h setid3.h \
-  setfname.h setecho.h verbose.cpp
+  setfname.h setecho.h
 sedit.o: sedit.cpp sedit.h charconv.h
 varexp.o: varexp.cpp varexp.h
 fileexp.o: fileexp.cpp varexp.h auto_dir.h fileexp.h
@@ -219,5 +219,7 @@ getid3v2.o: getid3v2.cpp getid3v2.h set_base.h sedit.h charconv.h id3v2.h
 fileops.o: fileops.c fileops.h
 id3v1.o: id3v1.c id3v1.h
 id3v2.o: id3v2.c fileops.h id3v2.h
+mass_tag.o: mass_tag.cpp charconv.h mass_tag.h set_base.h fileexp.h
+pattern.o: pattern.cpp
 
 ############################################################################
