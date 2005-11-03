@@ -123,33 +123,33 @@ bool ID3::vmodify(const char* fn, const subst& v) const
         else
             tag = synth_tag;                  // create new tag
 
-        if( fresh ) tag = synth_tag;
+        if( cleared ) tag = synth_tag;
 
         const string *txt;                    // reading aid
         int n = 0;                            // count number of set fields
 
-        if(txt = mod[title])
+        if(txt = update[title])
             ++n, strncpy(tag.title,  edit(*txt,v).latin1().c_str(), sizeof tag.title);
 
-        if(txt = mod[artist])
+        if(txt = update[artist])
             ++n, strncpy(tag.artist, edit(*txt,v).latin1().c_str(), sizeof tag.artist);
 
-        if(txt = mod[album])
+        if(txt = update[album])
             ++n, strncpy(tag.album,  edit(*txt,v).latin1().c_str(), sizeof tag.album);
 
-        if(txt = mod[year])
+        if(txt = update[year])
             ++n, strncpy(tag.year,   edit(*txt,v).latin1().c_str(), sizeof tag.year);
 
-        if(txt = mod[cmnt]) {
+        if(txt = update[cmnt]) {
             ++n, strncpy(tag.cmnt,   edit(*txt,v).latin1().c_str(), sizeof tag.cmnt);
             if(tag.zero != '\0')
                 tag.track = tag.zero = 0;               // ID3 v1.0 -> v1.1
         }
-        if(txt = mod[track]) {
+        if(txt = update[track]) {
             ++n, tag.track = atoi( edit(*txt,v).latin1().c_str() );
             tag.zero = '\0';
         }
-        if(txt = mod[genre]) {
+        if(txt = update[genre]) {
             string          s = capitalize(edit(*txt,v).latin1());
             unsigned int    x = atoi(s.c_str()) - 1;
             genre_map::iter g = ID3_genre.find(s);
@@ -159,7 +159,7 @@ bool ID3::vmodify(const char* fn, const subst& v) const
 
         bool err;
 
-        if( fresh && n == 0 ) {
+        if( cleared && n == 0 ) {
             err = ftrunc(f) != 0;
         } else {
             err = fwrite(&tag, 1, 128, f) != 128;

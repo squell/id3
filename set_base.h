@@ -60,6 +60,7 @@ namespace set_tag {            // borland likes this better
 class handler : protected string_parm {
 public:
     virtual bool vmodify(const char*, const subst&) const = 0;
+    struct body;
 
     template<class T, class U>
       bool modify(const char* fn, T& vars, U& table) const
@@ -120,6 +121,23 @@ public:
 private:                       // prevent copying of classes
     void operator=(const reader&);
     reader(const reader&);
+};
+
+  ///////////////////////////////////////////////////////
+  // boilerplate plumbing                              //
+  ///////////////////////////////////////////////////////
+
+struct handler::body {
+protected:
+    struct nullable : public std::pair<std::string, bool> {
+        void operator=(std::string p)       { first = p, second = true;  }
+        operator const std::string*() const { return second? &first : 0; }
+    };
+    nullable update[FIELDS];         // modification data
+    bool cleared;                    // should vmodify clear existing tag?
+
+    body() : update(), cleared() { }
+   ~body() { }
 };
 
   ///////////////////////////////////////////////////////
