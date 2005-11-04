@@ -13,6 +13,9 @@
 
   modify() parses "%x" variables using string_parm::edit
 
+  set_tag::group calls multiple tags with the same values, in the reverse
+  order of them being registered. (*)
+
   Restrictions:
 
   vmodify() should throw set_tag::failure on critical errors.
@@ -41,7 +44,7 @@ namespace set_tag {
 
     class handler;             // abstract base class / interface
 
-    class combined;
+    class group;               // group multiple writers into one
 
     class provider;            // extra interface for providing readers
     class reader;              // abc abstracting tag format
@@ -146,17 +149,17 @@ public:
   // (delegates all messages to registered handlers)   //
   ///////////////////////////////////////////////////////
 
-class combined : public handler {
+class group : public handler {
     std::vector<handler*> reg;
     mutable handler::body data;
 public:
   // registers a delegate tag
-    combined& delegate(handler& h);
+    group& delegate(handler& h);
 
   // standard state set methods (non-inline)
-    combined& clear()
+    group& clear()
     { data.cleared = true; return *this; }
-    combined& set(ID3field i, std::string m)
+    group& set(ID3field i, std::string m)
     { if(i < FIELDS) data.update[i] = m; return *this; }
 
     bool vmodify(const char*, const subst&) const;

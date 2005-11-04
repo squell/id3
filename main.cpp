@@ -200,7 +200,7 @@ struct null_op : fileexp::find {
 template<class T> struct uses { T object; };
 
 struct metadata :                    // owns the data it contains
-  set_tag::combined,
+  set_tag::group,
 #ifndef NO_V2
   uses<ID3v2>,
 #endif

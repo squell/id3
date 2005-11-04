@@ -19,7 +19,7 @@ namespace {
     typedef vector<handler*>::const_iterator reg_iter;
 }
 
-combined& combined::delegate(handler& h)
+group& group::delegate(handler& h)
 {
     for(reg_iter p = reg.begin(); p != reg.end(); ++p) {
         if(*p == &h) return *this;
@@ -28,15 +28,10 @@ combined& combined::delegate(handler& h)
     return *this;
 }
 
- /* Note that if delegates are added after a transfer, the original
-    set functions will have been lost on it. This can be remedied,
-    but it would cost more code size (and complexity), and have little
-    practical value. */
-
- /* Implementation of combined vmodify()
+ /* Implementation of group vmodify()
     - obeys the vmodify restrictions of set_base.h */
 
-bool combined::vmodify(const char* fn, const subst& val) const
+bool group::vmodify(const char* fn, const subst& val) const
 {
     for(int n = 0; n < FIELDS; ++n)
         if(const string* txt = data.update[n]) {
