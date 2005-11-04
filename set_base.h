@@ -128,16 +128,17 @@ private:                       // prevent copying of classes
   ///////////////////////////////////////////////////////
 
 struct handler::body {
-protected:
-    struct nullable : public std::pair<std::string, bool> {
-        void operator=(std::string p)       { first = p, second = true;  }
+    body() : update(), cleared() { }
+private:
+    struct null;
+    struct nullable : private std::pair<std::string, bool> {
+        void operator=(const null*)         { first.erase(), second = 0; }
+        void operator=(std::string p)       { first.swap(p), second = 1; }
         operator const std::string*() const { return second? &first : 0; }
     };
+public:
     nullable update[FIELDS];         // modification data
     bool cleared;                    // should vmodify clear existing tag?
-
-    body() : update(), cleared() { }
-   ~body() { }
 };
 
   ///////////////////////////////////////////////////////
@@ -146,23 +147,23 @@ protected:
   ///////////////////////////////////////////////////////
 
 class combined : public handler {
-    struct internal;
-    internal* impl;
+    std::vector<handler*> reg;
+    mutable handler::body data;
 public:
-    combined();
-   ~combined();
-
   // registers a delegate tag
     combined& delegate(handler& h);
 
   // standard state set methods (non-inline)
-    combined& clear();
-    combined& set(ID3field, std::string);
+    combined& clear()
+    { data.cleared = true; return *this; }
+    combined& set(ID3field i, std::string m)
+    { if(i < FIELDS) data.update[i] = m; return *this; }
 
     bool vmodify(const char*, const subst&) const;
 
   // inspect
-    const std::vector<handler*>& handlers() const;
+    const std::vector<handler*>& handlers() const
+    { return reg; }
 };
 
   ///////////////////////////////////////////////////////

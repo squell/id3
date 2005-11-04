@@ -11,64 +11,20 @@ using namespace std;
 
 namespace set_tag {
 
- /* Internal implementation details.
-    - seperated from main header for ease of compilation */
-
-struct combined::internal {
-    typedef pair<ID3field, string>           command;
-    typedef vector<handler*>::const_iterator iterator;
-
-    vector<handler*> tags;
-    vector<command>  args;
-
-    static const command clear;                 // sentinel value
-
-    iterator begin() const { return tags.begin(); }
-    iterator end()   const { return tags.end();   }
-
-    void transfer();
-};
-
-const combined::internal::command combined::internal::clear(FIELDS, "");
-
-combined::combined()
-: impl(new internal)
-{
-}
-
-combined::~combined()
-{
-    delete impl;
-}
-
-const vector<handler*>& combined::handlers() const
-{
-    return impl->tags;
-}
-
  /* This class does NOT delegate the free form methods. This is simply
     because all tag formats use different naming conventions, so it would
     be really pointless anyhow. */
 
-combined& combined::set(ID3field i, string data)
-{
-    if(i < FIELDS)
-        impl->args.push_back( internal::command(i, data) );
-    return *this;
-}
-
-combined& combined::clear()
-{
-    impl->args.push_back( internal::clear );
-    return *this;
+namespace {
+    typedef vector<handler*>::const_iterator reg_iter;
 }
 
 combined& combined::delegate(handler& h)
 {
-    for(internal::iterator p = impl->begin(); p != impl->end(); ++p) {
+    for(reg_iter p = reg.begin(); p != reg.end(); ++p) {
         if(*p == &h) return *this;
     }
-    impl->tags.push_back(&h);
+    reg.push_back(&h);
     return *this;
 }
 
@@ -77,30 +33,27 @@ combined& combined::delegate(handler& h)
     but it would cost more code size (and complexity), and have little
     practical value. */
 
-void combined::internal::transfer()
-{
-    for(vector<command>::iterator a = args.begin(); a != args.end(); ++a) {
-        for(iterator p = begin(); p != end(); ++p)
-            if(*a == clear)
-                (*p)->clear();
-            else
-                (*p)->set(a->first, a->second);
-    }
-    args.clear();
-}
-
  /* Implementation of combined vmodify()
     - obeys the vmodify restrictions of set_base.h */
 
 bool combined::vmodify(const char* fn, const subst& val) const
 {
-    if(! impl->args.empty() ) {
-        impl->transfer();
+    for(int n = 0; n < FIELDS; ++n)
+        if(const string* txt = data.update[n]) {
+            for(reg_iter p = reg.begin(); p != reg.end(); ) {
+                (*p++)->set(ID3field(n), *txt);
+            }
+            data.update[n] = 0;
+        }
+
+    if(data.cleared) {
+        for(reg_iter p = reg.begin(); p != reg.end(); (*p++)->clear());
+        data.cleared = false;
     }
 
     bool ok = true;                      // process delegates
-    for(internal::iterator p = impl->begin(); p != impl->end(); ++p) {
-        ok &= (*p)->vmodify(fn, val);
+    for(reg_iter p = reg.begin(); p != reg.end(); ) {
+        ok &= (*p++)->vmodify(fn, val);
     }
     return ok;
 }

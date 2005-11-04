@@ -1,5 +1,9 @@
 Changelog for 'id3'.
 
+2005-308 (W44):
+  main.cpp: split up in mass_tag.cpp and pattern.cpp.
+  set_base.cpp: simplified.
+
 2005-305 (W44):
   setid3v2.cpp: rewrote binarize (using shared categorisations)
   getid3v2.cpp: rewrote unbinarize, and reading ID3v2.2

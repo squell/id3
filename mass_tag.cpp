@@ -115,12 +115,12 @@ namespace {
 
 bool mass_tag::dir(const fileexp::record& d)
 {
-    return (counter = 0);
+    return (counter = 1);
 }
 
 bool mass_tag::file(const char* name, const fileexp::record& f)
 {
-    substvars letter_vars(tag_info, f.path, ++counter);
+    substvars letter_vars(tag_info, f.path, counter++);
     r_vector  number_vars(f.var);
 
     return tag_update.modify(f.path, number_vars, letter_vars);

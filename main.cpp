@@ -133,14 +133,15 @@ class verbose : public mass_tag {
 public:
     verbose(const set_tag::handler& write, const set_tag::provider& read)
     : mass_tag(write, read) { }
-    static void enable(bool t = true) { info.show = true; }
+    static void enable(bool t = true) { verbose::show = true; }
 private:
-    struct initialize {
-        unsigned long numfiles;
-        bool          show;
-        clock_t       time;
-        initialize() { time = clock(); }
-       ~initialize()
+    static unsigned long numfiles;
+    static bool          show;
+    static clock_t       time;
+
+    struct timer {
+        timer() { time = clock(); }
+       ~timer()
         {
             time = clock() - time;
             if(show) {
@@ -148,13 +149,15 @@ private:
                 if(exitc!=1) fprintf(stderr, "(%lu files in %.3fs) done\n", numfiles, double(time) / CLOCKS_PER_SEC);
             }
         }
-    } static info;
+    };
+    friend struct timer;                                   // req by C++98
 
     virtual bool file(const char* name, const fileexp::record& f)
     {
-        if(info.show) {
-            ++info.numfiles;
-            if(counter==0 && name-f.path)
+        if(verbose::show) {
+            static timer initialize;
+            ++verbose::numfiles;
+            if(counter==1 && name-f.path)
                  fprintf(stderr, "%.*s\n", name-f.path, f.path);
             fprintf(stderr, "\t%s\n", name);
         }
@@ -164,7 +167,9 @@ private:
     }
 };
 
-verbose::initialize verbose::info;
+unsigned long verbose::numfiles;
+bool          verbose::show;
+clock_t       verbose::time;
 
 /* ====================================================== */
 
