@@ -27,7 +27,7 @@ namespace {
         bool        e;
 
         wide_input(const string& s)
-        : len(s.size()), end(s.data()+cnt), e(false)
+        : len(s.size()), end(s.data()+len), e(false)
         { mbtowc(0, 0, 0); }                 // clear internal state
 
         bool operator>>(wchar_t& wc)
