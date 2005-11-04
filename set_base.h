@@ -104,7 +104,7 @@ private:
 
 class provider {
 public:
-    virtual reader* read(const char*) const = 0;
+    virtual const reader* read(const char*) const = 0;
 protected:
     ~provider() { }
 };

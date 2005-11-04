@@ -50,7 +50,7 @@ cvtstring ID3::operator[](ID3field field) const
             break;
         case track:
             if(tag.zero == 0 && tag.track != 0)
-                sprintf(buf, "%u", tag.track);
+                sprintf(buf, "%u", tag.track & 0xFF);
             break;
         case genre:
             if(tag.genre < ID3v1_numgenres)
