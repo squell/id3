@@ -199,14 +199,18 @@ MKALLDEP += $(MKDEP) $(CFLAGS)	 $(SRC_C:=.c)
 
 ## dependencies -MM ########################################################
 
-main.o: main.cpp fileexp.h sedit.h charconv.h set_base.h setid3.h \
-  setfname.h setecho.h setid3v2.h
-mainl.o: main.cpp fileexp.h sedit.h charconv.h set_base.h setid3.h \
-  setfname.h setecho.h
+main.o: main.cpp sedit.h charconv.h set_base.h setid3.h setfname.h \
+  setecho.h setid3v2.h mass_tag.h fileexp.h pattern.h
+mainl.o: main.cpp sedit.h charconv.h set_base.h setid3.h setfname.h \
+  setecho.h mass_tag.h fileexp.h pattern.h
 sedit.o: sedit.cpp sedit.h charconv.h
 varexp.o: varexp.cpp varexp.h
 fileexp.o: fileexp.cpp varexp.h auto_dir.h fileexp.h
 charconv.o: charconv.cpp charconv.h
+mass_tag.o: mass_tag.cpp charconv.h mass_tag.h fileexp.h set_base.h \
+  sedit.h
+pattern.o: pattern.cpp pattern.h set_base.h sedit.h charconv.h mass_tag.h \
+  fileexp.h
 set_base.o: set_base.cpp set_base.h sedit.h charconv.h
 setid3.o: setid3.cpp setid3.h set_base.h sedit.h charconv.h getid3.h \
   id3v1.h
@@ -219,7 +223,5 @@ getid3v2.o: getid3v2.cpp getid3v2.h set_base.h sedit.h charconv.h id3v2.h
 fileops.o: fileops.c fileops.h
 id3v1.o: id3v1.c id3v1.h
 id3v2.o: id3v2.c fileops.h id3v2.h
-mass_tag.o: mass_tag.cpp charconv.h mass_tag.h set_base.h fileexp.h
-pattern.o: pattern.cpp
 
 ############################################################################
