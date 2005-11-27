@@ -31,10 +31,10 @@ namespace {
 
 bool filename::vmodify(const char* fname, const subst& v) const
 {
-    if(ftemplate.empty())
-        return false;
-
     string name = edit(ftemplate, v, "Unknown").local();
+
+    if(name.empty())
+        return false;
 
     for(string::iterator p = name.begin(); p != name.end(); ++p) {
         if(!portable_fn(*p)) *p = '_';
@@ -43,6 +43,9 @@ bool filename::vmodify(const char* fname, const subst& v) const
     if(const char* psep = strrchr(fname, '/')) {      // copy path prefix
         name.insert(0, fname, psep-fname+1);
     }
+
+    if(chain && !chain->vmodify(fname, v))            // pass through tag
+        return false;
 
     const char* newfn = name.c_str();
 

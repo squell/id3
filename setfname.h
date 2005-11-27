@@ -7,7 +7,8 @@
 
   Usage:
 
-  The set_tag::filename class implements file renaming (as a pseudo-tag)
+  The set_tag::filename class implements file renaming (pseudo-tag). It has
+  built-in chaining so it can be combined with tags without harm.
 
   Example:
 
@@ -30,19 +31,22 @@ namespace set_tag {
 
 class filename : public handler {
     std::string ftemplate;
+    handler* chain;
 public:
+    filename() : chain(0)                { }
+    filename(handler& tag) : chain(&tag) { }
+
     filename& rename(std::string fname)
     { ftemplate=fname; return *this; }
 
     virtual bool vmodify(const char*, const subst&) const;
 
-  // standard set - dummies
+  // standard set - pass or do nothing
 
-    filename& set(ID3field, std::string)
-    { return *this; }
-
+    filename& set(ID3field fld, std::string data)
+    { if(chain) chain->set(fld, data); return *this; }
     filename& clear()
-    { return *this; }
+    { if(chain) chain->clear();        return *this; }
 };
 
 }
