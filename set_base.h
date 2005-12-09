@@ -149,12 +149,14 @@ public:
   // (delegates all messages to registered handlers)   //
   ///////////////////////////////////////////////////////
 
-class group : public handler {
-    std::vector<handler*> reg;
+class group : public handler, private std::vector<handler*> {
     mutable handler::body data;
 public:
   // registers a delegate tag
-    group& delegate(handler& h);
+    group& delegate(handler& h)
+    { push_back(&h); return *this; }
+    group& release(iterator p, iterator q)
+    { erase(p, q); return *this; }
 
   // standard state set methods (non-inline)
     group& clear()
@@ -164,9 +166,10 @@ public:
 
     bool vmodify(const char*, const subst&) const;
 
-  // inspect
-    const std::vector<handler*>& handlers() const
-    { return reg; }
+  // publish some methods
+    using std::vector<handler*>::iterator;
+    using std::vector<handler*>::begin;
+    using std::vector<handler*>::end;
 };
 
   ///////////////////////////////////////////////////////

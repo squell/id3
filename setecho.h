@@ -20,10 +20,9 @@
 namespace set_tag {
 
 class echo : public handler {
-    std::string fmt;
+    const std::string fmt;
 public:
-    echo& format(std::string s)
-    { fmt=s; return *this; }
+    echo(std::string s) : fmt(s) { }
 
     virtual bool vmodify(const char*, const subst&) const;
     virtual void log(const cvtstring&) const;

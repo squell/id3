@@ -29,33 +29,32 @@ namespace {
     }
 }
 
-bool filename::vmodify(const char* fname, const subst& v) const
+bool rename::vmodify(const char* fname, const subst& v) const
 {
-    string name = edit(ftemplate, v, "Unknown").local();
+    if(ftemplate.empty())
+        return group::vmodify(fname, v);
 
-    if(name.empty())
-        return false;
+    string name = edit(ftemplate, v, "Unknown").local();  // use old values
 
     for(string::iterator p = name.begin(); p != name.end(); ++p) {
         if(!portable_fn(*p)) *p = '_';
     }
 
-    if(const char* psep = strrchr(fname, '/')) {      // copy path prefix
+    if(const char* psep = strrchr(fname, '/')) {          // copy path prefix
         name.insert(0, fname, psep-fname+1);
     }
 
-    if(chain && !chain->vmodify(fname, v))            // pass through tag
-        return false;
-
     const char* newfn = name.c_str();
 
-    if(access(newfn, F_OK) == 0)                      // check if file exists
+    if(access(newfn, F_OK) == 0)                          // check if exists
         throw failure("file already exists ", newfn);
 
-    if(std::rename(fname, newfn) != 0)
+    bool ok = group::vmodify(fname, v);
+
+    if(ok && std::rename(fname, newfn) != 0)
         throw failure("could not rename ", fname);
 
-    return true;
+    return ok;
 }
 
 }
