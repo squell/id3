@@ -153,10 +153,10 @@ class group : public handler, private std::vector<handler*> {
     mutable handler::body data;
 public:
   // registers a delegate tag
-    group& delegate(handler& h)
+    group& add(handler& h)
     { push_back(&h); return *this; }
-    group& release(iterator p, iterator q)
-    { erase(p, q); return *this; }
+    group& forget(size_type pos, size_type num = 1)
+    { erase(begin()+pos, begin()+pos+num); return *this; }
 
   // standard state set methods (non-inline)
     group& clear()
@@ -170,6 +170,8 @@ public:
     using std::vector<handler*>::iterator;
     using std::vector<handler*>::begin;
     using std::vector<handler*>::end;
+    using std::vector<handler*>::size;
+    using std::vector<handler*>::operator[];
 };
 
   ///////////////////////////////////////////////////////

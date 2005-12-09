@@ -1,8 +1,13 @@
 Changelog for 'id3'.
 
+2005-342 (W49):
+  main.cpp: removed internal globbing on directory arguments to -R
+  main.cpp: fixed cases where tag was clobbered before values were read
+
 2005-308 (W44):
   main.cpp: split up in mass_tag.cpp and pattern.cpp.
   set_base.cpp: simplified set_tag::combined into set_tag::group
+  setfname.cpp: derived from group, fixes order of operation
 
 2005-305 (W44):
   setid3v2.cpp: rewrote binarize (using shared categorisations)

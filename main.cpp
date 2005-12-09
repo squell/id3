@@ -5,6 +5,7 @@
 #include <ctime>
 #include <stdexcept>
 #include <string>
+#include <algorithm>
 #include "sedit.h"
 #include "set_base.h"
 #include "setid3.h"
@@ -133,7 +134,7 @@ class verbose : public mass_tag {
 public:
     verbose(const set_tag::handler& write, const set_tag::provider& read)
     : mass_tag(write, read) { }
-    static void enable(bool t = true) { verbose::show = true; }
+    static void enable(bool t = true) { verbose::show = t; }
 private:
     static unsigned long numfiles;
     static bool          show;
@@ -173,45 +174,21 @@ clock_t       verbose::time;
 
 /* ====================================================== */
 
- // general recursion decorator/adapter for fileexp::find
-
-class recursive_find : public fileexp::find {
-public:
-    const char* const mask;
-    fileexp::find& backend;
-    recursive_find(fileexp::find& search, const char* pattern)
-    : backend(search), mask(pattern) { }
-private:
-    virtual bool file(const char*, const fileexp::record& f)
-    { return backend.pattern(f.path, mask); }
-};
-
- // do-nothing adapter for fileexp::find
-
-struct null_op : fileexp::find {
-    bool file(const char*, const fileexp::record& r)
-    { return eprintf("nothing to do with %s\n", r.path), true; }
-};
-
-/* ====================================================== */
-
  // box a handler to make it neutral for (multiple) inheritance,
 
 template<class T> struct uses { T object; };
 
 struct metadata :                    // owns the data it contains
-  set_tag::group,
+  set_tag::rename,
 #ifndef NO_V2
   uses<ID3v2>,
 #endif
-  uses<ID3>,
-  uses<set_tag::filename>,
-  uses<set_tag::echo>
+  uses<ID3>
 {
     string format;                   // for free format 'pseudo formats'
 
     template<class Tag> Tag* activate()
-    { return delegate(uses<Tag>::object), &this->uses<Tag>::object; }
+    { return add(uses<Tag>::object), &this->uses<Tag>::object; }
 };
 
 /* ====================================================== */
@@ -228,47 +205,50 @@ namespace op {                                 // state information bitset
     typedef int oper_t;
 }
 
+struct null_op : fileexp::find {
+    bool file(const char*, const fileexp::record& r)
+    { return eprintf("nothing to do with %s\n", r.path), true; }
+};
+
   // dynamically create a suitably initialized function object
 
 static fileexp::find* instantiate(op::oper_t state, metadata& tag,
-  const set_tag::provider* src_ptr, const char* recurse)
+  const set_tag::provider* src_ptr)
 {
-    if(!src_ptr) src_ptr = tag.activate<ID3>();
     using namespace op;
 
-    set_tag::handler* selected;
-    static null_op dummy;
-
-    state &= w|rd|ren;
-
-    if(!(state&w) && tag.handlers().size() != 1)
+    if(!(state&w) && tag.size() > 1)
         eprintf("multiple selected tags ignored when only reading\n");
 
-    if(state&ren)                              // add rename as final
-        tag.activate<set_tag::filename>()->rename(tag.format);
+    if(tag.begin() == tag.end())
+        src_ptr = tag.activate<ID3>();
 
-    fileexp::find* routine = &dummy;
+    swap(tag[0], tag[tag.size()-1]);           // handle source tag as last
 
-    do {
-        if(!state)
-            break;
-        else if((state&(w|rd)) == w)
-            selected = &tag;
-        else if((state&(ren|rd)) == ren)       // optimization
-            selected = &tag.uses<set_tag::filename>::object;
-        else if(state == rd)
-            selected = &tag.uses<set_tag::echo>::object.format(tag.format);
-        else {
-            eprintf("cannot combine -q with any modifying operation\n");
-            shelp();
-        }
-        routine = new verbose(*selected, *src_ptr);
-    } while(0);
+    set_tag::handler* selected;
 
-    if(!recurse)
-        return routine;
-    else
-        return new recursive_find(*routine, recurse);
+    switch(state &= w|rd|ren) {
+    case op::rd:
+        static set_tag::echo print(tag.format);
+        selected = &print;
+        break;
+    case op::ren:
+        tag.forget(0, tag.size());             // don't perform no-ops
+    case op::ren | op::w:
+        tag.filename(tag.format);
+    case op::w:
+        selected = &tag;
+        break;
+    case op::no_op:
+        static null_op dummy;
+        return &dummy;
+    default:
+        eprintf("cannot combine -q with any modifying operation\n");
+        shelp();
+    }
+
+    static verbose tagger(*selected, *src_ptr);
+    return &tagger;
 }
 
 /* ====================================================== */
@@ -313,12 +293,13 @@ int main_(int argc, char *argv[])
                 }
 
                 static fileexp::find& apply
-                  = *instantiate(state&=~scan, tag, source, recmask);
+                  = *instantiate(state&=~scan, tag, source);
 
-                if(! apply.glob(spec.c_str()) ) {
-                    if(!recmask)
+                if(!recmask) {
+                    if(! apply.glob(spec.c_str()) )
                         eprintf("no files matching %s\n", argv[i]);
-                    else
+                } else {
+                    if(! apply.pattern(spec.c_str(), recmask) )
                         eprintf("no files matching `%s' in %s\n", recmask, argv[i]);
                 }
             } else {
@@ -469,7 +450,7 @@ int main_(int argc, char *argv[])
     if(state & scan) {                         // code duplication is awful.
         if(!recmask)
             eprintf("missing file arguments\n");
-        else if(! instantiate(state, tag, source, recmask)->glob(".") ) {
+        else if(! instantiate(state, tag, source)->pattern(".", recmask) ) {
             eprintf("no files matching `%s' in %s\n", recmask, ".");
         }
     }
