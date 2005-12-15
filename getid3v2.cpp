@@ -110,7 +110,7 @@ static cvtstring unbinarize(ID3FRAME f)
         const char* lim  = f->data + f->size - skip;  // safety
         const char* q;
         for(q = p; q < lim && (*q || q[-skip]); )
-            ++(q += skip);                     // find null (grmbl)
+            q += 1 + skip;                     // find null (grmbl)
         if(q++ == lim)
             return cvtstring();                // error
         p = q;
