@@ -225,26 +225,24 @@ static fileexp::find* instantiate(op::oper_t state, metadata& tag,
 
     swap(tag[0], tag[tag.size()-1]);           // handle source tag as last
 
-    set_tag::handler* selected;
+    static set_tag::echo print(tag.format);
+    set_tag::handler* selected = &print;
 
     switch(state &= w|rd|ren) {
-    case op::rd:
-        static set_tag::echo print(tag.format);
-        selected = &print;
-        break;
     case op::ren:
         tag.forget(0, tag.size());             // don't perform no-ops
     case op::ren | op::w:
         tag.filename(tag.format);
     case op::w:
         selected = &tag;
+    case op::rd:
         break;
-    case op::no_op:
-        static null_op dummy;
-        return &dummy;
     default:
         eprintf("cannot combine -q with any modifying operation\n");
         shelp();
+    case op::no_op:
+        static null_op dummy;
+        return &dummy;
     }
 
     static verbose tagger(*selected, *src_ptr);
