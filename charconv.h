@@ -7,11 +7,14 @@
 
   Usage:
 
-  The cvtstring class encapsulates an encoding-neutral string.
+  The cvtstring class encapsulates an encoding-neutral string. Uses templates
+  heavily for avoiding compile dependencies and using the C++ type system
+  itself for specifying conversions.
 
   Example:
 
-  std::puts( cvtstring::latin1("ISO 8859-1 text").local() );
+  std::puts( cvtstring::latin1("ISO 8859-1 text").local().c_str() );
+  std::puts( conv::string<latin1>("ISO 8859-1 text").c_str<local>() );
 
 */
 
@@ -20,78 +23,81 @@
 
 #include <string>
 
-class cvtstring {
-public:
+namespace charset {
+    template<class Encoding = void> class conv;
 
-  // named constructors
-    static cvtstring local (const std::string&);
-    static cvtstring latin1(const std::string&);
+  /*
+	  Making the default template the base class for non default templates
+	  solves the problem of dynamically specifying conversions, removes
+	  the need for a template conversion constructor, and moves error messages
+	  from the linking stage to the compiler stage.
+  */
 
-  // inspectors
-    std::string local() const;
-    std::string latin1() const;
+    template<> class conv<void> {
+        template<class Kin> friend class conv;
+		struct proxy {									// value wrapper
+			operator const char*() const { return str.c_str(); }
+            proxy(const std::string& s) : str(s) { }
+		private:
+			const std::string str;
+		};
+	public:
+        conv(const conv<>& other) : internal(other.internal) { }
+        conv(void)                : internal()               { }
 
-    bool empty() const;
+		bool empty() const		  { return internal.empty(); }
 
-    static const char* system_charset();        // returns locale or NULL
+		template<class E>
+          std::string str() const { return conv<E>(*this); }
+		template<class E>
+		  proxy c_str() const	  { return str<E>(); }
+	private:
+		typedef std::string::size_type size_t;
+		std::string internal;
+        explicit conv(const std::string& s) : internal(s) { }
+	};
 
-   // implied conversion for local strings
-    cvtstring(const std::string&);
-    cvtstring(const char*);
-    cvtstring();
+  /*
+	  Any parameterization simply is a different "face" of the same class.
+  */
 
-    typedef std::string (cvtstring::*xlat)() const;
+    template<class Encoding> class conv : public conv<> {
+	public:
+        conv(const std::string& s)    : conv<>(decode(s.data(), s.size())) { }
+        conv(const char* p, size_t l) : conv<>(decode(p,l)) { }
+        conv(const char* p)           : conv<>((conv)std::string(p)) { }
+        conv(const conv<>& other)     : conv<>(other) { }
+        conv(void)                    : conv<>() { }
 
-private:
-    cvtstring(const std::string& s, int) : internal(s) { }
-    std::string internal;
+		operator std::string const() const
+		{ return encode(internal.data(), internal.size()); }
 
-    static std::string (*conv_to_internal)(const std::string&);
-    static std::string (*conv_to_locale)  (const std::string&);
-    class initialize;
-    static initialize instance;
-    friend class initialize;                    // required by C++98
-};
+/*      using conv<>::str;
+        using conv<>::c_str; */
+		std::string str() const { return *this; }
+        proxy c_str()     const { return str(); }
+	private:
+		static std::string decode(const char*, std::size_t);
+		static std::string encode(const char*, std::size_t);
+        template<class Kin> friend class conv;
+	};
 
-  // basic entry/exit shorthands
+  /*
+      Convenient function
+  */
 
-inline cvtstring::cvtstring(const std::string& s)
-: internal(conv_to_internal(s))
-{ }
+    template<class In, class Out>
+    inline std::string recode(std::string str)
+    {
+        return (conv<Out>) (conv<In>) str;
+    }
 
-inline cvtstring::cvtstring(const char* p)
-: internal(conv_to_internal(p))
-{ }
+  /*
+      Predefined charsets.
+  */
 
-inline cvtstring::cvtstring()
-: internal()
-{ }
-
-  // some functions are too simple not to inline
-
-inline bool cvtstring::empty() const
-{
-    return internal.empty();
-}
-
-inline cvtstring cvtstring::local(const std::string& str)
-{
-    return cvtstring(conv_to_internal(str), 0);
-}
-
-inline std::string cvtstring::local() const
-{
-    return conv_to_locale(internal);
-}
-
-inline cvtstring cvtstring::latin1(const std::string& str)
-{
-    return cvtstring(str,0);
-}
-
-inline std::string cvtstring::latin1() const
-{
-    return internal;
+    struct local;
+    struct latin1;
 }
 
 #endif
