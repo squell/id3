@@ -64,8 +64,8 @@ class string_parm {
 
 protected:
     struct subst {
-        virtual cvtstring numeric(unsigned) const = 0;
-        virtual cvtstring alpha  (char)     const = 0;
+        virtual charset::conv<charset::local> numeric(unsigned) const = 0;
+        virtual charset::conv<charset::local> alpha  (char)     const = 0;
     };
 
     template<class T, class U>                // templatized wrapper
@@ -75,16 +75,16 @@ protected:
 
         container(T& t, U& u) : num(t), chr(u) { }
 
-        virtual cvtstring numeric(unsigned x) const { return num[x]; }
-        virtual cvtstring alpha  (char x)     const { return chr[x]; }
+        virtual charset::conv<charset::local> numeric(unsigned x) const { return num[x]; }
+        virtual charset::conv<charset::local> alpha  (char x)     const { return chr[x]; }
     };
 
     struct dummy {
         const char* operator[](unsigned) const { return ""; }
     };
 
-    static cvtstring edit
-      (const cvtstring&, const subst&, const char* = "", bool = 0);
+    static charset::conv<> edit
+      (const charset::conv<charset::local>&, const subst&, const char* = "", bool = 0);
 
     template<class T, class U>
       friend std::string sedit(const std::string&, T&, U&);
@@ -113,7 +113,7 @@ template<class T, class U>
   inline std::string sedit(const std::string& fmt, T& vars, U& table)
 {
     return string_parm::edit(fmt,
-      string_parm::container<T,U>(vars, table)).local();
+      string_parm::container<T,U>(vars, table)).template str<charset::local>();
 }
 
 #endif

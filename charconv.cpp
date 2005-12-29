@@ -1,5 +1,3 @@
-#include <cstdio>
-
 #include <cstddef>
 #include <clocale>
 #include <climits>
@@ -45,7 +43,6 @@ namespace charset {
 	std::string build;
 	build.reserve(len * wide::size);
 	for( ; len--; ) {
-printf("L< %c (%d)\n", *s, *s);
 	    build += wide(*s++ & 0xFF);
 	}
 	return build;
@@ -223,7 +220,6 @@ printf("L< %c (%d)\n", *s, *s);
 	for(w+=len; len; len -= wide::size) {
             wchar_t c = *(wchar_t*)(w-len);
             build += (c < 0x80)? c : rmap[c];
-printf("> %c (%d)\n", *(wchar_t*)(w-len), *(wchar_t*)(w-len));
 	}
 	return build;
     }

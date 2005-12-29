@@ -1,5 +1,3 @@
-#include <cstdio>
-
 #include <cctype>
 #include <algorithm>
 #include "sedit.h"
@@ -135,7 +133,6 @@ charset::conv<> string_parm::edit(const cvtstring& fmt, const subst& var, const 
     string::size_type pos = 0;
 //  string s = fmt.str<charset::latin1>();
     string s = charset::conv<charset::latin1>(fmt);
-printf("$%s$\n", s.c_str());
     bool err = false;             // keeps track if all substitutions worked
 
     while( (pos=s.find(VAR, pos)) != string::npos ) {
@@ -201,7 +198,6 @@ printf("$%s$\n", s.c_str());
                 } else
                     svar = var.alpha(c);
             substitute:
-printf("[subst]\n");
                 if(svar.empty()) {
                     svar = edit(alt, var);
                     err = raw = true;
