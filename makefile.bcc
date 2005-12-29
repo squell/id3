@@ -1,7 +1,9 @@
 ## id3 makefile for Borland C++ (tested with 5.5) ##########################
 
-CC     = bcc32 -D_POSIX_
-CFLAGS = -q -w- -d -O2
+CC     = bcc32 -q -D_POSIX_
+!ifndef CFLAGS
+CFLAGS = -w- -d -O2
+!endif
 
 .autodepend
 

@@ -187,8 +187,7 @@ namespace charset {
         struct uni_to_dos : map<wchar_t, char> {     // crude! reverse table
             uni_to_dos()
             {
-             //   if(const wchar_t* cmap = dos_to_uni())
-                if(const wchar_t* cmap = cp850)
+                if(const wchar_t* cmap = dos_to_uni())
                     for(int n = 0; n < 128; ++n) {
                         insert(value_type(cmap[n], n|0x80));
                     }
