@@ -1,5 +1,8 @@
 Changelog for 'id3'.
 
+2005-362 (W52):
+  charconv.*: redesigned character conversion, support for win/dos
+
 2005-342 (W49):
   main.cpp: removed internal globbing on directory arguments to -R
   main.cpp: fixed cases where tag was clobbered before values were read
@@ -14,7 +17,7 @@ Changelog for 'id3'.
   getid3v2.cpp: rewrote unbinarize, and reading ID3v2.2
   sedit.cpp: underscores prevented capitalization
   fileops.c: added mvfile(), which honours hard and sym links
-  id3v2.c: replaced lightning-stricken part with calls to mvfile()
+  id3v2.c: replaced explicit code with calls to mvfile()
 
 2005-299 (W43):
   id3v2.c: added transparant support for id3v2.2 tags (iTunes default)

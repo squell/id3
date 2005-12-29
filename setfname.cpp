@@ -33,8 +33,8 @@ bool rename::vmodify(const char* fname, const subst& v) const
 {
     if(ftemplate.empty())
         return group::vmodify(fname, v);
-
-    string name = edit(ftemplate, v, "Unknown").local();  // use old values
+                                                          // use old values
+    string name = edit(ftemplate, v, "Unknown").str<charset::local>();
 
     for(string::iterator p = name.begin(); p != name.end(); ++p) {
         if(!portable_fn(*p)) *p = '_';

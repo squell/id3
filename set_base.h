@@ -115,10 +115,11 @@ protected:
 class reader {
 public:
     reader() { }
-    typedef std::vector< std::pair<std::string, cvtstring> > array;
+    typedef charset::conv<charset::local> value_string;
+    typedef std::vector< std::pair<std::string, value_string> > array;
 
-    virtual cvtstring operator[](ID3field) const = 0;
-    virtual array     listing() const = 0;
+    virtual value_string operator[](ID3field) const = 0;
+    virtual array        listing() const = 0;
     virtual ~reader() { }
 
 private:                       // prevent copying of classes

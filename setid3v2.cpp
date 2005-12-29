@@ -104,10 +104,10 @@ namespace {
 
  // code for constructing ID3v2 frames. rather hairy, but hey, ID3v2 sucks
 
-static string binarize(const string field, cvtstring content)
+static string binarize(const string field, charset::conv<charset::latin1> content)
 {
     if(field == "TCON" || field == "TCO") {                // genre by number
-        unsigned int x = atoi(content.latin1().c_str())-1; // is portable
+        unsigned int x = atoi(content.c_str())-1;          // is portable
         if(x < ID3v1_numgenres) content = ID3v1_genre[x];
     }
 
@@ -117,7 +117,7 @@ static string binarize(const string field, cvtstring content)
     if(!ID3v2::is_valid(field))
         return data;
     if(ID3v2::is_counter(field)) {
-        unsigned long t = strtol(content.latin1().c_str(), 0, 0);
+        unsigned long t = strtol(content.c_str(), 0, 0);
         data.push_back(t >> 24 & 0xFF);
         data.push_back(t >> 16 & 0xFF);
         data.push_back(t >>  8 & 0xFF);
@@ -132,9 +132,9 @@ static string binarize(const string field, cvtstring content)
         data.append(""), data.append(nul, 1);
 
     if(data.length() > 1 || ID3v2::is_text(field)) {
-        return data + content.latin1();
+        return data + content.str();
     } else if(ID3v2::is_url(field)) {
-        return content.latin1();
+        return content;
     } else {
         return string();
     }
@@ -219,7 +219,7 @@ bool ID3v2::vmodify(const char* fn, const subst& v) const
             if(p == table.end())
                 tag.put(f->ID, f->data, f->size);
             else {
-                cvtstring s = edit(p->second, v);
+                charset::conv<> s = edit(p->second, v);
                 if(!s.empty()) {                    // else: erase frames
                     string b = binarize(p->first, s);
                     tag.put(f->ID, b.data(), b.length());
@@ -232,7 +232,7 @@ bool ID3v2::vmodify(const char* fn, const subst& v) const
     }
 
     for(db::iterator p = table.begin(); p != table.end(); ++p) {
-        cvtstring s = edit(p->second, v);
+        charset::conv<> s = edit(p->second, v);
         if(!s.empty()) {
             string b = binarize(p->first, s);
             tag.put(p->first.c_str(), b.data(), b.length());

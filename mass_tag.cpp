@@ -14,6 +14,7 @@
 */
 
 using namespace std;
+using namespace charset;
 using set_tag::ID3field;
 
 namespace fileexp {
@@ -64,7 +65,7 @@ namespace {
 
     class substvars {
     public:
-        cvtstring operator[](char field) const;
+        conv<local> operator[](char field) const;
 
         substvars(const set_tag::provider& info, const char* fn, unsigned x)
         : tag_data(0), tag(&info), filename(fn), num(x) { }
@@ -81,7 +82,7 @@ namespace {
         substvars(const substvars&);       // don't copy
     };
 
-    cvtstring substvars::operator[](char c) const
+    conv<local> substvars::operator[](char c) const
     {
         switch( c ) {
             ID3field i;
@@ -94,8 +95,8 @@ namespace {
             }
             break;
         case 'x':
-            sprintf(buf, "%u", num & 0xFFFFu);
-            return cvtstring::latin1(buf);
+            int n; n = sprintf(buf, "%u", num & 0xFFFFu);   // to jump past
+            return conv<latin1>(buf, n>0? n : 0);
         case 'F':
             return filename;
         case 'f':

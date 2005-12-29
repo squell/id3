@@ -16,7 +16,6 @@
 
 #include <string>
 #include "set_base.h"
-#include "charconv.h"
 #include "id3v1.h"
 
 namespace set_tag {
@@ -26,7 +25,7 @@ namespace set_tag {
             ID3v1 tag;
         public:
             explicit ID3(const char* fn);
-            cvtstring operator[](ID3field field) const;
+            value_string operator[](ID3field field) const;
             array listing() const;
         };
 

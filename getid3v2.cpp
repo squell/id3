@@ -11,12 +11,13 @@
 */
 
 using namespace std;
+using namespace charset;
 
 using set_tag::read::ID3v2;
 using set_tag::ID3field;
 
 static bool getframe(void*, ID3FRAME, int n, const char*);
-static cvtstring unbinarize(ID3FRAME); 
+static conv<> unbinarize(ID3FRAME);
 
 ID3v2::ID3v2(const char* fn) : tag(ID3_readf(fn,0))
 {
@@ -27,7 +28,7 @@ ID3v2::~ID3v2()
     ID3_free(tag);
 }
 
-cvtstring ID3v2::operator[](ID3field field) const
+ID3v2::value_string ID3v2::operator[](ID3field field) const
 {
     const char* const fieldtag[FIELDS][2] = {          // ID3field order!
         { "TT2"  "TT3"  "TOF",
@@ -51,7 +52,7 @@ cvtstring ID3v2::operator[](ID3field field) const
     bool ok = false;
     if(tag && field < FIELDS)
         ok = getframe(tag, f, 3+v, fieldtag[field][v]);
-    return ok? unbinarize(f) : cvtstring();
+    return ok? unbinarize(f) : conv<>();
 }
 
 /* ====================================================== */
@@ -89,7 +90,7 @@ static bool getframe(void* tag, ID3FRAME f, int n, const char* field)
     return 0;
 }
 
-static cvtstring unbinarize(ID3FRAME f)
+static conv<> unbinarize(ID3FRAME f)
 {
     const string field  = f->ID;
     const char*  p      = f->data + 1;
@@ -100,7 +101,7 @@ static cvtstring unbinarize(ID3FRAME f)
         for(size_t n = 0; n < f->size; ++n)
             t = t << 8 | (f->data[n] & 0xFF);
         sprintf(buf, "%lu", t & 0xFFFFFFFFul);
-        return cvtstring::latin1(buf);
+        return conv<latin1>(buf);
     }
 
     if(ID3v2::has_lang(field))
@@ -112,7 +113,7 @@ static cvtstring unbinarize(ID3FRAME f)
         for(q = p; q < lim && (*q || q[-skip]); )
             q += 1 + skip;                     // find null (grmbl)
         if(q++ == lim)
-            return cvtstring();                // error
+            return conv<>();                   // error
         p = q;
     }
 
@@ -120,14 +121,14 @@ static cvtstring unbinarize(ID3FRAME f)
     if(hdrsiz > 1 || ID3v2::is_text(field)) {
         switch(*f->data) {
         case  0:
-            return cvtstring::latin1(string(p, f->size-hdrsiz));
+            return conv<latin1>(p, f->size-hdrsiz);
         default:
-            return cvtstring::latin1("<unsupported encoding>");
+            return conv<latin1>("<unsupported encoding>");
         };
     } else if(ID3v2::is_url(field)) {
-        return cvtstring::latin1(string(f->data, f->size));
+        return conv<latin1>(f->data, f->size);
     } else {
-        return cvtstring();
+        return conv<>();
     }
 }
 

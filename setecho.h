@@ -25,7 +25,7 @@ public:
     echo(std::string s) : fmt(s) { }
 
     virtual bool vmodify(const char*, const subst&) const;
-    virtual void log(const cvtstring&) const;
+    virtual void log(charset::conv<charset::local>) const;
 
   // standard set - dummies
 

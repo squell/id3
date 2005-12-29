@@ -15,9 +15,9 @@ bool echo::vmodify(const char* fname, const subst& v) const
     return log( edit(fmt, v) ), true;
 }
 
-void echo::log(const cvtstring& msg) const
+void echo::log(charset::conv<charset::local> msg) const
 {
-    std::puts(msg.local().c_str());
+    std::puts(msg.c_str());
 }
 
 }

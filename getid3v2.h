@@ -17,7 +17,6 @@
 #include <string>
 #include <cctype>
 #include "set_base.h"
-#include "charconv.h"
 
 namespace set_tag {
     namespace read {
@@ -27,7 +26,7 @@ namespace set_tag {
         public:
             explicit ID3v2(const char* fn);
            ~ID3v2();
-            cvtstring operator[](ID3field field) const;
+            value_string operator[](ID3field field) const;
             array listing() const;
 
             static bool has_lang(const std::string field)  // implies has_enc

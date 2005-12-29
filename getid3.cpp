@@ -11,6 +11,7 @@
 */
 
 using namespace std;
+using namespace charset;
 
 using set_tag::read::ID3;
 using set_tag::ID3field;
@@ -27,7 +28,7 @@ ID3::ID3(const char* fn) : tag()
     }
 }
 
-cvtstring ID3::operator[](ID3field field) const
+ID3::value_string ID3::operator[](ID3field field) const
 {
     char buf[31]     = { 0, };         // enough to hold largest ID3 field+1
 
@@ -54,9 +55,9 @@ cvtstring ID3::operator[](ID3field field) const
             break;
         case genre:
             if(tag.genre < ID3v1_numgenres)
-                return cvtstring::latin1(ID3v1_genre[tag.genre]);
+                return conv<latin1>(ID3v1_genre[tag.genre]);
         }
-    return cvtstring::latin1(buf);
+    return conv<latin1>(buf);
 }
 
 /* ====================================================== */
@@ -78,7 +79,7 @@ ID3::array ID3::listing() const
     array vec;
     vec.push_back( array::value_type("ID3", tag.zero? "1.0" : "1.1") );
     for(int x = 0; x < FIELDS; ++x) {
-        cvtstring s = operator[](tab[x]);
+        conv<> s = operator[](tab[x]);
         if(!s.empty())
             vec.push_back( array::value_type(desc[x], s) );
     }
