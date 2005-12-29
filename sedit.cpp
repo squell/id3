@@ -1,3 +1,5 @@
+#include <cstdio>
+
 #include <cctype>
 #include <algorithm>
 #include "sedit.h"
@@ -124,12 +126,16 @@ string padnumeric(string s, unsigned pad)
 
 /* ====================================================== */
 
-cvtstring string_parm::edit(const cvtstring& fmt, const subst& var, const char* fallback, bool atomic)
+typedef charset::conv<charset::local> cvtstring;
+
+charset::conv<> string_parm::edit(const cvtstring& fmt, const subst& var, const char* fallback, bool atomic)
 {
-    const cvtstring::xlat conv = &cvtstring::latin1;
+//  const cvtstring::xlat conv = &cvtstring::latin1;
 
     string::size_type pos = 0;
-    string s = (fmt.*conv)();
+//  string s = fmt.str<charset::latin1>();
+    string s = charset::conv<charset::latin1>(fmt);
+printf("$%s$\n", s.c_str());
     bool err = false;             // keeps track if all substitutions worked
 
     while( (pos=s.find(VAR, pos)) != string::npos ) {
@@ -195,11 +201,12 @@ cvtstring string_parm::edit(const cvtstring& fmt, const subst& var, const char* 
                 } else
                     svar = var.alpha(c);
             substitute:
+printf("[subst]\n");
                 if(svar.empty()) {
                     svar = edit(alt, var);
                     err = raw = true;
                 }
-                string tmp = (svar.*conv)();
+                string tmp = charset::conv<charset::latin1>(svar);
                 if(!raw) {                                     // remove gunk
                     replace_if(tmp.begin(), tmp.end(), filtered_char(), ' ');
                     compress(tmp);
@@ -213,6 +220,6 @@ cvtstring string_parm::edit(const cvtstring& fmt, const subst& var, const char* 
 
     }
 
-    return !(err&&atomic)? cvtstring::latin1(s) : cvtstring();
+    return !(err&&atomic)? charset::conv<charset::latin1>(s) : charset::conv<charset::latin1>();
 }
 
