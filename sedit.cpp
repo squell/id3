@@ -21,7 +21,7 @@ namespace {
     };
 
     struct filtered_char {
-        bool operator()(char c)
+        bool operator()(unsigned char c)
         { return c == '_' || iscntrl(c); }
     };
 
@@ -203,10 +203,12 @@ charset::conv<> string_parm::edit(const cvtstring& fmt, const subst& var, const 
                     err = raw = true;
                 }
                 string tmp = charset::conv<charset::latin1>(svar);
+printf("[subst--|%s]\n", tmp.c_str());
                 if(!raw) {                                     // remove gunk
                     replace_if(tmp.begin(), tmp.end(), filtered_char(), ' ');
                     compress(tmp);
                 }
+printf("[--subst|%s]\n", tmp.c_str());
                 s.replace(pos, n, padnumeric(stylize(tmp, caps), npad));
                 pos += tmp.length();
             }
@@ -216,6 +218,7 @@ charset::conv<> string_parm::edit(const cvtstring& fmt, const subst& var, const 
 
     }
 
+printf("[substed|%s]\n", s.c_str());
     return !(err&&atomic)? charset::conv<charset::latin1>(s) : charset::conv<charset::latin1>();
 }
 

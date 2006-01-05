@@ -36,7 +36,8 @@ namespace charset {
 
     template<> class conv<void> {
         template<class Kin> friend class conv;
-        typedef std::string::size_type size_t;
+        typedef std::basic_string<char> internal_t;
+        typedef internal_t::size_type   size_t;
 		struct proxy {									// value wrapper
 			operator const char*() const { return str.c_str(); }
             proxy(const std::string& s) : str(s) { }
@@ -59,8 +60,8 @@ namespace charset {
 		template<class E>
           proxy c_str() const       { return str<E>(); }
 	private:
-		std::string internal;
-        explicit conv(const std::string& s) : internal(s) { }
+        internal_t internal;
+        explicit conv(const internal_t& s) : internal(s) { }
 	};
 
   /*
@@ -76,15 +77,15 @@ namespace charset {
         conv(void)                    : conv<>() { }
 
 		operator std::string const() const
-		{ return encode(internal.data(), internal.size()); }
+        { return encode(internal.data(), internal.size()/sizeof(wchar_t)); }
 
     /*  using conv<>::str;
         using conv<>::c_str; */
 		std::string str() const { return *this; }
         proxy c_str()     const { return str(); }
 	private:
-		static std::string decode(const char*, std::size_t);
-		static std::string encode(const char*, std::size_t);
+        static internal_t  decode(const char*, std::size_t);
+        static std::string encode(const void*, std::size_t);
         template<class Kin> friend class conv;
 	};
 

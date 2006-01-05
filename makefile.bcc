@@ -10,15 +10,15 @@ CFLAGS = -w- -d -O2
 ############################################################################
 
 id3.exe: main.obj sedit.obj varexp.obj fileexp.obj charconv.obj mass_tag.obj pattern.obj \
-         set_base.obj setid3.obj setid3v2.obj setfname.obj setecho.obj \
-         getid3.obj getid3v2.obj \
+	 set_base.obj setid3.obj setid3v2.obj setfname.obj setecho.obj \
+	 getid3.obj getid3v2.obj \
 	 id3v1.obj id3v2.obj fileops.obj
 	$(CC) $(CFLAGS) -e$@ $**
 
 id3l.exe: mainl.obj sedit.obj varexp.obj fileexp.obj charconv.obj mass_tag.obj pattern.obj \
-         set_base.obj setid3.obj setfname.obj setecho.obj \
-         getid3.obj \
-         id3v1.obj
+	 set_base.obj setid3.obj setfname.obj setecho.obj \
+	 getid3.obj \
+	 id3v1.obj
 	$(CC) $(CFLAGS) -e$@ $**
 
 all  : id3.exe id3l.exe

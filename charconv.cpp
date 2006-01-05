@@ -48,12 +48,13 @@ namespace charset {
 	return build;
     }
 
-    template<> std::string conv<latin1>::encode(const char* w, size_t len)
+    template<> std::string conv<latin1>::encode(const void* p, size_t len)
     {
-	std::string build;
-	build.reserve(len / wide::size);
-	for(w+=len; len; len -= wide::size) {
-            wchar_t c = *(wchar_t*)(w-len);
+        const wchar_t* w = (wchar_t*)p;
+        std::string build;
+        build.reserve(len);
+        for( ; len--; ) {
+            wchar_t c = *w++;
 	    build += (c < 0x100)? c : '?';
 	}
 	return build;
@@ -95,15 +96,16 @@ namespace charset {
 	return build;
     }
 
-    template<> std::string conv<local>::encode(const char* w, size_t len)
+    template<> std::string conv<local>::encode(const void* p, size_t len)
     {
+        const wchar_t* w = (wchar_t*)p;
         initialize();
 	std::string build;
-	build.reserve(len*2 / wide::size);
+        build.reserve(len*2);
 
-	for(w+=len; len; len -= wide::size) {
+        for( ; len--; ) {
             char buf[MB_LEN_MAX];
-            int n = wctomb(buf, *(wchar_t*)(w-len));
+            int n = wctomb(buf, *w++);
             if(n >= 0) build.append(buf, n);
             else       build += '?';
 	}
@@ -211,13 +213,14 @@ namespace charset {
         return build;
     }
 
-    template<> std::string conv<local>::encode(const char* w, size_t len)
+    template<> std::string conv<local>::encode(const void* p, size_t len)
     {
+        const wchar_t* w = (wchar_t*)p;
         static uni_to_dos rmap;
         std::string build;
-	build.reserve(len / wide::size);
-	for(w+=len; len; len -= wide::size) {
-            wchar_t c = *(wchar_t*)(w-len);
+        build.reserve(len);
+        for( ; len--; ) {
+            wchar_t c = *w++;
             build += (c < 0x80)? c : rmap[c];
 	}
 	return build;
