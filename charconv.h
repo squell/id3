@@ -9,7 +9,8 @@
 
   The cvtstring class encapsulates an encoding-neutral string. Uses templates
   heavily for avoiding compile dependencies and using the C++ type system
-  itself for specifying conversions.
+  itself for specifying conversions. A limited string interface is provided
+  for constructing, but not editing strings.
 
   Example:
 
@@ -35,6 +36,7 @@ namespace charset {
 
     template<> class conv<void> {
         template<class Kin> friend class conv;
+        typedef std::string::size_type size_t;
 		struct proxy {									// value wrapper
 			operator const char*() const { return str.c_str(); }
             proxy(const std::string& s) : str(s) { }
@@ -45,14 +47,18 @@ namespace charset {
         conv(const conv<>& other) : internal(other.internal) { }
         conv(void)                : internal()               { }
 
-		bool empty() const		  { return internal.empty(); }
+        bool empty() const          { return internal.empty(); }
+        void clear()                { internal.erase(); }
+        void swap(conv<>& other)    { internal.swap(other.internal); }
+
+        conv<>& operator+=
+          (const conv<>& rhs)       { return (internal+=rhs.internal), *this; }
 
 		template<class E>
-          std::string str() const { return conv<E>(*this); }
+          std::string str() const   { return conv<E>(*this); }
 		template<class E>
-		  proxy c_str() const	  { return str<E>(); }
+          proxy c_str() const       { return str<E>(); }
 	private:
-		typedef std::string::size_type size_t;
 		std::string internal;
         explicit conv(const std::string& s) : internal(s) { }
 	};
@@ -72,7 +78,7 @@ namespace charset {
 		operator std::string const() const
 		{ return encode(internal.data(), internal.size()); }
 
-/*      using conv<>::str;
+    /*  using conv<>::str;
         using conv<>::c_str; */
 		std::string str() const { return *this; }
         proxy c_str()     const { return str(); }
