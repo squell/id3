@@ -260,7 +260,8 @@ namespace charset {
    runtime functions listen to _setmbcp.
 
    Second, setlocale(LC_CTYPE, "") might get the active ANSI or OEM codepage!
-   MinGW does the former, Borland C++ the latter.
+   MinGW does the former, Borland C++ the latter. Force this with ".ACP" or
+   ".OCP", or ".xxx" to specify a direct code page.
 
    So the problem is not converting to Unicode - mbtowc does this! - but to
    actually select the proper locale.
@@ -278,7 +279,7 @@ namespace charset {
     unsigned SetConsoleOutputCP(void)  // NT only! since 9x has no console
     unsigned SetConsoleCP(void)        // NT only! since 9x has no console
 
-   I have had to read MSDN to get this info. I am utterly disgusted.
+   Have a nice day.
 
   */
 
