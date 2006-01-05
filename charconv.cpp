@@ -24,24 +24,28 @@ namespace charset {
     namespace {
         union wide {
             wide(wchar_t wc) : code(wc) { }
-            enum    { size = sizeof(wchar_t) };
             wchar_t code;
-            char    raw[size];
+            char    raw[sizeof(wchar_t)];
         };
-            static const size_t size = sizeof(wchar_t) ;
+
+        template<class T> inline
+        std::basic_string<T>& operator+=(std::basic_string<T>& str, const wide w)
+        {
+            return str += w.code;
+        }
 
         inline std::string& operator+=(std::string& str, const wide w)
         {
-            return str.append(w.raw, wide::size);
+            return str.append(w.raw, sizeof w.raw);
         }
     }
 
   // latin1 <-> unicode interconversion
 
-    template<> std::string conv<latin1>::decode(const char* s, size_t len)
+    template<> conv<>::data conv<latin1>::decode(const char* s, size_t len)
     {
-	std::string build;
-	build.reserve(len * wide::size);
+        conv<>::data build;
+        build.reserve(len);
 	for( ; len--; ) {
 	    build += wide(*s++ & 0xFF);
 	}
@@ -80,12 +84,11 @@ namespace charset {
         }
     }
 
-    template<> std::string conv<local>::decode(const char* s, size_t len)
+    template<> conv<>::data conv<local>::decode(const char* s, size_t len)
     {
         initialize();
-        std::string build;
-	build.reserve(len * wide::size);
-
+        conv<>::data build;
+        build.reserve(len);
 	wchar_t wc;
 	s += len;
 	for(int n; len; len -= n+!n) {
@@ -201,11 +204,11 @@ namespace charset {
         };
     }
 
-    template<> std::string conv<local>::decode(const char* s, size_t len)
+    template<> conv<>::data conv<local>::decode(const char* s, size_t len)
     {
         static const wchar_t* const map = dos_to_uni();
-        std::string build;
-        build.reserve(len * wide::size);
+        conv<>::data build;
+        build.reserve(len);
         for( ; len--; s++) {
             wide w = (*s & 0x80)? map[*s & 0x7F] : (*s & 0xFF);
             build += w;

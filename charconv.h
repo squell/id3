@@ -35,9 +35,8 @@ namespace charset {
   */
 
     template<> class conv<void> {
-        template<class Kin> friend class conv;
-        typedef std::basic_string<char> internal_t;
-        typedef internal_t::size_type   size_t;
+        typedef std::basic_string<wchar_t> data;
+        typedef data::size_type            size_t;
 		struct proxy {									// value wrapper
 			operator const char*() const { return str.c_str(); }
             proxy(const std::string& s) : str(s) { }
@@ -55,13 +54,20 @@ namespace charset {
         conv<>& operator+=
           (const conv<>& rhs)       { return (internal+=rhs.internal), *this; }
 
-		template<class E>
+        std::basic_string<wchar_t>&
+          wstr()                    { return internal; }
+        std::basic_string<wchar_t>
+          wstr() const              { return internal; }
+
+        template<class E>
           std::string str() const   { return conv<E>(*this); }
 		template<class E>
           proxy c_str() const       { return str<E>(); }
 	private:
-        internal_t internal;
-        explicit conv(const internal_t& s) : internal(s) { }
+        template<class Kin> friend class conv;
+        static const int cellsize = sizeof(wchar_t) / sizeof(data::value_type);
+        data internal;
+        explicit conv(const data& s) : internal(s) { }
 	};
 
   /*
@@ -77,15 +83,15 @@ namespace charset {
         conv(void)                    : conv<>() { }
 
 		operator std::string const() const
-        { return encode(internal.data(), internal.size()/sizeof(wchar_t)); }
+        { return encode(internal.data(), internal.size()/cellsize); }
 
     /*  using conv<>::str;
         using conv<>::c_str; */
 		std::string str() const { return *this; }
         proxy c_str()     const { return str(); }
 	private:
-        static internal_t  decode(const char*, std::size_t);
-        static std::string encode(const void*, std::size_t);
+        static conv<>::data decode(const char*, std::size_t);
+        static std::string  encode(const void*, std::size_t);
         template<class Kin> friend class conv;
 	};
 
