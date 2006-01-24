@@ -17,7 +17,8 @@
 
   writes in-memory tag pointed to by buf to fname. returns true / false on
   success / failure. in-memory tag needs to be zero-terminated.
-  if reqsize != 0, tries to write id3v2 tag of that size
+  if reqsize != 0, tries to write id3v2 tag of that size.
+  if buf is NULL or points to an empty tag, deletes tag.
   [doesnt check consistency of fname (use ID3_readf first)!]
 
       void ID3_free(void *buf)

@@ -230,15 +230,20 @@ int ID3_writef(const char *fname, void *buf, size_t reqsize)
 {
     struct raw_hdr new_h = { "ID3", 0, 0, 0, { 0, } };
     struct raw_hdr rh    = { { 0 } };                       /* duct tape */
-    uchar* src = (uchar*)buf + 1;
-    long size  = calcsize(src, LONG_MAX);
+    uchar* src;
+    long size = 0;
+
+    if(buf) {
+        src  = (uchar*)buf + 1;
+        size = calcsize(src, LONG_MAX);
+        new_h.ver = src[-1];
+    }
 
     FILE *f = fopen(fname, "rb+");
 
     if(!f || size < 0) return 0;                      /* error in caller */
 
     fread(&rh, sizeof(struct raw_hdr), 1, f);
-    new_h.ver = src[-1];
 
     if( memcmp(rh.ID, "ID3", 3) == 0 ) {             /* allready tagged? */
         long orig;
