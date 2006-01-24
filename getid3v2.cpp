@@ -48,10 +48,11 @@ ID3v2::value_string ID3v2::operator[](ID3field field) const
     };
 
     ID3FRAME f;
-    bool v  = ID3_start(f, tag) > 2;
     bool ok = false;
-    if(tag && field < FIELDS)
+    if(tag && field < FIELDS) {
+        const bool v = ID3_start(f, tag) > 2;
         ok = getframe(tag, f, 3+v, fieldtag[field][v]);
+    }
     return ok? unbinarize(f) : conv<>();
 }
 
@@ -131,13 +132,4 @@ static conv<> unbinarize(ID3FRAME f)
         return conv<>();
     }
 }
-
-/*
-
- Personal note.
-
- I admire M. Nilsson for being brave enough to put his name above documents
- such as the various ID3v2 standards.
-
-*/
 
