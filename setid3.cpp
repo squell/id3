@@ -125,7 +125,7 @@ bool ID3::vmodify(const char* fn, const subst& v) const
 
         if( cleared ) tag = synth_tag;
 
-        using charset::latin1;
+        using namespace charset;
         const string *txt;                    // reading aid
         int n = 0;                            // count number of set fields
 

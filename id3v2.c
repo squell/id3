@@ -233,17 +233,17 @@ int ID3_writef(const char *fname, void *buf, size_t reqsize)
     uchar* src;
     long size = 0;
 
+    FILE *f = fopen(fname, "rb+");
+    if(!f) return 0;
+
     if(buf) {
         src  = (uchar*)buf + 1;
         size = calcsize(src, LONG_MAX);
         new_h.ver = src[-1];
     }
 
-    FILE *f = fopen(fname, "rb+");
-
-    if(!f || size < 0) return 0;                      /* error in caller */
-
-    fread(&rh, sizeof(struct raw_hdr), 1, f);
+    if(size < 0 || fread(&rh, sizeof(struct raw_hdr), 1, f) != 1)
+        goto abort;                                   /* error in caller */
 
     if( memcmp(rh.ID, "ID3", 3) == 0 ) {             /* allready tagged? */
         long orig;
