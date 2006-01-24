@@ -67,7 +67,7 @@ namespace charset {
 #if defined(__STDC_ISO_10646__) || defined(__WIN32__)
 
   // locale <-> unicode interconversion
-  // non re-entrant!
+  // a bit touchy when changing locales
 
     namespace {
         inline bool is_set(const char* loc)
@@ -79,7 +79,11 @@ namespace charset {
         {
             static bool set;
             set = set || is_set(setlocale(LC_CTYPE, 0))
+#if defined(__WIN32__)
+                      || is_set(setlocale(LC_CTYPE, ".ACP"));
+#else
                       || is_set(setlocale(LC_CTYPE, ""));
+#endif
             return set;
         }
     }
