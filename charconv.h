@@ -23,6 +23,11 @@
 #define __ZF_CHARCONV_HPP
 
 #include <string>
+#ifdef __DJGPP__
+namespace std {
+    typedef basic_string<wchar_t> wstring;
+}
+#endif
 
 namespace charset {
     template<class Encoding = void> class conv;
@@ -35,14 +40,15 @@ namespace charset {
   */
 
     template<> class conv<void> {
-        typedef std::basic_string<wchar_t> data;
-        typedef data::size_type            size_t;
-		struct proxy {									// value wrapper
-			operator const char*() const { return str.c_str(); }
-            proxy(const std::string& s) : str(s) { }
+        template<class T> struct proxy {                // value wrapper
+            typedef typename conv<T>::char_type char_t;
+            operator const char_t*() const { return str.c_str(); }
+            proxy(const std::basic_string<char_t>& s) : str(s) { }
 		private:
-			const std::string str;
+            const std::basic_string<char_t> str;
 		};
+        typedef std::wstring    data;
+        typedef data::size_type size_t;
 	public:
         conv(const conv<>& other) : internal(other.internal) { }
         conv(void)                : internal()               { }
@@ -52,23 +58,26 @@ namespace charset {
         void swap(conv<>& other)    { internal.swap(other.internal); }
 
         conv<>& operator+=
+          (wchar_t c)               { return internal.append((data::value_type*)&c, cellsize), *this; }
+        conv<>& operator+=
           (const conv<>& rhs)       { return (internal+=rhs.internal), *this; }
 
-        std::basic_string<wchar_t>&
-          wstr()                    { return internal; }
-        std::basic_string<wchar_t>
-          wstr() const              { return internal; }
-
         template<class E>
-          std::string str() const   { return conv<E>(*this); }
-		template<class E>
-          proxy c_str() const       { return str<E>(); }
-	private:
+          std::basic_string<typename conv<E>::char_type>
+                   str()   const    { return conv<E>(*this); }
+        template<class E>
+          proxy<E> c_str() const    { return str<E>(); }
+    private:
         template<class Kin> friend class conv;
         static const int cellsize = sizeof(wchar_t) / sizeof(data::value_type);
         data internal;
         explicit conv(const data& s) : internal(s) { }
 	};
+
+    inline conv<> operator+(conv<> lhs, const conv<>& rhs)
+    {
+        return lhs += rhs;
+    }
 
   /*
 	  Any parameterization simply is a different "face" of the same class.
@@ -85,15 +94,37 @@ namespace charset {
 		operator std::string const() const
         { return encode(internal.data(), internal.size()/cellsize); }
 
-    /*  using conv<>::str;
-        using conv<>::c_str; */
-		std::string str() const { return *this; }
-        proxy c_str()     const { return str(); }
-	private:
+        std::string const str() const { return *this; }
+        proxy<char> c_str()     const { return str(); }
+
+        typedef char char_type;
+    private:
         static conv<>::data decode(const char*, std::size_t);
         static std::string  encode(const void*, std::size_t);
         template<class Kin> friend class conv;
 	};
+
+  /*
+      Direct wide char interface
+  */
+
+    template<> class conv<wchar_t> : public conv<> {
+    public:
+        conv(const std::wstring& s)   : conv<>(s) { }
+        conv(const wchar_t* p, size_t l) : conv<>(std::wstring(p,l)) { }
+        conv(const wchar_t* p)        : conv<>(p) { }
+        conv(const conv<>& other)     : conv<>(other) { }
+        conv(void)                    : conv<>() { }
+        conv(size_t n, wchar_t c)     : conv<>(std::wstring(n,c)) { }
+
+        operator std::wstring const() const { return internal; }
+        operator std::wstring&()            { return internal; }
+        std::wstring const str()      const { return internal; }
+        std::wstring& str()                 { return internal; }
+  //    const wchar_t* c_str()        const { return internal.c_str(); }
+
+        typedef wchar_t char_type;
+    };
 
   /*
       Convenient function
@@ -109,7 +140,7 @@ namespace charset {
       Predefined charsets.
   */
 
-    struct local;
+    typedef char local;
     struct latin1;
 }
 

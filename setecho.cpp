@@ -12,12 +12,12 @@ namespace set_tag {
 
 bool echo::vmodify(const char* fname, const subst& v) const
 {
-    return log( edit(fmt, v) ), true;
+    return log( edit(fmt, v).c_str() ), true;
 }
 
-void echo::log(charset::conv<charset::local> msg) const
+void echo::log(const char* msg) const
 {
-    std::puts(msg.c_str());
+    std::puts(msg);
 }
 
 }

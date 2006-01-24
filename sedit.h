@@ -83,7 +83,7 @@ protected:
         const char* operator[](unsigned) const { return ""; }
     };
 
-    static charset::conv<> edit
+    static charset::conv<charset::local> edit
       (const charset::conv<charset::local>&, const subst&, const char* = "", bool = 0);
 
     template<class T, class U>
@@ -113,7 +113,7 @@ template<class T, class U>
   inline std::string sedit(const std::string& fmt, T& vars, U& table)
 {
     return string_parm::edit(fmt,
-      string_parm::container<T,U>(vars, table)).template str<charset::local>();
+      string_parm::container<T,U>(vars, table)).str();
 }
 
 #endif

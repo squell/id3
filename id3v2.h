@@ -61,9 +61,9 @@
     char buf[10000], *out;
     int i;
 
-    out = ID3_put(buf, 0, 0, 0);
+    out = ID3_put(buf, ID3_v2_3, 0, 0, 0);
     for( .. frames to write .. )
-        out = ID3_put(out, ..id, ..&data, ..sizeof data);
+        out = ID3_put(out, ID3_v2_3, ..id, ..&data, ..sizeof data);
 
     ID3_writef("filename", buf, 0);
 

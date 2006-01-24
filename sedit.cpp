@@ -126,7 +126,7 @@ string padnumeric(string s, unsigned pad)
 
 typedef charset::conv<charset::local> cvtstring;
 
-charset::conv<> string_parm::edit(const cvtstring& fmt, const subst& var, const char* fallback, bool atomic)
+charset::conv<char> string_parm::edit(const cvtstring& fmt, const subst& var, const char* fallback, bool atomic)
 {
 //  const cvtstring::xlat conv = &cvtstring::latin1;
 
