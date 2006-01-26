@@ -3,6 +3,7 @@
 #include <string.h>
 #include "fileops.h"
 #include <sys/stat.h>
+#include <utime.h>
 #if !defined(__WIN32__)
 #    include <unistd.h>
 #else
@@ -121,9 +122,17 @@ int mvfile(const char *srcnam, const char *dstnam)
         slow = slow || remove(dstnam) != 0;
     }
     if(slow || rename(srcnam, dstnam) != 0) {
+        struct utimbuf buf, *stamp = 0;
+        struct stat ss;
+        if(lstat(srcnam, &ss) == 0) {                     /* preserve time */
+            stamp       = &buf;
+            buf.actime  = ss.st_atime;
+            buf.modtime = ss.st_mtime;
+        }
         if(!cpfile(srcnam, dstnam))
             return 0;        /* could not rename, could not copy - give up */
         (void) remove(srcnam);                        /* dont check result */
+        (void) utime(dstnam, stamp);
     }
     if(file)
          (void) chmod(dstnam, fs.st_mode);
