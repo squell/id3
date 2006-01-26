@@ -9,9 +9,9 @@
 #else
 #    include <io.h>
 #endif
-#if !defined(S_IFLNK)
-#    define  lstat   (stat)
-#    define  S_IFLNK (~S_IFMT)
+#if !defined(S_ISLNK)
+#    define  lstat      (stat)
+#    define  S_ISLNK(m) (0)
 #endif
 
 /*
@@ -117,15 +117,15 @@ int mvfile(const char *srcnam, const char *dstnam)
     int file = 0, slow = 0;
 
     if(lstat(dstnam, &fs) == 0) {
-        file = (fs.st_mode&S_IFMT) != S_IFLNK;
+        file = !S_ISLNK(fs.st_mode);
         slow = fs.st_nlink > 1 || !file;                   /* honour links */
         slow = slow || remove(dstnam) != 0;
     }
     if(slow || rename(srcnam, dstnam) != 0) {
         struct utimbuf buf, *stamp = 0;
         struct stat ss;
-        if(lstat(srcnam, &ss) == 0) {                     /* preserve time */
-            stamp       = &buf;
+        if(stat(srcnam, &ss) == 0) {
+            stamp       = &buf;                      /* preserve file time */
             buf.actime  = ss.st_atime;
             buf.modtime = ss.st_mtime;
         }
