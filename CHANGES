@@ -1,7 +1,18 @@
 Changelog for 'id3'.
 
+2006-025 (W04):
+  main.cpp: added -P (preserve time stamp)
+  main.cpp: added -D (replace tag by that from a different file)
+  other small tweaks
+
+2006-024 (W04):
+  adapted to use new replacement function; totally empty variables will not
+    clobber existing values now.
+
 2005-362 (W52):
   charconv.*: redesigned character conversion, support for win/dos
+  sedit: replacement written; added support for \n, \t, \r and other escape
+    sequences. added multiple fallbacks and "%| a || b || c |?" selection
 
 2005-342 (W49):
   main.cpp: removed internal globbing on directory arguments to -R

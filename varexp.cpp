@@ -12,6 +12,11 @@
 
 */
 
+/*
+  needs optimization; to do: cull untried matches from the solution set when
+  it's become clear that they will never match.
+*/
+
 bool varexp::match(const char* mask, const char* test)
 {
     pairvec::size_type prevlen = var.size();   // backup value

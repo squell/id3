@@ -226,7 +226,7 @@ static void _wfail(const char *srcname, const char *dstname)
 
 void (*ID3_wfail)(const char *srcname, const char *dstname) = _wfail;
 
-int ID3_writef(const char *fname, void *buf, size_t reqsize)
+int ID3_writef(const char *fname, const void *buf, size_t reqsize)
 {
     struct raw_hdr new_h = { "ID3", 0, 0, 0, { 0, } };
     struct raw_hdr rh    = { { 0 } };                       /* duct tape */
@@ -314,9 +314,9 @@ abort:                                  /* close file and return failure */
     return 0;
 }
 
-void ID3_free(void *buf)
+void ID3_free(const void *buf)
 {
-    free(buf);
+    free((void*)buf);
 }
 
 /* ==================================================== */
@@ -324,7 +324,7 @@ void ID3_free(void *buf)
 static const size_t raw_frm_sizeof[2]
   = { sizeof(struct raw_frm_2), sizeof(struct raw_frm_3) };
 
-ID3VER ID3_start(ID3FRAME f, void *buf)
+ID3VER ID3_start(ID3FRAME f, const void *buf)
 {
     register uchar ver = *(uchar*)buf;
     f->ID[3] = ver == 3;                 /* set to indicate tag version */

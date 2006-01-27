@@ -13,7 +13,7 @@
   *tagsize (if != NULL). returns pointer on success, NULL on failure
   stores non-zero value in *tagsize if dangerous ID3v2 tag caused failure
 
-      int ID3_writef(const char *fname, void *buf, size_t reqsize);
+      int ID3_writef(const char *fname, const void *buf, size_t reqsize);
 
   writes in-memory tag pointed to by buf to fname. returns true / false on
   success / failure. in-memory tag needs to be zero-terminated.
@@ -21,11 +21,11 @@
   if buf is NULL or points to an empty tag, deletes tag.
   [doesnt check consistency of fname (use ID3_readf first)!]
 
-      void ID3_free(void *buf)
+      void ID3_free(const void *buf)
 
   frees pointer obtained by ID3_readf()
 
-      ID3VER ID3_start(ID3FRAME f, void *buf)
+      ID3VER ID3_start(ID3FRAME f, const void *buf)
 
   initializes frame-iterator for stepping through tag pointed to by buf
 
@@ -86,7 +86,7 @@ extern "C" {                           /* whole heaps of errors otherwise */
 #endif
 
 typedef struct _ID3FRAME {
-    char *data;                           /* pointer to contents of frame */
+    const char *data;                     /* pointer to contents of frame */
     unsigned long size;                   /* length of frame contents     */
     char ID[5];                           /* ID of frame                  */
     unsigned tag_volit  : 1;
@@ -103,10 +103,10 @@ typedef enum {
 } ID3VER;
 
 extern void   *ID3_readf(const char *fname, size_t *tagsize);
-extern int     ID3_writef(const char *fname, void *buf, size_t reqsize);
-extern void    ID3_free(void *buf);
+extern int     ID3_writef(const char *fname, const void *buf, size_t reqsize);
+extern void    ID3_free(const void *buf);
 
-extern ID3VER  ID3_start(ID3FRAME f, void *buf);
+extern ID3VER  ID3_start(ID3FRAME f, const void *buf);
 extern int     ID3_frame(ID3FRAME f);
 
 extern void   *ID3_put(void *dest, ID3VER version, const char ID[4], const void *src, size_t len);
