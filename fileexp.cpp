@@ -2,13 +2,13 @@
 #include <algorithm>
 #include "varexp.h"
 #include "auto_dir.h"
-#include "fileexp.h"
 #if defined(__WIN32__)
 #    include <io.h>
 #    define F_OK 0
 #else
 #    include <unistd.h>
 #endif
+#include "fileexp.h"
 
 /*
 

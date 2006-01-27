@@ -29,13 +29,19 @@
 
 namespace set_tag {
 
-class rename : public group {
-    std::string ftemplate;
+class file : public group {
+    std::string m_template;
+    bool m_preserve;
 public:
-    rename& filename(std::string fname)
-    { ftemplate=fname; return *this; }
+    file() : m_preserve(0) { }
 
-    virtual bool vmodify(const char*, const subst&) const;
+    file& rename(std::string fname)
+    { m_template=fname; return *this; }
+
+    file& touch(bool t = true)
+    { m_preserve=!t; return *this; }
+
+    virtual bool vmodify(const char*, const function&) const;
 };
 
 }

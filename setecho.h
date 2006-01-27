@@ -24,7 +24,7 @@ class echo : public handler {
 public:
     echo(std::string s) : fmt(s) { }
 
-    virtual bool vmodify(const char*, const subst&) const;
+    virtual bool vmodify(const char*, const function&) const;
     virtual void log(const char*) const;
 
   // standard set - dummies
@@ -32,7 +32,7 @@ public:
     echo& set(ID3field, std::string)
     { return *this; }
 
-    echo& clear()
+    echo& clear(const char* fn = 0)
     { return *this; }
 };
 

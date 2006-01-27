@@ -1,11 +1,11 @@
 #include <new>
 #include <cctype>
 #include <cstdlib>
-#include "setid3v2.h"
-#include "getid3v2.h"
 #include "id3v1.h"
 #include "id3v2.h"
 #include "fileops.h"
+#include "getid3v2.h"
+#include "setid3v2.h"
 
 /*
 
@@ -165,8 +165,10 @@ ID3v2& ID3v2::reserve(size_t n)
     return *this;
 }
 
-ID3v2& ID3v2::clear()
+ID3v2& ID3v2::clear(const char* fn)
 {
+    ID3_free(null_tag);
+    null_tag = fn ? ID3_readf(fn, 0) : 0;
     fresh = true;
     return *this;
 }
@@ -193,22 +195,23 @@ set_tag::reader* ID3v2::read(const char* fn) const
     return new read::ID3v2(fn);
 }
 
-bool ID3v2::vmodify(const char* fn, const subst& v) const
+bool ID3v2::vmodify(const char* fn, const set_tag::function& edit) const
 {
-    size_t check;
-    void* buf = ID3_readf(fn, &check);
-
-    if(!buf && check != 0)                          // evil ID3 tag
-        return false;
-
     struct wrapper {
         void* data;
         operator void*() { return data;  }
        ~wrapper()        { ID3_free(data); }
     };
-    wrapper src = { fresh? (void*)0 : buf };
-    writer  tag;
-    db      table ( mod );
+
+    size_t check;
+    wrapper buf = { ID3_readf(fn, &check) };
+
+    if(!buf && check != 0)                          // evil ID3 tag
+        return false;
+
+    const void* src = fresh? null_tag : (void*)buf;
+    writer tag;
+    db table(mod);
 
     if( src ) {                                     // update existing tags
         ID3FRAME f;
@@ -219,11 +222,14 @@ bool ID3v2::vmodify(const char* fn, const subst& v) const
             if(p == table.end())
                 tag.put(f->ID, f->data, f->size);
             else {
-                charset::conv<> s = edit(p->second, v);
-                if(!s.empty()) {                    // else: erase frames
-                    string b = binarize(p->first, s);
-                    tag.put(f->ID, b.data(), b.length());
-                    table.erase(p);
+                if(function::result s = edit(p->second)) {
+                    if(!s.empty()) {                // else: erase frames
+                        string b = binarize(p->first, s);
+                        tag.put(f->ID, b.data(), b.length());
+                        table.erase(p);
+                    }
+                } else {
+                    tag.put(f->ID, f->data, f->size);
                 }
             }
         }
@@ -232,7 +238,7 @@ bool ID3v2::vmodify(const char* fn, const subst& v) const
     }
 
     for(db::iterator p = table.begin(); p != table.end(); ++p) {
-        charset::conv<> s = edit(p->second, v);
+        charset::conv<> s = edit(p->second);
         if(!s.empty()) {
             string b = binarize(p->first, s);
             tag.put(p->first.c_str(), b.data(), b.length());
@@ -243,5 +249,10 @@ bool ID3v2::vmodify(const char* fn, const subst& v) const
     guard::raise();                                 // deferred exception?
 
     return result;
+}
+
+ID3v2::~ID3v2()
+{
+    if(null_tag) ID3_free(null_tag);
 }
 

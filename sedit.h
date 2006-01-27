@@ -1,119 +1,67 @@
-/*
-
-  string replacement function
-
-  (c) 2004, 2005 squell ^ zero functionality!
-  see the file 'COPYING' for license conditions
-
-  Usage:
-
-  string_parm::edit parses any "%x"'s found in its first argument and
-  replaces them with corresponding entries from containers passed in its
-  second argument.
-
-  Optional modifiers:
-   "+"     Pass Throught A Capitalization Function
-   "-"     convert to lower case
-   "_"     Don't_eliminate_underscores_and   don't   compress    spaces
-   "#"     Pad numbers with (number of #'s-1) zero's.
-   "|alt|" Replace with alternate text if substitution would fail.
-
-  Special forms:
-   "%%" -> %
-   "%," -> \n
-
-  Restrictions:
-
-  If using the string_parm::container<> template, the only requirements of the
-  container types passed to it are that they have a [] operator defined, and
-  that it return data convertible into a cvtstring. E.g. a standard C
-  "array-of-char*" will do, as will std::vector<string>.
-
-  If a container does not perform bounds checking on the [] operator, the
-  results of using an out-of-bounds %x substitution directed to it container
-  is undefined.
-
-  Example:
-
-      char* tab[] = { "foo", "bar" };
-      cout << capitalize( sedit("%2%1", tab) );   // "Barfoo"
-
-*/
-
-#ifndef __ZF_SEDIT_HPP
-#define __ZF_SEDIT_HPP
+#ifndef __ZF_NSEDIT_HPP
+#define __ZF_NSEDIT_HPP
 
 #include <string>
 #include "charconv.h"
 
-extern std::string capitalize(std::string);
-extern std::string padnumeric(std::string, unsigned);
+namespace stredit {
 
-template<class T>
-  inline std::string sedit(const std::string&, const T&);
-template<class T, class U>
-  inline std::string sedit(const std::string&, const T&, const U&);
-template<class T, class U>
-  inline std::string sedit(const std::string&, T&, U&);
+    class function {
+    public:
+        struct result : charset::conv<char> {
+            result(const charset::conv<>& s, bool ok)
+            : charset::conv<char>(s), m_good(ok) { }
+            result(const charset::conv<>& s)
+            : charset::conv<char>(s), m_good(!s.empty()) { }
+            result(const std::string& s)
+            : charset::conv<char>(s), m_good(!s.empty()) { }
+            result(const char* p)
+            : charset::conv<char>(p), m_good(*p) { }
+            result(int ok = 0) : m_good(ok) { }
+            bool good() const              { return m_good; }
+            operator result const*() const { return good()? this : 0; }
+        private:
+            bool m_good;
+        };
 
-  //
-
-class string_parm {
-    static const bool ZERO_BASED = false;     // count starts at %0 ?
-    static const char VAR = '%';              // replacement char
-
-protected:
-    struct subst {
-        virtual charset::conv<charset::local> numeric(unsigned) const = 0;
-        virtual charset::conv<charset::local> alpha  (char)     const = 0;
+        virtual result operator()(const charset::conv<char>&) const = 0;
     };
 
-    template<class T, class U>                // templatized wrapper
-    struct container : subst {
-        T& num;
-        U& chr;
+    class format : public function {
+    public:
+        virtual result operator()(const charset::conv<char>& s) const
+        { return edit(charset::conv<wchar_t>(s), false); }
+    protected:
+        result edit(const std::wstring&, bool atomic) const;
 
-        container(T& t, U& u) : num(t), chr(u) { }
-
-        virtual charset::conv<charset::local> numeric(unsigned x) const { return num[x]; }
-        virtual charset::conv<charset::local> alpha  (char x)     const { return chr[x]; }
+        typedef std::wstring::const_iterator ptr;
+      // on entry, p != end
+        virtual result code (ptr& p, ptr end) const;
+        virtual result var  (ptr& p, ptr end) const = 0;
+        virtual ptr matching(ptr p,  ptr end) const;
     };
 
-    struct dummy {
-        const char* operator[](unsigned) const { return ""; }
+    template<class T> struct format_wrapper : format {
+        format_wrapper(T& i) : f(i) { }
+        virtual result var(ptr& p, ptr) const
+        { return (charset::conv<char>) f(*p++); }
+    private:
+        T& f;
     };
 
-    static charset::conv<charset::local> edit
-      (const charset::conv<charset::local>&, const subst&, const char* = "", bool = 0);
+    template<class F>
+      format_wrapper<F> wrap(F& fun) { return fun; }
 
-    template<class T, class U>
-      friend std::string sedit(const std::string&, T&, U&);
-    template<class T>
-      friend std::string sedit(const std::string&, const T&);
-    template<class T, class U>
-      friend std::string sedit(const std::string&, const T&, const U&);
-};
+    template<class T> struct format_array : format {
+        format_array(T& i) : cont(i) { }
+        virtual result var(ptr& p, ptr) const
+        { return (charset::conv<char>) cont[*p++ - '0']; }
+    private:
+        T& cont;
+    };
 
-  // little excuse for making this a useful header :)
-
-template<class T>
-  inline std::string sedit(const std::string& fmt, const T& vars)
-{
-    return sedit(fmt, vars, string_parm::dummy());
-}
-
-template<class T, class U>
-  inline std::string sedit(const std::string& fmt, const T& vars, const U& table)
-{
-    return string_parm::edit(fmt,
-      string_parm::container<const T, const U>(vars, table)).local();
-}
-
-template<class T, class U>
-  inline std::string sedit(const std::string& fmt, T& vars, U& table)
-{
-    return string_parm::edit(fmt,
-      string_parm::container<T,U>(vars, table)).str();
+    template<class A>
+      format_array<A>  array(A& arr) { return format_array<A>(arr); }
 }
 
 #endif

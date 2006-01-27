@@ -11,6 +11,20 @@ using namespace std;
 
 namespace set_tag {
 
+group& group::clear(const char* fn)
+{
+    fn? basefn = fn : basefn = 0;
+    data.cleared = true;
+    return *this;
+}
+
+group& group::set(ID3field i, std::string m)
+{
+    data.set(i, m);
+    return *this;
+}
+
+
  /* This class does NOT delegate the free form methods. This is simply
     because all tag formats use different naming conventions, so it would
     be really pointless anyhow. */
@@ -18,7 +32,7 @@ namespace set_tag {
  /* Implementation of group vmodify()
     - obeys the vmodify restrictions of set_base.h */
 
-bool group::vmodify(const char* fn, const subst& val) const
+bool group::vmodify(const char* fn, const function& val) const
 {
     for(int n = 0; n < FIELDS; ++n)
         if(const string* txt = data.update[n]) {
@@ -29,7 +43,8 @@ bool group::vmodify(const char* fn, const subst& val) const
         }
 
     if(data.cleared) {
-        for(const_iterator p = begin(); p != end(); (*p++)->clear());
+        const char* s = basefn? basefn->c_str() : 0;
+        for(const_iterator p = begin(); p != end(); ) (*p++)->clear(s);
         data.cleared = false;
     }
 

@@ -40,6 +40,7 @@ namespace charset {
   */
 
     template<> class conv<void> {
+    protected:
         template<class T> struct proxy {                // value wrapper
             typedef typename conv<T>::char_type char_t;
             operator const char_t*() const { return str.c_str(); }
@@ -47,9 +48,7 @@ namespace charset {
 		private:
             const std::basic_string<char_t> str;
 		};
-        typedef std::wstring    data;
-        typedef data::size_type size_t;
-	public:
+    public:
         conv(const conv<>& other) : internal(other.internal) { }
         conv(void)                : internal()               { }
 
@@ -67,12 +66,15 @@ namespace charset {
                    str()   const    { return conv<E>(*this); }
         template<class E>
           proxy<E> c_str() const    { return str<E>(); }
-    private:
-        template<class Kin> friend class conv;
+
+    protected:
+        typedef std::wstring    data;
+        typedef data::size_type size_t;
+
         static const int cellsize = sizeof(wchar_t) / sizeof(data::value_type);
         data internal;
         explicit conv(const data& s) : internal(s) { }
-	};
+    };
 
     inline conv<> operator+(conv<> lhs, const conv<>& rhs)
     {

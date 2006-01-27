@@ -5,9 +5,9 @@
 #include <algorithm>
 #include <map>
 #include <new>
-#include "setid3.h"
-#include "getid3.h"
 #include "id3v1.h"
+#include "getid3.h"
+#include "setid3.h"
 
 /*
 
@@ -29,7 +29,7 @@ using namespace std;
 using set_tag::ID3;
 using set_tag::ID3field;
 
-const ID3v1 synth_tag = {
+static ID3v1 const zero_tag = {
     { 'T', 'A', 'G' },
     "",  // title
     "",  // artist
@@ -40,6 +40,15 @@ const ID3v1 synth_tag = {
     0,   // track
     255  // genre
 };
+
+/* ====================================================== */
+
+static string str_upper(string s)
+{
+    for(string::iterator p = s.begin(); p != s.end(); ++p)
+        *p = toupper(*p);
+    return s;
+}
 
 /* ====================================================== */
 
@@ -92,20 +101,45 @@ struct genre_map : map<string,int,bool (*)(const string&,const string&)> {
         (*this)[ "Folk0" ] = 80;
         (*this)[ "Humo"  ] = 100;
         for(int i=0; i < ID3v1_numgenres; i++) {
-            (*this)[ capitalize(ID3v1_genre[i]) ] = i;
+            (*this)[ str_upper(ID3v1_genre[i]) ] = i;
         }
     }
 } const ID3_genre;
 
 /* ====================================================== */
 
+ID3& ID3::clear(const char* fn)
+{
+    delete null_tag, null_tag = 0;
+    if(fn) {
+        read::ID3 src(fn);
+        if(src) null_tag = new ID3v1(src.tag);
+    }
+    cleared = true;
+    return *this;
+}
+
 set_tag::reader* ID3::read(const char* fn) const
 {
     return new read::ID3(fn);
 }
 
-bool ID3::vmodify(const char* fn, const subst& v) const
+ // note: Borland doesn't suppress array-to-pointer conversion when deducing
+ // reference type parameters (in this case), so use pointer instead
+
+template<size_t N>
+static inline bool setfield(char (*dest)[N], const charset::conv<>* src)
 {
+    if(src)
+        return strncpy(*dest, src->template c_str<charset::latin1>(), N);
+    else
+        return false;
+}
+
+bool ID3::vmodify(const char* fn, const set_tag::function& edit) const
+{
+    const ID3v1& synth_tag = null_tag? *null_tag : zero_tag;
+
     ID3v1 tag = { { 0 } };                    // duct tape
 
     if( FILE* f = fopen(fn, "rb+") ) {
@@ -126,36 +160,40 @@ bool ID3::vmodify(const char* fn, const subst& v) const
         if( cleared ) tag = synth_tag;
 
         using namespace charset;
-        const string *txt;                    // reading aid
-        int n = 0;                            // count number of set fields
+        const string* field;                  // reading aid
+        int n = bool(null_tag);               // count number of set fields
 
-        if(txt = update[title])
-            ++n, strncpy(tag.title,  edit(*txt,v).conv<>::c_str<latin1>(), sizeof tag.title);
+        if(field = update[title])
+            n += setfield(&tag.title,  edit(*field));
 
-        if(txt = update[artist])
-            ++n, strncpy(tag.artist, edit(*txt,v).conv<>::c_str<latin1>(), sizeof tag.artist);
+        if(field = update[artist])
+            n += setfield(&tag.artist, edit(*field));
 
-        if(txt = update[album])
-            ++n, strncpy(tag.album,  edit(*txt,v).conv<>::c_str<latin1>(), sizeof tag.album);
+        if(field = update[album])
+            n += setfield(&tag.album,  edit(*field));
 
-        if(txt = update[year])
-            ++n, strncpy(tag.year,   edit(*txt,v).conv<>::c_str<latin1>(), sizeof tag.year);
+        if(field = update[year])
+            n += setfield(&tag.year,   edit(*field));
 
-        if(txt = update[cmnt]) {
-            ++n, strncpy(tag.cmnt,   edit(*txt,v).conv<>::c_str<latin1>(), sizeof tag.cmnt);
+        if(field = update[cmnt]) {
+            n += setfield(&tag.cmnt,   edit(*field));
             if(tag.zero != '\0')
                 tag.track = tag.zero = 0;               // ID3 v1.0 -> v1.1
         }
-        if(txt = update[track]) {
-            ++n, tag.track = atoi( edit(*txt,v).conv<>::c_str<latin1>() );
-            tag.zero = '\0';
+        if(field = update[track]) {
+            if(function::result rs = edit(*field)) {
+                ++n, tag.track = atoi( rs.conv<>::c_str<latin1>() );
+                tag.zero = '\0';
+            }
         }
-        if(txt = update[genre]) {
-            string          s = capitalize(edit(*txt,v).conv<>::str<latin1>());
-            unsigned int    x = atoi(s.c_str()) - 1;
-            genre_map::iter g = ID3_genre.find(s);
-            tag.genre = (s.empty() || g==ID3_genre.end()? x : g->second);
-            ++n;
+        if(field = update[genre]) {
+            if(function::result rs = edit(*field)) {
+                string s          = str_upper( rs.conv<>::str<latin1>() );
+                unsigned int x    = atoi(s.c_str()) - 1;
+                genre_map::iter g = ID3_genre.find(s);
+                tag.genre = (s.empty() || g==ID3_genre.end()? x : g->second);
+                ++n;
+            }
         }
 
         bool err;
@@ -175,6 +213,11 @@ bool ID3::vmodify(const char* fn, const subst& v) const
     };
 
     return false;
+}
+
+ID3::~ID3()
+{
+    delete null_tag;
 }
 
 /*

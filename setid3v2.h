@@ -42,14 +42,15 @@ namespace set_tag {
 
 class ID3v2 : public handler, public provider {
 public:
-    ID3v2() : mod(), resize(0), fresh(false)
+    ID3v2() : null_tag(), mod(), resize(), fresh()
     { }
+   ~ID3v2();
 
     ID3v2& set(ID3field i, std::string m);        // set standard field
     ID3v2& reserve(size_t);                       // set suggested size
-    ID3v2& clear();                               // erase previous tag?
+    ID3v2& clear(const char* fn = 0);             // erase previous tag?
 
-    bool    vmodify(const char*, const subst&) const;
+    bool    vmodify(const char*, const function&) const;
     reader* read(const char*) const;
 
   // extended set
@@ -58,6 +59,7 @@ public:
     bool rm(std::string field);                 // remove ID3v2 frame
 
 private:
+    const void* null_tag;
     std::map<std::string,std::string> mod;
     size_t resize;
     bool fresh;

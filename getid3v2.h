@@ -22,12 +22,15 @@ namespace set_tag {
     namespace read {
 
         class ID3v2 : public reader {
-            void* const tag;
         public:
+            const void* const tag;
+
+            typedef factory<ID3v2> factory;
             explicit ID3v2(const char* fn);
            ~ID3v2();
             value_string operator[](ID3field field) const;
             array listing() const;
+            operator bool() const { return tag; }
 
             static bool has_lang(const std::string field)  // implies has_enc
             { return field == "COMM" || field == "COM" ||

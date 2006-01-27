@@ -16,16 +16,24 @@ using namespace charset;
 using set_tag::read::ID3;
 using set_tag::ID3field;
 
-ID3::ID3(const char* fn) : tag()
-{
-    if( FILE* f = fopen(fn, "rb") ) {
-        fseek(f, -128, SEEK_END);
-        fread(&tag, 1, 128, f);
-        if( ferror(f) || memcmp(tag.TAG, "TAG", 3) != 0 ) {
-            tag.TAG[0] = 0;
+namespace {
+    inline ID3v1 _readtag(const char *fn)
+    {
+        ID3v1 tag;
+        if( FILE* f = fopen(fn, "rb") ) {
+            fseek(f, -128, SEEK_END);
+            fread(&tag, 1, 128, f);
+            if( ferror(f) || memcmp(tag.TAG, "TAG", 3) != 0 ) {
+                tag.TAG[0] = 0;
+            }
+            fclose(f);
         }
-        fclose(f);
+        return tag;
     }
+}
+
+ID3::ID3(const char* fn) : tag(_readtag(fn))
+{
 }
 
 ID3::value_string ID3::operator[](ID3field field) const

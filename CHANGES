@@ -3,7 +3,7 @@ Changelog for 'id3'.
 2006-025 (W04):
   main.cpp: added -P (preserve time stamp)
   main.cpp: added -D (replace tag by that from a different file)
-  other small tweaks
+  other small tweaks, partial i18n outside of Linux
 
 2006-024 (W04):
   adapted to use new replacement function; totally empty variables will not

@@ -26,21 +26,24 @@
 
 #include <string>
 #include "set_base.h"
+#include "id3v1.h"
 
 namespace set_tag {
 
 class ID3 : public handler, public provider, private handler::body {
+    const ID3v1* null_tag;
 public:
-    bool    vmodify(const char*, const subst&) const;
+    bool    vmodify(const char*, const function&) const;
     reader* read(const char*) const;
 
   // standard set
+    ID3() : null_tag() { }
+   ~ID3();
 
     ID3& set(ID3field i, std::string m)     // set ID3 field i to value m
-    { if(i < FIELDS) update[i] = m; return *this; }
+    { handler::body::set(i, m); return *this; }
 
-    ID3& clear()
-    { cleared = true; return *this; }
+    ID3& clear(const char* fn = 0);
 };
 
 }

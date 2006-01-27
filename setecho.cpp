@@ -10,9 +10,9 @@
 
 namespace set_tag {
 
-bool echo::vmodify(const char* fname, const subst& v) const
+bool echo::vmodify(const char* fname, const function& edit) const
 {
-    return log( edit(fmt, v).c_str() ), true;
+    return log( edit(fmt).c_str() ), true;
 }
 
 void echo::log(const char* msg) const

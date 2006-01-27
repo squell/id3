@@ -22,11 +22,14 @@ namespace set_tag {
     namespace read {
 
         class ID3 : public reader {
-            ID3v1 tag;
         public:
+            ID3v1 const tag;
+
+            typedef factory<ID3> factory;
             explicit ID3(const char* fn);
             value_string operator[](ID3field field) const;
             array listing() const;
+            operator bool() const { return tag.TAG[0]; }
         };
 
     }

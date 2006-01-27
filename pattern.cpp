@@ -1,8 +1,9 @@
 #include <string>
 #include <stdexcept>
-#include "pattern.h"
 #include "set_base.h"
 #include "mass_tag.h"
+#include "sedit.h"
+#include "pattern.h"
 
 /*
 
@@ -27,11 +28,10 @@ namespace {
         char var[3];
         bool w;
 
-        const char* operator[](char);
-        const char* operator[](unsigned);
+        const char* operator()(char);
     };
 
-    const char* count::operator[](char c)
+    const char* count::operator()(char c)
     {
         if(var[1]++ == '9')                        // limit reached
             throw std::out_of_range("too many variables in pattern");
@@ -46,12 +46,6 @@ namespace {
         }
         return "*";
     }
-
-    const char* count::operator[](unsigned i)
-    {
-        error[sizeof error-2] = (i+1) % 10 + '0';
-        throw std::out_of_range(error);
-    }
 }
 
 pattern::pattern(handler& tag, std::string mask)
@@ -61,7 +55,7 @@ pattern::pattern(handler& tag, std::string mask)
         mask.replace(pos, 1, "%x");
     }
     count var = { &tag, "%0" };
-    str = sedit(mask, var, var);
+    str = stredit::wrap(var)(mask);
     ok  = var.w;
 }
 

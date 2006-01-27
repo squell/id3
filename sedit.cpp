@@ -1,119 +1,74 @@
-#include <cctype>
+#include <string>
+#include <vector>
 #include <algorithm>
+#include <cctype>
+#include <cwctype>
 #include "sedit.h"
 
-/*
-
-  (c) 2004, 2005 squell ^ zero functionality!
-  see the file 'COPYING' for license conditions
-
-*/
-
 using namespace std;
+using namespace charset;
 
-namespace {
-
- // some predicates and transformers to feed to STL algo's
-
-    struct both_space {
-        bool operator()(char a, char b)
-        { return isspace(a) && isspace(b); }
-    };
-
-    struct filtered_char {
-        bool operator()(unsigned char c)
-        { return c == '_' || iscntrl(c); }
-    };
-
-    struct to_lower {
-        char operator()(char c)
-        { return tolower(c); }
-    };
-
- // remove extraneous spaces in a string
-
-    void compress(string& s)
-    {
-        string::iterator p = unique(s.begin(), s.end(), both_space());
-        if(p != s.begin() && isspace(p[-1])) --p;
-        s.erase(p, s.end());
-        if(s.length() > 0 && isspace(s[0]))
-            s.erase(s.begin());
-    }
-
- // choose capitalization
-
-    enum style { as_is, name, lowr, camel };
-
-    string stylize(string s, style caps)
-    {
-        switch(caps) {
-        case name:
-            return capitalize(s);
-  //    case camel:                    disabled
-  //        return padcamels(s);
-        case lowr:
-            transform(s.begin(), s.end(), s.begin(), to_lower());
-        }
-        return s;
-    }
-
-#ifdef GROUP_EXT
-    string::size_type findclose(const string& s, string::size_type i)
-    {
-        int n = 1;
-        while(n && i < s.length())
-            switch(s[i++]) {
-            case '>': --n; break;
-            case '<': ++n; break;
-            }
-        return n==0? --i : string::npos;
-    }
-
+#ifdef __DJGPP__                                 // crappy wide char support
+#    define towupper toupper
+#    define towlower tolower
+#    define iswalnum isalnum
+#    define iswcntrl iscntrl
+#    define iswspace isspace
 #endif
+
+namespace stredit {
+
+enum style { as_is, name, lowr, camel };
+
+struct filtered_char {                           // filter low-ascii
+    bool operator()(unsigned char c)
+    { return c == '_' || iswcntrl(c); }
+};
+
+struct both_space {                              // filter ascii space
+    bool operator()(char a, char b)
+    { return iswspace(a) && iswspace(b); }
+};
+
+struct to_lower {
+    char operator()(wchar_t c)
+    { return towlower(c); }
+};
+
+ // compress("    bla    bla  ", 4) -> "bla bla"
+
+void compress(wstring& s)
+{
+    wstring::iterator p = unique(s.begin(), s.end(), both_space());
+    if(p != s.begin() && iswspace(p[-1])) --p;
+    s.erase(p, s.end());
+    if(s.length() > 0 && iswspace(s[0]))
+        s.erase(s.begin());
 }
 
- // Capitalize A Text-string Like This.
+ // capitalize("hElLo wOrLd", 4) -> "Hello World"
 
-string capitalize(string s)
+void capitalize(wstring& s)
 {
     bool new_w = true;
-    for(string::iterator p = s.begin(); p != s.end(); ++p) {
-        *p = new_w? toupper(*p):tolower(*p);
-        new_w = isspace(*p) || !isalnum(*p) && new_w;
+    for(wstring::iterator p = s.begin(); p != s.end(); ++p) {
+        *p = new_w? towupper(*p):towlower(*p);
+        new_w = iswspace(*p) || !iswalnum(*p) && new_w;
     }
-    return s;
 }
-
-#if 0
- // ReformatAStringLikeThis -> Reformat A String Like This
-
-string padcamels(const string s)
-{
-    string::const_iterator p;
-    bool word = false;
-    string r;
-    for(p = s.begin(); p != s.end(); r.push_back(*p++)) {
-        if(isupper(*p) && word)
-            r.push_back(' ');
-        word = !isspace(*p);
-    }
-    return r;
-}
-#endif
 
  // padnumeric("(300/4)=75", 4) -> "0300/0004=0075"
 
-string padnumeric(string s, unsigned pad)
+void padnumeric(wstring& s, unsigned pad)
 {
-    const char digits[] = "0123456789";
-    string::size_type p, q = 0;
+    const wchar_t digits[] = L"0123456789";
+    wstring::size_type p, q = 0;
     do {
         p = s.find_first_of    (digits, q);
         q = s.find_first_not_of(digits, p);
-        string::size_type l = ((q==string::npos)? s.length() : q) - p;
+        wstring::size_type l = ((q==wstring::npos)? s.length() : q) - p;
         if(q == p)
-             return s;
+             return;
         if(l < pad) {
              s.insert(p, pad-l, '0');
              l = pad;
@@ -122,100 +77,112 @@ string padnumeric(string s, unsigned pad)
     } while(1);
 }
 
-/* ====================================================== */
-
-typedef charset::conv<charset::local> cvtstring;
-
-charset::conv<char> string_parm::edit(const cvtstring& fmt, const subst& var, const char* fallback, bool atomic)
+function::result format::edit(const wstring& format, bool atomic) const
 {
-//  const cvtstring::xlat conv = &cvtstring::latin1;
+    conv<wchar_t> build;
+    build.str().reserve(format.length());
+    int validity = -true;
 
-    string::size_type pos = 0;
-//  string s = fmt.str<charset::latin1>();
-    string s = charset::conv<charset::latin1>(fmt);
-    bool err = false;             // keeps track if all substitutions worked
-
-    while( (pos=s.find(VAR, pos)) != string::npos ) {
-        bool   raw  = false;
-        style  caps = as_is;
-        int    npad = 1;
-        string alt  = fallback;
-
-        int n = 1;
-        while( pos+n < s.length() ) {
-            cvtstring svar;
-            switch( char c = s[pos + (n++)] ) {
-            case VAR: s.replace(pos++, n, 1, VAR ); break;   // "%%" -> "%"
-            case ',': s.replace(pos, n, "\r\n", 2); pos += 2; break;
-
-            case '_': raw  = true; continue;
-    //      case '*': caps = camel;continue;   disabled //
-            case '+': caps = name; continue;
-            case '-': caps = lowr; continue;
-            case '#': ++npad;      continue;
-            case '|': {                                        // alt string
-                     string::size_type t = s.find('|', pos+n);
-                     if(t == string::npos) {
-                         s.replace(pos++, n, 1, '|');
-                         break;
-                     }
-                     n  += pos;
-                     alt = s.substr(n, t-n);
-                     n   = t+1 - pos;
-                     continue;
-                }
-#ifdef GROUP_EXT
-            case '<': {                                        // grouping
-                     int t = findclose(s, pos+n);
-                     if(t == string::npos) {
-                         s.replace(pos++, n, 1, '|');
-                         break;
-                     }
-                     n  += pos;
-                     svar= edit(s.substr(n, t-n),var,fallback,true);
-                     alt = "";
-                     raw = true;
-                     n   = t+1 - pos;
-                     goto substitute;
-                }
-#endif
-            case '0': if(!ZERO_BASED) c += 10;
-            case '1':
-            case '2':
-            case '3':
-            case '4':
-            case '5':
-            case '6':
-            case '7':
-            case '8':
-            case '9': if(!ZERO_BASED) --c;
-                svar = var.numeric(c-'0');
-                goto substitute;
-            default :
-                if(!isalpha(c)) {
-                    s.replace(pos++, n, 1, '?');
-                    break;
-                } else
-                    svar = var.alpha(c);
-            substitute:
-                if(svar.empty()) {
-                    svar = edit(alt, var);
-                    err = raw = true;
-                }
-                string tmp = charset::conv<charset::latin1>(svar);
-                if(!raw) {                                     // remove gunk
-                    replace_if(tmp.begin(), tmp.end(), filtered_char(), ' ');
-                    compress(tmp);
-                }
-                s.replace(pos, n, padnumeric(stylize(tmp, caps), npad));
-                pos += tmp.length();
+    for(ptr p = format.begin(); p < format.end(); ) {
+        switch(wchar_t c = *p++) {
+        case '\\':                              // leaves trailing slashes
+            if(p != format.end()) switch(c = *p++) {
+            case '\\': c = '\\'; break;
+            case 'a':  c = '\a'; break;
+            case 'b':  c = '\b'; break;
+            case 'f':  c = '\f'; break;
+            case 'n':  c = '\n'; break;    /* ?append carriage returns? */
+            case 'r':  c = '\r'; break;
+            case 't':  c = '\t'; break;
+            case 'v':  c = '\v'; break;
             }
-
-            break;         // turn switch-breaks into while-breaks
+        default:
+            build += c;
+            break;
+        case '%':
+            result subst = code(--p, format.end());
+            build += subst;
+            if(!subst) {
+                validity = validity > false;
+                continue;
+            }
         }
-
+        if(!atomic) validity = true;
     }
-
-    return !(err&&atomic)? charset::conv<charset::latin1>(s) : charset::conv<charset::latin1>();
+    return result(build, validity);
 }
+
+function::result format::code(ptr& p, ptr end) const
+{
+    vector<wstring> alt;
+    style caps       = as_is;
+    bool raw         = false;
+    unsigned num_pad = 1;
+
+    for(++p; p != end; ) {
+        switch(wchar_t c = *p++) {
+        case '_': raw  = true;      continue;
+        case '+': caps = name;      continue;
+        case '-': caps = lowr;      continue;
+        case '#': ++num_pad;        continue;
+        case '%':
+            return conv<wchar_t>(1, '%');
+        case ',':                               // deprecated new line macro
+            struct _deprecated {
+                ~_deprecated()
+                { }
+            } static _warning;
+            return conv<wchar_t>(1, '\n');
+
+        case '|': {
+            ptr q = matching(p-1, end);
+            if(alt.size() < 25)                 // artificial limit
+                alt.push_back(wstring(p, q));
+            if(q == end) break;
+            p = ++q;
+            continue;
+          }
+
+        default :
+            result subst = var(--p, end);
+            for(int i = 0; !subst && i < alt.size(); ++i) {
+                subst = edit(alt[i], true);
+            }
+            wstring s = conv<wchar_t>(subst).str();
+            if(!raw) {                          // remove gunk
+                replace_if(s.begin(), s.end(), filtered_char(), ' ');
+                compress(s);
+            }
+            if(caps == name)
+                capitalize(s); else
+            if(caps == lowr)
+                transform(s.begin(), s.end(), s.begin(), to_lower());
+            padnumeric(s, num_pad);
+            return result(conv<wchar_t>(s), subst.good());
+        }
+        break;
+    }
+    return false;
+}
+
+format::ptr format::matching(ptr p, ptr end) const
+{
+    unsigned nesting = 1, one = 1;
+    wchar_t delim = *p++;
+    while(p != end) {
+        switch(wchar_t c = *p++) {
+        case '%' :                              // start of nesting?
+            one = -one; break;
+        case '\\':                              // ignore escaped char
+            if(p == end) break;
+            ++p;
+        default  :
+            if(c == delim && (nesting-=one) == 0) return --p;
+            one = 1;
+        }
+    }
+    return p;
+}
+
+} // end namespace
 

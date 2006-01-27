@@ -6,7 +6,6 @@
 #include <stdexcept>
 #include <string>
 #include <algorithm>
-#include "sedit.h"
 #include "set_base.h"
 #include "setid3.h"
 #include "setfname.h"
@@ -179,7 +178,7 @@ clock_t       verbose::time;
 template<class T> struct uses { T object; };
 
 struct metadata :                    // owns the data it contains
-  set_tag::rename,
+  set_tag::file,
 #ifndef NO_V2
   uses<ID3v2>,
 #endif
@@ -232,7 +231,7 @@ static fileexp::find* instantiate(op::oper_t state, metadata& tag,
     case op::ren:
         tag.forget(0, tag.size());             // don't perform no-ops
     case op::ren | op::w:
-        tag.filename(tag.format);
+        tag.rename(tag.format);
     case op::w:
         selected = &tag;
     case op::rd:
@@ -269,7 +268,7 @@ int main_(int argc, char *argv[])
     enum parm_t {                              // parameter modes
         no_value, force_fn, recurse_expr, pattern_fn,
         std_field, custom_field, suggest_size,
-        set_rename, set_query
+        set_rename, set_query, set_copyfrom
     };
 
     parm_t cmd   = no_value;
@@ -303,6 +302,7 @@ int main_(int argc, char *argv[])
             } else {
                 switch( *opt++ ) {             // argument is a switch
                 case 'v': verbose::enable(); break;
+                case 'P': tag.touch(false);   break;
                 case 'm': if(recmask) {
                               eprintf("cannot use -R and -m at the same time\n");
                               shelp();
@@ -311,6 +311,7 @@ int main_(int argc, char *argv[])
                 case 'R': cmd = recurse_expr; break;
                 case 'f': cmd = set_rename;   break;
                 case 'q': cmd = set_query;    break;
+                case 'D': cmd = set_copyfrom; break;
                 case 'd': tag.clear(); state |= w; break;
                 case 't':
                 case 'a':
@@ -389,6 +390,10 @@ int main_(int argc, char *argv[])
 
         case std_field:                        // write a standard field
             tag.set(field, argv[i]);
+            break;
+
+        case set_copyfrom:                     // specify source tag
+            tag.clear(argv[i]);
             break;
 
 #ifndef NO_V2

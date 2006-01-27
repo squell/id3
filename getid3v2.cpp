@@ -1,7 +1,7 @@
 #include <vector>
 #include <cstdio>
-#include "getid3v2.h"
 #include "id3v2.h"
+#include "getid3v2.h"
 
 /*
 
@@ -16,7 +16,7 @@ using namespace charset;
 using set_tag::read::ID3v2;
 using set_tag::ID3field;
 
-static bool getframe(void*, ID3FRAME, int n, const char*);
+static bool getframe(const void*, ID3FRAME, int n, const char*);
 static conv<> unbinarize(ID3FRAME);
 
 ID3v2::ID3v2(const char* fn) : tag(ID3_readf(fn,0))
@@ -76,7 +76,7 @@ ID3v2::array ID3v2::listing() const
 
 /* ====================================================== */
 
-static bool getframe(void* tag, ID3FRAME f, int n, const char* field)
+static bool getframe(const void* tag, ID3FRAME f, int n, const char* field)
 {
     for( ; *field != '\0'; field+=n) {
         ID3_start(f, tag);

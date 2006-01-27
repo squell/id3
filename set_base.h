@@ -60,27 +60,24 @@ namespace set_tag {            // borland likes this better
   // interface part                                    //
   ///////////////////////////////////////////////////////
 
-class handler : protected string_parm {
+using stredit::function;
+
+class handler {
 public:
-    virtual bool vmodify(const char*, const subst&) const = 0;
+    virtual bool vmodify(const char*, const function&) const = 0;
     struct body;
 
-    template<class T, class U>
-      bool modify(const char* fn, T& vars, U& table) const
-    { return vmodify(fn, container<T,U>(vars, table)); }
-
-    template<class T, class U>
-      bool modify(const char* fn, const T& vars, const U& table) const
-    { return vmodify(fn, container<const T, const U>(vars, table)); }
+    bool modify(const char* fn, const function& sub) const
+    { return vmodify(fn, sub); }
 
     template<class T>
-      bool modify(const char* fn, const T& vars) const
-    { return modify(fn, vars, dummy()); }
+      bool modify(const char* fn, T& var) const
+    { return p_modify<T>(fn, &var); }
 
   // standard state set methods
 
     virtual handler& set(ID3field, std::string) = 0;
-    virtual handler& clear() = 0;
+    virtual handler& clear(const char* fn = 0) = 0;
 
     virtual handler& reserve(std::size_t req = 0)
     { return *this; }
@@ -96,9 +93,17 @@ protected:                     // disable outside destruction and copying
     handler() { }
     ~handler() { }
 
-private:
     void operator=(const handler&);
     handler(const handler&);
+
+private:                       // overload selectors
+    template<class T>
+      bool p_modify(const char* fn, const void* var) const
+    { return vmodify(fn, stredit::array((T*)var)); }
+
+    template<class T>
+      bool p_modify(const char* fn, const function* var) const
+    { return vmodify(fn, *var); }
 };
 
   ///////////////////////////////////////////////////////
@@ -115,12 +120,19 @@ protected:
 class reader {
 public:
     reader() { }
-    typedef charset::conv<charset::local> value_string;
+    typedef function::result value_string;
     typedef std::vector< std::pair<std::string, value_string> > array;
 
     virtual value_string operator[](ID3field) const = 0;
-    virtual array        listing() const = 0;
+    virtual array        listing()            const = 0;
+    virtual operator bool()                   const = 0;
     virtual ~reader() { }
+
+protected:                     // a pre-defined factory
+    template<class Instance> struct factory : provider {
+        virtual const reader* read(const char* fn) const
+        { return new Instance(fn); }
+    };
 
 private:                       // prevent copying of classes
     void operator=(const reader&);
@@ -131,18 +143,23 @@ private:                       // prevent copying of classes
   // boilerplate plumbing                              //
   ///////////////////////////////////////////////////////
 
-struct handler::body {
-    body() : update(), cleared() { }
-private:
+class handler::body {
     struct null;
-    struct nullable : private std::pair<std::string, bool> {
-        void operator=(const null*)         { first.erase(), second = 0; }
-        void operator=(std::string p)       { first.swap(p), second = 1; }
-        operator const std::string*() const { return second? &first : 0; }
-    };
 public:
+    body() : update(), cleared() { }
+
+    struct nullable : private std::pair<std::string, bool> {
+        void operator=(const null*)           { first.erase(), second = 0; }
+        void operator=(std::string p)         { first.swap(p), second = 1; }
+        operator const std::string*() const   { return second? &first : 0; }
+        const std::string* operator->() const { return *this; }
+    };
+
     nullable update[FIELDS];         // modification data
     bool cleared;                    // should vmodify clear existing tag?
+
+    void set(ID3field i, std::string m)
+    { if(i < FIELDS) update[i] = m; }
 };
 
   ///////////////////////////////////////////////////////
@@ -151,7 +168,8 @@ public:
   ///////////////////////////////////////////////////////
 
 class group : public handler, private std::vector<handler*> {
-    mutable handler::body data;
+    mutable handler::body  data;
+    mutable body::nullable basefn;
 public:
   // registers a delegate tag
     group& add(handler& h)
@@ -160,12 +178,10 @@ public:
     { erase(begin()+pos, begin()+pos+num); return *this; }
 
   // standard state set methods (non-inline)
-    group& clear()
-    { data.cleared = true; return *this; }
-    group& set(ID3field i, std::string m)
-    { if(i < FIELDS) data.update[i] = m; return *this; }
+    group& clear(const char* fn = 0);
+    group& set(ID3field i, std::string m);
 
-    bool vmodify(const char*, const subst&) const;
+    bool vmodify(const char*, const function&) const;
 
   // publish some methods
     using std::vector<handler*>::iterator;

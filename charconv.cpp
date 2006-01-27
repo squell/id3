@@ -1,13 +1,17 @@
 #include <cstddef>
 #include <clocale>
 #include <climits>
-#include "charconv.h"
 #if defined(__STDC_ISO_10646__) || defined(__WIN32__)
 #  include <wchar.h>
+#  define fallback(call) (0)
 #elif defined(__DJGPP__)
 #  include <map>
 #  include <dos.h>
+#else
+#  include <langinfo.h>
+#  define fallback(call) (call)
 #endif
+#include "charconv.h"
 
 /*
 
@@ -22,7 +26,7 @@ namespace charset {
     using namespace std;
 
     namespace {
-        union wide {
+        union wide {                        // accomodate wstring and string
             wide(wchar_t wc) : code(wc) { }
             wchar_t code;
             char    raw[sizeof(wchar_t)];
@@ -64,33 +68,72 @@ namespace charset {
 	return build;
     }
 
-#if defined(__STDC_ISO_10646__) || defined(__WIN32__)
+#if !defined(__DJGPP__)
 
   // locale <-> unicode interconversion
   // a bit touchy when changing locales
 
     namespace {
-        inline bool is_set(const char* loc)
+        struct _7bit;
+
+        inline bool ok_locale(const char* loc)
         {
-            return loc && strcmp(loc, "C") != 0;
+            if(loc && ok_locale(0))
+                return 1;
+            const char* tmp = setlocale(LC_CTYPE, loc);
+            return tmp && strcmp(tmp, "C") != 0;
         }
 
-        static bool initialize()
+        static bool wchar_unicode()
         {
-            static bool set;
-            set = set || is_set(setlocale(LC_CTYPE, 0))
 #if defined(__WIN32__)
-                      || is_set(setlocale(LC_CTYPE, ".ACP"));
+            static bool const set = ok_locale(".ACP");
+            return true;
 #else
-                      || is_set(setlocale(LC_CTYPE, ""));
+            static bool const set = ok_locale("");
+#  if defined(__STDC_ISO_10646__)
+            return true;
+#  else
+            return strcmp(nl_langinfo(CODESET), "UTF-8") == 0;
+#  endif
 #endif
-            return set;
         }
+    } // end anon. namespace
+
+#if fallback(1)
+
+    // fallback conversion, 7bit ASCII <-> unicode
+    // (probably should replace this with something based on iconv, some day)
+
+    template<> conv<>::data conv<_7bit>::decode(const char* s, size_t len)
+    {
+        conv<>::data build;
+        build.reserve(len);
+        for( ; len--; ) {
+            build += wide(*s++ & 0x7F);
+        }
+        return build;
     }
+
+    template<> std::string conv<_7bit>::encode(const void* p, size_t len)
+    {
+        const wchar_t* w = (wchar_t*)p;
+        std::string build;
+        build.reserve(len);
+        for( ; len--; ) {
+            wchar_t c = *w++;
+            build += (c < 0x80)? c : '?';
+        }
+        return build;
+    }
+
+#endif // ASCII convertor
 
     template<> conv<>::data conv<local>::decode(const char* s, size_t len)
     {
-        initialize();
+        if(!wchar_unicode())
+            return fallback(conv<_7bit>::decode(s, len));
+
         conv<>::data build;
         build.reserve(len);
 	wchar_t wc;
@@ -105,8 +148,10 @@ namespace charset {
 
     template<> std::string conv<local>::encode(const void* p, size_t len)
     {
+        if(!wchar_unicode())
+            return fallback(conv<_7bit>::encode(p, len));
+
         const wchar_t* w = (wchar_t*)p;
-        initialize();
 	std::string build;
         build.reserve(len*2);
 
@@ -288,8 +333,6 @@ namespace charset {
     unsigned GetConsoleCP(void)
     unsigned SetConsoleOutputCP(void)  // NT only! since 9x has no console
     unsigned SetConsoleCP(void)        // NT only! since 9x has no console
-
-   Have a nice day.
 
   */
 
