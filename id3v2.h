@@ -11,7 +11,8 @@
 
   reads ID3v2 tag from fname to memory, storing the tag size (w/o padding) in
   *tagsize (if != NULL). returns pointer on success, NULL on failure
-  stores non-zero value in *tagsize if dangerous ID3v2 tag caused failure
+  stores zero in *tagsize on failure, or non-zero value if a malformed ID3v2
+  tag caused failure.
 
       int ID3_writef(const char *fname, const void *buf, size_t reqsize);
 
@@ -38,8 +39,8 @@
   writes a frame of type ID with contents *src (size len) to the in-memory tag
   location pointed to by dest. returns the next memory location to write the
   next frame to. first call with ID null to perform initialization. version
-  must be 2 or 3 (for ID3v2.2 or ID3v2.3). A mixed version tag will not be
-  written by ID3_writef. returns dest to indicate error.
+  must be 2 or 3 (for ID3v2.2 or ID3v2.3). A mixed version tag will result in
+  undefined behaviour by ID3_writef. returns dest to indicate error (no-op).
 
       void (*ID3_wfail)(const char *dest, const char *src)
 

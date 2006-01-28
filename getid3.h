@@ -25,7 +25,7 @@ namespace set_tag {
         public:
             ID3v1 const tag;
 
-            typedef factory<ID3> factory;
+            typedef reader::factory<ID3> factory;
             explicit ID3(const char* fn);
             value_string operator[](ID3field field) const;
             array listing() const;

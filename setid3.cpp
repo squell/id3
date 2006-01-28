@@ -144,8 +144,8 @@ bool ID3::vmodify(const char* fn, const set_tag::function& edit) const
 
     if( FILE* f = fopen(fn, "rb+") ) {
         fseek(f, -128, SEEK_END);
-        fread(&tag, 1, 128, f);
-        fseek(f,    0, SEEK_CUR);             // * BUG * annotated below
+        fread(&tag, 1, 128, f);               //  annotated below
+        fseek(f,    0, ftell(f)<128? SEEK_END : SEEK_CUR);
 
         if( ferror(f) ) {
             fclose(f);
@@ -229,6 +229,9 @@ ID3::~ID3()
  appended to the file before the data actually written by fwrite(). (?)
 
  ARGH!
+
+ Actually, this is C conformant behaviour - no write shall follow a read
+ without an intervening fflush or fseek.
 
 */
 

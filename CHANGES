@@ -1,5 +1,8 @@
 Changelog for 'id3'.
 
+2006-027 (W04):
+  small portability fixes
+
 2006-025 (W04):
   main.cpp: added -P (preserve time stamp)
   main.cpp: added -D (replace tag by that from a different file)

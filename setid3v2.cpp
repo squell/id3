@@ -37,7 +37,7 @@ namespace {
 
     public:
         void init(ID3VER v, size_t len)
-                         { base = (char*) malloc(avail=len);
+                         { base = (char*) malloc(avail=len+!len);
                            if(!base) throw bad_alloc();
                            dest = (char*) ID3_put(base,version=v,0,0,0); }
 
@@ -204,7 +204,7 @@ bool ID3v2::vmodify(const char* fn, const set_tag::function& edit) const
     };
 
     size_t check;
-    wrapper buf = { ID3_readf(fn, &check) };
+    wrapper buf  = { ID3_readf(fn, &check) };
 
     if(!buf && check != 0)                          // evil ID3 tag
         return false;
@@ -215,7 +215,7 @@ bool ID3v2::vmodify(const char* fn, const set_tag::function& edit) const
 
     if( src ) {                                     // update existing tags
         ID3FRAME f;
-        tag.init(ID3_start(f, src), (check+0xFFF)&~0xFFF);
+        tag.init(ID3_start(f, src), 0x1000);
 
         while(ID3_frame(f)) {
             db::iterator p = table.find(f->ID);

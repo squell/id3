@@ -139,11 +139,17 @@ namespace charset {
     }
 
   /*
-      Predefined charsets.
+      Predefined charsets, explicit specialization prototypes
   */
 
     typedef char local;
     struct latin1;
+
+    template<> conv<>::data conv<local >::decode(const char*, std::size_t);
+    template<> std::string  conv<local >::encode(const void*, std::size_t);
+
+    template<> conv<>::data conv<latin1>::decode(const char*, std::size_t);
+    template<> std::string  conv<latin1>::encode(const void*, std::size_t);
 }
 
 #endif

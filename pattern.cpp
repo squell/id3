@@ -23,7 +23,7 @@ using std::string;
 namespace {
     static char error[] = "illegal variable: %_";
 
-    struct count {
+    struct counter {
         handler* tag;               // Borland doesn't like ref's in aggr's?
         char var[3];
         bool w;
@@ -31,7 +31,7 @@ namespace {
         const char* operator()(char);
     };
 
-    const char* count::operator()(char c)
+    const char* counter::operator()(char c)
     {
         if(var[1]++ == '9')                        // limit reached
             throw std::out_of_range("too many variables in pattern");
@@ -54,7 +54,7 @@ pattern::pattern(handler& tag, std::string mask)
     while((pos = mask.find('*',pos)) != string::npos) {
         mask.replace(pos, 1, "%x");
     }
-    count var = { &tag, "%0" };
+    counter var = { &tag, "%0" };
     str = stredit::wrap(var)(mask);
     ok  = var.w;
 }
