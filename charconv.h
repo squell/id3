@@ -133,7 +133,7 @@ namespace charset {
   */
 
     template<class In, class Out>
-    inline std::string recode(std::string str)
+    inline std::basic_string<typename Out::char_type> recode(std::basic_string<typename In::char_type> str)
     {
         return (conv<Out>) (conv<In>) str;
     }
