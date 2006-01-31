@@ -1,3 +1,16 @@
+/*
+
+  string replacement function
+
+  copyright (c) 2006 squell <squell@alumina.nl>
+
+  use, modification, copying and distribution of this software is permitted
+  see the accompanying file 'COPYING' for license conditions
+
+  Usage:
+
+*/
+
 #ifndef __ZF_NSEDIT_HPP
 #define __ZF_NSEDIT_HPP
 
@@ -18,8 +31,9 @@ namespace stredit {
             result(const char* p)
             : charset::conv<char>(p), m_good(*p) { }
             result(int ok = 0) : m_good(ok) { }
-            bool good() const              { return m_good; }
-            operator result const*() const { return good()? this : 0; }
+            bool good() const { return m_good; }
+            operator charset::conv<char> const*() const
+            { return good()? this : 0; }
         private:
             bool m_good;
         };
@@ -28,6 +42,7 @@ namespace stredit {
     };
 
     class format : public function {
+        static char const prefix = '%';
     public:
         virtual result operator()(const charset::conv<char>& s) const
         { return edit(charset::conv<wchar_t>(s), false); }

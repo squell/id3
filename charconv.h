@@ -2,8 +2,10 @@
 
   character conversion (user locale <-> latin1)
 
-  (c) 2005 squell ^ zero functionality!
-  see the file 'COPYING' for license conditions
+  copyright (c) 2005, 2006 squell <squell@alumina.nl>
+
+  use, modification, copying and distribution of this software is permitted
+  see the accompanying file 'COPYING' for license conditions
 
   Usage:
 
@@ -22,6 +24,7 @@
 #ifndef __ZF_CHARCONV_HPP
 #define __ZF_CHARCONV_HPP
 
+#include <cstddef>
 #include <string>
 #ifdef __DJGPP__
 namespace std {
@@ -40,6 +43,9 @@ namespace charset {
   */
 
     template<> class conv<void> {
+    public:
+        typedef std::wstring data;
+        static const int cellsize = sizeof(wchar_t) / sizeof(data::value_type);
     protected:
         template<class T> struct proxy {                // value wrapper
             typedef typename conv<T>::char_type char_t;
@@ -48,6 +54,9 @@ namespace charset {
 		private:
             const std::basic_string<char_t> str;
 		};
+
+        data internal;
+        explicit conv(const data& s) : internal(s) { }
     public:
         conv(const conv<>& other) : internal(other.internal) { }
         conv(void)                : internal()               { }
@@ -56,6 +65,8 @@ namespace charset {
         void clear()                { internal.erase(); }
         void swap(conv<>& other)    { internal.swap(other.internal); }
 
+        void reserve(data::size_type req = 0)
+                                    { internal.reserve(req * cellsize); }
         conv<>& operator+=
           (wchar_t c)               { return internal.append((data::value_type*)&c, cellsize), *this; }
         conv<>& operator+=
@@ -66,14 +77,6 @@ namespace charset {
                    str()   const    { return conv<E>(*this); }
         template<class E>
           proxy<E> c_str() const    { return str<E>(); }
-
-    protected:
-        typedef std::wstring    data;
-        typedef data::size_type size_t;
-
-        static const int cellsize = sizeof(wchar_t) / sizeof(data::value_type);
-        data internal;
-        explicit conv(const data& s) : internal(s) { }
     };
 
     inline conv<> operator+(conv<> lhs, const conv<>& rhs)
@@ -87,17 +90,23 @@ namespace charset {
 
     template<class Encoding> class conv : public conv<> {
 	public:
-        conv(const std::string& s)    : conv<>(decode(s.data(), s.size())) { }
-        conv(const char* p, size_t l) : conv<>(decode(p,l)) { }
-        conv(const char* p)           : conv<>((conv)std::string(p)) { }
-        conv(const conv<>& other)     : conv<>(other) { }
-        conv(void)                    : conv<>() { }
+        conv(const std::string& s)         : conv<>(decode(s.data(), s.size())) { }
+        conv(const char* p, std::size_t l) : conv<>(decode(p,l)) { }
+        conv(const char* p)                : conv<>((conv)std::string(p)) { }
+        conv(const conv<>& other)          : conv<>(other) { }
+        conv(void)                         : conv<>() { }
 
 		operator std::string const() const
         { return encode(internal.data(), internal.size()/cellsize); }
 
         std::string const str() const { return *this; }
         proxy<char> c_str()     const { return str(); }
+
+        template<class E>     // some compilers dont like using conv<>::str?
+          std::basic_string<typename conv<E>::char_type>
+                   str()   const    { return conv<>::str<E>(); }
+        template<class E>
+          proxy<E> c_str() const    { return conv<>::c_str<E>(); }
 
         typedef char char_type;
     private:
@@ -112,18 +121,22 @@ namespace charset {
 
     template<> class conv<wchar_t> : public conv<> {
     public:
-        conv(const std::wstring& s)   : conv<>(s) { }
-        conv(const wchar_t* p, size_t l) : conv<>(std::wstring(p,l)) { }
-        conv(const wchar_t* p)        : conv<>(p) { }
-        conv(const conv<>& other)     : conv<>(other) { }
-        conv(void)                    : conv<>() { }
-        conv(size_t n, wchar_t c)     : conv<>(std::wstring(n,c)) { }
+        conv(const std::wstring& s)           : conv<>(s) { }
+        conv(const wchar_t* p, std::size_t l) : conv<>(std::wstring(p,l)) { }
+        conv(const wchar_t* p)                : conv<>(p) { }
+        conv(const conv<>& other)             : conv<>(other) { }
+        conv(void)                            : conv<>() { }
+        conv(std::size_t n, wchar_t c)        : conv<>(std::wstring(n,c)) { }
 
         operator std::wstring const() const { return internal; }
-        operator std::wstring&()            { return internal; }
         std::wstring const str()      const { return internal; }
-        std::wstring& str()                 { return internal; }
   //    const wchar_t* c_str()        const { return internal.c_str(); }
+
+        template<class E>
+          std::basic_string<typename conv<E>::char_type>
+                   str()   const    { return conv<>::str<E>(); }
+        template<class E>
+          proxy<E> c_str() const    { return conv<>::c_str<E>(); }
 
         typedef wchar_t char_type;
     };

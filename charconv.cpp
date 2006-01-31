@@ -1,3 +1,7 @@
+#if defined(__WIN32__)
+#  include <windows.h>
+#  include <cstdio>
+#endif
 #include <cstddef>
 #include <clocale>
 #include <climits>
@@ -17,8 +21,10 @@
 
   character conversion (user locale -> latin1) (portable)
 
-  (c) 2004, 2005 squell ^ zero functionality!
-  see the file 'COPYING' for license conditions
+  copyright (c) 2005, 2006 squell <squell@alumina.nl>
+
+  use, modification, copying and distribution of this software is permitted
+  see the accompanying file 'COPYING' for license conditions
 
 */
 
@@ -51,7 +57,7 @@ namespace charset {
         conv<>::data build;
         build.reserve(len);
 	for( ; len--; ) {
-	    build += wide(*s++ & 0xFF);
+            build += wide(*s++ & 0xFF);
 	}
 	return build;
     }
@@ -80,23 +86,23 @@ namespace charset {
         {
             if(loc && ok_locale(0))
                 return 1;
+#if defined(__WIN32__)
+            char cp[12];
+            sprintf(cp, ".%d", GetACP() & 0xFFF);
+            loc = cp;
+#endif
             const char* tmp = setlocale(LC_CTYPE, loc);
             return tmp && strcmp(tmp, "C") != 0;
         }
 
         static bool wchar_unicode()
         {
-#if defined(__WIN32__)
-            static bool const set = ok_locale(".ACP");
-            return true;
-#else
             static bool const set = ok_locale("");
-#  if defined(__STDC_ISO_10646__)
-            return true;
-#  else
+#  if fallback(1)
             return strcmp(nl_langinfo(CODESET), "UTF-8") == 0;
+#  else
+            return true;
 #  endif
-#endif
         }
     } // end anon. namespace
 
@@ -127,7 +133,7 @@ namespace charset {
         return build;
     }
 
-#endif // ASCII convertor
+#endif // end-of-ASCII convertor
 
     template<> conv<>::data conv<local>::decode(const char* s, size_t len)
     {
@@ -166,7 +172,7 @@ namespace charset {
 
 #elif defined(__DJGPP__)
 
-  // mess-dos codepages (hardcoded)
+  // mess-dos codepages (hardcoded, one-on-one relationship to unicode)
 
     namespace {
         typedef wchar_t charmap[128];
@@ -176,6 +182,7 @@ namespace charset {
  // I'd rather have a lunate epsilon or element of for 'î', but it's not WGL
  //
  //   LATIN SMALL L. SHAPR S (00DF) -> GREEK SMALL L. BETA (03B2)
+ // + GREEK SMALL L. EPSILON (03B5) -> EURO SIGN  (20AC)
  //   GREEK SMALL L. EPSILON (03B5) -> ELEMENT OF (2208)
  //   GREEK SMALL L. EPSILON (03B5) -> GREEK LUNATE EPSILON S. (03F5)
  //   GREEK SMALL L. PHI     (03C6) -> LATIN SMALL L. O SLASH (00F8)
@@ -197,7 +204,7 @@ namespace charset {
             0x2568, 0x2564, 0x2565, 0x2559, 0x2558, 0x2552, 0x2553, 0x256B,
             0x256A, 0x2518, 0x250C, 0x2588, 0x2584, 0x258C, 0x2590, 0x2580,
             0x03B1, 0x00DF, 0x0393, 0x03C0, 0x03A3, 0x03C3, 0x00B5, 0x03C4,
-            0x03A6, 0x0398, 0x03A9, 0x03B4, 0x221E, 0x03C6, 0x03B5, 0x2229,
+            0x03A6, 0x0398, 0x03A9, 0x03B4, 0x221E, 0x03C6, 0x20AC, 0x2229,
             0x2261, 0x00B1, 0x2265, 0x2264, 0x2320, 0x2321, 0x00F7, 0x2248,
             0x00B0, 0x2022, 0x00B7, 0x221A, 0x207F, 0x00B2, 0x25A0, 0x00A0,
         };
@@ -315,8 +322,8 @@ namespace charset {
    runtime functions listen to _setmbcp.
 
    Second, setlocale(LC_CTYPE, "") might get the active ANSI or OEM codepage!
-   MinGW does the former, Borland C++ the latter. Force this with ".ACP" or
-   ".OCP", or ".xxx" to specify a direct code page.
+   MinGW does the former, Borland C++ the latter. Forcing this with ".ACP" or
+   ".OCP", doesn't work on Borland (apparently).
 
    So the problem is not converting to Unicode - mbtowc does this! - but to
    actually select the proper locale.

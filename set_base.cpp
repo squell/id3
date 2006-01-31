@@ -1,7 +1,9 @@
 /*
 
-  (c) 2004 squell ^ zero functionality!
-  see the file 'COPYING' for license conditions
+  copyright (c) 2004 squell <squell@alumina.nl>
+
+  use, modification, copying and distribution of this software is permitted
+  see the accompanying file 'COPYING' for license conditions
 
 */
 
@@ -11,19 +13,11 @@ using namespace std;
 
 namespace set_tag {
 
-group& group::clear(const char* fn)
+bool group::from(const char* fn)
 {
     fn? basefn = fn : basefn = 0;
-    data.cleared = true;
-    return *this;
+    return fn;
 }
-
-group& group::set(ID3field i, std::string m)
-{
-    data.set(i, m);
-    return *this;
-}
-
 
  /* This class does NOT delegate the free form methods. This is simply
     because all tag formats use different naming conventions, so it would

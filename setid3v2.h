@@ -2,8 +2,10 @@
 
   set_tag::ID3v2 applicative class
 
-  (c) 2004, 2005 squell ^ zero functionality!
-  see the file 'COPYING' for license conditions
+  copyright (c) 2004, 2005 squell <squell@alumina.nl>
+
+  use, modification, copying and distribution of this software is permitted
+  see the accompanying file 'COPYING' for license conditions
 
   Usage:
 
@@ -48,7 +50,8 @@ public:
 
     ID3v2& set(ID3field i, std::string m);        // set standard field
     ID3v2& reserve(size_t);                       // set suggested size
-    ID3v2& clear(const char* fn = 0);             // erase previous tag?
+    ID3v2& clear(bool t = true)                   // erase previous tag?
+    { fresh = t; }
 
     bool    vmodify(const char*, const function&) const;
     reader* read(const char*) const;
@@ -57,6 +60,7 @@ public:
 
     bool set(std::string field, std::string s); // set ID3v2 frame
     bool rm(std::string field);                 // remove ID3v2 frame
+    bool from(const char*);                     // specify copy tag
 
 private:
     const void* null_tag;

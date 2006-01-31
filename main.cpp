@@ -16,12 +16,14 @@
 #include "mass_tag.h"
 #include "pattern.h"
 
-#define _version_ "0.77-dev (2005dev)"
+#define _version_ "0.77 (2006031)"
 
 /*
 
-  (c) 2004, 2005 squell ^ zero functionality!
-  see the file 'COPYING' for license conditions
+  copyright (c) 2004-2006 squell <squell@alumina.nl>
+
+  use, modification, copying and distribution of this software is permitted
+  see the accompanying file 'COPYING' for license conditions
 
 */
 
@@ -44,7 +46,7 @@ static void Copyright()
 {
  //      |=======================64 chars wide==========================|
     printf(
-        "%s " _version_ ", Copyright (C) 2003, 04, 05 Marc R. Schoolderman\n"
+        "%s " _version_ ", Copyright (C) 2003, 04, 05, 06 Marc R. Schoolderman\n"
         "This program comes with ABSOLUTELY NO WARRANTY.\n\n"
         "This is free software, and you are welcome to redistribute it\n"
         "under certain conditions; see the file named COPYING in the\n"
@@ -68,7 +70,7 @@ static void Help()
         " -t <title>\t"    "set tag fields\n"
         " -a <artist>\t"   "\n"
         " -l <album>\t"    "\t(i'th matched `*' wildcard  = %%1-%%9,%%0\n"
-        " -n <tracknr>\t"  "\t file name/counter          = %%f %%x\n"
+        " -n <tracknr>\t"  "\t path/file name/counters    = %%p %%f %%x %%X\n"
         " -y <year>\t"     "\t value of tag field in file = %%t %%a %%l %%n %%y %%g %%c)\n"
         " -g <genre>\t"    "\n"
         " -c <comment>\t"  "\n"
@@ -76,6 +78,7 @@ static void Help()
         " -q <format>\t"   "print formatted string on standard output\n"
         " -m\t\t"          "match variables in filespec\n"
         " -R <pattern>\t"  "search directories recursively for wildcard pattern\n"
+        " -M\t\t"          "preserve modification time of files\n"
         " -V\t\t"          "print version info\n"
 #ifndef NO_V2
         "Only on last selected tag:\n"
@@ -135,9 +138,8 @@ public:
     : mass_tag(write, read) { }
     static void enable(bool t = true) { verbose::show = t; }
 private:
-    static unsigned long numfiles;
-    static bool          show;
-    static clock_t       time;
+    static bool    show;
+    static clock_t time;
 
     struct timer {
         timer() { time = clock(); }
@@ -146,7 +148,7 @@ private:
             time = clock() - time;
             if(show) {
                 if(exitc!=0) fprintf(stderr, "Errors were encountered\n");
-                if(exitc!=1) fprintf(stderr, "(%lu files in %.3fs) done\n", numfiles, double(time) / CLOCKS_PER_SEC);
+                if(exitc!=1) fprintf(stderr, "(%lu files in %.3fs) done\n", mass_tag::total(), double(time) / CLOCKS_PER_SEC);
             }
         }
     };
@@ -156,7 +158,6 @@ private:
     {
         if(verbose::show) {
             static timer initialize;
-            ++verbose::numfiles;
             if(counter==1 && name-f.path)
                  fprintf(stderr, "%.*s\n", name-f.path, f.path);
             fprintf(stderr, "\t%s\n", name);
@@ -167,9 +168,8 @@ private:
     }
 };
 
-unsigned long verbose::numfiles;
-bool          verbose::show;
-clock_t       verbose::time;
+bool    verbose::show;
+clock_t verbose::time;
 
 /* ====================================================== */
 
@@ -199,7 +199,8 @@ namespace op {                                 // state information bitset
         w     =  0x02,                         // write  requested?
         ren   =  0x04,                         // rename requested?
         rd    =  0x08,                         // read   requested?
-        patrn =  0x10,                         // match  requested?
+        clobr =  0x10,                         // clear  requested?
+        patrn =  0x20,                         // match  requested?
     };
     typedef int oper_t;
 }
@@ -250,6 +251,15 @@ static fileexp::find* instantiate(op::oper_t state, metadata& tag,
 
 /* ====================================================== */
 
+namespace clash {
+    void opt_R_m()
+    { eprintf("cannot use -R and -m at the same time\n");
+      shelp(); }
+    void opt_D_d()
+    { eprintf("cannot use either -d or -D more than once\n");
+      shelp(); }
+};
+
   // contains CLI interface loop
 
 int main_(int argc, char *argv[])
@@ -279,11 +289,15 @@ int main_(int argc, char *argv[])
         switch( cmd ) {
         case no_value:                         // process a command argument
             if(*opt != '\0') --i; else
-                if(argv[i][0] == '-' && scan) opt = argv[i]+1;
+                if(argv[i][0] == '-' && (state&scan)) opt = argv[i]+1;
             if(*opt == '\0') {
         case force_fn:                         // argument is filespec
                 string spec = argpath(argv[i]);
                 if(state & patrn) {            // filename pattern shorthand
+                    if((state&scan) == 0) {
+                        eprintf("-m: ignoring unexpected `%s'\n", argv[i]);
+                        continue;
+                    }
                     pattern p(tag, spec);
                     if(p) state |= op::w;
                     spec = p.mask();
@@ -302,17 +316,23 @@ int main_(int argc, char *argv[])
             } else {
                 switch( *opt++ ) {             // argument is a switch
                 case 'v': verbose::enable(); break;
-                case 'P': tag.touch(false);   break;
-                case 'm': if(recmask) {
-                              eprintf("cannot use -R and -m at the same time\n");
-                              shelp();
-                          }
-                          state |= patrn;     break;
-                case 'R': cmd = recurse_expr; break;
+                case 'M': tag.touch(false);   break;
                 case 'f': cmd = set_rename;   break;
                 case 'q': cmd = set_query;    break;
-                case 'D': cmd = set_copyfrom; break;
-                case 'd': tag.clear(); state |= w; break;
+
+                case 'm': if(recmask) clash::opt_R_m();
+                          state |= patrn;     break;
+                case 'R': cmd = recurse_expr; break;
+
+                case 'D': if(!(state&clobr)) {
+                              cmd = set_copyfrom; break;
+                          }
+                case 'd': if(!(state&clobr)) {
+                              tag.clear(); state |= (w|clobr); break;
+                          }
+                    eprintf("cannot use either -d or -D more than once\n");
+                    shelp();
+
                 case 't':
                 case 'a':
                 case 'l':
@@ -359,10 +379,6 @@ int main_(int argc, char *argv[])
                         break;
                     }
 #endif
-                case '!':             // deprecated
-                    if(chosen) {
-                        eprintf("-! is deprecated, use -u instead\n");
-                    }
                 case 'u':
                     if(chosen) {
                         for(int i = 0; i < set_tag::FIELDS; ++i)
@@ -393,7 +409,8 @@ int main_(int argc, char *argv[])
             break;
 
         case set_copyfrom:                     // specify source tag
-            tag.clear(argv[i]);
+            tag.clear().from(argv[i]);
+            state |= clobr;
             break;
 
 #ifndef NO_V2
@@ -426,20 +443,13 @@ int main_(int argc, char *argv[])
             continue;
 
         case set_query:                        // specify echo format
-            if(*argv[i] == '\0') {
-                eprintf("empty format string rejected\n");
-                shelp();
-            } else
-                tag.format = argv[i];
+            tag.format = argv[i];
             state |= rd;
             cmd = no_value;
             continue;
 
         case recurse_expr:                     // enable recursion (ugh)
-            if(state & patrn) {
-                eprintf("cannot use -R and -m at the same time\n");
-                shelp();
-            }
+            if(state & patrn) clash::opt_R_m();
             recmask = argpath(argv[i]);
             cmd = no_value;
             continue;
@@ -490,5 +500,10 @@ int main(int argc, char *argv[])
         eprintf("unexpected unhandled exception\n");
     }
     return 3;
+}
+
+void deprecated(const char* msg)
+{
+    eprintf("%s\n", msg);
 }
 

@@ -2,8 +2,10 @@
 
   Miscellaneous file operations
 
-  (c) 2003, 2005 squell ^ zero functionality!
-  see the file 'COPYING' for license conditions
+  copyright (c) 2003, 2005, 2006 squell <squell@alumina.nl>
+
+  use, modification, copying and distribution of this software is permitted
+  see the accompanying file 'COPYING' for license conditions
 
   Usage:
 
@@ -18,7 +20,8 @@
 
       int mvfile(const char *srcnam, const char *dstnam)
 
-  moves src to dest, using rename or cpfile
+  moves src to dest, using rename or cpfile. will try to retain the file mode
+  of dstnam when replacing.
 
       int fcopy(FILE *dest, FILE *src)
 

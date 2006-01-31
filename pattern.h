@@ -2,8 +2,10 @@
 
   specify tag fields using pattern matching (extension)
 
-  (c) 2005 squell ^ zero functionality!
-  see the file 'COPYING' for license conditions
+  copyright (c) 2005 squell <squell@alumina.nl>
+
+  use, modification, copying and distribution of this software is permitted
+  see the accompanying file 'COPYING' for license conditions
 
   Usage:
 

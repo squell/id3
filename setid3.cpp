@@ -11,8 +11,10 @@
 
 /*
 
-  (c) 2004, 2005 squell ^ zero functionality!
-  see the file 'COPYING' for license conditions
+  copyright (c) 2004, 2005 squell <squell@alumina.nl>
+
+  use, modification, copying and distribution of this software is permitted
+  see the accompanying file 'COPYING' for license conditions
 
 */
 
@@ -108,16 +110,19 @@ struct genre_map : map<string,int,bool (*)(const string&,const string&)> {
 
 /* ====================================================== */
 
-ID3& ID3::clear(const char* fn)
+bool ID3::from(const char* fn)
 {
-    delete null_tag, null_tag = 0;
+    delete (ID3v1*)null_tag, null_tag = 0;
     if(fn) {
         read::ID3 src(fn);
         if(src) null_tag = new ID3v1(src.tag);
     }
-    cleared = true;
-    return *this;
+    return null_tag;
 }
+
+ // note: Intel C++ produces an internal error here if the base class has
+ // the return type as 'const reader*' and this class doesn't. apparently
+ // caused by some compiler bug in relation to multiple inheritance.
 
 set_tag::reader* ID3::read(const char* fn) const
 {
@@ -138,7 +143,7 @@ static inline bool setfield(char (*dest)[N], const charset::conv<>* src)
 
 bool ID3::vmodify(const char* fn, const set_tag::function& edit) const
 {
-    const ID3v1& synth_tag = null_tag? *null_tag : zero_tag;
+    const ID3v1& synth_tag = null_tag? *(ID3v1*)null_tag : zero_tag;
 
     ID3v1 tag = { { 0 } };                    // duct tape
 
@@ -182,13 +187,13 @@ bool ID3::vmodify(const char* fn, const set_tag::function& edit) const
         }
         if(field = update[track]) {
             if(function::result rs = edit(*field)) {
-                ++n, tag.track = atoi( rs.conv<>::c_str<latin1>() );
+                ++n, tag.track = atoi( rs.c_str<latin1>() );
                 tag.zero = '\0';
             }
         }
         if(field = update[genre]) {
             if(function::result rs = edit(*field)) {
-                string s          = str_upper( rs.conv<>::str<latin1>() );
+                string s          = str_upper( rs.str<latin1>() );
                 unsigned int x    = atoi(s.c_str()) - 1;
                 genre_map::iter g = ID3_genre.find(s);
                 tag.genre = (s.empty() || g==ID3_genre.end()? x : g->second);
@@ -217,7 +222,7 @@ bool ID3::vmodify(const char* fn, const set_tag::function& edit) const
 
 ID3::~ID3()
 {
-    delete null_tag;
+    delete (ID3v1*)null_tag;
 }
 
 /*

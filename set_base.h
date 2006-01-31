@@ -2,8 +2,10 @@
 
   Interface for applicative tag classes
 
-  (c) 2004 squell ^ zero functionality!
-  see the file 'COPYING' for license conditions
+  copyright (c) 2004 squell <squell@alumina.nl>
+
+  use, modification, copying and distribution of this software is permitted
+  see the accompanying file 'COPYING' for license conditions
 
   Usage:
 
@@ -77,7 +79,7 @@ public:
   // standard state set methods
 
     virtual handler& set(ID3field, std::string) = 0;
-    virtual handler& clear(const char* fn = 0) = 0;
+    virtual handler& clear(bool = true) = 0;
 
     virtual handler& reserve(std::size_t req = 0)
     { return *this; }
@@ -87,6 +89,9 @@ public:
     virtual bool set(std::string, std::string)
     { return false; }
     virtual bool rm(std::string)
+    { return false; }
+
+    virtual bool from(const char* fn)
     { return false; }
 
 protected:                     // disable outside destruction and copying
@@ -112,7 +117,7 @@ private:                       // overload selectors
 
 class provider {
 public:
-    virtual const reader* read(const char*) const = 0;
+    virtual reader* read(const char*) const = 0;
 protected:
     ~provider() { }
 };
@@ -160,6 +165,8 @@ public:
 
     void set(ID3field i, std::string m)
     { if(i < FIELDS) update[i] = m; }
+    void clear(bool t = true)
+    { cleared = t; }
 };
 
   ///////////////////////////////////////////////////////
@@ -177,11 +184,14 @@ public:
     group& forget(size_type pos, size_type num = 1)
     { erase(begin()+pos, begin()+pos+num); return *this; }
 
-  // standard state set methods (non-inline)
-    group& clear(const char* fn = 0);
-    group& set(ID3field i, std::string m);
+  // standard state set methods
+    group& clear(bool t = true)
+    { data.clear(t);  return *this; }
+    group& set(ID3field i, std::string m)
+    { data.set(i, m); return *this; }
 
     bool vmodify(const char*, const function&) const;
+    bool from(const char*);
 
   // publish some methods
     using std::vector<handler*>::iterator;

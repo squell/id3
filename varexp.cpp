@@ -2,8 +2,10 @@
 
 /*
 
-  (c) 2004 squell ^ zero functionality!
-  see the file 'COPYING' for license conditions
+  copyright (c) 2004 squell <squell@alumina.nl>
+
+  use, modification, copying and distribution of this software is permitted
+  see the accompanying file 'COPYING' for license conditions
 
   an adapted version of a smaller, simpler wildcard match routine to
   support a primitive form of pattern matching

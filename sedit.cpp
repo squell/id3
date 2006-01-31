@@ -1,14 +1,23 @@
 #include <string>
 #include <vector>
 #include <algorithm>
-#include <cctype>
 #include <cwctype>
+#include <cctype>
 #include "sedit.h"
+
+/*
+
+  copyright (c) 2006 squell <squell@alumina.nl>
+
+  use, modification, copying and distribution of this software is permitted
+  see the accompanying file 'COPYING' for license conditions
+
+*/
 
 using namespace std;
 using namespace charset;
 
-#ifdef __DJGPP__                                 // crappy wide char support
+#if defined(__DJGPP__) || defined(__BORLANDC__)  // crappy wide char support
 #    define towupper toupper
 #    define towlower tolower
 #    define iswalnum isalnum
@@ -16,17 +25,19 @@ using namespace charset;
 #    define iswspace isspace
 #endif
 
+extern void deprecated(const char*);
+
 namespace stredit {
 
 enum style { as_is, name, lowr, camel };
 
 struct filtered_char {                           // filter low-ascii
-    bool operator()(unsigned char c)
+    bool operator()(wchar_t c)
     { return c == '_' || iswcntrl(c); }
 };
 
 struct both_space {                              // filter ascii space
-    bool operator()(char a, char b)
+    bool operator()(wchar_t a, wchar_t b)
     { return iswspace(a) && iswspace(b); }
 };
 
@@ -80,7 +91,7 @@ void padnumeric(wstring& s, unsigned pad)
 function::result format::edit(const wstring& format, bool atomic) const
 {
     conv<wchar_t> build;
-    build.str().reserve(format.length());
+    build.reserve(format.length());
     int validity = -true;
 
     for(ptr p = format.begin(); p < format.end(); ) {
@@ -99,7 +110,7 @@ function::result format::edit(const wstring& format, bool atomic) const
         default:
             build += c;
             break;
-        case '%':
+        case prefix:
             result subst = code(--p, format.end());
             build += subst;
             if(!subst) {
@@ -125,14 +136,15 @@ function::result format::code(ptr& p, ptr end) const
         case '+': caps = name;      continue;
         case '-': caps = lowr;      continue;
         case '#': ++num_pad;        continue;
-        case '%':
-            return conv<wchar_t>(1, '%');
-        case ',':                               // deprecated new line macro
-            struct _deprecated {
-                ~_deprecated()
-                { }
-            } static _warning;
-            return conv<wchar_t>(1, '\n');
+        case prefix:
+            return conv<wchar_t>(1, prefix);
+/* */   case ',':                               // deprecated new line macro
+            { struct _deprecated {
+                _deprecated() {}
+               ~_deprecated()
+                { deprecated("`%,' will be removed, use `\\n' or `\\n\\r' instead"); }
+              } static _warning; }
+/* */       return conv<wchar_t>(1, '\n');
 
         case '|': {
             ptr q = matching(p-1, end);
@@ -145,9 +157,11 @@ function::result format::code(ptr& p, ptr end) const
 
         default :
             result subst = var(--p, end);
-            for(int i = 0; !subst && i < alt.size(); ++i) {
-                subst = edit(alt[i], true);
-            }
+            if(!subst.good()) for(int i = 0; i < alt.size(); ++i)
+                if(result tmp = edit(alt[i], true)) {
+                    subst = tmp;
+                    break;
+                }
             wstring s = conv<wchar_t>(subst).str();
             if(!raw) {                          // remove gunk
                 replace_if(s.begin(), s.end(), filtered_char(), ' ');
@@ -171,7 +185,7 @@ format::ptr format::matching(ptr p, ptr end) const
     wchar_t delim = *p++;
     while(p != end) {
         switch(wchar_t c = *p++) {
-        case '%' :                              // start of nesting?
+        case prefix:                            // start of nesting?
             one = -one; break;
         case '\\':                              // ignore escaped char
             if(p == end) break;

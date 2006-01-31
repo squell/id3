@@ -1,6 +1,9 @@
 #include <new>
+#include <algorithm>
+#include <functional>
 #include <cctype>
 #include <cstdlib>
+#include "char_ucs.h"
 #include "id3v1.h"
 #include "id3v2.h"
 #include "fileops.h"
@@ -9,8 +12,10 @@
 
 /*
 
-  (c) 2004, 2005 squell ^ zero functionality!
-  see the file 'COPYING' for license conditions
+  copyright (c) 2004, 2005 squell <squell@alumina.nl>
+
+  use, modification, copying and distribution of this software is permitted
+  see the accompanying file 'COPYING' for license conditions
 
   Note: I'm devoting quite a bit of code to glue the interface from C to C++,
   and I'm not entirely happy about it. I'm a bit confused as to the reasons I
@@ -30,13 +35,13 @@ namespace {
  // extra hairyness to prevent buffer overflows by re-allocating on the fly
  // overkill, but i had to do a runtime check anyway, so.
 
-    class writer {
+    class writer {                          
         size_t avail;
         char *base, *dest;
-        ID3VER version;
+        ID3VER version;                     // writes ID3v2.3 per default
 
-    public:
-        void init(ID3VER v, size_t len)
+    public:                                 
+        void init(size_t len, ID3VER v = ID3_v2_3)
                          { base = (char*) malloc(avail=len+!len);
                            if(!base) throw bad_alloc();
                            dest = (char*) ID3_put(base,version=v,0,0,0); }
@@ -103,6 +108,7 @@ namespace {
 /* ===================================== */
 
  // code for constructing ID3v2 frames. rather hairy, but hey, ID3v2 sucks
+ // returns empty string if unsupported
 
 static string binarize(const string field, charset::conv<charset::latin1> content)
 {
@@ -112,6 +118,7 @@ static string binarize(const string field, charset::conv<charset::latin1> conten
     }
 
     using set_tag::read::ID3v2;
+    using charset::conv;
 
     string data;
     if(!ID3v2::is_valid(field))
@@ -124,15 +131,20 @@ static string binarize(const string field, charset::conv<charset::latin1> conten
         data.push_back(t       & 0xFF);
         return data;
     }
+
+    const wstring& ws = content.str<wchar_t>();
     const char nul[2] = { 0 };
-    data = char(0);                    // unicode to be implemented
+                           
+    data = char(ws.end() != find_if(ws.begin(), ws.end(),
+                                      bind2nd(greater<wchar_t>(), 0xFF)));
     if(ID3v2::has_lang(field))
         data.append("xxx");
-    if(ID3v2::has_desc(field))
-        data.append(""), data.append(nul, 1);
+    if(ID3v2::has_desc(field))             // desc fields to be implemented
+        data.append(nul, 1);
 
     if(data.length() > 1 || ID3v2::is_text(field)) {
-        return data + content.str();
+        return data + (data[0]==0 || ID3v2::is_url(field) ?
+                         content.str() : conv<charset::ucs2>(content).str());
     } else if(ID3v2::is_url(field)) {
         return content;
     } else {
@@ -165,12 +177,10 @@ ID3v2& ID3v2::reserve(size_t n)
     return *this;
 }
 
-ID3v2& ID3v2::clear(const char* fn)
+bool ID3v2::from(const char* fn)
 {
     ID3_free(null_tag);
-    null_tag = fn ? ID3_readf(fn, 0) : 0;
-    fresh = true;
-    return *this;
+    return null_tag = (fn? ID3_readf(fn, 0) : 0);
 }
 
 bool ID3v2::set(string field, string s)
@@ -215,7 +225,7 @@ bool ID3v2::vmodify(const char* fn, const set_tag::function& edit) const
 
     if( src ) {                                     // update existing tags
         ID3FRAME f;
-        tag.init(ID3_start(f, src), 0x1000);
+        tag.init(0x1000, ID3_start(f, src));
 
         while(ID3_frame(f)) {
             db::iterator p = table.find(f->ID);
@@ -234,7 +244,7 @@ bool ID3v2::vmodify(const char* fn, const set_tag::function& edit) const
             }
         }
     } else {
-        tag.init(ID3_v2_3, 0x1000);                 // ID3v2.3 per default
+        tag.init(0x1000);
     }
 
     for(db::iterator p = table.begin(); p != table.end(); ++p) {

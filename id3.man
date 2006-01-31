@@ -5,6 +5,7 @@ id3 \- a commandline mass tagger
 .HP 2
 .B id3
 .RB [ \-v ]
+.RB [ \-M ]
 .RB [ \-12 ]
 .RB [ \-d ]
 .RB [ \-t
@@ -37,8 +38,7 @@ id3 \- a commandline mass tagger
 .RB [ \-r\fIFRAME ]
 .RB [ \-w\fIFRAME
 .IR data ]
-.RI [ " \*(lqfilespec\*(rq
-\& ... ]
+.IR \*(lqfilespec\*(rq
 .SH DESCRIPTION
 .I id3
 mass tagger is a tool for manipulating id3 and id3v2 tags in multiple
@@ -47,9 +47,9 @@ and/or rename files, using an intuitive syntax.
 
 .I id3
 currently supports the old-style ID3 format with track-number extension
-(ID3 v1.1), as well as the more complicated ID3v2 (ID3 v2.3.0) format. This
-also means use is pretty much limited to audio files which use these formats,
-e.g, MPEG-1 Layer III.
+(ID3 v1.1), as well as the more complicated ID3v2 (ID3 v2.2.0, v2.3.0) format.
+This also means use is pretty much limited to audio files which use these
+formats, e.g, MPEG-1 Layer III.
 .SH OPTIONS
 Order of the options is only important where specified.
 .TP
@@ -62,7 +62,7 @@ in double quotes ("").
 has internal shell pattern matching which will not work if your shell also
 performs this function.
 
-The shell pattern matching can be applied to both filenames and directory
+The shell pattern matching can be applied to both file names and directory
 names.
 .TP
 .B \-h
@@ -73,6 +73,9 @@ display version number and copyright
 .TP
 .B \-v
 be verbose
+.TP
+.B \-M
+preserve last modification time of tagged files
 .TP
 .B \-1
 process ID3v1 tags (default). See `-2'.
@@ -179,12 +182,16 @@ writing them to a tag. Note that if you want to use pattern matching, you
 HAVE TO enclose the wildcard specification on the commandline in double quotes
 to prevent your shell from expanding any wildcards.
 .TP
+.BI \(rs c
+escape sequence. \(rsn, \(rsr, \(rst, \(rsv, \(rsf, \(rsb, \(rsa, get replaced as in C, any
+other character will be stripped of any special meaning. E.g., \(rsn becomes the
+newline character, \(rs\(rs a single backslash.
+.TP
 .BI % <modifiers>N
 .SM where \fIN\fR <- [0..9]
-
-replaced with the portion of the filename matching the \fIn\fRth `*'
+replaced with the portion of the file path matching the \fIn\fRth `*'
 (asterisk) wildcard in the file specification. 0 is taken to mean 10.
-If the `-R \fIpattern\fR' option is used, the filename is matched against
+If the `-R \fIpattern\fR' option is used, the file path is matched against
 \fIpattern\fR instead.
 .TP
 .BI % <modifiers>c
@@ -206,23 +213,31 @@ replaced by values according to the following table:
 .br
 .BR %c " comment\ field
 .br
-.BR %f " filename
+.BR %f " file\ name\ (without\ path)
+.br
+.BR %p " path\ to\ filename
 .br
 .BR %x " auto-increasing\ counter
+.br
+.BR %X " file counter
 .PP
 Values get read (where applicable) from the source tag, which is the left-most
 tag selected on the command line, and reflect the state of the file before any
-modifications were made, unless they only appear in
-`-f \fIfilename-template\fR'.
-\fI%f\fR is always the original filename. The \fI%x\fR value gets increased
-for each matched file in a directory, and is intended for auto-numbering.
+modifications were made. If the source value is not available, the variable
+fails.
+\fI%p%f\fR combines to the full path and file name. The \fI%x\fR value
+gets increased every time it has been substituted inside the same directory,
+and is intended for auto-numbering. \fI%X\fR increases for every file
+processed.
 .RE
 .TP
 .B %%
-replaced with a single \*(lq%\*(rq
+replaced with a single \*(lq%\*(rq, equivalent to \fB\(rs%\fR
 .TP
-.B %,
-replaced with the newline (\*(lq\en\*(rq) character
+.BI %| text || alt\ text || ... |?
+substituted by the first \fItext\fR that was completely succesful, or fails
+as empty, see \fBfallbacks\fR below. This can be used as an all-or-nothing
+substitution. A lone \*(lq%?\*(rq always fails.
 .SS Available \fI<modifiers>\fR (optional):
 .TP
 .BR + " (plus\ sign)
@@ -240,10 +255,11 @@ Multiple hash signs can be stacked to increase desired width. If there are
 no numeric values, this modifier has no effect.
 .TP
 .BI | fallback |
-If substitution would yield an empty value, substitute with \fIfallback\fR
-instead. \fIfallback\fR itself may contain other variables, but no other
-.B |
-(pipe) symbols or fallbacks.
+If substitution for a variable fails, attempt \fIfallback\fR instead.
+\fIfallback\fR itself may be empty or contain other variables (including other
+fallbacks). If \fIfallback\fR contains variables that fail, the \fIfallback\fR
+fails and will not be used. If more than one fallback is provided, successive
+fallbacks are tried until one succeeds.
 .RE
 .SH EXAMPLES
 Here are some examples of using id3:
@@ -256,6 +272,9 @@ Removes all ID3v1 tags from all mp3's.
 .TP
 \fBid3 -2 -1u fs_song.mp3
 Copy ID3v2 tag to ID3v1 tag in selected file.
+.TP
+\fBid3 -D source.mp3 -1 -2 dest.mp3
+Duplicate ID3v1 and ID3v2 tags of source.mp3 to dest.mp3
 .TP
 \fBid3 -a "TAFKAT" -n "%1" -t "%+2" "*. *.mp3"
 Update tag fields similar to this;
@@ -286,6 +305,9 @@ Shorthand for the previous example.
 .TP
 \fBid3 -2 -c "Was: %_f" -f "%|Nobody|a - %|Untitled (%x)|t.mp3" "*.mp3"
 Advanced rename. Saves previous filename in the comment field.
+.TP
+\fBid3 -2 -q "%| %a - %|Untitled|t || %t || %1 |?" "*.mp3"
+Generate a playlist.
 .SH NOTES
 The internal pattern matching emulates the normal pattern matching of
 \*(lqsh\*(rq. It supports ?, * and [].
@@ -302,10 +324,6 @@ the context of filenames.
 Do NOT add ID3 tags to files for which it does not make sense, i.e, add them
 only to MP3 files. In particular, do not add ID3v2 tags to Ogg files, since
 ID3v2 tags start at the beginning of the file.
-.SH BUGS
-id3 currently does not handle (and can't remove) the older ID3v2.2 tags.
-This is unfortunate because the popular iTunes program seems to prefer
-writing in that format by default.
 .SH COMPATIBILITY
 id3 has a built-in genre list of 148 genres. If you pass the -g parameter a
 string instead of a number when using ID3v1, id3 tries to find the specified
@@ -313,13 +331,28 @@ genre in this list, and selects the closest possible match (if any). For the
 genre numbers and exact spelling, see \fIid3v1.c\fR in the source
 distribution. An empty or invalid genre is assigned the number 0.
 
-The  -w\fIFRAME\fR  parameter  only  knows  the following ID3v2 frames:  Txxx
-(text), Wxxx (links), COMM (comment), IPLS (involved  people),  USLT (lyrics),
-USER (tos) and PCNT (numeric play counter). It is a no-op for ID3v1.
+id3 automatically writes Unicode tags where necessary. Depending on your
+system, you may only be able to fully work with all characters if you are
+using an UTF-8 locale.
 
-id3 does not support ID3v2 v2.0 or earlier, neither does it support the new
-ID3v2 v4.0 (yet?). It also does not support ID3v2 features as compression,
-encryption, ...
+id3 will write the ID3v2 tag version that was encountered and does not convert
+from one version to another. If no existing tag is found, ID3 v2.3 will be
+written (this may change in a future version).
+
+The -w\fIFRAME\fR parameter only knows the following ID3v2.2 (3
+letter)/ID3v2.3 (4 letter) frames:
+T??/T??? (text),
+W??/W??? (links),
+COM/COMM (comment),
+IPL/IPLS (involved  people),
+ULT/USLT (lyrics),
+CNT/PCNT (numeric play counter) and
+USER (tos, v2.3 only).
+Frames that do not match the tag type encountered are ignored and not
+converted. It is a no-op for ID3v1.
+
+id3 does not (currently) support ID3v2 v4.0 tags. It also does not support
+ID3v2 features as compression, encryption, ...
 .SH AUTHOR
 Written by Marc R. Schoolderman <squell@alumina.nl>.
 .SH COPYRIGHT
@@ -327,3 +360,4 @@ This is free software; see the source for copying conditions. There is NO
 warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 .SH SEE ALSO
 Program homepage: http://home.wanadoo.nl/squell/id3.html
+

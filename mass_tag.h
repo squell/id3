@@ -2,8 +2,10 @@
 
   mass_tag engine class (wrapping it all up)
 
-  (c) 2004, 2005 squell ^ zero functionality!
-  see the file 'COPYING' for license conditions
+  copyright (c) 2004-2006 squell <squell@alumina.nl>
+
+  use, modification, copying and distribution of this software is permitted
+  see the accompanying file 'COPYING' for license conditions
 
   Usage:
 
@@ -29,17 +31,18 @@ namespace fileexp {
     class mass_tag : public find {
     public:
         mass_tag(const set_tag::handler& write, const set_tag::provider& read)
-        : tag_update(write), tag_info(read),  counter(0) { }
+        : counter(0), tag_update(write), tag_info(read) { }
         template<class T> mass_tag(const T& tag)
-        : tag_update(tag),   tag_info(tag),   counter(0) { }
+        : counter(0), tag_update(tag),   tag_info(tag)  { }
 
         const set_tag::handler&  tag_update;
         const set_tag::provider& tag_info;
 
         static set_tag::ID3field field(char c);
         static std::string       var  (int i);
+        static unsigned long int total();
     protected:
-        unsigned counter;
+        unsigned long int counter;
 
         virtual bool file(const char* name, const record&);
         virtual bool dir (const record&);

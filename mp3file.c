@@ -4,8 +4,10 @@
   This file needs work. It will be included in `id3' in the future, and
   is provided only for completeness.
 
-  (c) 2005 squell ^ zero functionality!
-  see the file 'COPYING' for license conditions
+  copyright (c) 2005 squell <squell@alumina.nl>
+
+  use, modification, copying and distribution of this software is permitted
+  see the accompanying file 'COPYING' for license conditions
 
   /*
 

@@ -60,7 +60,7 @@ Successfully compiled with (non-exhaustive list):
  - GCC 2.95.x       (GNU/Linux, FreeBSD, DJGPP, MinGW32)
  - Intel C++ 8.1    (GNU/Linux)
  - Borland C++ 5.5  (Win32)
- - Compaq C++ 6.5   (Alpha)
+ - Compaq C++ 7.1   (Alpha)
 
 This program is mostly written in 100% portable ISO C/C++ so basically all
 you need is a modern, standards-compliant C/C++ compiler.

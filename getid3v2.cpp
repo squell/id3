@@ -1,12 +1,15 @@
 #include <vector>
 #include <cstdio>
+#include "char_ucs.h"
 #include "id3v2.h"
 #include "getid3v2.h"
 
 /*
 
-  (c) 2004, 2005 squell ^ zero functionality!
-  see the file 'COPYING' for license conditions
+  copyright (c) 2004, 2005 squell <squell@alumina.nl>
+
+  use, modification, copying and distribution of this software is permitted
+  see the accompanying file 'COPYING' for license conditions
 
 */
 
@@ -123,6 +126,8 @@ static conv<> unbinarize(ID3FRAME f)
         switch(*f->data) {
         case  0:
             return conv<latin1>(p, f->size-hdrsiz);
+        case  1:
+            return conv<ucs2>  (p, f->size-hdrsiz);
         default:
             return conv<latin1>("<unsupported encoding>");
         };

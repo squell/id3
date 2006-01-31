@@ -95,7 +95,8 @@ uninstall:
 
 ## distribution ############################################################
 
-SRC_CPP     = sedit varexp fileexp charconv mass_tag pattern
+SRC_CPP     = sedit varexp fileexp mass_tag pattern
+SRC_CPP    += charconv char_ucs
 SRC_CPP    += set_base setid3 setid3v2 setfname setecho
 SRC_CPP    += getid3 getid3v2
 SRC_C	    = fileops id3v1 id3v2
@@ -103,7 +104,7 @@ DIR_DEBIAN  = control rules copyright changelog
 DIR_FREEBSD = Makefile pkg-descr
 
 DISTFILES = INSTALL $(docdata) makefile makefile.dj makefile.bcc \
-        main.cpp auto_dir.h $(SRC_CPP:=.h) $(SRC_C:=.h) \
+	main.cpp auto_dir.h $(SRC_CPP:=.h) $(SRC_C:=.h) \
 	$(SRC_CPP:=.cpp) $(SRC_C:=.c) id3.man \
 	$(DIR_DEBIAN:%=debian/%) \
 	$(DIR_FREEBSD:%=FreeBSD/%)
@@ -173,7 +174,7 @@ curl-orig:
 
 OBJ_GEN = sedit varexp fileexp charconv mass_tag pattern
 OBJ_1	= setid3 getid3 id3v1
-OBJ_2	= setid3v2 getid3v2 id3v2 fileops
+OBJ_2	= setid3v2 getid3v2 id3v2 fileops char_ucs
 OBJ_F	= setfname setecho
 OBJECTS = main $(OBJ_GEN) set_base $(OBJ_1) $(OBJ_2) $(OBJ_F)
 OBJX_L	= mainl $(OBJ_GEN) set_base $(OBJ_1) $(OBJ_F)

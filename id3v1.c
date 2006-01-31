@@ -2,6 +2,11 @@
 
   ID3v1.1 genres + Winamp extensions
 
+  copyright (c) 2003 squell <squell@alumina.nl>
+
+  use, modification, copying and distribution of this software is permitted
+  see the accompanying file 'COPYING' for license conditions
+
 */
 
 #include "id3v1.h"

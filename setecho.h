@@ -2,8 +2,10 @@
 
   set_tag::echo applicative class
 
-  (c) 2005 squell ^ zero functionality!
-  see the file 'COPYING' for license conditions
+  copyright (c) 2005 squell <squell@alumina.nl>
+
+  use, modification, copying and distribution of this software is permitted
+  see the accompanying file 'COPYING' for license conditions
 
   Usage:
 
@@ -32,7 +34,7 @@ public:
     echo& set(ID3field, std::string)
     { return *this; }
 
-    echo& clear(const char* fn = 0)
+    echo& clear(bool)
     { return *this; }
 };
 
