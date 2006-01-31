@@ -1,3 +1,12 @@
+id3mtag (0.77) unstable; urgency=low
+
+  * Added support for ID3v2.2 tags and Unicode inside ID3v2 tags.
+  * Added -M to preserve file timestamps
+  * Added -D to copy tags between files
+  * Added selection in string substitution ("%||?")
+
+ -- Marc R. Schoolderman <squell@alumina.nl>  Tue, 31 Jan 2006 18:16:58 +0100
+
 id3mtag (0.76) unstable; urgency=low
 
   * Added -m switch for shorthand tagging (-m "%a.mp3" == -a %1 "*.mp3")
