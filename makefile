@@ -138,6 +138,7 @@ dist-check: all $(DISTFILES)
 	  -e		's/^ \([^ ]*\).*/\1/p'; \
 	    ls $(DISTFILES) | sed 's:/[^ ]*::g') | sort | uniq -u` && \
 	echo "$${d}"; test -z "$${d}"
+	test -x debian/rules
 	@echo all release checks okay
 
 dist-clean: $(DISTFILES)

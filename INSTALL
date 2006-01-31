@@ -27,6 +27,7 @@ the contents of the source distribution:
  fileexp.*      - filefinder/matcher                            (C++)
  mass_tag.*     - + tagging engine                              (C++)
  charconv.*     - character conversion                          (C++)
+ char_ucs.*     - + ucs2 encoding                               (C++)
  auto_dir.h     - smart dirent pointer class                    (C++)
 
  id3v1.*        - definitions & data relevant to ID3v1 tag data (C)
@@ -61,6 +62,7 @@ Successfully compiled with (non-exhaustive list):
  - Intel C++ 8.1    (GNU/Linux)
  - Borland C++ 5.5  (Win32)
  - Compaq C++ 7.1   (Alpha)
+ - Sun C/C++ 5.7    (SPARC)
 
 This program is mostly written in 100% portable ISO C/C++ so basically all
 you need is a modern, standards-compliant C/C++ compiler.

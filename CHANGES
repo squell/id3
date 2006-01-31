@@ -1,6 +1,6 @@
 Changelog for 'id3'.
 
-2006-030 (W04):
+2006-030 (W04):                                ---------[v0.77]-----------
   main.cpp: user checks: ignore extra file arguments when using -m, ignore
     options after first filename was given (regression)
 

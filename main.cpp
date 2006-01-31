@@ -200,7 +200,7 @@ namespace op {                                 // state information bitset
         ren   =  0x04,                         // rename requested?
         rd    =  0x08,                         // read   requested?
         clobr =  0x10,                         // clear  requested?
-        patrn =  0x20,                         // match  requested?
+        patrn =  0x20                          // match  requested?
     };
     typedef int oper_t;
 }

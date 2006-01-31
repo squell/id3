@@ -135,7 +135,7 @@ public:
 
 protected:                     // a pre-defined factory
     template<class Instance> struct factory : provider {
-        virtual const reader* read(const char* fn) const
+        virtual reader* read(const char* fn) const
         { return new Instance(fn); }
     };
 

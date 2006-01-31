@@ -51,7 +51,7 @@ public:
     ID3v2& set(ID3field i, std::string m);        // set standard field
     ID3v2& reserve(size_t);                       // set suggested size
     ID3v2& clear(bool t = true)                   // erase previous tag?
-    { fresh = t; }
+    { fresh = t; return *this; }
 
     bool    vmodify(const char*, const function&) const;
     reader* read(const char*) const;
