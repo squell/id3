@@ -40,15 +40,15 @@ namespace charset {
 
     template<byte_order Order>
       class conv< unicode<Order> > : public conv<>, private conv_ucs {
-	public:
         friend class conv_ucs;
-        conv(const std::string& s)         : conv<>(decode(s.data(), s.size())) { }
-        conv(const char* p, std::size_t l) : conv<>(decode(p,l)) { }
+	public:
+        conv(const std::string& s)         : conv<>(decode(s.data(), s.size(),Order)) { }
+        conv(const char* p, std::size_t l) : conv<>(decode(p,l,Order)) { }
         conv(const conv<>& other)          : conv<>(other) { }
         conv(void)                         : conv<>() { }
 
 		operator std::string const() const
-        { return encode(internal.data(), internal.size()/cellsize); }
+        { return encode(internal.data(), internal.size()/cellsize, Order); }
 
         std::string const str() const { return *this; }
 
@@ -59,12 +59,6 @@ namespace charset {
           proxy<E> c_str() const    { return conv<>::c_str<E>(); }
 
         typedef char char_type;
-    private:
-        inline static conv<>::data decode(const char* p, std::size_t len)
-        { return conv_ucs::decode(p, len, Order); }
-        inline static std::string  encode(const void* p, std::size_t len)
-        { return conv_ucs::encode(p, len, Order); }
-        template<class Kin> friend class charset::conv;
     };
 
 }

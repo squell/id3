@@ -112,7 +112,6 @@ namespace charset {
     private:
         static conv<>::data decode(const char*, std::size_t);
         static std::string  encode(const void*, std::size_t);
-        template<class Kin> friend class conv;
 	};
 
   /*
