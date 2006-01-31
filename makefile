@@ -147,7 +147,7 @@ dist-clean: $(DISTFILES)
 	mv .tmp/* `pwd`
 	-rm -rf .tmp
 
-orig ?= `pwd`.tar.gz
+orig = `pwd`.tar.gz
 
 diff:
 	rm -rf .tmp; mkdir .tmp && ln -s `pwd` .tmp/{current}
