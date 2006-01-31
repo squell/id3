@@ -171,6 +171,14 @@ curl-orig:
 	which curl
 	curl -# -O $(URI)/`curl -# $(URI)/id3.html | $(HTMLPROC)`
 
+AWKCMD = "BEGIN { pretty = \"figlet -fmini | sed '\$$s/ /~/g'\" } \
+	/ID3\(1\)/ { next } \
+	 /^[A-Z]/ { print tolower(\$$0) | pretty; close(pretty) } \
+	!/^[A-Z]/ { print }"
+
+README:
+	man -l id3.man | col -b | awk $(AWKCMD) | diff -u README -
+
 ## build rules #############################################################
 
 OBJ_GEN = sedit varexp fileexp charconv mass_tag pattern

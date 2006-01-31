@@ -29,6 +29,8 @@ id3 \- a commandline mass tagger
 .RB [ \-q
 .IR format ]
 .RB [ \-m ]
+.RB [ \-D
+.IR file ]
 .RB [ \-R
 .IR pattern ]
 .br
@@ -75,7 +77,7 @@ display version number and copyright
 be verbose
 .TP
 .B \-M
-preserve last modification time of tagged files
+preserve last modification time of files operated on
 .TP
 .B \-1
 process ID3v1 tags (default). See `-2'.
@@ -105,7 +107,8 @@ conjunction with this option, all selected tags will be removed.
 add/replace the specified fields in all selected tags with the values
 given. Field values are scanned for substitution variables, see
 .B SUBSTITUTION
-below.
+below. If a field value is a single variable, and its substitution fails, no
+operation is performed.
 
 Genres can be specified either directly or with their assigned number,
 regardless of tag format.
@@ -123,20 +126,26 @@ attempt to modify files.
 .TP
 .B \-m
 match mode; interpret any variables found in a \fIfilespec\fR as a wildcard,
-and set the corresponding tag field to the matched wildcard.
+and set the tag field corresponding to the matched wildcard.
 Thus, `-m\ "%a\ -\ %t.mp3"' is equivalent for `-a\ %1\ -t\ %2\ "*\ -\ *.mp3"'.
 This option is merely a shorthand and does not add any intelligence;
 in particular, any variable interpreted still counts as a wildcard, see
 .B SUBSTITUTION
 below.
 .TP
+.BI \-D " filename
+duplicate and use the tags found in \fIfilename\fR as the starting point for
+the new tag to write, instead of the tag already present in the files being
+tagged. This only applies to the tag being written, and does not affect
+ordinary substitution of variables.
+.TP
 .BI \-R " pattern
-search the directory hierarachy rooted at each \fIfilespec\fR for files
-whose relative path matches \fIpattern\fR. If no \fIfilespec\FR are supplied,
+search the directory hierarchy rooted at each \fIfilespec\fR for files
+whose relative path matches \fIpattern\fR. If no \fIfilespec\\fR are supplied,
 starts searching in the current directory.
 Wildcards in \fIpattern\fR do not treat `.' or `/' specially when performing
 this search, so `./t*.mp3' matches `/test/misc/foo.mp3'. Using this option
-also affects variable substition, see
+also affects variable substitution, see
 .TP
 .B \--
 force the following argument to be interpreted as a filename. Use this for
@@ -235,8 +244,8 @@ processed.
 replaced with a single \*(lq%\*(rq, equivalent to \fB\(rs%\fR
 .TP
 .BI %| text || alt\ text || ... |?
-substituted by the first \fItext\fR that was completely succesful, or fails
-as empty, see \fBfallbacks\fR below. This can be used as an all-or-nothing
+substituted by the first \fItext\fR that was completely successful, or fails
+as empty, see \fBfall-backs\fR below. This can be used as an all-or-nothing
 substitution. A lone \*(lq%?\*(rq always fails.
 .SS Available \fI<modifiers>\fR (optional):
 .TP
@@ -254,12 +263,12 @@ Pad all numeric values within the substituted value, if necessary.
 Multiple hash signs can be stacked to increase desired width. If there are
 no numeric values, this modifier has no effect.
 .TP
-.BI | fallback |
-If substitution for a variable fails, attempt \fIfallback\fR instead.
-\fIfallback\fR itself may be empty or contain other variables (including other
-fallbacks). If \fIfallback\fR contains variables that fail, the \fIfallback\fR
-fails and will not be used. If more than one fallback is provided, successive
-fallbacks are tried until one succeeds.
+.BI | fall-back |
+If substitution for a variable fails, attempt \fIfall-back\fR instead.
+\fIfall-back\fR itself may be empty or contain other variables (including other
+fall-backs). If \fIfall-back\fR contains variables that fail, the \fIfall-back\fR
+fails and will not be used. If more than one fall-back is provided, successive
+fall-backs are tried until one succeeds.
 .RE
 .SH EXAMPLES
 Here are some examples of using id3:
@@ -274,7 +283,7 @@ Removes all ID3v1 tags from all mp3's.
 Copy ID3v2 tag to ID3v1 tag in selected file.
 .TP
 \fBid3 -D source.mp3 -1 -2 dest.mp3
-Duplicate ID3v1 and ID3v2 tags of source.mp3 to dest.mp3
+Duplicate ID3v1 and ID3v2 tags of source.mp3
 .TP
 \fBid3 -a "TAFKAT" -n "%1" -t "%+2" "*. *.mp3"
 Update tag fields similar to this;
@@ -294,7 +303,7 @@ Removes embedded images and padding from all mp3's.
 \fBid3 -2d -u *.mp3
 Rewrite ID3v2 tag while keeping only the basic fields.
 .TP
-\fBid3 -2 -wUSLT "foo, bar%,lalala!%," blaet.mp3
+\fBid3 -2 -wUSLT "foo, bar\nlalala!\n" blaet.mp3
 Adds an ID3v2 lyric frame to blaet.mp3.
 .TP
 \fBid3 -v -g alt-rock -alnt "The Author" %1 %2 %3 "Author - */(*) *.mp3"
