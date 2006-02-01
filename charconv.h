@@ -43,10 +43,10 @@ namespace charset {
   */
 
     template<> class conv<void> {
-    public:
+    protected:
         typedef std::wstring data;
         static const int cellsize = sizeof(wchar_t) / sizeof(data::value_type);
-    protected:
+
         template<class T> struct proxy {                // value wrapper
             typedef typename conv<T>::char_type char_t;
             operator const char_t*() const { return str.c_str(); }
