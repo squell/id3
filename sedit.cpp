@@ -42,7 +42,7 @@ struct both_space {                              // filter ascii space
 };
 
 struct to_lower {
-    char operator()(wchar_t c)
+    wchar_t operator()(wchar_t c)
     { return towlower(c); }
 };
 

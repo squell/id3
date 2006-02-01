@@ -31,9 +31,9 @@ namespace fileexp {
     class mass_tag : public find {
     public:
         mass_tag(const set_tag::handler& write, const set_tag::provider& read)
-        : counter(0), tag_update(write), tag_info(read) { }
+        : tag_update(write), tag_info(read), counter(0) { }
         template<class T> mass_tag(const T& tag)
-        : counter(0), tag_update(tag),   tag_info(tag)  { }
+        : tag_update(tag),   tag_info(tag), counter(0) { }
 
         const set_tag::handler&  tag_update;
         const set_tag::provider& tag_info;

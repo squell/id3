@@ -16,7 +16,7 @@
 #include "mass_tag.h"
 #include "pattern.h"
 
-#define _version_ "0.77 (2006031)"
+#define _version_ "0.77 (2006032)"
 
 /*
 
@@ -276,7 +276,7 @@ int main_(int argc, char *argv[])
     char none[1] = "";
 
     enum parm_t {                              // parameter modes
-        no_value, force_fn, recurse_expr, pattern_fn,
+        no_value, force_fn, recurse_expr,
         std_field, custom_field, suggest_size,
         set_rename, set_query, set_copyfrom
     };

@@ -176,8 +176,8 @@ AWKCMD = "BEGIN { pretty = \"figlet -fmini | sed '\$$s/ /~/g'\" } \
 	 /^[A-Z]/ { print tolower(\$$0) | pretty; close(pretty) } \
 	!/^[A-Z]/ { print }"
 
-README:
-	man -l id3.man | col -b | awk $(AWKCMD) | diff -u README -
+README: id3.man
+	@man -l id3.man | col -b | awk $(AWKCMD) | diff -u README -
 
 ## build rules #############################################################
 

@@ -83,25 +83,21 @@ namespace {
     substvars::result substvars::var(ptr& p, ptr) const
     {
 	static const result empty(conv<latin1>("<empty>"), false);
-	switch(char c = *p++) {
+	switch(wchar_t c = *p++) {
 	case '?':
 	    return false;
 	case 'x':
 	    if(!num) num = (*cnt)++;
 	    char buf[11];
-	    int n; n = sprintf(buf, "%u", num & 0xFFFFu);   // to jump past
+	    int n; n = sprintf(buf, "%lu", num & 0xFFFFu);   // to jump past
 	    return conv<latin1>(buf, n>0? n : 0);
 	case 'X':
-	    n = sprintf(buf, "%u", numfiles & 0xFFFFu);
+	    n = sprintf(buf, "%lu", numfiles & 0xFFFFu);
 	    return conv<latin1>(buf, n>0? n : 0);
 	case 'p':
 	    return conv<local>(filerec->path, filename - filerec->path);
 	case 'f':
 	    return conv<local>(filename);
-	    if(const char* p = strrchr(filerec->path,'/'))
-		  return conv<local>(p+1);
-	      else
-		  return conv<local>(filerec->path);
 	case '0': c += 10;
 	case '1':
 	case '2':

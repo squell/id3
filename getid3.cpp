@@ -21,7 +21,7 @@ using set_tag::ID3field;
 namespace {
     inline ID3v1 _readtag(const char *fn)
     {
-        ID3v1 tag;
+        struct ID3v1 tag = { { 0, } };
         if( FILE* f = fopen(fn, "rb") ) {
             fseek(f, -128, SEEK_END);
             fread(&tag, 1, 128, f);
