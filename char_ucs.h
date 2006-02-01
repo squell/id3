@@ -26,26 +26,29 @@ namespace charset {
 
     enum byte_order { marked, little_endian, big_endian };
 
-    template<byte_order> struct unicode { };
+    template<byte_order = marked> class unicode;
 
     typedef unicode<marked>        ucs2;
     typedef unicode<little_endian> ucs2le;
     typedef unicode<big_endian>    ucs2be;
 
-    class conv_ucs {
+    class conv_wide : public conv<> {
     protected:
+        template<class T>
+          conv_wide(const T& s) : conv<>(s) { }
+        conv_wide() { }
+       ~conv_wide() { }
         static conv<>::data decode(const char*, std::size_t, byte_order);
         static std::string  encode(const void*, std::size_t, byte_order);
     };
 
     template<byte_order Order>
-      class conv< unicode<Order> > : public conv<>, private conv_ucs {
-        friend class conv_ucs;
+      class conv< unicode<Order> > : public conv_wide {
     public:
-        conv(const std::string& s)         : conv<>(decode(s.data(), s.size(),Order)) { }
-        conv(const char* p, std::size_t l) : conv<>(decode(p,l,Order)) { }
-        conv(const conv<>& other)          : conv<>(other) { }
-        conv(void)                         : conv<>() { }
+        conv(const std::string& s)         : conv_wide(decode(s.data(), s.size(),Order)) { }
+        conv(const char* p, std::size_t l) : conv_wide(decode(p,l,Order)) { }
+        conv(const conv<>& other)          : conv_wide(other) { }
+        conv(void)                         : conv_wide() { }
 
         operator std::string const() const
         { return encode(internal.data(), internal.size()/cellsize, Order); }

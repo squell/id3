@@ -33,7 +33,7 @@ namespace charset {
         }
     }
 
-    conv<>::data conv_ucs::decode(const char* s, size_t len, byte_order ord)
+    conv<>::data conv_wide::decode(const char* s, size_t len, byte_order ord)
     {
         if(!(len &= ~1)) return wstring();        // degenerate
         const char* end = s+len;
@@ -54,7 +54,7 @@ namespace charset {
         return build;
     }
 
-    string conv_ucs::encode(const void* p, size_t len, byte_order ord)
+    string conv_wide::encode(const void* p, size_t len, byte_order ord)
     {
         const wchar_t* w = (wchar_t*)p;
         std::string build;
