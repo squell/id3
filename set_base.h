@@ -64,7 +64,14 @@ namespace set_tag {            // borland likes this better
 
 using stredit::function;
 
-class handler {
+class non_copyable {
+    non_copyable(const non_copyable&);
+    void operator=(const non_copyable&);
+protected:
+    non_copyable() { }
+};
+
+class handler : non_copyable {
 public:
     virtual bool vmodify(const char*, const function&) const = 0;
     struct body;
@@ -94,12 +101,8 @@ public:
     virtual bool from(const char* fn)
     { return false; }
 
-protected:                     // disable outside destruction and copying
-    handler() { }
+protected:                     // disable outside destruction
     ~handler() { }
-
-    void operator=(const handler&);
-    handler(const handler&);
 
 private:                       // overload selectors
     template<class T>
@@ -115,14 +118,14 @@ private:                       // overload selectors
   // tag reading interface                             //
   ///////////////////////////////////////////////////////
 
-class provider {
+class provider : non_copyable {
 public:
     virtual reader* read(const char*) const = 0;
 protected:
     ~provider() { }
 };
 
-class reader {
+class reader : non_copyable {
 public:
     reader() { }
     typedef function::result value_string;
@@ -138,10 +141,6 @@ protected:                     // a pre-defined factory
         virtual reader* read(const char* fn) const
         { return new Instance(fn); }
     };
-
-private:                       // prevent copying of classes
-    void operator=(const reader&);
-    reader(const reader&);
 };
 
   ///////////////////////////////////////////////////////
