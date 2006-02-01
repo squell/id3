@@ -50,8 +50,8 @@ namespace charset {
 
         for( ; s < end; s+=2) {
             build += wide( s[0^i] & 0xFF | s[1^i]<<8 & 0xFF00U );
-	}
-	return build;
+        }
+        return build;
     }
 
     string conv_ucs::encode(const void* p, size_t len, byte_order ord)
@@ -72,7 +72,7 @@ namespace charset {
             else
                 (build += '?'>>i) += '?'>>(8^i);
         }
-	return build;
+        return build;
     }
 
 }

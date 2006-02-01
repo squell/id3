@@ -41,13 +41,13 @@ namespace charset {
     template<byte_order Order>
       class conv< unicode<Order> > : public conv<>, private conv_ucs {
         friend class conv_ucs;
-	public:
+    public:
         conv(const std::string& s)         : conv<>(decode(s.data(), s.size(),Order)) { }
         conv(const char* p, std::size_t l) : conv<>(decode(p,l,Order)) { }
         conv(const conv<>& other)          : conv<>(other) { }
         conv(void)                         : conv<>() { }
 
-		operator std::string const() const
+        operator std::string const() const
         { return encode(internal.data(), internal.size()/cellsize, Order); }
 
         std::string const str() const { return *this; }

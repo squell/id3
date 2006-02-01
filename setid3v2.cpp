@@ -35,12 +35,12 @@ namespace {
  // extra hairyness to prevent buffer overflows by re-allocating on the fly
  // overkill, but i had to do a runtime check anyway, so.
 
-    class writer {                          
+    class writer {
         size_t avail;
         char *base, *dest;
         ID3VER version;                     // writes ID3v2.3 per default
 
-    public:                                 
+    public:
         void init(size_t len, ID3VER v = ID3_v2_3)
                          { base = (char*) malloc(avail=len+!len);
                            if(!base) throw bad_alloc();
@@ -134,7 +134,7 @@ static string binarize(const string field, charset::conv<charset::latin1> conten
 
     const wstring& ws = content.str<wchar_t>();
     const char nul[2] = { 0 };
-                           
+
     data = char(ws.end() != find_if(ws.begin(), ws.end(),
                                       bind2nd(greater<wchar_t>(), 0xFF)));
     if(ID3v2::has_lang(field))

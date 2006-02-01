@@ -36,10 +36,10 @@ namespace charset {
     template<class Encoding = void> class conv;
 
   /*
-	  Making the default template the base class for non default templates
-	  solves the problem of dynamically specifying conversions, removes
-	  the need for a template conversion constructor, and moves error messages
-	  from the linking stage to the compiler stage.
+      Making the default template the base class for non default templates
+      solves the problem of dynamically specifying conversions, removes
+      the need for a template conversion constructor, and moves error messages
+      from the linking stage to the compiler stage.
   */
 
     template<> class conv<void> {
@@ -51,9 +51,9 @@ namespace charset {
             typedef typename conv<T>::char_type char_t;
             operator const char_t*() const { return str.c_str(); }
             proxy(const std::basic_string<char_t>& s) : str(s) { }
-		private:
+        private:
             const std::basic_string<char_t> str;
-		};
+        };
 
         data internal;
         explicit conv(const data& s) : internal(s) { }
@@ -85,18 +85,18 @@ namespace charset {
     }
 
   /*
-	  Any parameterization simply is a different "face" of the same class.
+      Any parameterization simply is a different "face" of the same class.
   */
 
     template<class Encoding> class conv : public conv<> {
-	public:
+    public:
         conv(const std::string& s)         : conv<>(decode(s.data(), s.size())) { }
         conv(const char* p, std::size_t l) : conv<>(decode(p,l)) { }
         conv(const char* p)                : conv<>((conv)std::string(p)) { }
         conv(const conv<>& other)          : conv<>(other) { }
         conv(void)                         : conv<>() { }
 
-		operator std::string const() const
+        operator std::string const() const
         { return encode(internal.data(), internal.size()/cellsize); }
 
         std::string const str() const { return *this; }
@@ -112,8 +112,8 @@ namespace charset {
     private:
         static conv<>::data decode(const char*, std::size_t);
         static std::string  encode(const void*, std::size_t);
-		template<class Kin> friend class conv;
-	};
+        template<class Kin> friend class conv;
+    };
 
   /*
       Direct wide char interface

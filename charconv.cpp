@@ -56,10 +56,10 @@ namespace charset {
     {
         conv<>::data build;
         build.reserve(len);
-	for( ; len--; ) {
+        for( ; len--; ) {
             build += wide(*s++ & 0xFF);
-	}
-	return build;
+        }
+        return build;
     }
 
     template<> std::string conv<latin1>::encode(const void* p, size_t len)
@@ -69,9 +69,9 @@ namespace charset {
         build.reserve(len);
         for( ; len--; ) {
             wchar_t c = *w++;
-	    build += (c < 0x100)? c : '?';
-	}
-	return build;
+            build += (c < 0x100)? c : '?';
+        }
+        return build;
     }
 
 #if !defined(__DJGPP__)
@@ -142,14 +142,14 @@ namespace charset {
 
         conv<>::data build;
         build.reserve(len);
-	wchar_t wc;
-	s += len;
-	for(int n; len; len -= n+!n) {
+        wchar_t wc;
+        s += len;
+        for(int n; len; len -= n+!n) {
             n = mbtowc(&wc, s-len, len);
             if(n < 0) break;
             build += wide(wc);
-	}
-	return build;
+        }
+        return build;
     }
 
     template<> std::string conv<local>::encode(const void* p, size_t len)
@@ -158,7 +158,7 @@ namespace charset {
             return fallback(conv<_7bit>::encode(p, len));
 
         const wchar_t* w = (wchar_t*)p;
-	std::string build;
+        std::string build;
         build.reserve(len*2);
 
         for( ; len--; ) {
@@ -166,8 +166,8 @@ namespace charset {
             int n = wctomb(buf, *w++);
             if(n >= 0) build.append(buf, n);
             else       build += '?';
-	}
-	return build;
+        }
+        return build;
     }
 
 #elif defined(__DJGPP__)
@@ -281,8 +281,8 @@ namespace charset {
         for( ; len--; ) {
             wchar_t c = *w++;
             build += (c < 0x80)? c : rmap[c];
-	}
-	return build;
+        }
+        return build;
     }
 
 #endif
