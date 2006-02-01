@@ -19,7 +19,7 @@
 
 using namespace std;
 using namespace charset;
-using set_tag::ID3field;
+using tag::ID3field;
 
 namespace fileexp {
 
@@ -28,21 +28,21 @@ namespace fileexp {
 ID3field mass_tag::field(char c)
 {
      switch(c) {
-     case 't': return set_tag::title;
-     case 'a': return set_tag::artist;
-     case 'l': return set_tag::album;
-     case 'y': return set_tag::year;
-     case 'c': return set_tag::cmnt;
-     case 'n': return set_tag::track;
-     case 'g': return set_tag::genre;
-     default : return set_tag::FIELDS;
+     case 't': return tag::title;
+     case 'a': return tag::artist;
+     case 'l': return tag::album;
+     case 'y': return tag::year;
+     case 'c': return tag::cmnt;
+     case 'n': return tag::track;
+     case 'g': return tag::genre;
+     default : return tag::FIELDS;
      }
 }
 
 string mass_tag::var(int i)
 {
     const char tab[] = "talycng";
-    if(i < set_tag::FIELDS)
+    if(i < tag::FIELDS)
         return string(1,'%') += tab[i];
     else
         return string();
@@ -61,7 +61,7 @@ namespace {
 
         substvars(const char* fn,
                   const fileexp::record& rec,
-                  const set_tag::provider& info,
+                  const tag::reader& info,
                   unsigned long& x)
         : tag_data(0), num(0),
           tag(&info), filename(fn), filerec(&rec), cnt(&x) { }
@@ -69,13 +69,13 @@ namespace {
         { delete tag_data; }
 
     private:
-        mutable const set_tag::reader* tag_data;
-        mutable unsigned long int      num;
+        mutable const tag::metadata* tag_data;
+        mutable unsigned long int    num;
 
-        const set_tag::provider* const tag;
-        const char*              const filename;
-        const fileexp::record*   const filerec;
-        unsigned long int*       const cnt;
+        const tag::reader*     const tag;
+        const char*            const filename;
+        const fileexp::record* const filerec;
+        unsigned long int*     const cnt;
 
         substvars(const substvars&);       // don't copy
     };
@@ -116,7 +116,7 @@ namespace {
             return conv<local>(filerec->var[c]);
         default:
             ID3field i; i = mass_tag::field(c);
-            if(i >= set_tag::FIELDS) {
+            if(i >= tag::FIELDS) {
                 static char error[] = "unknown variable: %_";
                 error[sizeof error-2] = c, throw out_of_range(error);
             }
@@ -133,7 +133,7 @@ unsigned long int mass_tag::total()
     return numfiles;
 }
 
- // implementation of fileexp::find using set_tag objects
+ // implementation of fileexp::find using tag objects
 
 bool mass_tag::dir(const fileexp::record& d)
 {
@@ -142,10 +142,10 @@ bool mass_tag::dir(const fileexp::record& d)
 
 bool mass_tag::file(const char* name, const fileexp::record& f)
 {
-    substvars vars(name, f, tag_info, counter);
+    substvars vars(name, f, tag_reader, counter);
     ++numfiles;
 
-    return tag_update.modify(f.path, vars);
+    return tag_writer.modify(f.path, vars);
 }
 
 } // namespace

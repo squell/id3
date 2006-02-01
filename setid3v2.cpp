@@ -25,8 +25,8 @@
 
 using namespace std;
 
-using set_tag::ID3v2;
-using set_tag::ID3field;
+using tag::write::ID3v2;
+using tag::ID3field;
 
 namespace {
 
@@ -94,7 +94,7 @@ namespace {
         string emsg;
         emsg.swap(err);
         if(!emsg.empty())
-            throw set_tag::failure(emsg);
+            throw tag::failure(emsg);
     }
 
     extern "C" void copy_failure(const char* oldn, const char* newn)
@@ -117,7 +117,7 @@ static string binarize(const string field, charset::conv<charset::latin1> conten
         if(x < ID3v1_numgenres) content = ID3v1_genre[x];
     }
 
-    using set_tag::read::ID3v2;
+    using tag::read::ID3v2;
     using charset::conv;
 
     string data;
@@ -200,12 +200,12 @@ bool ID3v2::rm(std::string field)
 
 /* ===================================== */
 
-set_tag::reader* ID3v2::read(const char* fn) const
+tag::metadata* ID3v2::read(const char* fn) const
 {
     return new read::ID3v2(fn);
 }
 
-bool ID3v2::vmodify(const char* fn, const set_tag::function& edit) const
+bool ID3v2::vmodify(const char* fn, const function& edit) const
 {
     struct wrapper {
         void* data;

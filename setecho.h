@@ -1,6 +1,6 @@
 /*
 
-  set_tag::echo applicative class
+  tag::write::echo applicative class
 
   copyright (c) 2005 squell <squell@alumina.nl>
 
@@ -9,7 +9,7 @@
 
   Usage:
 
-  The set_tag::echo class doesn't set anything, but reports back info.
+  The write::echo class doesn't set anything, but reports back info.
 
 */
 
@@ -19,25 +19,27 @@
 #include <string>
 #include "set_base.h"
 
-namespace set_tag {
+namespace tag {
+    namespace write {
 
-class echo : public handler {
-    const std::string fmt;
-public:
-    echo(std::string s) : fmt(s) { }
+        class echo : public handler {
+            const std::string fmt;
+        public:
+            echo(std::string s) : fmt(s) { }
 
-    virtual bool vmodify(const char*, const function&) const;
-    virtual void log(const char*) const;
+            virtual bool vmodify(const char*, const function&) const;
+            virtual void log(const char*) const;
 
-  // standard set - dummies
+          // standard set - dummies
 
-    echo& set(ID3field, std::string)
-    { return *this; }
+            echo& set(ID3field, std::string)
+            { return *this; }
 
-    echo& clear(bool)
-    { return *this; }
-};
+            echo& clear(bool)
+            { return *this; }
+        };
 
+    }
 }
 
 #endif

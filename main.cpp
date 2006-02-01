@@ -29,11 +29,11 @@
 
 using namespace std;
 using fileexp::mass_tag;
-using set_tag::ID3field;
+using tag::ID3field;
 #ifndef NO_V2
-using set_tag::ID3v2;
+using tag::write::ID3v2;
 #endif
-using set_tag::ID3;
+using tag::write::ID3;
 
 /* ====================================================== */
 
@@ -134,7 +134,7 @@ inline static char* argpath(char* arg)
 
 class verbose : public mass_tag {
 public:
-    verbose(const set_tag::handler& write, const set_tag::provider& read)
+    verbose(const tag::handler& write, const tag::reader& read)
     : mass_tag(write, read) { }
     static void enable(bool t = true) { verbose::show = t; }
 private:
@@ -178,7 +178,7 @@ clock_t verbose::time;
 template<class T> struct uses { T object; };
 
 struct metadata :                    // owns the data it contains
-  set_tag::file,
+  tag::write::file,
 #ifndef NO_V2
   uses<ID3v2>,
 #endif
@@ -213,7 +213,7 @@ struct null_op : fileexp::find {
   // dynamically create a suitably initialized function object
 
 static fileexp::find* instantiate(op::oper_t state, metadata& tag,
-  const set_tag::provider* src_ptr)
+  const tag::reader* src_ptr)
 {
     using namespace op;
 
@@ -225,8 +225,8 @@ static fileexp::find* instantiate(op::oper_t state, metadata& tag,
 
     swap(tag[0], tag[tag.size()-1]);           // handle source tag as last
 
-    static set_tag::echo print(tag.format);
-    set_tag::handler* selected = &print;
+    static tag::write::echo print(tag.format);
+    tag::handler* selected = &print;
 
     switch(state &= w|rd|ren) {
     case op::ren:
@@ -268,9 +268,9 @@ int main_(int argc, char *argv[])
 
     ID3field field;
 
-    set_tag::provider* source  = 0;            // pointer to first enabled
-    set_tag::handler*  chosen  = 0;            // pointer to last enabled
-    const char*        recmask = 0;            // path pattern (if recursive)
+    tag::reader*  source  = 0;                 // pointer to first enabled
+    tag::handler* chosen  = 0;                 // pointer to last enabled
+    const char*   recmask = 0;                 // path pattern (if recursive)
 
     using namespace op;
     char none[1] = "";
@@ -381,7 +381,7 @@ int main_(int argc, char *argv[])
 #endif
                 case 'u':
                     if(chosen) {
-                        for(int i = 0; i < set_tag::FIELDS; ++i)
+                        for(int i = 0; i < tag::FIELDS; ++i)
                             chosen->set(ID3field(i), mass_tag::var(i));
                         state |= w;
                         break;
@@ -489,7 +489,7 @@ int main(int argc, char *argv[])
     }
     try {
         return main_(argc, argv);
-    } catch(const set_tag::failure& f) {
+    } catch(const tag::failure& f) {
         eprintf("%s (tagging aborted)\n", f.what());
     } catch(const out_of_range& x) {
         eprintf("%s\n", x.what());

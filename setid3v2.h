@@ -1,6 +1,6 @@
 /*
 
-  set_tag::ID3v2 applicative class
+  tag::write::ID3v2 applicative class
 
   copyright (c) 2004, 2005 squell <squell@alumina.nl>
 
@@ -9,14 +9,12 @@
 
   Usage:
 
-  The set_tag::ID3v2 class implements the single_tag interface for ID3 tags
+  The write::ID3v2 class implements the single_tag interface for ID3 tags
 
   Limitation/Flaws:
 
-  ID3v2 is unaware of all the specific semantics of the ID3v2 frames, for
-  the sake of simplicity. This does not pose a real problem as the
-  responsibility of filling an ID3v2 frame with correct content now lies
-  with the user of this class, however, it does have as a consequence that
+  ID3v2 knows only the frame types classified by read::ID3v2.
+
   .vmodify() doesn't know about frames having multiple instances.
 
   a. - when updating a frame type which has multiple instances, the first one
@@ -40,35 +38,37 @@
 
 #include "set_base.h"
 
-namespace set_tag {
+namespace tag {
+    namespace write {
 
-class ID3v2 : public handler, public provider {
-public:
-    ID3v2() : null_tag(), mod(), resize(), fresh()
-    { }
-   ~ID3v2();
+        class ID3v2 : public handler, public reader {
+        public:
+            ID3v2() : null_tag(), mod(), resize(), fresh()
+            { }
+           ~ID3v2();
 
-    ID3v2& set(ID3field i, std::string m);        // set standard field
-    ID3v2& reserve(size_t);                       // set suggested size
-    ID3v2& clear(bool t = true)                   // erase previous tag?
-    { fresh = t; return *this; }
+            ID3v2& set(ID3field i, std::string m);      // set standard field
+            ID3v2& reserve(size_t);                     // set suggested size
+            ID3v2& clear(bool t = true)                 // erase previous tag
+            { fresh = t; return *this; }
 
-    bool    vmodify(const char*, const function&) const;
-    reader* read(const char*) const;
+            bool      vmodify(const char*, const function&) const;
+            metadata* read(const char*) const;
 
-  // extended set
+          // extended set
 
-    bool set(std::string field, std::string s); // set ID3v2 frame
-    bool rm(std::string field);                 // remove ID3v2 frame
-    bool from(const char*);                     // specify copy tag
+            bool set(std::string field, std::string s); // set ID3v2 frame
+            bool rm(std::string field);                 // remove ID3v2 frame
+            bool from(const char*);                     // specify copy tag
 
-private:
-    const void* null_tag;
-    std::map<std::string,std::string> mod;
-    size_t resize;
-    bool fresh;
-};
+        private:
+            const void* null_tag;
+            std::map<std::string,std::string> mod;
+            size_t resize;
+            bool fresh;
+        };
 
+    }
 }
 
 #endif

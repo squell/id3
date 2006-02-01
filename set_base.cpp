@@ -11,9 +11,9 @@
 
 using namespace std;
 
-namespace set_tag {
+namespace tag {
 
-bool group::from(const char* fn)
+bool combined::from(const char* fn)
 {
     fn? basefn = fn : basefn = 0;
     return fn;
@@ -26,7 +26,9 @@ bool group::from(const char* fn)
  /* Implementation of group vmodify()
     - obeys the vmodify restrictions of set_base.h */
 
-bool group::vmodify(const char* fn, const function& val) const
+ /* This is wrong */
+
+bool combined::vmodify(const char* fn, const function& val) const
 {
     for(int n = 0; n < FIELDS; ++n)
         if(const string* txt = data.update[n]) {
@@ -37,9 +39,13 @@ bool group::vmodify(const char* fn, const function& val) const
         }
 
     if(data.cleared) {
-        const char* s = basefn? basefn->c_str() : 0;
-        for(const_iterator p = begin(); p != end(); ) (*p++)->clear(s);
+        for(const_iterator p = begin(); p != end(); ) (*p++)->clear();
         data.cleared = false;
+    }
+
+    if(basefn) {
+        for(const_iterator p = begin(); p != end(); ) (*p++)->from(basefn->c_str());
+        basefn = 0;
     }
 
     bool ok = true;                      // process delegates

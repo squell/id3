@@ -15,8 +15,8 @@
 using namespace std;
 using namespace charset;
 
-using set_tag::read::ID3;
-using set_tag::ID3field;
+using tag::read::ID3;
+using tag::ID3field;
 
 namespace {
     inline ID3v1 _readtag(const char *fn)
@@ -73,7 +73,7 @@ ID3::value_string ID3::operator[](ID3field field) const
 /* ====================================================== */
 
 namespace {                     // don't display in the order of of ID3field
-    using namespace set_tag;
+    using namespace tag;
 
     const char* desc[] = {
         "Title", "Artist", "Album", "Track", "Year", "Genre", "Comment"

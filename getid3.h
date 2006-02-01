@@ -1,6 +1,6 @@
 /*
 
-  set_tag::read::ID3
+  tag::read::ID3
 
   copyright (c) 2004, 2005 squell <squell@alumina.nl>
 
@@ -20,14 +20,14 @@
 #include "set_base.h"
 #include "id3v1.h"
 
-namespace set_tag {
+namespace tag {
     namespace read {
 
-        class ID3 : public reader {
+        class ID3 : public metadata {
         public:
             ID3v1 const tag;
 
-            typedef reader::factory<ID3> factory;
+            typedef metadata::factory<ID3> factory;
             explicit ID3(const char* fn);
             value_string operator[](ID3field field) const;
             array listing() const;

@@ -16,8 +16,8 @@
 using namespace std;
 using namespace charset;
 
-using set_tag::read::ID3v2;
-using set_tag::ID3field;
+using tag::read::ID3v2;
+using tag::ID3field;
 
 static bool getframe(const void*, ID3FRAME, int n, const char*);
 static conv<> unbinarize(ID3FRAME);

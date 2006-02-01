@@ -10,7 +10,7 @@
 
 */
 
-namespace set_tag {
+using tag::write::echo;
 
 bool echo::vmodify(const char* fname, const function& edit) const
 {
@@ -20,7 +20,5 @@ bool echo::vmodify(const char* fname, const function& edit) const
 void echo::log(const char* msg) const
 {
     std::puts(msg);
-}
-
 }
 

@@ -28,8 +28,8 @@
 
 using namespace std;
 
-using set_tag::ID3;
-using set_tag::ID3field;
+using tag::write::ID3;
+using tag::ID3field;
 
 static ID3v1 const zero_tag = {
     { 'T', 'A', 'G' },
@@ -124,7 +124,7 @@ bool ID3::from(const char* fn)
  // the return type as 'const reader*' and this class doesn't. apparently
  // caused by some compiler bug in relation to multiple inheritance.
 
-set_tag::reader* ID3::read(const char* fn) const
+tag::metadata* ID3::read(const char* fn) const
 {
     return new read::ID3(fn);
 }
@@ -141,7 +141,7 @@ static inline bool setfield(char (*dest)[N], const charset::conv<>* src)
         return false;
 }
 
-bool ID3::vmodify(const char* fn, const set_tag::function& edit) const
+bool ID3::vmodify(const char* fn, const function& edit) const
 {
     const ID3v1& synth_tag = null_tag? *(ID3v1*)null_tag : zero_tag;
 

@@ -30,7 +30,7 @@ class pattern {
     std::string str;
     bool ok;
 public:
-    pattern(set_tag::handler& tag, std::string mask);
+    pattern(tag::handler& tag, std::string mask);
     operator bool() const           { return ok; }
     const std::string& mask() const { return str; }
 };

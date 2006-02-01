@@ -1,6 +1,6 @@
 /*
 
-  set_tag::ID3 applicative class
+  tag::write::ID3 applicative class
 
   copyright (c) 2004, 2005 squell <squell@alumina.nl>
 
@@ -9,13 +9,13 @@
 
   Usage:
 
-  The set_tag::ID3 class implements the single_tag interface for ID3 tags
+  The write::ID3 class implements the interface for ID3 tags
 
   Example:
 
   int main(int argc, char* argv[])
   {
-      set_tag::ID3()
+      tag::write::ID3()
       .set(artist, "%2")
       .set(title,  "%3")
       .modify(argv[1], argv);
@@ -29,30 +29,32 @@
 #include <string>
 #include "set_base.h"
 
-namespace set_tag {
+namespace tag {
+    namespace write {
 
-class ID3 : public handler, public provider, private handler::body {
-public:
-    bool    vmodify(const char*, const function&) const;
-    reader* read(const char*) const;
+        class ID3 : public handler, public reader, private handler::body {
+        public:
+            bool      vmodify(const char*, const function&) const;
+            metadata* read(const char*) const;
 
-  // standard set
-    ID3() : null_tag() { }
-   ~ID3();
+          // standard set
+            ID3() : null_tag() { }
+           ~ID3();
 
-    ID3& set(ID3field i, std::string m)     // set ID3 field i to value m
-    { handler::body::set(i, m); return *this; }
+            ID3& set(ID3field i, std::string m)
+            { handler::body::set(i, m); return *this; }
 
-    ID3& clear(bool t = true)
-    { handler::body::clear(t);  return *this; }
+            ID3& clear(bool t = true)
+            { handler::body::clear(t);  return *this; }
 
-  // extended
-    bool from(const char* fn);
+          // extended
+            bool from(const char* fn);
 
-private:
-    const void* null_tag;                   // avoid a header dependency
-};
+        private:
+            const void* null_tag;              // avoid a header dependency
+        };
 
+    }
 }
 
 #endif

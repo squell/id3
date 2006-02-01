@@ -1,6 +1,6 @@
 /*
 
-  set_tag::rename applicative class
+  tag::write::file applicative class
 
   copyright (c) 2004-2006 squell <squell@alumina.nl>
 
@@ -9,14 +9,14 @@
 
   Usage:
 
-  The set_tag::filename class implements file renaming (pseudo-tag) or
-  renaming and tagging
+  The write::file class implements 'meta' operations for a file
+  (tagging and renaming)
 
   Example:
 
   int main(int argc, char* argv[])
   {
-      set_tag::rename()
+      tag::write::file()
       .filename("%2")
       .modify(argv[1], argv);
   }
@@ -29,22 +29,24 @@
 #include <string>
 #include "set_base.h"
 
-namespace set_tag {
+namespace tag {
+    namespace write {
 
-class file : public group {
-    std::string m_template;
-    bool m_preserve;
-public:
-    file() : m_preserve(0) { }
+        class file : public combined {
+            std::string m_template;
+            bool m_preserve;
+        public:
+            file() : m_preserve(0) { }
 
-    file& rename(std::string fname)
-    { m_template=fname; return *this; }
+            file& rename(std::string fname)
+            { m_template=fname; return *this; }
 
-    file& touch(bool t = true)
-    { m_preserve=!t; return *this; }
+            file& touch(bool t = true)
+            { m_preserve=!t; return *this; }
 
-    virtual bool vmodify(const char*, const function&) const;
-};
+            virtual bool vmodify(const char*, const function&) const;
+        };
+    }
 
 }
 

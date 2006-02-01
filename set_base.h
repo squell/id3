@@ -15,14 +15,11 @@
 
   modify() parses "%x" variables using string_parm::edit
 
-  set_tag::group calls multiple tags with the same values, in the reverse
-  order of them being registered. (*)
-
   Restrictions:
 
-  vmodify() should throw set_tag::failure on critical errors.
+  vmodify() should throw tag::failure on critical errors.
 
-  virtual destructor in set_tag::handler and set_tag::provider ommitted for
+  virtual destructor in tag::handler and tag::provider ommitted for
   filesize issues with gcc3.
 
 */
@@ -38,7 +35,7 @@
 #include <new>
 #include "sedit.h"
 
-namespace set_tag {
+namespace tag {
 
     enum ID3field {
         title, artist, album, year, cmnt, track, genre, FIELDS
@@ -46,23 +43,21 @@ namespace set_tag {
 
     class handler;             // abstract base class / interface
 
-    class group;               // group multiple writers into one
+    class combined;            // group multiple writers into one
 
-    class provider;            // extra interface for providing readers
-    class reader;              // abc abstracting tag format
+    class reader;              // extra interface for providing readers
+    class metadata;            // abc abstracting tag format
 
     class failure;             // exception class
 
 }
 
 
-namespace set_tag {            // borland likes this better
+namespace tag {
 
   ///////////////////////////////////////////////////////
   // interface part                                    //
   ///////////////////////////////////////////////////////
-
-using stredit::function;
 
 class non_copyable {
     non_copyable(const non_copyable&);
@@ -73,10 +68,10 @@ protected:
 
 class handler : non_copyable {
 public:
-    virtual bool vmodify(const char*, const function&) const = 0;
+    virtual bool vmodify(const char*, const stredit::function&) const = 0;
     struct body;
 
-    bool modify(const char* fn, const function& sub) const
+    bool modify(const char* fn, const stredit::function& sub) const
     { return vmodify(fn, sub); }
 
     template<class T>
@@ -102,6 +97,7 @@ public:
     { return false; }
 
 protected:                     // disable outside destruction
+    typedef stredit::function function;
     ~handler() { }
 
 private:                       // overload selectors
@@ -110,7 +106,7 @@ private:                       // overload selectors
     { return vmodify(fn, stredit::array((T*)var)); }
 
     template<class T>
-      bool p_modify(const char* fn, const function* var) const
+      bool p_modify(const char* fn, const stredit::function* var) const
     { return vmodify(fn, *var); }
 };
 
@@ -118,27 +114,26 @@ private:                       // overload selectors
   // tag reading interface                             //
   ///////////////////////////////////////////////////////
 
-class provider : non_copyable {
-public:
-    virtual reader* read(const char*) const = 0;
-protected:
-    ~provider() { }
-};
-
 class reader : non_copyable {
 public:
-    reader() { }
-    typedef function::result value_string;
+    virtual metadata* read(const char*) const = 0;
+protected:
+    ~reader() { }
+};
+
+class metadata : non_copyable {
+public:
+    typedef stredit::function::result value_string;
     typedef std::vector< std::pair<std::string, value_string> > array;
 
     virtual value_string operator[](ID3field) const = 0;
     virtual array        listing()            const = 0;
     virtual operator bool()                   const = 0;
-    virtual ~reader() { }
+    virtual ~metadata() { }
 
 protected:                     // a pre-defined factory
-    template<class Instance> struct factory : provider {
-        virtual reader* read(const char* fn) const
+    template<class Instance> struct factory : reader {
+        virtual metadata* read(const char* fn) const
         { return new Instance(fn); }
     };
 };
@@ -173,23 +168,23 @@ public:
   // (delegates all messages to registered handlers)   //
   ///////////////////////////////////////////////////////
 
-class group : public handler, private std::vector<handler*> {
+class combined : public handler, private std::vector<handler*> {
     mutable handler::body  data;
     mutable body::nullable basefn;
 public:
   // registers a delegate tag
-    group& add(handler& h)
+    combined& add(handler& h)
     { push_back(&h); return *this; }
-    group& forget(size_type pos, size_type num = 1)
+    combined& forget(size_type pos, size_type num = 1)
     { erase(begin()+pos, begin()+pos+num); return *this; }
 
   // standard state set methods
-    group& clear(bool t = true)
+    combined& clear(bool t = true)
     { data.clear(t);  return *this; }
-    group& set(ID3field i, std::string m)
+    combined& set(ID3field i, std::string m)
     { data.set(i, m); return *this; }
 
-    bool vmodify(const char*, const function&) const;
+    bool vmodify(const char*, const stredit::function&) const;
     bool from(const char*);
 
   // publish some methods

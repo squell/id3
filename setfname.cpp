@@ -23,7 +23,7 @@
 
 using namespace std;
 
-namespace set_tag {
+using tag::write::file;
 
     // checks if a character is a member of the portable set
 
@@ -53,7 +53,7 @@ bool file::vmodify(const char* fname, const function& edit) const
     function::result edited = edit(m_template);    // use pre-values
 
     if(m_template.empty() || !edited.good()) {
-        bool ok = group::vmodify(fname, edit);
+        bool ok = combined::vmodify(fname, edit);
         if(m_preserve) utime(fname, stamp);
         return ok;
     }
@@ -70,14 +70,12 @@ bool file::vmodify(const char* fname, const function& edit) const
     if(access(newfn, F_OK) == 0)                          // check if exists
         throw failure("file already exists ", newfn);
 
-    bool ok = group::vmodify(fname, edit);
+    bool ok = combined::vmodify(fname, edit);
     if(m_preserve) utime(fname, stamp);
 
     if(ok && std::rename(fname, newfn) != 0)
         throw failure("could not rename ", fname);
 
     return ok;
-}
-
 }
 
