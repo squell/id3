@@ -112,13 +112,9 @@ namespace charset {
           proxy<E> c_str() const    { return conv<>::c_str<E>(); }
 
         typedef char char_type;
-    private:
+    public:           // too many compilers crap on template friend templates
         static conv<>::data decode(const char*, std::size_t);
         static std::string  encode(const void*, std::size_t);
-        template<class Kin> friend
-          conv<>::data conv<Kin>::decode(const char*, std::size_t);
-        template<class Kin> friend
-          std::string  conv<Kin>::encode(const void*, std::size_t);
     };
 
   /*

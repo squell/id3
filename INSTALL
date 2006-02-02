@@ -81,6 +81,9 @@ Pick the makefile you need and rename it to 'makefile' or use 'make -f':
   if you want to/need to use different settings. (You can also use this
   file for building with mingw32-make)
 
+  The predefined CFLAGS and CXXFLAGS settings are tuned to gcc 3.x. Do not
+  use -fno-rtti when compiling with gcc 2.95.
+
   'makefile.dj'  is for DOS systems using DJGPP v2
 
   'makefile.bcc'  is for building a Win32 executable for Borland C++ 5.5
