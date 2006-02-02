@@ -29,7 +29,7 @@
   /* most older gcc's don't define wstring, but I only need it as a
      simple and adequate container, and it works just fine. */
 
-#if (__DJGPP__) || (__GNUC__ == 2)       
+#if (__DJGPP__) || (__GNUC__ == 2)
 namespace std {
     typedef basic_string<wchar_t> wstring;
 }

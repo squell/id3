@@ -35,10 +35,10 @@ namespace charset {
 
     conv<>::data conv_wide::decode(const char* s, size_t len, byte_order ord)
     {
-        if(!(len &= ~1)) return wstring();        // degenerate
+        if(!(len &= ~1)) return conv<>::data();   // degenerate
         const char* end = s+len;
 
-        wstring build;
+        conv<>::data build;
         build.reserve(len / sizeof(wchar_t));
         bool i = (ord == big_endian);
 
