@@ -16,7 +16,7 @@
 #include "mass_tag.h"
 #include "pattern.h"
 
-#define _version_ "0.77 (2006032)"
+#define _version_ "0.77 (2006033)"
 
 /*
 
@@ -74,6 +74,7 @@ static void Help()
         " -y <year>\t"     "\t value of tag field in file = %%t %%a %%l %%n %%y %%g %%c)\n"
         " -g <genre>\t"    "\n"
         " -c <comment>\t"  "\n"
+        " -D <filename\t"  "duplicate tags read from filename\n"
         " -f <template>\t" "rename files according to template\n"
         " -q <format>\t"   "print formatted string on standard output\n"
         " -m\t\t"          "match variables in filespec\n"

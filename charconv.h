@@ -16,8 +16,7 @@
 
   Example:
 
-  std::puts( cvtstring::latin1("ISO 8859-1 text").local().c_str() );
-  std::puts( conv::string<latin1>("ISO 8859-1 text").c_str<local>() );
+  std::puts( conv<latin1>("ISO 8859-1 text").c_str<local>() );
 
 */
 
@@ -26,7 +25,11 @@
 
 #include <cstddef>
 #include <string>
-#ifdef __DJGPP__
+
+  /* most older gcc's don't define wstring, but I only need it as a
+     simple and adequate container, and it works just fine. */
+
+#if (__DJGPP__) || (__GNUC__ == 2)       
 namespace std {
     typedef basic_string<wchar_t> wstring;
 }
@@ -112,7 +115,10 @@ namespace charset {
     private:
         static conv<>::data decode(const char*, std::size_t);
         static std::string  encode(const void*, std::size_t);
-        template<class Kin> friend class conv;
+        template<class Kin> friend
+          conv<>::data conv<Kin>::decode(const char*, std::size_t);
+        template<class Kin> friend
+          std::string  conv<Kin>::encode(const void*, std::size_t);
     };
 
   /*

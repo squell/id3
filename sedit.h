@@ -9,6 +9,30 @@
 
   Usage:
 
+  stredit::function is an abtract class for string-to-string mapping
+
+  Using stredit::format, any "%x"'s found will be processed; actual variables
+  will be passed on to a descendant class.
+
+  Optional modifiers to %x:
+   "+"     Pass Throught A Capitalization Function
+   "-"     convert to lower case
+   "_"     Don't_eliminate_underscores_and   don't   compress    spaces
+   "#"     Pad numbers with (number of #'s-1) zero's.
+   "|alt|" Replace with alternate text if substitution would fail.
+
+  Special forms:
+   "%%" -> %
+   "%?" -> used for %| alt || alt? || alt? |?
+
+  stredit::array() will instantiate a formatter which looks up %0 to %9 in
+  the array passed as its argument.
+
+  Example:
+
+      char* tab[] = { "foo", "bar" };
+      string s = array(tab)("%1, %+0");   // "bar, Foo"
+
 */
 
 #ifndef __ZF_NSEDIT_HPP
