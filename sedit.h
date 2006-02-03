@@ -65,6 +65,11 @@ namespace stredit {
         virtual result operator()(const charset::conv<char>&) const = 0;
     };
 
+    class identity : public function {
+        virtual result operator()(const charset::conv<char>& s) const
+        { return result(s,1); }
+    };
+
     class format : public function {
         static char const prefix = '%';
     public:

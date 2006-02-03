@@ -140,7 +140,7 @@ function::result format::code(ptr& p, ptr end) const
             return conv<wchar_t>(1, prefix);
 /* */   case ',':                               // deprecated new line macro
             { struct _deprecated {
-                _deprecated() {}
+               _deprecated() { }
                ~_deprecated()
                 { deprecated("`%,' will be removed, use `\\n' or `\\n\\r' instead"); }
               } static _warning; }

@@ -68,10 +68,9 @@ protected:
 
 class handler : non_copyable {
 public:
-    virtual bool vmodify(const char*, const stredit::function&) const = 0;
     struct body;
 
-    bool modify(const char* fn, const stredit::function& sub) const
+    bool modify(const char* fn, const stredit::function& sub = stredit::identity()) const
     { return vmodify(fn, sub); }
 
     template<class T>
@@ -99,6 +98,8 @@ public:
 protected:                     // disable outside destruction
     typedef stredit::function function;
     ~handler() { }
+
+    virtual bool vmodify(const char*, const stredit::function&) const = 0;
 
 private:                       // overload selectors
     template<class T>

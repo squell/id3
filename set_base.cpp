@@ -50,7 +50,7 @@ bool combined::vmodify(const char* fn, const function& val) const
 
     bool ok = true;                      // process delegates
     for(const_iterator p = begin(); p != end(); ) {
-        ok &= (*p++)->vmodify(fn, val);
+        ok &= (*p++)->modify(fn, val);
     }
     return ok;
 }
