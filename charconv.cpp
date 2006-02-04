@@ -86,11 +86,11 @@ namespace charset {
         {
             if(loc && ok_locale(0))
                 return 1;
-#if defined(__WIN32__)
+#  if defined(__WIN32__)
             char cp[12];
             sprintf(cp, ".%d", GetACP() & 0xFFF);
             loc = cp;
-#endif
+#  endif
             const char* tmp = setlocale(LC_CTYPE, loc);
             return tmp && strcmp(tmp, "C") != 0;
         }
@@ -98,10 +98,12 @@ namespace charset {
         static bool wchar_unicode()
         {
             static bool const set = ok_locale("");
-#  ifndef CODESET
-            return false;
-#  elif fallback(1)
+#  if fallback(1)
+#    ifdef CODESET
             return strcmp(nl_langinfo(CODESET), "UTF-8") == 0;
+#    else
+            return false;
+#    endif
 #  else
             return true;
 #  endif
