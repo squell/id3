@@ -30,7 +30,7 @@ bool combined::from(const char* fn)
 
 bool combined::vmodify(const char* fn, const function& val) const
 {
-    for(int n = 0; n < FIELDS; ++n)
+    for(int n = 0; n < FIELD_MAX; ++n)
         if(const string* txt = data.update[n]) {
             for(const_iterator p = begin(); p != end(); ) {
                 (*p++)->set(ID3field(n), *txt);

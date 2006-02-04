@@ -38,7 +38,7 @@
 namespace tag {
 
     enum ID3field {
-        title, artist, album, year, cmnt, track, genre, FIELDS
+        title, artist, album, year, cmnt, track, genre, FIELD_MAX
     };
 
     class handler;             // abstract base class / interface
@@ -155,11 +155,11 @@ public:
         const std::string* operator->() const { return *this; }
     };
 
-    nullable update[FIELDS];         // modification data
+    nullable update[FIELD_MAX];      // modification data
     bool cleared;                    // should vmodify clear existing tag?
 
     void set(ID3field i, std::string m)
-    { if(i < FIELDS) update[i] = m; }
+    { if(i < FIELD_MAX) update[i] = m; }
     void clear(bool t = true)
     { cleared = t; }
 };

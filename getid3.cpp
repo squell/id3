@@ -88,7 +88,7 @@ ID3::array ID3::listing() const
 {
     array vec;
     vec.push_back( array::value_type("ID3", tag.zero? "1.0" : "1.1") );
-    for(int x = 0; x < FIELDS; ++x) {
+    for(int x = 0; x < FIELD_MAX; ++x) {
         conv<> s = operator[](tab[x]);
         if(!s.empty())
             vec.push_back( array::value_type(desc[x], s) );

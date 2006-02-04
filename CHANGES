@@ -1,5 +1,10 @@
 Changelog for 'id3'.
 
+2006-035 (W05):
+  main.cpp/mass_tag.cpp: added -A, -T and %A, %T as quiet synonyms for -l, -n
+    this is for better CLI compatibility with other programs;
+  charconv.cpp: added an extra check whether there is nl_langinfo (OpenBSD)
+
 2006-030 (W04):                                ---------[v0.77]-----------
   main.cpp: user checks: ignore extra file arguments when using -m, ignore
     options after first filename was given (regression)

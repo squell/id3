@@ -164,7 +164,7 @@ ID3v2& ID3v2::set(ID3field i, string m)
     const static char xlat3[][5] = {
         "TIT2", "TPE1", "TALB", "TYER", "COMM", "TRCK", "TCON"
     };
-    if(i < FIELDS) {
+    if(i < FIELD_MAX) {
         set(xlat2[i], m);      // let error handling decide between them.
         set(xlat3[i], m);
     }

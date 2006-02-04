@@ -33,7 +33,7 @@ ID3v2::~ID3v2()
 
 ID3v2::value_string ID3v2::operator[](ID3field field) const
 {
-    const char* const fieldtag[FIELDS][2] = {          // ID3field order!
+    const char* const fieldtag[FIELD_MAX][2] = {       // ID3field order!
         { "TT2"  "TT3"  "TOF",
           "TIT2" "TIT3" "TOFN" "TRSN" },
         { "TP1"  "TCM"  "TP2"  "TP3"  "TP4"  "TXT"  "TOA"  "TOL"  "TPB",
@@ -52,7 +52,7 @@ ID3v2::value_string ID3v2::operator[](ID3field field) const
 
     ID3FRAME f;
     bool ok = false;
-    if(tag && field < FIELDS) {
+    if(tag && field < FIELD_MAX) {
         const bool v = ID3_start(f, tag) > 2;
         ok = getframe(tag, f, 3+v, fieldtag[field][v]);
     }

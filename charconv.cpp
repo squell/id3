@@ -98,7 +98,9 @@ namespace charset {
         static bool wchar_unicode()
         {
             static bool const set = ok_locale("");
-#  if fallback(1)
+#  ifndef CODESET
+            return false;
+#  elif fallback(1)
             return strcmp(nl_langinfo(CODESET), "UTF-8") == 0;
 #  else
             return true;

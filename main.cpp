@@ -334,14 +334,13 @@ int main_(int argc, char *argv[])
                     eprintf("cannot use either -d or -D more than once\n");
                     shelp();
 
-                case 't':
-                case 'a':
-                case 'l':
-                case 'y':
-                case 'c':
-                case 'g':
-                case 'n':
-                    field = mass_tag::field(opt[-1]); cmd = std_field; break;
+                default:
+                    field = mass_tag::field(opt[-1]);
+                    if(field == tag::FIELD_MAX) {
+                        eprintf("-%c: unrecognized switch\n", opt[-1]);
+                        shelp();
+                    }
+                    cmd = std_field; break;
 #ifndef NO_V2
                 case '1':
                     chosen = tag.activate<ID3>();
@@ -382,7 +381,7 @@ int main_(int argc, char *argv[])
 #endif
                 case 'u':
                     if(chosen) {
-                        for(int i = 0; i < tag::FIELDS; ++i)
+                        for(int i = 0; i < tag::FIELD_MAX; ++i)
                             chosen->set(ID3field(i), mass_tag::var(i));
                         state |= w;
                         break;
@@ -398,9 +397,6 @@ int main_(int argc, char *argv[])
                        cmd = force_fn;
                        break;
                     }
-                default:
-                    eprintf("-%c: unrecognized switch\n", opt[-1]);
-                    shelp();
                 }
             }
             continue;

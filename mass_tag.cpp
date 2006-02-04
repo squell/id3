@@ -35,14 +35,16 @@ ID3field mass_tag::field(char c)
      case 'c': return tag::cmnt;
      case 'n': return tag::track;
      case 'g': return tag::genre;
-     default : return tag::FIELDS;
+     case 'A': return tag::album;                    // compat.
+     case 'T': return tag::track;
+     default : return tag::FIELD_MAX;
      }
 }
 
 string mass_tag::var(int i)
 {
     const char tab[] = "talycng";
-    if(i < tag::FIELDS)
+    if(i < tag::FIELD_MAX)
         return string(1,'%') += tab[i];
     else
         return string();
@@ -116,7 +118,7 @@ namespace {
             return conv<local>(filerec->var[c]);
         default:
             ID3field i; i = mass_tag::field(c);
-            if(i >= tag::FIELDS) {
+            if(i >= tag::FIELD_MAX) {
                 static char error[] = "unknown variable: %_";
                 error[sizeof error-2] = c, throw out_of_range(error);
             }

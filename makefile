@@ -157,7 +157,7 @@ diff:
 	-rm -rf .tmp
 
 URI	 = http://home.wanadoo.nl/squell
-HTMLPROC = sed -n 's/^.*href="\([[:alnum:]/_.-]*[.]tar[.]gz\)".*$$/\1/p'
+HTMLPROC = sed -n '1,/tar[.]gz/s:^.*"\([^"]*tar[.]gz\)".*$$:\1:p'
 
 wget-orig:
 	which wget

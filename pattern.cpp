@@ -38,7 +38,7 @@ namespace {
         if(var[1]++ == '9')                        // limit reached
             throw std::out_of_range("too many variables in pattern");
         ID3field field = mass_tag::field(c);
-        if(field < tag::FIELDS) {
+        if(field < tag::FIELD_MAX) {
             w = true, tag->set(field, var);
         } else if(c == 'x') {
             ;                                      // pass over in silence
