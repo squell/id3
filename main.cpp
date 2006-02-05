@@ -95,10 +95,11 @@ static void Help()
     exit(exitc=1);
 }
 
-static void shelp()
+static int shelp(bool quit = true)
 {
     fprintf(stderr, "Try `%s -h' for more information.\n", Name);
-    exit(exitc=1);
+    if(quit) exit  (exitc=1);
+    else     return(exitc=1);
 }
 
 static void eprintf(const char* msg, ...)
@@ -490,7 +491,7 @@ int main(int argc, char *argv[])
         eprintf("%s (tagging aborted)\n", f.what());
     } catch(const out_of_range& x) {
         eprintf("%s\n", x.what());
-        shelp();
+        return shelp(0);
     } catch(const exception& exc) {
         eprintf("unhandled exception: %s\n", exc.what());
     } catch(...) {
