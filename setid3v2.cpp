@@ -248,10 +248,11 @@ bool ID3v2::vmodify(const char* fn, const function& edit) const
     }
 
     for(db::iterator p = table.begin(); p != table.end(); ++p) {
-        charset::conv<> s = edit(p->second);
-        if(!s.empty()) {
-            string b = binarize(p->first, s);
-            tag.put(p->first.c_str(), b.data(), b.length());
+        if(function::result s = edit(p->second)) {
+            if(!s.empty()) {
+                string b = binarize(p->first, s);
+                tag.put(p->first.c_str(), b.data(), b.length());
+            }
         }
     }
 

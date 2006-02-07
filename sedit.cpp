@@ -17,12 +17,20 @@
 using namespace std;
 using namespace charset;
 
-#if defined(__DJGPP__) || defined(__BORLANDC__)  // crappy wide char support
-#    define towupper toupper
-#    define towlower tolower
-#    define iswalnum isalnum
-#    define iswcntrl iscntrl
-#    define iswspace isspace
+ /*
+   <wctype.h> was added in the 1994 Amd. to C; __STDC_VERSION__ >= 199409L
+   It is therefore part of the C++ standard, but support varies; autoconf?
+ */
+
+#if defined(__FreeBSD__) && (__FreeBSD__ <= 5) \
+ || defined(__DJGPP__) || defined(__BORLANDC__)
+#    define to_upper toupper
+#    define to_lower tolower
+#    define is_(what, c) is##what(c)
+#else
+#    define to_upper towupper
+#    define to_lower towlower
+#    define is_(what, c) isw##what(c)
 #endif
 
 extern void deprecated(const char*);
@@ -33,17 +41,17 @@ enum style { as_is, name, lowr, camel };
 
 struct filtered_char {                           // filter low-ascii
     bool operator()(wchar_t c)
-    { return c == '_' || iswcntrl(c); }
+    { return c == '_' || is_(cntrl, c); }
 };
 
 struct both_space {                              // filter ascii space
     bool operator()(wchar_t a, wchar_t b)
-    { return iswspace(a) && iswspace(b); }
+    { return is_(space, a) && is_(space, b); }
 };
 
-struct to_lower {
+struct char_to_lower {
     wchar_t operator()(wchar_t c)
-    { return towlower(c); }
+    { return to_lower(c); }
 };
 
  // compress("    bla    bla  ", 4) -> "bla bla"
@@ -51,9 +59,9 @@ struct to_lower {
 void compress(wstring& s)
 {
     wstring::iterator p = unique(s.begin(), s.end(), both_space());
-    if(p != s.begin() && iswspace(p[-1])) --p;
+    if(p != s.begin() && is_(space, p[-1])) --p;
     s.erase(p, s.end());
-    if(s.length() > 0 && iswspace(s[0]))
+    if(s.length() > 0 && is_(space, s[0]))
         s.erase(s.begin());
 }
 
@@ -63,8 +71,8 @@ void capitalize(wstring& s)
 {
     bool new_w = true;
     for(wstring::iterator p = s.begin(); p != s.end(); ++p) {
-        *p = new_w? towupper(*p):towlower(*p);
-        new_w = iswspace(*p) || !iswalnum(*p) && new_w;
+        *p = new_w? to_upper(*p):to_lower(*p);
+        new_w = is_(space, *p) || !is_(alnum, *p) && new_w;
     }
 }
 
@@ -170,7 +178,7 @@ function::result format::code(ptr& p, ptr end) const
             if(caps == name)
                 capitalize(s); else
             if(caps == lowr)
-                transform(s.begin(), s.end(), s.begin(), to_lower());
+                transform(s.begin(), s.end(), s.begin(), char_to_lower());
             padnumeric(s, num_pad);
             return result(conv<wchar_t>(s), subst.good());
         }

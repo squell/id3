@@ -2,7 +2,7 @@
 
 CC     = bcc32 -q -D_POSIX_
 !ifndef CFLAGS
-CFLAGS = -w- -d -O2
+CFLAGS = -w- -d -k- -O2
 !endif
 
 .autodepend

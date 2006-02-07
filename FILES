@@ -19,8 +19,8 @@ the contents of the DOS/Win32 binary distribution:
 
 All files in this package are copyrighted. This is NOT public domain software.
 
-This software comes under a Cryptix/BSD style license, which (in short) means
-you can pretty much do with it as you please (including redistribution under
+This software comes under a FreeBSD style license, which (in short) means you
+can pretty much do with it as you please (including redistribution under
 another license such as the GNU GPL), as long as copyright is acknowledged.
 
 It also means you can't sue me if anything terrible happens.
