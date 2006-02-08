@@ -1,5 +1,8 @@
 Changelog for 'id3'.
 
+2006-039 (W06):
+  setid3.cpp: also writes id3v1.0 tags if possible.
+
 2006-035 (W05):
   main.cpp/mass_tag.cpp: added -A, -T and %A, %T as quiet synonyms for -l, -n
     this is for better CLI compatibility with other programs;

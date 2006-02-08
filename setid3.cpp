@@ -133,10 +133,10 @@ tag::metadata* ID3::read(const char* fn) const
  // reference type parameters (in this case), so use pointer instead
 
 template<size_t N>
-static inline bool setfield(char (*dest)[N], const charset::conv<>* src)
+static inline bool setfield(char (*dest)[N], const charset::conv<>* src, size_t maxlen = N)
 {
     if(src)
-        return strncpy(*dest, src->template c_str<charset::latin1>(), N);
+        return strncpy(*dest, src->template c_str<charset::latin1>(), maxlen);
     else
         return false;
 }
@@ -180,17 +180,15 @@ bool ID3::vmodify(const char* fn, const function& edit) const
         if(field = update[year])
             n += setfield(&tag.year,   edit(*field));
 
-        if(field = update[cmnt]) {
-            n += setfield(&tag.cmnt,   edit(*field));
-            if(tag.zero != '\0')
-                tag.track = tag.zero = 0;               // ID3 v1.0 -> v1.1
-        }
-        if(field = update[track]) {
+        if(field = update[track])
             if(function::result rs = edit(*field)) {
                 ++n, tag.track = atoi( rs.c_str<latin1>() );
                 tag.zero = '\0';
             }
-        }
+
+        if(field = update[cmnt])
+            n += setfield(&tag.cmnt,   edit(*field), sizeof tag.cmnt + 2*(tag.zero||!tag.track));
+
         if(field = update[genre]) {
             if(function::result rs = edit(*field)) {
                 string s          = str_upper( rs.str<latin1>() );
