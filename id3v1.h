@@ -5,7 +5,7 @@
   copyright (c) 2003 squell <squell@alumina.nl>
 
   use, modification, copying and distribution of this software is permitted
-  see the accompanying file 'COPYING' for license conditions
+  under the conditions described in the file 'COPYING'.
 
   Made this into a header + extern const object, lest certain linkers emit
   multiple copies in executables. And if i'm going to use a header for the

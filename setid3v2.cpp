@@ -15,7 +15,7 @@
   copyright (c) 2004, 2005 squell <squell@alumina.nl>
 
   use, modification, copying and distribution of this software is permitted
-  see the accompanying file 'COPYING' for license conditions
+  under the conditions described in the file 'COPYING'.
 
   Note: I'm devoting quite a bit of code to glue the interface from C to C++,
   and I'm not entirely happy about it. I'm a bit confused as to the reasons I
