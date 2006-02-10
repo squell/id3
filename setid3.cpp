@@ -4,7 +4,7 @@
 #include <cctype>
 #include <algorithm>
 #include <map>
-#include <new>
+#include <string>
 #include "id3v1.h"
 #include "getid3.h"
 #include "setid3.h"

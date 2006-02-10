@@ -64,22 +64,35 @@ namespace charset {
         conv(const conv<>& other) : internal(other.internal) { }
         conv(void)                : internal()               { }
 
+      // some familiar functions
         bool empty() const          { return internal.empty(); }
         void clear()                { internal.erase(); }
         void swap(conv<>& other)    { internal.swap(other.internal); }
 
-        void reserve(data::size_type req = 0)
+        void reserve(std::size_t req = 0)
                                     { internal.reserve(req * cellsize); }
         conv<>& operator+=
           (wchar_t c)               { return internal.append((data::value_type*)&c, cellsize), *this; }
         conv<>& operator+=
           (const conv<>& rhs)       { return (internal+=rhs.internal), *this; }
 
+        conv<> substr(std::size_t pos = 0, std::size_t n = std::size_t(-1))
+        { return conv(internal.substr(pos*cellsize, n*cellsize)); }
+
         template<class E>
           std::basic_string<typename conv<E>::char_type>
                    str()   const    { return conv<E>(*this); }
         template<class E>
           proxy<E> c_str() const    { return str<E>(); }
+
+      // outside operations
+        friend conv operator+ (const conv<>& lhs, const conv<>& rhs) { return conv(lhs.internal + rhs.internal); }
+        friend bool operator==(const conv<>& lhs, const conv<>& rhs) { return lhs.internal == rhs.internal; }
+        friend bool operator!=(const conv<>& lhs, const conv<>& rhs) { return lhs.internal != rhs.internal; }
+        friend bool operator< (const conv<>& lhs, const conv<>& rhs) { return lhs.internal <  rhs.internal; }
+        friend bool operator<=(const conv<>& lhs, const conv<>& rhs) { return lhs.internal <= rhs.internal; }
+        friend bool operator> (const conv<>& lhs, const conv<>& rhs) { return lhs.internal >  rhs.internal; }
+        friend bool operator>=(const conv<>& lhs, const conv<>& rhs) { return lhs.internal >= rhs.internal; }
     };
 
     inline conv<> operator+(conv<> lhs, const conv<>& rhs)

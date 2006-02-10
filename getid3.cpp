@@ -19,7 +19,7 @@ using tag::read::ID3;
 using tag::ID3field;
 
 namespace {
-    inline ID3v1 _readtag(const char *fn)
+    inline ID3v1 readtag(const char *fn)
     {
         struct ID3v1 tag = { { 0, } };
         if( FILE* f = fopen(fn, "rb") ) {
@@ -34,7 +34,7 @@ namespace {
     }
 }
 
-ID3::ID3(const char* fn) : tag(_readtag(fn))
+ID3::ID3(const char* fn) : tag(readtag(fn))
 {
 }
 

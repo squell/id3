@@ -124,7 +124,7 @@ static string binarize(const string field, charset::conv<charset::latin1> conten
     if(!ID3v2::is_valid(field))
         return data;
     if(ID3v2::is_counter(field)) {
-        unsigned long t = strtol(content.c_str(), 0, 0);
+        unsigned long t = strtoul(content.c_str(), 0, 0);
         data.push_back(t >> 24 & 0xFF);
         data.push_back(t >> 16 & 0xFF);
         data.push_back(t >>  8 & 0xFF);
