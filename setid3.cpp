@@ -112,7 +112,7 @@ struct genre_map : map<string,int,bool (*)(const string&,const string&)> {
 
 bool ID3::from(const char* fn)
 {
-    delete (ID3v1*)null_tag, null_tag = 0;
+    delete null_tag, null_tag = 0;
     if(fn) {
         read::ID3 src(fn);
         if(src) null_tag = new ID3v1(src.tag);
@@ -143,24 +143,27 @@ static inline bool setfield(char (*dest)[N], const charset::conv<>* src, size_t 
 
 bool ID3::vmodify(const char* fn, const function& edit) const
 {
-    const ID3v1& synth_tag = null_tag? *(ID3v1*)null_tag : zero_tag;
+    const ID3v1& synth_tag = null_tag? *null_tag : zero_tag;
 
     ID3v1 tag = { { 0 } };                    // duct tape
 
     if( FILE* f = fopen(fn, "rb+") ) {
-        fseek(f, -128, SEEK_END);
-        fread(&tag, 1, 128, f);               //  annotated below
-        fseek(f,    0, ftell(f)<128? SEEK_END : SEEK_CUR);
+        fseek(f, -128, SEEK_END)  == 0    &&
+        fread(&tag, 1, 128, f)    == 128  || (tag.TAG[0] = 0);
 
-        if( ferror(f) ) {
+        int err;
+        if( memcmp(tag.TAG, "TAG", 3) == 0 ) {
+            err = fseek(f, -128, SEEK_END);   // overwrite existing tag
+        } else {
+            tag = synth_tag;                  // create new tag
+            clearerr(f);
+            err = fseek(f,    0, ftell(f)<128? SEEK_END : SEEK_CUR);
+        }
+
+        if(err != 0) {
             fclose(f);
             return false;
         }
-
-        if( memcmp(tag.TAG, "TAG", 3) == 0 )
-            fseek(f, -128, SEEK_END);         // overwrite existing tag
-        else
-            tag = synth_tag;                  // create new tag
 
         if( cleared ) tag = synth_tag;
 
@@ -199,8 +202,6 @@ bool ID3::vmodify(const char* fn, const function& edit) const
             }
         }
 
-        bool err;
-
         if( cleared && n == 0 ) {
             err = ftrunc(f) != 0;
         } else {
@@ -220,7 +221,7 @@ bool ID3::vmodify(const char* fn, const function& edit) const
 
 ID3::~ID3()
 {
-    delete (ID3v1*)null_tag;
+    delete null_tag;
 }
 
 /*

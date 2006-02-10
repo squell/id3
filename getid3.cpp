@@ -23,11 +23,9 @@ namespace {
     {
         struct ID3v1 tag = { { 0, } };
         if( FILE* f = fopen(fn, "rb") ) {
-            fseek(f, -128, SEEK_END);
-            fread(&tag, 1, 128, f);
-            if( ferror(f) || memcmp(tag.TAG, "TAG", 3) != 0 ) {
-                tag.TAG[0] = 0;
-            }
+            fseek(f, -128, SEEK_END)  == 0    &&
+            fread(&tag, 1, 128, f)    == 128  &&
+            memcmp(tag.TAG, "TAG", 3) == 0    || (tag.TAG[0] = 0);
             fclose(f);
         }
         return tag;

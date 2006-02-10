@@ -1,5 +1,8 @@
 Changelog for 'id3'.
 
+2006-040 (W06):
+  lyrics3.cpp/getlyr3.cpp created
+
 2006-039 (W06):
   setid3.cpp: also writes id3v1.0 tags if possible.
 

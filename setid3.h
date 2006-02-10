@@ -29,6 +29,8 @@
 #include <string>
 #include "set_base.h"
 
+struct ID3v1;                                 // avoid a header dependency
+
 namespace tag {
     namespace write {
 
@@ -51,7 +53,7 @@ namespace tag {
             bool from(const char* fn);
 
         private:
-            const void* null_tag;              // avoid a header dependency
+            const ID3v1* null_tag;
         };
 
     }
