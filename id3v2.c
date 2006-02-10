@@ -264,7 +264,8 @@ int ID3_writef(const char *fname, const void *buf, size_t reqsize)
             fclose(f);
             return 1;
         }
-        fseek(f, orig, SEEK_CUR);
+        if( fseek(f, orig, SEEK_CUR) != 0 )
+            goto abort;
     } else {
         if(size == 0) {
             fclose(f);
