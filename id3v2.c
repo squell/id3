@@ -80,19 +80,6 @@ static uchar *unsync_dec(uchar *buf, ulong size)
     return dst;
 }
 
-static uchar *unsync_enc(uchar *buf, ulong size)
-{
-    uchar *dst, *src;
-
-    dst = src = buf;                          /* in-place en-unsync'ing */
-    while(size--);
-
-     /* to be 'ritten ;)
-       Does ANY implementation in fact write unsync'd tags? */
-
-    return 0;
-}
-
 /* ==================================================== */
 
 static ulong ul4(uchar n[4])
@@ -187,7 +174,7 @@ void *ID3_readf(const char *fname, size_t *tagsize)
     if( fread(buf,size,1,f) != 1 )
         goto abort_mem;                        /* empty tag, or IO error */
 
-    if( rh.flags & UNSYNC )                                  /* UNTESTED */
+    if( rh.flags & UNSYNC )
         size = unsync_dec(buf, size) - buf;
 
     if( rh.flags & XTND ) {                 /* get rid of extended header */
