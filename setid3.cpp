@@ -145,7 +145,7 @@ bool ID3::vmodify(const char* fn, const function& edit) const
 {
     const ID3v1& synth_tag = null_tag? *null_tag : zero_tag;
 
-    ID3v1 tag = { { 0 } };                    // duct tape
+    ID3v1 tag;
 
     if( FILE* f = fopen(fn, "rb+") ) {
         fseek(f, -128, SEEK_END)  == 0    &&
