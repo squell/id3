@@ -322,6 +322,13 @@ ID3VER ID3_start(ID3FRAME f, const void *buf)
     f->data  = (char*)buf + 1;
     f->size  = 0;
 
+    f->tag_volit  =                      /* set highly useful data */
+    f->file_volit =
+    f->readonly   =
+    f->packed     =
+    f->encrypted  =
+    f->grouped    = 0;
+
     return (ver|1) == 3 ? ver : 0;
 }
 
@@ -336,13 +343,13 @@ int ID3_frame(ID3FRAME f)
 
     if(ver) {                                           /* ID3v2.3 stuff */
         f->size       = ul4(frame->v3.size);          /* copy essentials */
-        f->tag_volit  = frame->v3.flags[0] & TAP;
-        f->file_volit = frame->v3.flags[0] & FAP;
+        f->tag_volit  = !!( frame->v3.flags[0] & TAP  );
+        f->file_volit = !!( frame->v3.flags[0] & FAP  );
 
-        f->readonly   = frame->v3.flags[0] & RO;
-        f->packed     = frame->v3.flags[1] & PACK;
-        f->encrypted  = frame->v3.flags[1] & ENC;
-        f->grouped    = frame->v3.flags[1] & GRP;
+        f->readonly   = !!( frame->v3.flags[0] & RO   );
+        f->packed     = !!( frame->v3.flags[1] & PACK );
+        f->encrypted  = !!( frame->v3.flags[1] & ENC  );
+        f->grouped    = !!( frame->v3.flags[1] & GRP  );
     } else {
         f->size       = ul4(frame->v2.size) >> 8;
     }

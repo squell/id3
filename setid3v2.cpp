@@ -192,10 +192,9 @@ bool ID3v2::set(string field, string s)
     return false;
 }
 
-bool ID3v2::rm(std::string field)
+bool ID3v2::rm(string field)
 {
-    mod[field].erase();
-    return true;
+    return set(field, string());
 }
 
 /* ===================================== */

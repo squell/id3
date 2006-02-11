@@ -22,7 +22,7 @@ using namespace charset;
    It is therefore part of the C++ standard, but support varies; autoconf?
  */
 
-#if defined(__FreeBSD__) && (__FreeBSD__ <= 5) \
+#if defined(__FreeBSD__) && (__FreeBSD__ < 5) \
  || defined(__DJGPP__) || defined(__BORLANDC__)
 #    define to_upper toupper
 #    define to_lower tolower
@@ -148,7 +148,7 @@ function::result format::code(ptr& p, ptr end) const
             return conv<wchar_t>(1, prefix);
 /* */   case ',':                               // deprecated new line macro
             { struct _deprecated {
-               _deprecated() { }
+                _deprecated() { (void) string(""); }
                ~_deprecated()
                 { deprecated("`%,' will be removed, use `\\n' or `\\n\\r' instead"); }
               } static _warning; }

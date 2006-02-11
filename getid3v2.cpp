@@ -20,7 +20,7 @@ using tag::read::ID3v2;
 using tag::ID3field;
 
 static bool getframe(const void*, ID3FRAME, int n, const char*);
-static conv<> unbinarize(ID3FRAME);
+static ID3v2::value_string unbinarize(ID3FRAME);
 
 ID3v2::ID3v2(const char* fn) : tag(ID3_readf(fn,0))
 {
@@ -56,7 +56,7 @@ ID3v2::value_string ID3v2::operator[](ID3field field) const
         const bool v = ID3_start(f, tag) > 2;
         ok = getframe(tag, f, 3+v, fieldtag[field][v]);
     }
-    return ok? unbinarize(f) : conv<>();
+    return ok? unbinarize(f) : value_string();
 }
 
 /* ====================================================== */
@@ -94,10 +94,15 @@ static bool getframe(const void* tag, ID3FRAME f, int n, const char* field)
     return 0;
 }
 
-static conv<> unbinarize(ID3FRAME f)
+static ID3v2::value_string unbinarize(ID3FRAME f)
 {
+    typedef conv<latin1> cs;
+
     const string field  = f->ID;
     const char*  p      = f->data + 1;
+
+    if(f->packed || f->encrypted || f->grouped)
+        return ID3v2::value_string(cs("<compressed or encrypted>"),0);
 
     if(ID3v2::is_counter(field)) {
         char buf[12];                          // enough for 32bits
@@ -129,7 +134,7 @@ static conv<> unbinarize(ID3FRAME f)
         case  1:
             return conv<ucs2>  (p, f->size-hdrsiz);
         default:
-            return conv<latin1>("<unsupported encoding>");
+            return ID3v2::value_string(cs("<unsupported encoding>"),0);
         };
     } else if(ID3v2::is_url(field)) {
         return conv<latin1>(f->data, f->size);

@@ -123,8 +123,8 @@ namespace {
                 error[sizeof error-2] = c, throw out_of_range(error);
             }
             if(!tag_data) tag_data = tag->read(filerec->path);
-            result tmp = (*tag_data)[i];
-            return tmp? tmp : empty;
+            const result& tmp = (*tag_data)[i];
+            return tmp.empty()? empty : tmp;
         };
     }
 

@@ -115,14 +115,14 @@ private:                       // overload selectors
   // tag reading interface                             //
   ///////////////////////////////////////////////////////
 
-class reader : non_copyable {
+class reader {
 public:
     virtual metadata* read(const char*) const = 0;
 protected:
     ~reader() { }
 };
 
-class metadata : non_copyable {
+class metadata {
 public:
     typedef stredit::function::result value_string;
     typedef std::vector< std::pair<std::string, value_string> > array;
