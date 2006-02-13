@@ -194,7 +194,8 @@ bool ID3v2::set(string field, string s)
 
 bool ID3v2::rm(string field)
 {
-    return set(field, string());
+    mod[field].erase();
+    return true;
 }
 
 /* ===================================== */
@@ -231,8 +232,8 @@ bool ID3v2::vmodify(const char* fn, const function& edit) const
             if(p == table.end())
                 tag.put(f->ID, f->data, f->size);
             else {
-                if(function::result s = edit(p->second)) {
-                    if(!s.empty()) {                // else: erase frames
+                if(!p->second.empty()) {            // else: erase frames
+                    if(function::result s = edit(p->second)) {
                         string b = binarize(p->first, s);
                         tag.put(f->ID, b.data(), b.length());
                         table.erase(p);
@@ -247,8 +248,8 @@ bool ID3v2::vmodify(const char* fn, const function& edit) const
     }
 
     for(db::iterator p = table.begin(); p != table.end(); ++p) {
-        if(function::result s = edit(p->second)) {
-            if(!s.empty()) {
+        if(!p->second.empty()) {
+            if(function::result s = edit(p->second)) {
                 string b = binarize(p->first, s);
                 tag.put(p->first.c_str(), b.data(), b.length());
             }

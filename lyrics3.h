@@ -26,7 +26,7 @@
   Writes the Lyrics3 'tag' to 'file'. Returns 0 on success, non-zero on
   failure, and negative in case of a serious write error.
 
-  - lyrics3::find_next(tag, cur)
+  - lyrics3::find_next(tag, cur[, id3v1buf])
   Returns the end position of a Lyrics3 frame in 'tag', or 0 if already ended
 
   - lyrics3::info
@@ -51,7 +51,7 @@ namespace lyrics3 {
         friend info field(const std::string& id,  const std::string& content);
         friend info cast (const std::string&);
         friend info read (const char* fn, void* id3 = 0);
-        friend int  write(const char* fn, const info& tag);
+        friend int  write(const char* fn, const info& tag, const void* newid3 = 0);
 
         friend std::string     find     (const info& s, const std::string& sig);
         friend info::size_type find_next(const info& s, info::size_type pos);

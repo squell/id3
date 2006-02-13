@@ -147,7 +147,7 @@ info read(const char* fn, void* id3)
 
   // write a lyrics3v2 string to a file
 
-int write(const char* fn, const info& tag)
+int write(const char* fn, const info& tag, const void* newid3)
 {
     FILE* f = fopen(fn, "rb+");
     if( !f ) return 1;
@@ -163,13 +163,15 @@ int write(const char* fn, const info& tag)
         result = fseek(f, id3[0]?-128:0, SEEK_END) == 0;
     }
 
+    newid3 || id3[0] && (newid3 = id3);
+
     if(result++) {
         const string& s = "LYRICSBEGIN"+tag+num(tag.size()+11,6)+"LYRICS200";
         if(s.size() == tag.size()+11+6+9) {
             if(tag.size() > 0)
                 fwrite(s.data(), 1,  s.size(), f);
-            if(id3[0])
-                fwrite(id3,      1,       128, f);
+            if(newid3)
+                fwrite(newid3,   1,       128, f);
             result = -(ferror(f) || ftrunc(f) != 0);
         }
     }

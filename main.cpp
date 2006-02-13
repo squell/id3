@@ -5,7 +5,6 @@
 #include <ctime>
 #include <stdexcept>
 #include <string>
-#include <algorithm>
 #include "set_base.h"
 #include "setid3.h"
 #include "setfname.h"
