@@ -98,7 +98,7 @@ inline char* varexp::cpy(char* dest, std::size_t i) const
     return std::strncpy(dest, var[i].first, var[i].second );
 }
 
-class varexp::iterator {
+class varexp::iterator : public std::iterator_traits<pairvec::const_iterator> {
     friend class varexp;
     pairvec::const_iterator p;
 
@@ -114,11 +114,10 @@ public:
     friend bool operator!=(const iterator& a, const iterator& b)
     { return a.p != b.p; }
 
-    typedef std::input_iterator_tag           iterator_category;
-    typedef std::string                       value_type;
-    typedef std::ptrdiff_t                    difference_type;
-    typedef const std::string*                pointer;
-    typedef const std::string&                reference;
+    typedef std::input_iterator_tag iterator_category;
+    typedef std::string             value_type;
+    typedef const std::string*      pointer;
+    typedef const std::string&      reference;
 };
 
 inline varexp::iterator varexp::begin() const

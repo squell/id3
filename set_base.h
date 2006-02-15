@@ -27,12 +27,10 @@
 #ifndef __ZF_SET_BASE_HPP
 #define __ZF_SET_BASE_HPP
 
-#include <cstring>
 #include <string>
 #include <utility>
 #include <vector>
-#include <exception>
-#include <new>
+#include <stdexcept>
 #include "sedit.h"
 
 namespace tag {
@@ -200,60 +198,11 @@ public:
   // severe error reporting                            //
   ///////////////////////////////////////////////////////
 
-class failure : public std::exception {
-    mutable char* txt;
+class failure : public std::runtime_error {
 public:
-    explicit failure(const char* err);
-    explicit failure(const char* err, const char* context);
-    explicit failure(const std::string& err);
-    failure(const failure& other)
-    { *this = other; }
-    void operator=(const failure& other)
-    { txt = other.txt; other.txt = 0; }
-    virtual ~failure() throw()
-    { delete[] txt; }
-    virtual const char* what() const throw()
-    { return txt ? txt : "<null>"; }
+    explicit failure(const std::string& err, const std::string& extra = std::string())
+    : std::runtime_error(err + extra) { }
 };
-
- /*
-    I'm NOT throwing a std::string here because:
-    - Can't simply pass the reference we're given (won't be valid soon)
-    - Don't like the theoretical possibility of a copy constructor throwing
-      an exception while I'm throwing an exception.
-    - Dynamically allocating a string and passing that pointer around is
-      more work :)
-  */
-
-inline failure::failure(const std::string& err)
-{
-    using namespace std;
-    txt = new (nothrow) char[err.length()+1];
-    if(txt) {
-        strcpy(txt, err.c_str());
-    }
-}
-
-inline failure::failure(const char* err)
-{
-    using namespace std;
-    txt = new (nothrow) char[strlen(err)+1];
-    if(txt) {
-        strcpy(txt, err);
-    }
-}
-
-inline failure::failure(const char* err, const char* context)
-{
-    using namespace std;
-    size_t elen = strlen(err);
-    size_t clen = strlen(context);
-    txt = new (nothrow) char[elen+clen+1];
-    if(txt) {
-        strcpy(txt,      err);
-        strcpy(txt+elen, context);
-    }
-}
 
 }
 

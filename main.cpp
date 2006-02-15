@@ -259,7 +259,7 @@ namespace clash {
     void opt_D_d()
     { eprintf("cannot use either -d or -D more than once\n");
       shelp(); }
-};
+}
 
   // contains CLI interface loop
 

@@ -6,7 +6,7 @@ CC	 = gcc
 CXX	 = g++
 CFLAGS	 = -g -O2
 CXXFLAGS = $(CFLAGS) -fno-rtti
-LDFLAGS  = $(CXXFLAGS)
+LDFLAGS  =
 
 STRIP	 = strip
 TAR	 = tar
@@ -118,7 +118,7 @@ D_PKG = pkg=id3-$(D_VER); \
 D_FIL = `echo $(DISTFILES) | sed "s:[^ ]*:$${pkg}/&:g"`
 
 D_TMP = rm -rf .tmp; mkdir .tmp && \
-	tar cf - $(DISTFILES) | tar Cxf .tmp -
+	$(TAR) cf - $(DISTFILES) | $(TAR) Cxf .tmp -
 
 dist: $(DISTFILES)
 	$(D_PKG) && $(TAR) chofz $${pkg}.tar.gz $(D_FIL); rm -f $${pkg}
@@ -152,7 +152,7 @@ orig = `pwd`.tar.gz
 diff:
 	rm -rf .tmp; mkdir .tmp && ln -s `pwd` .tmp/{current}
 	ln -s `pwd`-$(D_VER).diff.gz .tmp/.diff
-	tar Cxfz .tmp $(orig)
+	$(TAR) Cxfz .tmp $(orig)
 	cd .tmp; diff -x '.*' -durN * | gzip -9 > .diff
 	-rm -rf .tmp
 
@@ -189,10 +189,10 @@ OBJECTS = main $(OBJ_GEN) set_base $(OBJ_1) $(OBJ_2) $(OBJ_F)
 OBJX_L	= mainl $(OBJ_GEN) set_base $(OBJ_1) $(OBJ_F)
 
 id3: $(OBJECTS:=.o)
-	$(CXX) $(LDFLAGS) -o $@ $(OBJECTS:=.o)
+	$(CXX) $(OBJECTS:=.o) $(LDFLAGS) -o $@
 
 id3l: $(OBJX_L:=.o)
-	$(CXX) $(LDFLAGS) -o $@ $(OBJX_L:=.o)
+	$(CXX) $(OBJX_L:=.o) $(LDFLAGS) -o $@
 
 .cpp.o:
 	$(CXX) $(CXXFLAGS) -c $<

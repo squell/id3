@@ -2,7 +2,7 @@
 #  include <windows.h>
 #  include <cstdio>
 #endif
-#include <cstddef>
+#include <cstdlib>
 #include <clocale>
 #include <climits>
 #if defined(__STDC_ISO_10646__) || defined(__WIN32__)
