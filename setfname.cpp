@@ -68,7 +68,7 @@ bool file::vmodify(const char* fname, const function& edit) const
 
     const char* newfn = name.c_str();
     if(access(newfn, F_OK) == 0)                          // check if exists
-        throw failure("file already exists ", newfn);
+        throw failure(newfn, ": file already exists");
 
     bool ok = combined::vmodify(fname, edit);
     if(m_preserve) utime(fname, stamp);

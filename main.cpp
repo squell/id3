@@ -256,9 +256,6 @@ namespace clash {
     void opt_R_m()
     { eprintf("cannot use -R and -m at the same time\n");
       shelp(); }
-    void opt_D_d()
-    { eprintf("cannot use either -d or -D more than once\n");
-      shelp(); }
 }
 
   // contains CLI interface loop

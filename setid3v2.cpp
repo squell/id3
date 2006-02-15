@@ -99,8 +99,8 @@ namespace {
 
     extern "C" void copy_failure(const char* oldn, const char* newn)
     {
-        string emsg(" lost, new contents still in ");
-        guard::err = newn + emsg + oldn;
+        string emsg(": file lost, contents still in `");
+        guard::err = newn + emsg + oldn + '\'';
     }
 
 }
