@@ -97,15 +97,17 @@ namespace stredit {
       format_wrapper<F> wrap(F& fun) { return fun; }
 
     template<class T> struct format_array : format {
-        format_array(T& i) : cont(i) { }
+        format_array(T i) : cont(i) { }
         virtual result var(ptr& p, ptr) const
         { return (charset::conv<char>) cont[*p++ - '0']; }
     private:
-        T& cont;
+        T cont;
     };
 
     template<class A>
-      format_array<A>  array(A& arr) { return format_array<A>(arr); }
+      format_array<A&> array(A& arr) { return format_array<A&>(arr); }
+    template<class A>
+      format_array<A*> array(A* arr) { return format_array<A*>(arr); }
 }
 
 #endif
