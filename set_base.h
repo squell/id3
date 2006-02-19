@@ -10,8 +10,9 @@
   Usage:
 
   Use a handler object to specify the changes to make and use the modify()
-  member to make those changes to multiple files. If clear() is used and no
-  changes were specified, modify() will remove any tags it encounters.
+  member to make those changes to multiple files. If rewrite() is used and no
+  changes were specified, modify() will remove any tags it encounters. To add
+  tags to files that don't already have them, also use create()
 
   modify() parses "%x" variables using string_parm::edit
 
@@ -64,49 +65,38 @@ protected:
     non_copyable() { }
 };
 
-class handler : non_copyable {
+class handler {
 public:
+    typedef stredit::function function;
     struct body;
 
-    bool modify(const char* fn, const stredit::function& sub = stredit::identity()) const
+    bool modify(const char* fn, const function& sub = stredit::identity()) const
     { return vmodify(fn, sub); }
 
-    template<class T>
-      bool modify(const char* fn, T& var) const
-    { return p_modify<T>(fn, &var); }
+    template<class T> bool modify(const char* fn, const T* var) const
+    { return vmodify(fn, stredit::array(var)); }
 
   // standard state set methods
 
     virtual handler& set(ID3field, std::string) = 0;
     virtual handler& rewrite(bool = true) = 0;
-
-    virtual handler& reserve(std::size_t req = 0)
-    { return *this; }
+    virtual handler& create(bool = true) = 0;
 
   // free-form set methods (optional - default to no-op)
 
+    virtual handler& reserve(std::size_t req = 0)
+    { return *this; }
     virtual bool set(std::string, std::string)
     { return false; }
     virtual bool rm(std::string)
     { return false; }
-
     virtual bool from(const char* fn)
     { return false; }
 
-protected:                     // disable outside destruction
-    typedef stredit::function function;
-    ~handler() { }
+protected:
+    ~handler() { }             // disable outside destruction
 
-    virtual bool vmodify(const char*, const stredit::function&) const = 0;
-
-private:                       // overload selectors
-    template<class T>
-      bool p_modify(const char* fn, const void* var) const
-    { return vmodify(fn, stredit::array((T*)var)); }
-
-    template<class T>
-      bool p_modify(const char* fn, const stredit::function* var) const
-    { return vmodify(fn, *var); }
+    virtual bool vmodify(const char*, const function&) const = 0;
 };
 
   ///////////////////////////////////////////////////////
@@ -139,12 +129,13 @@ protected:                     // a pre-defined factory
 
   ///////////////////////////////////////////////////////
   // boilerplate plumbing                              //
+  // - mimics but does not override handler            //
   ///////////////////////////////////////////////////////
 
 class handler::body {
     struct null;
 public:
-    body() : update(), cleared() { }
+    body() : update(), cleared(), generate(1) { }
 
     struct nullable : private std::pair<std::string, bool> {
         void operator=(const null*)           { first.erase(), second = 0; }
@@ -155,11 +146,14 @@ public:
 
     nullable update[FIELD_MAX];      // modification data
     bool cleared;                    // should vmodify clear existing tag?
+    bool generate;                   // don't add tags to files without them?
 
-    void set(ID3field i, std::string m)
-    { if(i < FIELD_MAX) update[i] = m; }
-    void rewrite(bool t = true)
-    { cleared = t; }
+    body& set(ID3field i, std::string m)
+    { if(i < FIELD_MAX) update[i] = m; return *this; }
+    body& rewrite(bool t = true)
+    { cleared = t;  return *this; }
+    body& create(bool t = true)
+    { generate = t; return *this; }
 };
 
   ///////////////////////////////////////////////////////
