@@ -326,7 +326,7 @@ int main_(int argc, char *argv[])
                               cmd = set_copyfrom; break;
                           }
                 case 'd': if(!(state&clobr)) {
-                              tag.clear(); state |= (w|clobr); break;
+                              tag.rewrite(); state |= (w|clobr); break;
                           }
                     eprintf("cannot use either -d or -D more than once\n");
                     shelp();
@@ -403,7 +403,7 @@ int main_(int argc, char *argv[])
             break;
 
         case set_copyfrom:                     // specify source tag
-            tag.clear().from(argv[i]);
+            tag.rewrite().from(argv[i]);
             state |= clobr;
             break;
 

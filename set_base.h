@@ -78,7 +78,7 @@ public:
   // standard state set methods
 
     virtual handler& set(ID3field, std::string) = 0;
-    virtual handler& clear(bool = true) = 0;
+    virtual handler& rewrite(bool = true) = 0;
 
     virtual handler& reserve(std::size_t req = 0)
     { return *this; }
@@ -158,7 +158,7 @@ public:
 
     void set(ID3field i, std::string m)
     { if(i < FIELD_MAX) update[i] = m; }
-    void clear(bool t = true)
+    void rewrite(bool t = true)
     { cleared = t; }
 };
 

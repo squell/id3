@@ -46,8 +46,8 @@ namespace tag {
             ID3& set(ID3field i, std::string m)
             { handler::body::set(i, m); return *this; }
 
-            ID3& clear(bool t = true)
-            { handler::body::clear(t);  return *this; }
+            ID3& rewrite(bool t = true)
+            { handler::body::rewrite(t);  return *this; }
 
           // extended
             bool from(const char* fn);

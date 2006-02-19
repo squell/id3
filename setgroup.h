@@ -23,8 +23,8 @@ public:
     { erase(begin()+pos, begin()+pos+num); return *this; }
 
   // standard state set methods
-    combined& clear(bool t = true)
-    { data.clear(t);  return *this; }
+    combined& rewrite(bool t = true)
+    { data.rewrite(t);  return *this; }
     combined& set(ID3field i, std::string m)
     { data.set(i, m); return *this; }
 

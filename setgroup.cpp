@@ -39,7 +39,7 @@ bool combined::vmodify(const char* fn, const function& val) const
         }
 
     if(data.cleared) {
-        for(const_iterator p = begin(); p != end(); ) (*p++)->clear();
+        for(const_iterator p = begin(); p != end(); ) (*p++)->rewrite();
         data.cleared = false;
     }
 

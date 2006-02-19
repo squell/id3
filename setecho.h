@@ -35,7 +35,7 @@ namespace tag {
             echo& set(ID3field, std::string)
             { return *this; }
 
-            echo& clear(bool)
+            echo& rewrite(bool)
             { return *this; }
         };
 
