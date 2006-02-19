@@ -31,6 +31,8 @@ using namespace std;
 using tag::write::ID3;
 using tag::ID3field;
 
+typedef int concreteness_check[ sizeof ID3() ];
+
 static ID3v1 const zero_tag = {
     { 'T', 'A', 'G' },
     "",  // title
@@ -151,16 +153,16 @@ bool ID3::vmodify(const char* fn, const function& edit) const
         fseek(f, -128, SEEK_END)  == 0    &&
         fread(&tag, 1, 128, f)    == 128  || (tag.TAG[0] = 0);
 
-        int err;
+        int err = 1;
         if( memcmp(tag.TAG, "TAG", 3) == 0 ) {
             err = fseek(f, -128, SEEK_END);   // overwrite existing tag
-        } else {
+        } else if( generate ) {
             tag = synth_tag;                  // create new tag
             clearerr(f);
             err = fseek(f,    0, ftell(f)<128? SEEK_END : SEEK_CUR);
         }
 
-        if(err != 0) {
+        if( err != 0 ) {
             fclose(f);
             return false;
         }

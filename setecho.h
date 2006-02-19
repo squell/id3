@@ -33,10 +33,13 @@ namespace tag {
           // standard set - dummies
 
             echo& set(ID3field, std::string)
-            { return *this; }
+            { throw this; }
 
             echo& rewrite(bool)
-            { return *this; }
+            { throw this; }
+
+            echo& create(bool)
+            { throw this; }
         };
 
     }

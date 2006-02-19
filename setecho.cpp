@@ -12,6 +12,8 @@
 
 using tag::write::echo;
 
+typedef int concreteness_check[ sizeof echo("") ];
+
 bool echo::vmodify(const char* fname, const function& edit) const
 {
     return log( edit(fmt).c_str() ), true;

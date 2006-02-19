@@ -43,7 +43,7 @@ namespace tag {
 
         class ID3v2 : public handler, public reader {
         public:
-            ID3v2() : null_tag(), mod(), resize(), fresh()
+            ID3v2() : null_tag(), mod(), resize(), fresh(), force(1)
             { }
            ~ID3v2();
 
@@ -51,6 +51,8 @@ namespace tag {
             ID3v2& reserve(size_t);                     // set suggested size
             ID3v2& rewrite(bool t = true)               // erase previous tag
             { fresh = t; return *this; }
+            ID3v2& create(bool t = true)                // add new tags
+            { force = t; return *this; }
 
             bool      vmodify(const char*, const function&) const;
             metadata* read(const char*) const;
@@ -65,7 +67,7 @@ namespace tag {
             const void* null_tag;
             std::map<std::string,std::string> mod;
             size_t resize;
-            bool fresh;
+            bool fresh, force;
         };
 
     }

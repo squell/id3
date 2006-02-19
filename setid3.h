@@ -44,10 +44,13 @@ namespace tag {
            ~ID3();
 
             ID3& set(ID3field i, std::string m)
-            { handler::body::set(i, m); return *this; }
+            { handler::body::set(i, m);  return *this; }
 
             ID3& rewrite(bool t = true)
-            { handler::body::rewrite(t);  return *this; }
+            { handler::body::rewrite(t); return *this; }
+
+            ID3& create(bool t = true)
+            { handler::body::create(t);  return *this; }
 
           // extended
             bool from(const char* fn);

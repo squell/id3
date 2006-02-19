@@ -30,6 +30,8 @@ using tag::ID3field;
 
 namespace {
 
+    typedef int concreteness_check[ sizeof ID3v2() ];
+
 /* ===================================== */
 
  // extra hairyness to prevent buffer overflows by re-allocating on the fly
@@ -214,9 +216,9 @@ bool ID3v2::vmodify(const char* fn, const function& edit) const
     };
 
     size_t check;
-    wrapper buf  = { ID3_readf(fn, &check) };
+    wrapper buf = { ID3_readf(fn, &check) };
 
-    if(!buf && check != 0)                          // evil ID3 tag
+    if(!buf && (!force || check != 0))              // evil ID3 tag
         return false;
 
     const void* src = fresh? null_tag : (void*)buf;
