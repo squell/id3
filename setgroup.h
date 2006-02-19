@@ -27,6 +27,8 @@ public:
     { data.rewrite(t);  return *this; }
     combined& set(ID3field i, std::string m)
     { data.set(i, m); return *this; }
+    combined& create(bool t = true)
+    { throw this; }
 
     bool vmodify(const char*, const stredit::function&) const;
     bool from(const char*);
