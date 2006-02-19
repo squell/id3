@@ -186,7 +186,7 @@ OBJ_1	= setid3 getid3 id3v1
 OBJ_2	= setid3v2 getid3v2 id3v2 fileops char_ucs
 OBJ_F	= setfname setecho
 OBJECTS = main $(OBJ_GEN) setgroup $(OBJ_1) $(OBJ_2) $(OBJ_F)
-OBJX_L  = mainl $(OBJ_GEN) setgroup $(OBJ_1) $(OBJ_F)
+OBJX_L	= mainl $(OBJ_GEN) setgroup $(OBJ_1) $(OBJ_F)
 
 id3: $(OBJECTS:=.o)
 	$(CXX) $(OBJECTS:=.o) $(LDFLAGS) -o $@

@@ -77,7 +77,7 @@ namespace charset {
           (const conv<>& rhs)       { return (internal+=rhs.internal), *this; }
 
         conv<> substr(std::size_t pos = 0, std::size_t n = std::size_t(-1))
-        { return conv(internal.substr(pos*cellsize, n*cellsize)); }
+        { return conv<>(internal.substr(pos*cellsize, n*cellsize)); }
 
         template<class E>
           std::basic_string<typename conv<E>::char_type>
@@ -86,7 +86,7 @@ namespace charset {
           proxy<E> c_str() const    { return str<E>(); }
 
       // outside operations
-        friend conv operator+ (const conv<>& lhs, const conv<>& rhs) { return conv(lhs.internal + rhs.internal); }
+        friend conv<> operator+ (const conv<>& lhs, const conv<>& rhs) { return conv<>(lhs.internal + rhs.internal); }
         friend bool operator==(const conv<>& lhs, const conv<>& rhs) { return lhs.internal == rhs.internal; }
         friend bool operator!=(const conv<>& lhs, const conv<>& rhs) { return lhs.internal != rhs.internal; }
         friend bool operator< (const conv<>& lhs, const conv<>& rhs) { return lhs.internal <  rhs.internal; }
