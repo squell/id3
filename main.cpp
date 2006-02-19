@@ -340,11 +340,11 @@ int main_(int argc, char *argv[])
                     cmd = std_field; break;
 #ifndef NO_V2
                 case '1':
-                    chosen = tag.activate<ID3>();
+                    chosen = &tag.activate<ID3>()->create();
                     if(!source) source = &tag.uses<ID3>::object;
                     break;
                 case '2':
-                    chosen = tag.activate<ID3v2>();
+                    chosen = &tag.activate<ID3v2>()->create();
                     if(!source) source = &tag.uses<ID3v2>::object;
                     break;
 

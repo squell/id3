@@ -43,7 +43,7 @@ namespace tag {
 
         class ID3v2 : public handler, public reader {
         public:
-            ID3v2() : null_tag(), mod(), resize(), fresh(), force(1)
+            ID3v2() : null_tag(), mod(), resize(), fresh(), force()
             { }
            ~ID3v2();
 

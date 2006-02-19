@@ -135,7 +135,7 @@ protected:                     // a pre-defined factory
 class handler::body {
     struct null;
 public:
-    body() : update(), cleared(), generate(1) { }
+    body() : update(), cleared(), generate() { }
 
     struct nullable : private std::pair<std::string, bool> {
         void operator=(const null*)           { first.erase(), second = 0; }

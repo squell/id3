@@ -11,6 +11,8 @@
 
 using namespace std;
 
+typedef int concreteness_check[ sizeof tag::combined() ];
+
 namespace tag {
 
 bool combined::from(const char* fn)
