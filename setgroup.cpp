@@ -7,7 +7,7 @@
 
 */
 
-#include "set_base.h"
+#include "setgroup.h"
 
 using namespace std;
 

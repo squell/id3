@@ -27,7 +27,7 @@
 #define __ZF_SETFNAME
 
 #include <string>
-#include "set_base.h"
+#include "setgroup.h"
 
 namespace tag {
     namespace write {

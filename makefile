@@ -185,8 +185,8 @@ OBJ_GEN = sedit varexp fileexp charconv mass_tag pattern
 OBJ_1	= setid3 getid3 id3v1
 OBJ_2	= setid3v2 getid3v2 id3v2 fileops char_ucs
 OBJ_F	= setfname setecho
-OBJECTS = main $(OBJ_GEN) set_base $(OBJ_1) $(OBJ_2) $(OBJ_F)
-OBJX_L	= mainl $(OBJ_GEN) set_base $(OBJ_1) $(OBJ_F)
+OBJECTS = main $(OBJ_GEN) setgroup $(OBJ_1) $(OBJ_2) $(OBJ_F)
+OBJX_L  = mainl $(OBJ_GEN) setgroup $(OBJ_1) $(OBJ_F)
 
 id3: $(OBJECTS:=.o)
 	$(CXX) $(OBJECTS:=.o) $(LDFLAGS) -o $@
@@ -222,7 +222,7 @@ pattern.o: pattern.cpp set_base.h sedit.h charconv.h mass_tag.h fileexp.h \
   pattern.h
 charconv.o: charconv.cpp charconv.h
 char_ucs.o: char_ucs.cpp char_ucs.h charconv.h
-set_base.o: set_base.cpp set_base.h sedit.h charconv.h
+setgroup.o: setgroup.cpp set_base.h sedit.h charconv.h
 setid3.o: setid3.cpp id3v1.h getid3.h set_base.h sedit.h charconv.h \
   setid3.h
 setid3v2.o: setid3v2.cpp char_ucs.h charconv.h id3v1.h id3v2.h fileops.h \
