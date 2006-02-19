@@ -222,7 +222,7 @@ static fileexp::find* instantiate(op::oper_t state, metadata& tag,
         eprintf("multiple selected tags ignored when only reading\n");
 
     if(tag.begin() == tag.end())
-        src_ptr = tag.activate<ID3>();
+        src_ptr = tag.activate<ID3>()->create();
 
     swap(tag[0], tag[tag.size()-1]);           // handle source tag as last
 
