@@ -40,7 +40,8 @@ namespace tag {
         title, artist, album, year, cmnt, track, genre, FIELD_MAX
     };
 
-    class handler;             // abstract base class / interface
+    class writer;              // abstract base class / interface
+    class handler;             
 
     class combined;            // group multiple writers into one
 
@@ -55,26 +56,26 @@ namespace tag {
 namespace tag {
 
   ///////////////////////////////////////////////////////
-  // interface part                                    //
+  // tag writing interface                             //
   ///////////////////////////////////////////////////////
 
-class non_copyable {
-    non_copyable(const non_copyable&);
-    void operator=(const non_copyable&);
-protected:
-    non_copyable() { }
-};
-
-class handler {
+class writer {
 public:
     typedef stredit::function function;
-    struct body;
 
     bool modify(const char* fn, const function& sub = stredit::identity()) const
     { return vmodify(fn, sub); }
 
     template<class T> bool modify(const char* fn, const T* var) const
     { return vmodify(fn, stredit::array(var)); }
+
+private:
+    virtual bool vmodify(const char*, const function&) const = 0;
+};
+
+class handler : public writer {
+public:
+    struct body;
 
   // standard state set methods
 
@@ -95,8 +96,6 @@ public:
 
 protected:
     ~handler() { }             // disable outside destruction
-
-    virtual bool vmodify(const char*, const function&) const = 0;
 };
 
   ///////////////////////////////////////////////////////

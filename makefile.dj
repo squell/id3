@@ -27,13 +27,13 @@ zip:
 ############################################################################
 
 id3.exe: main.o sedit.o varexp.o fileexp.o charconv.o mass_tag.o pattern.o \
-	 setgroup.o setid3.o setid3v2.o setfname.o setecho.o \
+	 setid3.o setid3v2.o setfname.o setecho.o \
 	 getid3.o getid3v2.o \
 	 id3v1.o id3v2.o fileops.o char_ucs.o
 	$(CC) $(LDFLAGS) -o $@ $+
 
 id3l.exe: mainl.o sedit.o varexp.o fileexp.o charconv.o mass_tag.o pattern.o \
-	 setgroup.o setid3.o setfname.o setecho.o \
+	 setid3.o setfname.o setecho.o \
 	 getid3.o \
 	 id3v1.o
 	$(CC) $(LDFLAGS)  -o $@ $+

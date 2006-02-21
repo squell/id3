@@ -83,11 +83,11 @@ namespace {
 
     extern "C" void copy_failure(const char*, const char*);
 
-    struct guard {
+    static struct guard {
         guard()            { ID3_wfail = copy_failure; }
         static string err;
         static void raise();
-    } static fail_inst;
+    } fail_inst;
 
     string guard::err;
 
@@ -160,10 +160,10 @@ typedef map<string,string> db;
 
 ID3v2& ID3v2::set(ID3field i, string m)
 {
-    const static char xlat2[][4] = {                     // ID3field order!
+    static const char xlat2[][4] = {                     // ID3field order!
         "TT2", "TP1", "TAL", "TYE", "COM", "TRK", "TCO"
     };
-    const static char xlat3[][5] = {
+    static const char xlat3[][5] = {
         "TIT2", "TPE1", "TALB", "TYER", "COMM", "TRCK", "TCON"
     };
     if(i < FIELD_MAX) {
@@ -222,7 +222,7 @@ bool ID3v2::vmodify(const char* fn, const function& edit) const
         return false;
 
     const void* src = fresh? null_tag : (void*)buf;
-    writer tag;
+    ::writer tag;
     db table(mod);
 
     if( src ) {                                     // update existing tags

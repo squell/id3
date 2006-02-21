@@ -30,13 +30,13 @@ namespace fileexp {
 
     class mass_tag : public find {
     public:
-        mass_tag(const tag::handler& write, const tag::reader& read)
+        mass_tag(const tag::writer& write, const tag::reader& read)
         : tag_writer(write), tag_reader(read), counter(0) { }
         template<class T> mass_tag(const T& tag)
         : tag_writer(tag),   tag_reader(tag), counter(0) { }
 
-        const tag::handler& tag_writer;
-        const tag::reader&  tag_reader;
+        const tag::writer& tag_writer;
+        const tag::reader& tag_reader;
 
         static tag::ID3field field(char c);
         static std::string   var  (int i);
