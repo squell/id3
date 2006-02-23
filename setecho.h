@@ -1,6 +1,6 @@
 /*
 
-  tag::write::echo applicative class
+  tag::write::query applicative class
 
   copyright (c) 2005 squell <squell@alumina.nl>
 
@@ -9,7 +9,7 @@
 
   Usage:
 
-  The write::echo class doesn't set anything, but reports back info.
+  The write::query class doesn't set anything, but reports back info.
 
 */
 
@@ -22,24 +22,14 @@
 namespace tag {
     namespace write {
 
-        class echo : public handler {
-            const std::string fmt;
+        class query : public writer {
+            std::string fmt;
         public:
-            echo(std::string s) : fmt(s) { }
+            echo& print(std::string s)
+            { fmt = s; return *this; }
 
             virtual bool vmodify(const char*, const function&) const;
             virtual void log(const char*) const;
-
-          // standard set - dummies
-
-            echo& set(ID3field, std::string)
-            { throw this; }
-
-            echo& rewrite(bool)
-            { throw this; }
-
-            echo& create(bool)
-            { throw this; }
         };
 
     }
