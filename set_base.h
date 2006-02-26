@@ -40,13 +40,11 @@ namespace tag {
         title, artist, album, year, cmnt, track, genre, FIELD_MAX
     };
 
-    class writer;              // abstract base class / interface
-    class handler;             
+    class writer;              // interface for writing to files
+    class reader;              // interface for providing readers
+    class handler;             // abstract base class
 
-    class combined;            // group multiple writers into one
-
-    class reader;              // extra interface for providing readers
-    class metadata;            // abc abstracting tag format
+    class metadata;            // class abstracting tag info
 
     class failure;             // exception class
 
@@ -69,33 +67,8 @@ public:
     template<class T> bool modify(const char* fn, const T* var) const
     { return vmodify(fn, stredit::array(var)); }
 
-private:
-    virtual bool vmodify(const char*, const function&) const = 0;
-};
-
-class handler : public writer {
-public:
-    struct body;
-
-  // standard state set methods
-
-    virtual handler& set(ID3field, std::string) = 0;
-    virtual handler& rewrite(bool = true) = 0;
-    virtual handler& create(bool = true) = 0;
-
-  // free-form set methods (optional - default to no-op)
-
-    virtual handler& reserve(std::size_t req = 0)
-    { return *this; }
-    virtual bool set(std::string, std::string)
-    { return false; }
-    virtual bool rm(std::string)
-    { return false; }
-    virtual bool from(const char* fn)
-    { return false; }
-
 protected:
-    ~handler() { }             // disable outside destruction
+    virtual bool vmodify(const char*, const function&) const = 0;
 };
 
   ///////////////////////////////////////////////////////
@@ -127,11 +100,39 @@ protected:                     // a pre-defined factory
 };
 
   ///////////////////////////////////////////////////////
+  // tag setting/getting interface                     //
+  ///////////////////////////////////////////////////////
+
+class handler : public writer {
+public:
+
+  // standard state set methods
+
+    virtual handler& set(ID3field, std::string) = 0;
+    virtual handler& rewrite(bool = true) = 0;
+    virtual handler& create(bool = true) = 0;
+
+  // free-form set methods (optional - default to no-op)
+
+    virtual handler& reserve(std::size_t req = 0)
+    { return *this; }
+    virtual bool set(std::string, std::string)
+    { return false; }
+    virtual bool rm(std::string)
+    { return false; }
+    virtual bool from(const char* fn)
+    { return false; }
+
+protected:
+    ~handler() { }             // disable outside destruction
+};
+
+  ///////////////////////////////////////////////////////
   // boilerplate plumbing                              //
   // - mimics but does not override handler            //
   ///////////////////////////////////////////////////////
 
-class handler::body {
+class body {
     struct null;
 public:
     body() : update(), cleared(), generate() { }

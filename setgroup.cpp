@@ -8,6 +8,8 @@
 */
 
 #include "setgroup.h"
+#include <numeric>
+#include <functional>
 
 using namespace std;
 
@@ -15,46 +17,37 @@ typedef int concreteness_check[ sizeof tag::combined() ];
 
 namespace tag {
 
-bool combined::from(const char* fn)
+combined& combined::rewrite(bool t)
 {
-    fn? basefn = fn : basefn = 0;
-    return fn;
+    for_each(begin(), end(), bind2nd(mem_fun(&handler::rewrite), t));
+    return *this;
 }
 
- /* This class does NOT delegate the free form methods. This is simply
-    because all tag formats use different naming conventions, so it would
-    be really pointless anyhow. */
-
- /* Implementation of group vmodify()
-    - obeys the vmodify restrictions of set_base.h */
-
- /* This is wrong */
-
-bool combined::vmodify(const char* fn, const function& val) const
+combined& combined::create(bool t)
 {
-    for(int n = 0; n < FIELD_MAX; ++n)
-        if(const string* txt = data.update[n]) {
-            for(const_iterator p = begin(); p != end(); ) {
-                (*p++)->set(ID3field(n), *txt);
-            }
-            data.update[n] = 0;
-        }
+    for_each(begin(), end(), bind2nd(mem_fun(&handler::create), t));
+    return *this;
+}
 
-    if(data.cleared) {
-        for(const_iterator p = begin(); p != end(); ) (*p++)->rewrite();
-        data.cleared = false;
-    }
+combined& combined::set(ID3field i, std::string m)
+{
+    for(iterator p = begin(); p != end(); ) (*p++)->set(i,m);
+    return *this;
+}
 
-    if(basefn) {
-        for(const_iterator p = begin(); p != end(); ) (*p++)->from(basefn->c_str());
-        basefn = 0;
-    }
+bool combined::from(const char* fn)
+{
+    bool result = false;
+    for(iterator p = begin(); p != end(); ) result |= (*p++)->from(fn);
+    return result;
+}
 
-    bool ok = true;                      // process delegates
-    for(const_iterator p = begin(); p != end(); ) {
-        ok &= (*p++)->modify(fn, val);
-    }
-    return ok;
+bool combined::vmodify(const char* fn, const function& f) const
+{
+    bool result = false;
+    for(const_iterator p = begin(); p != end(); )
+        result |= (*p++)->modify(fn, f);
+    return result;
 }
 
 }

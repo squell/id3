@@ -10,16 +10,16 @@
 
 */
 
-using tag::write::echo;
+using tag::write::query;
 
-typedef int concreteness_check[ sizeof echo("") ];
+typedef int concreteness_check[ sizeof query() ];
 
-bool echo::vmodify(const char* fname, const function& edit) const
+bool query::vmodify(const char* fname, const function& edit) const
 {
     return log( edit(fmt).c_str() ), true;
 }
 
-void echo::log(const char* msg) const
+void query::log(const char* msg) const
 {
     std::puts(msg);
 }

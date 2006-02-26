@@ -83,11 +83,11 @@ namespace {
 
     extern "C" void copy_failure(const char*, const char*);
 
-    static struct guard {
+    struct guard {
         guard()            { ID3_wfail = copy_failure; }
         static string err;
         static void raise();
-    } fail_inst;
+    } static fail_inst;
 
     string guard::err;
 

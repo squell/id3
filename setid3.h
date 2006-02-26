@@ -34,7 +34,7 @@ struct ID3v1;                                 // avoid a header dependency
 namespace tag {
     namespace write {
 
-        class ID3 : public handler, public reader, private handler::body {
+        class ID3 : public handler, public reader, private body {
         public:
             bool      vmodify(const char*, const function&) const;
             metadata* read(const char*) const;
@@ -44,13 +44,13 @@ namespace tag {
            ~ID3();
 
             ID3& set(ID3field i, std::string m)
-            { handler::body::set(i, m);  return *this; }
+            { body::set(i, m);  return *this; }
 
             ID3& rewrite(bool t = true)
-            { handler::body::rewrite(t); return *this; }
+            { body::rewrite(t); return *this; }
 
             ID3& create(bool t = true)
-            { handler::body::create(t);  return *this; }
+            { body::create(t);  return *this; }
 
           // extended
             bool from(const char* fn);

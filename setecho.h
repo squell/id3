@@ -25,7 +25,7 @@ namespace tag {
         class query : public writer {
             std::string fmt;
         public:
-            echo& print(std::string s)
+            query& print(std::string s)
             { fmt = s; return *this; }
 
             virtual bool vmodify(const char*, const function&) const;

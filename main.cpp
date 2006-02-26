@@ -5,7 +5,7 @@
 #include <ctime>
 #include <stdexcept>
 #include <string>
-#include "set_base.h"
+#include "setgroup.h"
 #include "setid3.h"
 #include "setfname.h"
 #include "setecho.h"
@@ -13,7 +13,7 @@
 #    include "setid3v2.h"
 #endif
 #include "mass_tag.h"
-#include "pattern.h"
+// include "pattern.h"
 
 #define _version_ "0.77-2 (20060xx)"
 
@@ -26,13 +26,15 @@
 
 */
 
+namespace out = tag::write;
 using namespace std;
 using fileexp::mass_tag;
 using tag::ID3field;
+using tag::with;
 #ifndef NO_V2
-using tag::write::ID3v2;
+using out::ID3v2;
 #endif
-using tag::write::ID3;
+using out::ID3;
 
 /* ====================================================== */
 
@@ -135,7 +137,7 @@ inline static char* argpath(char* arg)
 
 class verbose : public mass_tag {
 public:
-    verbose(const tag::handler& write, const tag::reader& read)
+    verbose(const tag::writer& write, const tag::reader& read)
     : mass_tag(write, read) { }
     static void enable(bool t = true) { verbose::show = t; }
 private:
@@ -174,28 +176,10 @@ clock_t verbose::time;
 
 /* ====================================================== */
 
- // box a handler to make it neutral for (multiple) inheritance,
+namespace op {
 
-template<class T> struct uses { T object; };
-
-struct metadata :                    // owns the data it contains
-  tag::write::file,
-#ifndef NO_V2
-  uses<ID3v2>,
-#endif
-  uses<ID3>
-{
-    string format;                   // for free format 'pseudo formats'
-
-    template<class Tag> Tag* activate()
-    { return add(uses<Tag>::object), &this->uses<Tag>::object; }
-};
-
-/* ====================================================== */
-
-namespace op {                                 // state information bitset
-    enum {
-        no_op =  0x00,
+    enum {                                     // state information bitset
+        no_op =  0x00,                         
         scan  =  0x01,                         // checking for no-file args?
         w     =  0x02,                         // write  requested?
         ren   =  0x04,                         // rename requested?
@@ -204,6 +188,18 @@ namespace op {                                 // state information bitset
         patrn =  0x20                          // match  requested?
     };
     typedef int oper_t;
+
+    struct tag_info :
+      out::file,
+      out::query,
+    #ifdef NO_V2
+      tag::group<ID3>
+    #else
+      tag::group<ID3, ID3v2>
+    #endif
+    {
+    };
+
 }
 
 struct null_op : fileexp::find {
@@ -213,30 +209,29 @@ struct null_op : fileexp::find {
 
   // dynamically create a suitably initialized function object
 
-static fileexp::find* instantiate(op::oper_t state, metadata& tag,
+static fileexp::find* instantiate(op::oper_t state, op::tag_info& tag,
   const tag::reader* src_ptr)
 {
     using namespace op;
 
     if(!(state&w) && tag.size() > 1)
-        eprintf("multiple selected tags ignored when only reading\n");
+        eprintf("multiple selected tags ignored when reading\n");
 
-    if(tag.begin() == tag.end())
-        src_ptr = & tag.activate<ID3>()->create();
+    if(tag.begin() == tag.end()) {
+        throw logic_error("Set defaults");
+    }
 
     swap(tag[0], tag[tag.size()-1]);           // handle source tag as last
 
-    static tag::write::echo print(tag.format);
-    tag::handler* selected = &print;
+    tag::writer* selected = &(out::file&) tag;
 
     switch(state &= w|rd|ren) {
+    case op::rd:
+        selected = &(out::query&) tag;
     case op::ren:
         tag.forget(0, tag.size());             // don't perform no-ops
-    case op::ren | op::w:
-        tag.rename(tag.format);
+    case op::w | op::ren:
     case op::w:
-        selected = &tag;
-    case op::rd:
         break;
     default:
         eprintf("cannot combine -q with any modifying operation\n");
@@ -262,7 +257,7 @@ namespace clash {
 
 int main_(int argc, char *argv[])
 {
-    metadata tag;
+    op::tag_info tag;
 
     ID3field field;
 
@@ -292,6 +287,9 @@ int main_(int argc, char *argv[])
         case force_fn:                         // argument is filespec
                 string spec = argpath(argv[i]);
                 if(state & patrn) {            // filename pattern shorthand
+#if 1
+                    throw logic_error("Feature temporarily removed");
+#else
                     if((state&scan) == 0) {
                         eprintf("-m: ignoring unexpected `%s'\n", argv[i]);
                         continue;
@@ -299,6 +297,7 @@ int main_(int argc, char *argv[])
                     pattern p(tag, spec);
                     if(p) state |= op::w;
                     spec = p.mask();
+#endif
                 }
 
                 static fileexp::find& apply
@@ -340,12 +339,12 @@ int main_(int argc, char *argv[])
                     cmd = std_field; break;
 #ifndef NO_V2
                 case '1':
-                    chosen = &tag.activate<ID3>()->create();
-                    if(!source) source = &tag.uses<ID3>::object;
+                    chosen = &with<ID3>(tag).create();
+                    if(!source) source = &with<ID3>(tag);
                     break;
                 case '2':
-                    chosen = &tag.activate<ID3v2>()->create();
-                    if(!source) source = &tag.uses<ID3v2>::object;
+                    chosen = &with<ID3v2>(tag).create();
+                    if(!source) source = &with<ID3v2>(tag);
                     break;
 
                 case 's':                      // tag specific switches
@@ -431,13 +430,13 @@ int main_(int argc, char *argv[])
                 eprintf("empty format string rejected\n");
                 shelp();
             } else
-                tag.format = argpath(argv[i]);
+                tag.rename( argpath(argv[i]) );
             state |= ren;
             cmd = no_value;
             continue;
 
         case set_query:                        // specify echo format
-            tag.format = argv[i];
+            tag.print( argv[i] );
             state |= rd;
             cmd = no_value;
             continue;
