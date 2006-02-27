@@ -41,7 +41,7 @@ namespace tag {
 
     namespace write {
 
-        class ID3 : public handler, public reader, private body {
+        class ID3 : public handler, public reader {
         public:
             bool      vmodify(const char*, const function&) const;
             metadata* read(const char*) const;

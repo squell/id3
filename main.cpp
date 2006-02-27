@@ -209,9 +209,11 @@ struct null_op : fileexp::find {
 
   // dynamically create a suitably initialized function object
 
-static fileexp::find* instantiate(op::oper_t state, op::tag_info& tag,
-  const tag::reader* src_ptr)
-{
+static fileexp::find* instantiate(
+  op::oper_t state,
+  op::tag_info& tag,
+  const tag::reader* src_ptr
+) {
     using namespace op;
 
     if(!(state&w) && tag.size() > 1)
