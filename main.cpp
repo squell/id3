@@ -8,7 +8,7 @@
 #include "setgroup.h"
 #include "setid3.h"
 #include "setfname.h"
-#include "setecho.h"
+#include "setquery.h"
 #ifndef NO_V2
 #    include "setid3v2.h"
 #endif

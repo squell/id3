@@ -27,11 +27,18 @@
 #define __ZF_SETID3
 
 #include <string>
+#include <utility>
 #include "set_base.h"
 
 struct ID3v1;                                 // avoid a header dependency
 
 namespace tag {
+
+  ///////////////////////////////////////////////////////
+  // boilerplate plumbing                              //
+  // - mimics but does not override handler            //
+  ///////////////////////////////////////////////////////
+
     namespace write {
 
         class ID3 : public handler, public reader, private body {
@@ -40,23 +47,33 @@ namespace tag {
             metadata* read(const char*) const;
 
           // standard set
-            ID3() : null_tag() { }
+            ID3() : update(), cleared(), generate(), null_tag() { }
            ~ID3();
 
             ID3& set(ID3field i, std::string m)
-            { body::set(i, m);  return *this; }
+            { if(i < FIELD_MAX) update[i] = m; return *this; }
 
             ID3& rewrite(bool t = true)
-            { body::rewrite(t); return *this; }
+            { cleared = t;  return *this; }
 
             ID3& create(bool t = true)
-            { body::create(t);  return *this; }
+            { generate = t; return *this; }
 
           // extended
             bool from(const char* fn);
 
         private:
-            const ID3v1* null_tag;
+            struct nullable : private std::pair<std::string, bool> {
+                struct null;
+                void operator=(const null*)           { first.erase(), second = 0; }
+                void operator=(std::string p)         { first.swap(p), second = 1; }
+                operator const std::string*() const   { return second? &first : 0; }
+                const std::string* operator->() const { return *this; }
+            };
+            nullable update[FIELD_MAX]; // modification data
+            bool cleared;               // should vmodify clear existing tag?
+            bool generate;              // don't *add* new tags to files?
+            const ID3v1* null_tag;      // use as base tag
         };
 
     }

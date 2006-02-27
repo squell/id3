@@ -128,35 +128,6 @@ protected:
 };
 
   ///////////////////////////////////////////////////////
-  // boilerplate plumbing                              //
-  // - mimics but does not override handler            //
-  ///////////////////////////////////////////////////////
-
-class body {
-    struct null;
-public:
-    body() : update(), cleared(), generate() { }
-
-    struct nullable : private std::pair<std::string, bool> {
-        void operator=(const null*)           { first.erase(), second = 0; }
-        void operator=(std::string p)         { first.swap(p), second = 1; }
-        operator const std::string*() const   { return second? &first : 0; }
-        const std::string* operator->() const { return *this; }
-    };
-
-    nullable update[FIELD_MAX];      // modification data
-    bool cleared;                    // should vmodify clear existing tag?
-    bool generate;                   // don't add tags to files without them?
-
-    body& set(ID3field i, std::string m)
-    { if(i < FIELD_MAX) update[i] = m; return *this; }
-    body& rewrite(bool t = true)
-    { cleared = t;  return *this; }
-    body& create(bool t = true)
-    { generate = t; return *this; }
-};
-
-  ///////////////////////////////////////////////////////
   // severe error reporting                            //
   ///////////////////////////////////////////////////////
 
