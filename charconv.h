@@ -76,6 +76,8 @@ namespace charset {
         conv<>& operator+=
           (const conv<>& rhs)       { return (internal+=rhs.internal), *this; }
 
+        std::size_t length() const  { return internal.length() / cellsize; }
+
         conv<> substr(std::size_t pos = 0, std::size_t n = std::size_t(-1))
         { return conv<>(internal.substr(pos*cellsize, n*cellsize)); }
 
