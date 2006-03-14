@@ -53,7 +53,7 @@ bool file::vmodify(const char* fname, const function& edit) const
     function::result edited = edit(m_template);    // use pre-values
 
     if(m_template.empty() || !edited.good()) {
-        bool ok = combined::vmodify(fname, edit);
+        bool ok = combined<interface>::vmodify(fname, edit);
         if(m_preserve) utime(fname, stamp);
         return ok;
     }
@@ -70,7 +70,7 @@ bool file::vmodify(const char* fname, const function& edit) const
     if(access(newfn, F_OK) == 0)                          // check if exists
         throw failure(newfn, ": file already exists");
 
-    bool ok = combined::vmodify(fname, edit);
+    bool ok = combined<interface>::vmodify(fname, edit);
     if(m_preserve) utime(fname, stamp);
 
     if(ok && std::rename(fname, newfn) != 0)

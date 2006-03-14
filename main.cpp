@@ -30,11 +30,7 @@ namespace out = tag::write;
 using namespace std;
 using fileexp::mass_tag;
 using tag::ID3field;
-using tag::with;
-#ifndef NO_V2
-using out::ID3v2;
-#endif
-using out::ID3;
+using tag::FIELD_MAX;
 
 /* ====================================================== */
 
@@ -180,7 +176,7 @@ namespace op {
 
     enum {                                     // state information bitset
         no_op =  0x00,                         
-        scan  =  0x01,                         // checking for no-file args?
+//      scan  =  0x01,                         // checking for no-file args?
         w     =  0x02,                         // write  requested?
         ren   =  0x04,                         // rename requested?
         rd    =  0x08,                         // read   requested?
@@ -191,13 +187,12 @@ namespace op {
 
     struct tag_info :
       out::file,
-      out::query,
-    #ifdef NO_V2
-      tag::group<ID3>
-    #else
-      tag::group<ID3, ID3v2>
-    #endif
+      out::query
     {
+        out::ID3      do_id3;
+#ifndef NO_V2
+        out::ID3v2    do_id3v2;
+#endif
     };
 
 }
@@ -217,11 +212,7 @@ static fileexp::find* instantiate(
     using namespace op;
 
     if(!(state&w) && tag.size() > 1)
-        eprintf("multiple selected tags ignored when reading\n");
-
-    if(tag.begin() == tag.end()) {
-        throw logic_error("Set defaults");
-    }
+        eprintf("note: multiple selected tags ignored when reading\n");
 
     swap(tag[0], tag[tag.size()-1]);           // handle source tag as last
 
@@ -231,7 +222,7 @@ static fileexp::find* instantiate(
     case op::rd:
         selected = &(out::query&) tag;
     case op::ren:
-        tag.forget(0, tag.size());             // don't perform no-ops
+        tag.ignore(0, tag.size());             // don't perform no-ops
     case op::w | op::ren:
     case op::w:
         break;
@@ -262,10 +253,12 @@ int main_(int argc, char *argv[])
     op::tag_info tag;
 
     ID3field field;
+    const char*   val[FIELD_MAX] = { };        // fields to alter
 
     tag::reader*  source  = 0;                 // pointer to first enabled
     tag::handler* chosen  = 0;                 // pointer to last enabled
     const char*   recmask = 0;                 // path pattern (if recursive)
+    const char*   copyfn  = 0;                 // alternate from-file
 
     using namespace op;
     char none[1] = "";
@@ -287,6 +280,15 @@ int main_(int argc, char *argv[])
                 if(argv[i][0] == '-' && (state&scan)) opt = argv[i]+1;
             if(*opt == '\0') {
         case force_fn:                         // argument is filespec
+                if(!chosen)
+                    tag.with(tag.do_id3), source = &tag.do_id3;
+                for(int f = 0; f < FIELD_MAX; ++f)
+                    if(val[f]) tag.set(ID3field(f), val[f]);
+                if(copyfn && !tag.from(copyfn))
+                    eprintf("note: could not read tags from %s\n", copyfn);
+                if(state & clobr)
+                    tag.rewrite();
+
                 string spec = argpath(argv[i]);
                 if(state & patrn) {            // filename pattern shorthand
 #if 1
@@ -327,26 +329,26 @@ int main_(int argc, char *argv[])
                               cmd = set_copyfrom; break;
                           }
                 case 'd': if(!(state&clobr)) {
-                              tag.rewrite(); state |= (w|clobr); break;
+                              state |= (w|clobr); break;
                           }
                     eprintf("cannot use either -d or -D more than once\n");
                     shelp();
 
                 default:
                     field = mass_tag::field(opt[-1]);
-                    if(field == tag::FIELD_MAX) {
+                    if(field == FIELD_MAX) {
                         eprintf("-%c: unrecognized switch\n", opt[-1]);
                         shelp();
                     }
                     cmd = std_field; break;
 #ifndef NO_V2
                 case '1':
-                    chosen = &with<ID3>(tag).create();
-                    if(!source) source = &with<ID3>(tag);
+                    tag.with( *(chosen = &tag.do_id3) );
+                    if(!source) source = &tag.do_id3;
                     break;
                 case '2':
-                    chosen = &with<ID3v2>(tag).create();
-                    if(!source) source = &with<ID3v2>(tag);
+                    tag.with( *(chosen = &tag.do_id3v2) );
+                    if(!source) source = &tag.do_id3v2;
                     break;
 
                 case 's':                      // tag specific switches
@@ -379,7 +381,7 @@ int main_(int argc, char *argv[])
 #endif
                 case 'u':
                     if(chosen) {
-                        for(int i = 0; i < tag::FIELD_MAX; ++i)
+                        for(int i = 0; i < FIELD_MAX; ++i)
                             chosen->set(ID3field(i), mass_tag::var(i));
                         state |= w;
                         break;
@@ -400,11 +402,11 @@ int main_(int argc, char *argv[])
             continue;
 
         case std_field:                        // write a standard field
-            tag.set(field, argv[i]);
+            val[field] = argv[i];
             break;
 
         case set_copyfrom:                     // specify source tag
-            tag.rewrite().from(argv[i]);
+            copyfn = argv[i];
             state |= clobr;
             break;
 

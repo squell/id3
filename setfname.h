@@ -32,7 +32,7 @@
 namespace tag {
     namespace write {
 
-        class file : public combined {
+        class file : public combined<handler> {
             std::string m_template;
             bool m_preserve;
         public:
