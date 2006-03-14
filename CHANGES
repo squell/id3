@@ -1,5 +1,11 @@
 Changelog for 'id3'.
 
+2006-073 (W11):
+  main: [CLI CHANGE] -R has been made into a simple switch which enables the
+    matching of '/' against wildcards.
+  main.cpp/set_base.h: code reorganisation
+  fileexp: integrated pattern() into glob()
+
 2006-040 (W06):
   lyrics3.cpp/getlyr3.cpp created
   getid3v2.cpp/id3v2.c: added/fixed check for silly id3v2 frames

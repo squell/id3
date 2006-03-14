@@ -28,7 +28,7 @@ namespace {
     struct counter {
         handler* tag;               // Borland doesn't like ref's in aggr's?
         char var[3];
-        bool w;
+        unsigned w;
 
         const char* operator()(char);
     };
@@ -39,7 +39,7 @@ namespace {
             throw std::out_of_range("too many variables in pattern");
         ID3field field = mass_tag::field(c);
         if(field < tag::FIELD_MAX) {
-            w = true, tag->set(field, var);
+            ++w, tag->set(field, var);
         } else if(c == 'x') {
             ;                                      // pass over in silence
         } else {
@@ -57,7 +57,7 @@ pattern::pattern(handler& tag, std::string mask)
         mask.replace(pos, 1, "%x");
     }
     counter var = { &tag, "%0" };
-    str = stredit::wrap(var)(mask);
-    ok  = var.w;
+    this->assign( stredit::wrap(var)(mask) );
+    num = var.w;
 }
 

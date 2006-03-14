@@ -13,7 +13,7 @@
 #    include "setid3v2.h"
 #endif
 #include "mass_tag.h"
-// include "pattern.h"
+#include "pattern.h"
 
 #define _version_ "0.77-2 (20060xx)"
 
@@ -75,7 +75,7 @@ static void Help()
         " -f <template>\t" "rename files according to template\n"
         " -q <format>\t"   "print formatted string on standard output\n"
         " -m\t\t"          "match variables in filespec\n"
-        " -R <pattern>\t"  "search directories recursively for wildcard pattern\n"
+        " -R\t\t"          "search recursively\n"
         " -M\t\t"          "preserve modification time of files\n"
         " -V\t\t"          "print version info\n"
 #ifndef NO_V2
@@ -176,7 +176,7 @@ namespace op {
 
     enum {                                     // state information bitset
         no_op =  0x00,                         
-//      scan  =  0x01,                         // checking for no-file args?
+        recur =  0x01,                         // work recursively?
         w     =  0x02,                         // write  requested?
         ren   =  0x04,                         // rename requested?
         rd    =  0x08,                         // read   requested?
@@ -189,9 +189,9 @@ namespace op {
       out::file,
       out::query
     {
-        out::ID3      do_id3;
+        out::ID3      m_id3;
 #ifndef NO_V2
-        out::ID3v2    do_id3v2;
+        out::ID3v2    m_id3v2;
 #endif
     };
 
@@ -202,48 +202,17 @@ struct null_op : fileexp::find {
     { return eprintf("nothing to do with %s\n", r.path), true; }
 };
 
-  // dynamically create a suitably initialized function object
-
-static fileexp::find* instantiate(
-  op::oper_t state,
-  op::tag_info& tag,
-  const tag::reader* src_ptr
-) {
-    using namespace op;
-
-    if(!(state&w) && tag.size() > 1)
-        eprintf("note: multiple selected tags ignored when reading\n");
-
-    swap(tag[0], tag[tag.size()-1]);           // handle source tag as last
-
-    tag::writer* selected = &(out::file&) tag;
-
-    switch(state &= w|rd|ren) {
-    case op::rd:
-        selected = &(out::query&) tag;
-    case op::ren:
-        tag.ignore(0, tag.size());             // don't perform no-ops
-    case op::w | op::ren:
-    case op::w:
-        break;
-    default:
-        eprintf("cannot combine -q with any modifying operation\n");
-        shelp();
-    case op::no_op:
-        static null_op dummy;
-        return &dummy;
-    }
-
-    static verbose tagger(*selected, *src_ptr);
-    return &tagger;
-}
-
 /* ====================================================== */
 
-namespace clash {
-    void opt_R_m()
-    { eprintf("cannot use -R and -m at the same time\n");
-      shelp(); }
+  // performs the actual operations
+
+int process_(fileexp::find& work, char* files[], bool recur)
+{
+    do {
+        if(! work.glob(*files, recur) )
+            eprintf("no files matching %s\n", *files);
+    } while(*++files);
+    return exitc;
 }
 
   // contains CLI interface loop
@@ -257,31 +226,34 @@ int main_(int argc, char *argv[])
 
     tag::reader*  source  = 0;                 // pointer to first enabled
     tag::handler* chosen  = 0;                 // pointer to last enabled
-    const char*   recmask = 0;                 // path pattern (if recursive)
     const char*   copyfn  = 0;                 // alternate from-file
 
     using namespace op;
-    char none[1] = "";
+    char none[] = "";
 
     enum parm_t {                              // parameter modes
-        no_value, force_fn, recurse_expr,
+        no_value, force_fn,
         std_field, custom_field, suggest_size,
         set_rename, set_query, set_copyfrom
     };
 
     parm_t cmd   = no_value;
-    oper_t state = scan;
+    oper_t state = no_op;
     char*  opt   = none;                       // used for command stacking
 
     for(int i=1; i < argc; i++) {
         switch( cmd ) {
         case no_value:                         // process a command argument
             if(*opt != '\0') --i; else
-                if(argv[i][0] == '-' && (state&scan)) opt = argv[i]+1;
+                if(argv[i][0] == '-') opt = argv[i]+1;
             if(*opt == '\0') {
         case force_fn:                         // argument is filespec
-                if(!chosen)
-                    tag.with(tag.do_id3), source = &tag.do_id3;
+                if(!chosen) {
+                    source = &tag.m_id3;       // use default tags
+                    tag.with( tag.m_id3.create() );
+                } else {                       // modify source tag as last
+                    swap(tag[0], tag[tag.size()-1]);     
+                }
                 for(int f = 0; f < FIELD_MAX; ++f)
                     if(val[f]) tag.set(ID3field(f), val[f]);
                 if(copyfn && !tag.from(copyfn))
@@ -289,31 +261,38 @@ int main_(int argc, char *argv[])
                 if(state & clobr)
                     tag.rewrite();
 
-                string spec = argpath(argv[i]);
-                if(state & patrn) {            // filename pattern shorthand
-#if 1
-                    throw logic_error("Feature temporarily removed");
-#else
-                    if((state&scan) == 0) {
-                        eprintf("-m: ignoring unexpected `%s'\n", argv[i]);
-                        continue;
+                if(state & patrn) {
+                    if(argv[i+1]) {
+                        eprintf("-m: unexpected extraneous file arguments given\n", argv[i]);
+                        shelp();
                     }
-                    pattern p(tag, spec);
-                    if(p) state |= op::w;
-                    spec = p.mask();
-#endif
+                    pattern spec(tag, argv[i]);
+                    if(spec.vars() > 0) state |= w;
+                    strcpy(argv[i], spec.c_str());
                 }
 
-                static fileexp::find& apply
-                  = *instantiate(state&=~scan, tag, source);
+                tag::writer* selected = &(out::file&) tag;
 
-                if(!recmask) {
-                    if(! apply.glob(spec.c_str()) )
-                        eprintf("no files matching %s\n", argv[i]);
-                } else {
-                    if(! apply.pattern(spec.c_str(), recmask) )
-                        eprintf("no files matching `%s' in %s\n", recmask, argv[i]);
+                switch(state & (w|rd|ren)) {
+                case op::rd:
+                    selected = &(out::query&) tag;
+                case op::ren:
+                    if(tag.size() > 1)
+                        eprintf("note: multiple selected tags ignored when reading\n");
+                    tag.ignore(0, tag.size()); // don't perform no-ops
+                case op::w | op::ren:
+                case op::w:
+                    break;
+                default:
+                    eprintf("cannot combine -q with any modifying operation\n");
+                    shelp();
+                case op::no_op:
+                    null_op dummy;
+                    return process_(dummy, &argv[i], state & recur);
                 }
+
+                verbose tagger(*selected, *source);
+                return process_(tagger, &argv[i], state & recur);
             } else {
                 switch( *opt++ ) {             // argument is a switch
                 case 'v': verbose::enable(); break;
@@ -321,9 +300,14 @@ int main_(int argc, char *argv[])
                 case 'f': cmd = set_rename;   break;
                 case 'q': cmd = set_query;    break;
 
-                case 'm': if(recmask) clash::opt_R_m();
-                          state |= patrn;     break;
-                case 'R': cmd = recurse_expr; break;
+                case 'm': if(!(state & recur)) {
+                              state |= patrn; break;
+                          } else if(false)     // skip next statement
+                case 'R': if(!(state & patrn)) {
+                              state |= recur; break;
+                          }
+                    eprintf("cannot use -R and -m at the same time\n");
+                    shelp();
 
                 case 'D': if(!(state&clobr)) {
                               cmd = set_copyfrom; break;
@@ -343,12 +327,12 @@ int main_(int argc, char *argv[])
                     cmd = std_field; break;
 #ifndef NO_V2
                 case '1':
-                    tag.with( *(chosen = &tag.do_id3) );
-                    if(!source) source = &tag.do_id3;
+                    tag.with( *(chosen = &tag.m_id3.create()) );
+                    if(!source) source = &tag.m_id3;
                     break;
                 case '2':
-                    tag.with( *(chosen = &tag.do_id3v2) );
-                    if(!source) source = &tag.do_id3v2;
+                    tag.with( *(chosen = &tag.m_id3v2.create()) );
+                    if(!source) source = &tag.m_id3v2;
                     break;
 
                 case 's':                      // tag specific switches
@@ -444,28 +428,14 @@ int main_(int argc, char *argv[])
             state |= rd;
             cmd = no_value;
             continue;
-
-        case recurse_expr:                     // enable recursion (ugh)
-            if(state & patrn) clash::opt_R_m();
-            recmask = argpath(argv[i]);
-            cmd = no_value;
-            continue;
-
-        };
+        }
 
         state |= w;                            // set operation done flag
         cmd = no_value;
     }
 
-    if(state & scan) {                         // code duplication is awful.
-        if(!recmask)
-            eprintf("missing file arguments\n");
-        else if(! instantiate(state, tag, source)->pattern(".", recmask) ) {
-            eprintf("no files matching `%s' in %s\n", recmask, ".");
-        }
-    }
-    if(state == scan && !recmask)
-        shelp();
+    eprintf("missing file arguments\n");
+    if(state == no_op) shelp();
 
     return exitc;
 }

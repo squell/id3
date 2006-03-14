@@ -37,34 +37,14 @@ struct filefind : record {
     find* invoker;
 };
 
-bool find::glob(const char* filemask)
+bool find::glob(const char* filemask, bool wildslash)
 {
     filefind t;
     strncpy(t.mask, filemask, sizeof t.mask);
     t.path[0] = t.mask[sizeof t.mask-1] = '\0'; // duct tape
     t.invoker = this;
-    t.recurse = false;
+    t.recurse = wildslash;
     return t.nested(auto_dir("./"), t.path, t.mask);
-}
-
-bool find::pattern(const char* root, const char* pathmask)
-{
-    filefind t;
-    char* p = t.pathcpy(t.path, root);
-    if(p == t.path || p[-1] != '/') {           // append slash?
-        p = t.pathcpy(p, "/");
-    }
-#ifdef AUTO_PREFIX_PATH
-    strncpy(t.mask,            t.path,   sizeof t.mask);
-    strncpy(t.mask+(p-t.path), pathmask, sizeof t.mask-(p-t.path));
-#else
-    strncpy(t.mask, pathmask, sizeof t.mask);   // behave as GNU find does
-#endif
-    t.mask[sizeof t.mask-1] = '\0';             // duct tape
-    t.invoker = this;
-    t.recurse = true;
-    auto_dir start(t.path);
-    return start && t.nested(start, p, t.mask);
 }
 
 struct filefind::direxp : varexp {              // special dotfile handling
@@ -98,6 +78,14 @@ char* filefind::pathcpy(char* dest, const char* src)
     return dest-1;                              // return *resume*-ptr
 }
 
+struct slash {
+    slash(char* p) : ptr(p) { if(ptr) *ptr++  = '\0'; }
+   ~slash()                 { if(ptr) ptr[-1] = '/'; }
+    operator char*() const  { return ptr;    }
+private:
+    char* ptr;
+};
+
   // recursive file search routine, leaves this->mask nonsensical on success
   // pathpos  - write position (inside path)
   // filespec - read position  (inside mask)
@@ -110,9 +98,7 @@ bool filefind::nested(auto_dir dir, char* pathpos, char* filespec)
 
     bool w = false;                             // idle check
 
-    if(!recurse) while( char* fndirsep = strchr(filespec, '/') ) {
-        *fndirsep++ = '\0';                     // isolate name part
-
+    while( slash fndirsep = strchr(filespec, '/') ) {
         wpos = pathcpy(pathcpy(pathpos, filespec), "/");
         if(auto_dir newdir = auto_dir(path)) {
             dir      = newdir;                  // if allready a valid
@@ -120,6 +106,10 @@ bool filefind::nested(auto_dir dir, char* pathpos, char* filespec)
             filespec = fndirsep;
             continue;                           // (tail recursion)
         }
+        if(! strpbrk(filespec, "*?") )          // shortcut mismatchers
+            return false;
+
+        if(recurse) break;
 
         while( dirent* fn = dir.read() ) {      // search cur open dir
             direxp match(filespec, fn->d_name);
@@ -133,7 +123,6 @@ bool filefind::nested(auto_dir dir, char* pathpos, char* filespec)
                 }
             }
         }
-        fndirsep[-1] = '/';                     // 'repair' this->mask
         return w;
     }
 

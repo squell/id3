@@ -31,8 +31,7 @@ id3 \- a commandline mass tagger
 .RB [ \-m ]
 .RB [ \-D
 .IR file ]
-.RB [ \-R
-.IR pattern ]
+.RB [ \-R ]
 .br
 .RB [ \-s
 .IR size ]
@@ -140,13 +139,10 @@ before any fields are updated. Any original tag values not explicitly copied
 to the new tag (for example, by using -u) are lost. If \fIfilename\fR does not
 have any tags, this option is identical to the -d option.
 .TP
-.BI \-R " pattern
-search the directory hierarchy rooted at each \fIfilespec\fR for files
-whose relative path matches \fIpattern\fR. If no \fIfilespec\\fR are supplied,
-starts searching in the current directory.
-Wildcards in \fIpattern\fR do not treat `.' or `/' specially when performing
-this search, so `./t*.mp3' matches `/test/misc/foo.mp3'. Using this option
-also affects variable substitution, see
+.BI \-R
+searches recursively; Normally, path seperators in \fIfilespec\fR do not get
+matched by `?' or `*' wildcards. With this switch, they are treated as an
+ordinary character.
 .TP
 .B \--
 force the following argument to be interpreted as a filename. Use this for
@@ -201,8 +197,6 @@ newline character, \(rs\(rs a single backslash.
 .SM where \fIN\fR <- [0..9]
 replaced with the portion of the file path matching the \fIn\fRth `*'
 (asterisk) wildcard in the file specification. 0 is taken to mean 10.
-If the `-R \fIpattern\fR' option is used, the file path is matched against
-\fIpattern\fR instead.
 .TP
 .BI % <modifiers>c
 .SM where \fIc\fR <- [a..z]

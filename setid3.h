@@ -34,11 +34,6 @@ struct ID3v1;                                 // avoid a header dependency
 
 namespace tag {
 
-  ///////////////////////////////////////////////////////
-  // boilerplate plumbing                              //
-  // - mimics but does not override handler            //
-  ///////////////////////////////////////////////////////
-
     namespace write {
 
         class ID3 : public handler, public reader {

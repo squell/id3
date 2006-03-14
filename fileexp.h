@@ -9,15 +9,15 @@
 
   Usage:
 
-  find::glob() and find::pattern() look for files matching the wildcard spec,
-  and call the overridden members as appropriate: file() for each file, dir()
-  for each dir files are searched in. After a call to dir(), all successive
-  calls to file() are for files to that dir.
+  find::glob() to look for files matching the wildcard spec, and call the
+  overridden members as appropriate: file() for each file, dir() for each dir
+  files are searched in. After a call to dir(), all successive calls to file()
+  are for files to that dir.
 
   glob() searches for files matching the wildcard spec like a POSIX shell
-  would, pattern() searches a directory hierarchy recursively for pathnames
-  matching the wildcard spec. During a single glob() or pattern(), the record
-  argument will always refer to the same object.
+  would. if the second parameter is true, path seperators ('/') will also
+  match wildcards; if it is false or omitted, they will not. During a single
+  glob(), the record argument will always refer to the same object.
 
   dir() should return true or false, indicating whether to process the
   directory passed as an argument. file() should return true or false
@@ -29,8 +29,8 @@
   Example:
 
   struct showfiles : fileexp::find {
-      void file(const char*, const fileexp::record& rec)
-      { puts(rec.path); }
+      bool file(const char*, const fileexp::record& rec)
+      { return puts(rec.path), true; }
   };
 
   int main(int argc, char* argv[])
@@ -59,8 +59,7 @@ namespace fileexp {
     };
 
     struct find {
-        bool glob   (const char* filemask);
-        bool pattern(const char* root, const char* pathmask);
+        bool glob(const char* filemask, bool wildslash = false);
 
         virtual bool file(const char* name, const record&) = 0;
         virtual bool dir (const record&)

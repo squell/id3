@@ -23,6 +23,7 @@ the contents of the source distribution:
  getid3v2.*     - + id3v2 reader                                (C++)
  setfname.*     - + file renamer                                (C++)
  setecho.*      - + stdout formatter                            (C++)
+ setgroup.h     - + combiner                                    (C++)
  varexp.*       - wildcard/pattern matching class               (C++)
  fileexp.*      - filefinder/matcher                            (C++)
  mass_tag.*     - + tagging engine                              (C++)

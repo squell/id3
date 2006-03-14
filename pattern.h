@@ -26,13 +26,12 @@
 #include <string>
 #include "set_base.h"
 
-class pattern {
+class pattern : public std::string {
     std::string str;
-    bool ok;
+    unsigned num;
 public:
     pattern(tag::handler& tag, std::string mask);
-    operator bool() const           { return ok; }
-    const std::string& mask() const { return str; }
+    unsigned vars() const { return num; }
 };
 
 #endif
