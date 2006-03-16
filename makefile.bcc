@@ -37,7 +37,7 @@ main.obj: main.cpp
 	$(CC) $(CFLAGS) -o$@ -c main.cpp
 
 mainl.obj: main.cpp
-	$(CC) $(CFLAGS) -DNO_V2 -o$@ -c main.cpp
+	$(CC) $(CFLAGS) -DLITE -o$@ -c main.cpp
 
 .c.obj:
 	$(CC) $(CFLAGS) -c $<

@@ -82,8 +82,8 @@ static void Help()
         "Only on last selected tag:\n"
         " -s <size>\t"     "set tag size\n"
         " -u\t\t"          "update all standard fields\n"
-        " -rXXXX\t\t"      "erase all XXXX frames\n"
-        " -wXXXX <data>\t" "write a XXXX frame\n"
+        " -rTYPE\t\t"      "erase all `TYPE' frames\n"
+        " -wTYPE <data>\t" "write a `TYPE' frame\n"
 #endif
         "\nReport bugs to <squell@alumina.nl>.\n",
         Name,

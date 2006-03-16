@@ -133,11 +133,13 @@ in particular, any variable interpreted still counts as a wildcard, see
 below.
 .TP
 .BI \-D " filename
-duplicate and copy the tags found in \fIfilename\fR to the target files
-The tag in each file is replaced after any variables have been read, but
-before any fields are updated. Any original tag values not explicitly copied
-to the new tag (for example, by using -u) are lost. If \fIfilename\fR does not
-have any tags, this option is identical to the -d option.
+duplicate and copy the tags of the specified format as found in \fIfilename\fR
+to the target files. The tag in each file is replaced after any variables have
+been read, but before any fields are updated.
+
+Any original tag values not explicitly copied to the new tag (for example, by
+using -u) are lost. If \fIfilename\fR does not have any tags, this option is
+identical to the -d option.
 .TP
 .BI \-R
 searches recursively; Normally, path seperators in \fIfilespec\fR do not get

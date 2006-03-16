@@ -95,10 +95,10 @@ uninstall:
 
 ## distribution ############################################################
 
-SRC_CPP     = sedit varexp fileexp mass_tag pattern
-SRC_CPP    += charconv char_ucs
-SRC_CPP    += set_base setid3 setid3v2 setfname setecho
-SRC_CPP    += getid3 getid3v2
+SRC_CPP     = sedit varexp fileexp mass_tag pattern	  \
+	      charconv char_ucs 			  \
+	      set_base setid3 setid3v2 setfname setecho   \
+	      getid3 getid3v2
 SRC_C	    = fileops id3v1 id3v2
 DIR_DEBIAN  = control rules copyright changelog
 DIR_FREEBSD = Makefile pkg-descr
@@ -200,12 +200,12 @@ id3l: $(OBJX_L:=.o)
 	$(CC) $(CFLAGS) -c $<
 
 mainl.o:
-	$(CXX) $(CXXFLAGS) -DNO_V2 -o $@ -c main.cpp
+	$(CXX) $(CXXFLAGS) -DLITE -o $@ -c main.cpp
 
-MKALLDEP =  $(MKDEP) $(CXXFLAGS) main.cpp;
-MKALLDEP += $(MKDEP) $(CXXFLAGS) -DNO_V2 main.cpp | sed 's/main.o/mainl.o/';
-MKALLDEP += $(MKDEP) $(CXXFLAGS) $(SRC_CPP:=.cpp);
-MKALLDEP += $(MKDEP) $(CFLAGS)	 $(SRC_C:=.c)
+MKALLDEP = $(MKDEP) $(CXXFLAGS) main.cpp;				   \
+	   $(MKDEP) $(CXXFLAGS) -DLITE main.cpp | sed 's/main.o/mainl.o/'; \
+	   $(MKDEP) $(CXXFLAGS) $(SRC_CPP:=.cpp);			   \
+	   $(MKDEP) $(CFLAGS)	$(SRC_C:=.c)
 
 ## dependencies -MM ########################################################
 
