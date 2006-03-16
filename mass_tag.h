@@ -38,7 +38,7 @@ namespace fileexp {
         const tag::writer& tag_writer;
         const tag::reader& tag_reader;
 
-        static tag::ID3field field(char c);
+        static tag::ID3field field(wchar_t c);
         static std::string   var  (int i);
         static unsigned long total();
     protected:

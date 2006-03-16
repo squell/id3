@@ -3,8 +3,10 @@ Changelog for 'id3'.
 2006-073 (W11):
   main: [CLI CHANGE] -R has been made into a simple switch which enables the
     matching of '/' against wildcards.
-  main.cpp/set_base.h: code reorganisation
   fileexp: integrated pattern() into glob()
+  main.cpp/set_base.h: code reorganisation
+  pattern.cpp: prefix gets copied now; making
+    `id3 -m "%+a - %||t.mp3"' equal to `id3 -a "%+1" -t "%||2" "* - *.mp3"'
 
 2006-040 (W06):
   lyrics3.cpp/getlyr3.cpp created

@@ -17,6 +17,8 @@
 using namespace tag;
 using fileexp::mass_tag;
 using std::string;
+using std::wstring;
+using charset::conv;
 
  // "inside out" way of specifying what you want.
  // - kind of lazy. but hey long live code reuse :)
@@ -25,28 +27,32 @@ using std::string;
 namespace {
     static char error[] = "illegal variable: %_";
 
-    struct counter {
+    struct counter : stredit::format {
         handler* tag;               // Borland doesn't like ref's in aggr's?
-        char var[3];
-        unsigned w;
+        mutable unsigned w;
+        mutable ptr mod;
 
-        const char* operator()(char);
+        counter(handler* h) : tag(h), w(0) { }
+        virtual result var  (ptr& p, ptr end) const;
+        virtual result code (ptr& p, ptr end) const
+        { mod = p; return stredit::format::code(p, end); }
     };
 
-    const char* counter::operator()(char c)
+    counter::result counter::var(ptr& p, ptr) const
     {
-        if(var[1]++ == '9')                        // limit reached
+        if(++w == 10)                              // limit reached
             throw std::out_of_range("too many variables in pattern");
-        ID3field field = mass_tag::field(c);
+        ID3field field = mass_tag::field(*p);
         if(field < tag::FIELD_MAX) {
-            ++w, tag->set(field, var);
-        } else if(c == 'x') {
+            const string& pre = conv<wchar_t>(wstring(mod,p)).str<char>();
+            tag->set(field, pre + char('0'+w));
+        } else if(*p == 'x') {
             ;                                      // pass over in silence
         } else {
-            error[sizeof error-2] = c;
+            error[sizeof error-2] = *p;
             throw std::out_of_range(error);
         }
-        return "*";
+        return ++p, "*";
     }
 }
 
@@ -56,8 +62,8 @@ pattern::pattern(handler& tag, std::string mask)
     while((pos = mask.find('*',pos)) != string::npos) {
         mask.replace(pos, 1, "%x");
     }
-    counter var = { &tag, "%0" };
-    this->assign( stredit::wrap(var)(mask) );
+    counter var(&tag);
+    this->assign( var(mask) );
     num = var.w;
 }
 

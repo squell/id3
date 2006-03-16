@@ -263,7 +263,7 @@ int main_(int argc, char *argv[])
 
                 if(state & patrn) {
                     if(argv[i+1]) {
-                        eprintf("-m: unexpected extraneous file arguments given\n", argv[i]);
+                        eprintf("-m %s: no file arguments are allowed\n", argv[i]);
                         shelp();
                     }
                     pattern spec(tag, argpath(argv[i]));

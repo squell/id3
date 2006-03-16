@@ -25,7 +25,7 @@ namespace fileexp {
 
  // defining variable mapping characters <-> ID3field
 
-ID3field mass_tag::field(char c)
+ID3field mass_tag::field(wchar_t c)
 {
      switch(c) {
      case 't': return tag::title;

@@ -251,7 +251,11 @@ Capitalize the substituted value
 Convert all characters to lowercase
 .TP
 .BR _ " (underscore)
-Do not replace underscores with spaces, and do not compress empty space.
+Use the raw value of the variable. Normally, substitution replaces any
+underscores with spaces, and condenses empty whitespace.
+.TP
+.BR * " (asterisk)
+Split the variable into seperate words by looking at the capitalization.
 .TP
 .BR # " (hash\ or\ pound\ sign)
 Pad all numeric values within the substituted value, if necessary.

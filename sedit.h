@@ -71,8 +71,9 @@ namespace stredit {
     };
 
     class format : public function {
-        static char const prefix = '%';
     public:
+        static char const prefix = '%';
+
         virtual result operator()(const charset::conv<char>& s) const
         { return edit(charset::conv<wchar_t>(s), false); }
     protected:

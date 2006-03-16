@@ -37,7 +37,7 @@ extern void deprecated(const char*);
 
 namespace stredit {
 
-enum style { as_is, name, lowr, camel };
+enum style { as_is, name, lowr, split };
 
 struct filtered_char {                           // filter low-ascii
     bool operator()(wchar_t c)
@@ -75,6 +75,22 @@ void capitalize(wstring& s)
         new_w = is_(space, *p) || !is_(alnum, *p) && new_w;
     }
 }
+
+ // padcamels("ReformatAStringLikeThis") -> "Reformat A String Like This"
+
+void padcamels(wstring& s)
+{
+    wstring::const_iterator p;
+    bool word = false;
+    wstring r;
+    for(p = s.begin(); p != s.end(); r.push_back(*p++)) {
+        if(is_(upper, *p) && word)
+            r.push_back(' ');
+        word = !is_(space, *p);
+    }
+    s.swap(r);
+}
+
 
  // padnumeric("(300/4)=75", 4) -> "0300/0004=0075"
 
@@ -143,6 +159,7 @@ function::result format::code(ptr& p, ptr end) const
         case '_': raw  = true;      continue;
         case '+': caps = name;      continue;
         case '-': caps = lowr;      continue;
+        case '*': caps = split;     continue;
         case '#': ++num_pad;        continue;
         case prefix:
             return conv<wchar_t>(1, prefix);
@@ -175,8 +192,10 @@ function::result format::code(ptr& p, ptr end) const
                 replace_if(s.begin(), s.end(), filtered_char(), ' ');
                 compress(s);
             }
+            if(caps == split)
+                padcamels(s);
             if(caps == name)
-                capitalize(s); else
+                capitalize(s);
             if(caps == lowr)
                 transform(s.begin(), s.end(), s.begin(), char_to_lower());
             padnumeric(s, num_pad);
