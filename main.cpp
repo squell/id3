@@ -209,7 +209,7 @@ struct null_op : fileexp::find {
 int process_(fileexp::find& work, char* files[], bool recur)
 {
     do {
-        if(! work.glob(*files, recur) )
+        if(! work.glob(argpath(*files), recur) )
             eprintf("no files matching %s\n", *files);
     } while(*++files);
     return exitc;
@@ -266,7 +266,7 @@ int main_(int argc, char *argv[])
                         eprintf("-m: unexpected extraneous file arguments given\n", argv[i]);
                         shelp();
                     }
-                    pattern spec(tag, argv[i]);
+                    pattern spec(tag, argpath(argv[i]));
                     if(spec.vars() > 0) state |= w;
                     strcpy(argv[i], spec.c_str());
                 }
