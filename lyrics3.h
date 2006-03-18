@@ -22,7 +22,7 @@
   - lyrics3::cast(string)
   IF string is a valid Lyrics3 tag, returns it, otherwise empty
 
-  - lyrics3::write(file, tag)
+  - lyrics3::write(file, tag[, id3v1buf])
   Writes the Lyrics3 'tag' to 'file'. Returns 0 on success, non-zero on
   failure, and negative in case of a serious write error.
 
@@ -43,6 +43,7 @@
 #define __ZF_LYRICS3_HPP
 
 #include <string>
+#include <iterator>
 
 namespace lyrics3 {
 
@@ -74,6 +75,8 @@ namespace lyrics3 {
         std::string content(size_type i) const
         { return substr(i+8, find_next(*this, i)-i-8); }
         info() { }
+
+        class iterator;
     private:
         info(const std::string& s) : std::string(s) { }
     };

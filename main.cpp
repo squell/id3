@@ -9,13 +9,14 @@
 #include "setid3.h"
 #include "setfname.h"
 #include "setquery.h"
-#ifndef NO_V2
+#ifndef LITE
 #    include "setid3v2.h"
+#    include "setlyr3.h"
 #endif
 #include "mass_tag.h"
 #include "pattern.h"
 
-#define _version_ "0.77-2 (20060xx)"
+#define _version_ "0.78 (20060xx)"
 
 /*
 
@@ -57,8 +58,8 @@ static void Help()
 {
     printf(
         "%s " _version_ "\n"
-#ifndef NO_V2
-        "usage: %s [-1 -2] [OPTIONS] filespec ...\n"
+#ifndef LITE
+        "usage: %s [-1 -2 -3] [OPTIONS] filespec ...\n"
 #else
         "usage: %s [OPTIONS] filespec ...\n"
 #endif
@@ -78,7 +79,7 @@ static void Help()
         " -R\t\t"          "search recursively\n"
         " -M\t\t"          "preserve modification time of files\n"
         " -V\t\t"          "print version info\n"
-#ifndef NO_V2
+#ifndef LITE
         "Only on last selected tag:\n"
         " -s <size>\t"     "set tag size\n"
         " -u\t\t"          "update all standard fields\n"
@@ -185,14 +186,20 @@ namespace op {
     };
     typedef int oper_t;
 
+    template<class T> struct box { T object; };
+    template<class T> T& use(box<T>& x) { return x.object; }
+
     struct tag_info :
-      out::file,
-      out::query
-    {
-        out::ID3      m_id3;
-#ifndef NO_V2
-        out::ID3v2    m_id3v2;
+      out::query,
+#ifndef LITE
+      box<out::ID3>,
+      box<out::ID3v2>,
+      box<out::Lyrics3>,
+      out::file
+#else
+      out::ID3
 #endif
+    {
     };
 
 }
@@ -249,8 +256,8 @@ int main_(int argc, char *argv[])
             if(*opt == '\0') {
         case force_fn:                         // argument is filespec
                 if(!chosen) {
-                    source = &tag.m_id3;       // use default tags
-                    tag.with( tag.m_id3.create() );
+                    source = &use<out::ID3>(tag);   // use default tags
+                    tag.with( use<out::ID3>(tag).create() );
                 } else {                       // modify source tag as last
                     swap(tag[0], tag[tag.size()-1]);     
                 }
@@ -325,14 +332,22 @@ int main_(int argc, char *argv[])
                         shelp();
                     }
                     cmd = std_field; break;
-#ifndef NO_V2
+#ifndef LITE
+                    while(1) {
                 case '1':
-                    tag.with( *(chosen = &tag.m_id3.create()) );
-                    if(!source) source = &tag.m_id3;
-                    break;
-                case '2':
-                    tag.with( *(chosen = &tag.m_id3v2.create()) );
-                    if(!source) source = &tag.m_id3v2;
+                        if(!source) source = &use<out::ID3>(tag);
+                        chosen = &use<out::ID3>(tag);
+                        break;
+                case '2':                
+                        if(!source) source = &use<out::ID3v2>(tag);
+                        chosen = &use<out::ID3v2>(tag);
+                        break;
+                case '3':
+                        if(!source) source = &use<out::Lyrics3>(tag);
+                        chosen = &use<out::Lyrics3>(tag);
+                        break;
+                    }
+                    tag.with(chosen->create());
                     break;
 
                 case 's':                      // tag specific switches

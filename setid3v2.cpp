@@ -238,10 +238,10 @@ bool ID3v2::vmodify(const char* fn, const function& edit) const
                     if(function::result s = edit(p->second)) {
                         string b = binarize(p->first, s);
                         tag.put(f->ID, b.data(), b.length());
-                        table.erase(p);
+                    } else {
+                        tag.put(f->ID, f->data, f->size);
                     }
-                } else {
-                    tag.put(f->ID, f->data, f->size);
+                    table.erase(p);
                 }
             }
         }

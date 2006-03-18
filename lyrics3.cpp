@@ -80,6 +80,8 @@ inline string num(unsigned long n, int width)
 
 info field(const string& id, const string& content)
 {
+    if(id.length() != 3 || !isupper(id[0]) || !isupper(id[1]) || !isupper(id[2]))
+        return info();
     const string& size = num(content.size(),5);
     return size.empty()? size : id + size + content;
 }
