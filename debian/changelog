@@ -1,7 +1,8 @@
 id3mtag (0.78) unstable; urgency=low
 
   * Added support for Lyrics3 v2 tags
-  * Added -E
+  * Added -E to only process existing tags
+  * Added word splitting (%*) in substitution
   * Other minor changes
 
  -- Marc R. Schoolderman <squell@alumina.nl>  Tue, 21 Mar 2006 09:25:33 +0100

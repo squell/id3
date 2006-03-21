@@ -11,6 +11,7 @@ Changelog for 'id3'.
   main.cpp/set_base.h: code reorganisation
   pattern.cpp: prefix gets copied now; making
     `id3 -m "%+a - %||t.mp3"' equal to `id3 -a "%+1" -t "%||2" "* - *.mp3"'
+  sedit.cpp: added %* prefix to split "ThisIsATest" -> "This Is A Test"
 
 2006-040 (W06):
   lyrics3.cpp/getlyr3.cpp created
