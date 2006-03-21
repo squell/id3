@@ -255,8 +255,12 @@ int main_(int argc, char *argv[])
             if(*opt == '\0') {
         case force_fn:                         // argument is filespec
                 if(!chosen) {
-                    source = &use<out::ID3>(tag);   // use default tags
+#ifndef LITE
+                    source = &use<out::Lyrics3>(tag);   // use default tags
                     tag.with( use<out::Lyrics3>(tag) );
+#else
+                    source = &use<out::ID3>(tag);
+#endif
                     tag.with( use<out::ID3>(tag).create() );
                 } else {                       // modify source tag as last
                     swap(tag[0], tag[tag.size()-1]);     
@@ -284,7 +288,7 @@ int main_(int argc, char *argv[])
                 case op::rd:
                     selected = &(out::query&) tag;
                 case op::ren:
-                    if(tag.size() > 1)
+                    if(chosen && tag.size() > 1)
                         eprintf("note: multiple selected tags ignored when reading\n");
                     tag.ignore(0, tag.size()); // don't perform no-ops
                 case op::w | op::ren:

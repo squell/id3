@@ -96,12 +96,12 @@ size_t seek_start(FILE* f, char id3[128])
 
     if( fseek(f, -128, SEEK_END) == 0   &&
         fread(id3, 1, 128, f)    == 128 &&
-        memcmp(id3, "TAG", 3)    == 0   &&
-        fseek(f, -15-128, SEEK_END) == 0 )
-    ; else {
-        clearerr(f);
-        fseek(f, -15,     SEEK_END);
+        memcmp(id3, "TAG", 3)    == 0) {
+        if( fseek(f, -15-128, SEEK_END) != 0 ) return 0;
+    } else {
         *id3 = '\0';
+        clearerr(f);
+        if( fseek(f, -15,     SEEK_END) != 0 ) return 0;
     }
 
     buf[sizeof buf-1] = '\0';              // duct tape
