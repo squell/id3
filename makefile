@@ -95,19 +95,19 @@ uninstall:
 
 ## distribution ############################################################
 
-SRC_CPP     = sedit varexp fileexp mass_tag pattern	  \
-	      charconv char_ucs 			  \
-	      set_base setid3 setid3v2 setfname setecho   \
-	      getid3 getid3v2
+SRC_CPP     = sedit varexp fileexp mass_tag pattern	\
+	      charconv char_ucs lyrics3			\
+	      setid3 setid3v2 setlyr3 setfname setquery \
+	      getid3 getid3v2 getlyr3
 SRC_C	    = fileops id3v1 id3v2
 DIR_DEBIAN  = control rules copyright changelog
 DIR_FREEBSD = Makefile pkg-descr
 
-DISTFILES = INSTALL $(docdata) makefile makefile.dj makefile.bcc \
-	main.cpp auto_dir.h $(SRC_CPP:=.h) $(SRC_C:=.h) \
+DISTFILES = INSTALL $(docdata) makefile makefile.dj makefile.bcc specfile \
+	main.cpp auto_dir.h set_base.h setgroup.h $(SRC_CPP:=.h) $(SRC_C:=.h) \
 	$(SRC_CPP:=.cpp) $(SRC_C:=.c) id3.man \
 	$(DIR_DEBIAN:%=debian/%) \
-	$(DIR_FREEBSD:%=FreeBSD/%)
+	$(DIR_FREEBSD:%=FreeBSD/%) \
 
 D_VER = `sed -n "/_version_/{s:[^0-9]*\([^ ]*\).*:\1:p;q;}" main.cpp`
 
@@ -184,9 +184,10 @@ README: id3.man
 OBJ_GEN = sedit varexp fileexp charconv mass_tag pattern
 OBJ_1	= setid3 getid3 id3v1
 OBJ_2	= setid3v2 getid3v2 id3v2 fileops char_ucs
-OBJ_F	= setfname setecho
-OBJECTS = main $(OBJ_GEN) setgroup $(OBJ_1) $(OBJ_2) $(OBJ_F)
-OBJX_L	= mainl $(OBJ_GEN) setgroup $(OBJ_1) $(OBJ_F)
+OBJ_3	= setlyr3 getlyr3 lyrics3
+OBJ_F	= setfname setquery
+OBJECTS = main $(OBJ_GEN) $(OBJ_1) $(OBJ_2) $(OBJ_3) $(OBJ_F)
+OBJX_L	= mainl $(OBJ_GEN) $(OBJ_1) $(OBJ_F)
 
 id3: $(OBJECTS:=.o)
 	$(CXX) $(OBJECTS:=.o) $(LDFLAGS) -o $@
@@ -209,10 +210,11 @@ MKALLDEP = $(MKDEP) $(CXXFLAGS) main.cpp;				   \
 
 ## dependencies -MM ########################################################
 
-main.o: main.cpp set_base.h sedit.h charconv.h setid3.h setfname.h \
-  setecho.h setid3v2.h mass_tag.h fileexp.h pattern.h
-mainl.o: main.cpp set_base.h sedit.h charconv.h setid3.h setfname.h \
-  setecho.h mass_tag.h fileexp.h pattern.h
+main.o: main.cpp setgroup.h set_base.h sedit.h charconv.h setid3.h \
+  setfname.h setquery.h setid3v2.h setlyr3.h mass_tag.h fileexp.h \
+  pattern.h
+mainl.o: main.cpp setgroup.h set_base.h sedit.h charconv.h setid3.h \
+  setfname.h setquery.h mass_tag.h fileexp.h pattern.h
 sedit.o: sedit.cpp sedit.h charconv.h
 varexp.o: varexp.cpp varexp.h
 fileexp.o: fileexp.cpp varexp.h auto_dir.h fileexp.h
@@ -222,13 +224,13 @@ pattern.o: pattern.cpp set_base.h sedit.h charconv.h mass_tag.h fileexp.h \
   pattern.h
 charconv.o: charconv.cpp charconv.h
 char_ucs.o: char_ucs.cpp char_ucs.h charconv.h
-setgroup.o: setgroup.cpp set_base.h sedit.h charconv.h
 setid3.o: setid3.cpp id3v1.h getid3.h set_base.h sedit.h charconv.h \
   setid3.h
 setid3v2.o: setid3v2.cpp char_ucs.h charconv.h id3v1.h id3v2.h fileops.h \
   getid3v2.h set_base.h sedit.h setid3v2.h
-setfname.o: setfname.cpp sedit.h charconv.h setfname.h set_base.h
-setecho.o: setecho.cpp setecho.h set_base.h sedit.h charconv.h
+setfname.o: setfname.cpp sedit.h charconv.h setfname.h setgroup.h \
+  set_base.h
+setquery.o: setquery.cpp setquery.h set_base.h sedit.h charconv.h
 getid3.o: getid3.cpp getid3.h set_base.h sedit.h charconv.h id3v1.h
 getid3v2.o: getid3v2.cpp char_ucs.h charconv.h id3v2.h getid3v2.h \
   set_base.h sedit.h

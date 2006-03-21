@@ -104,12 +104,12 @@ size_t seek_start(FILE* f, char id3[128])
         *id3 = '\0';
     }
 
-    buf[15] = '\0';                        // duct tape
+    buf[sizeof buf-1] = '\0';              // duct tape
     fread(buf, 1, 15, f);                  // read end-tag
 
     if(memcmp(buf+6, "LYRICS200", 9) == 0) {
         char* p;
-        size_t size = strtoul(buf, &p, 10);
+        long size = strtoul(buf, &p, 10);
         if(p == buf+6) {
             if(fseek(f, -15 - size, SEEK_CUR) != 0) return 0;
             fread(buf, 1, 11, f);

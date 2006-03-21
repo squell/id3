@@ -19,10 +19,22 @@ public:
     typedef typename std::vector<interface*>::size_type      size_type;
     typedef typename std::vector<interface*>::iterator       iterator;
     typedef typename std::vector<interface*>::const_iterator const_iterator;
+#ifndef __BORLANDC__
     using std::vector<interface*>::begin;
     using std::vector<interface*>::end;
     using std::vector<interface*>::size;
     using std::vector<interface*>::operator[];
+#else
+    const_iterator begin() const { return std::vector<interface*>::begin(); }
+    iterator       begin()       { return std::vector<interface*>::begin(); }
+    const_iterator end  () const { return std::vector<interface*>::end(); }
+    iterator       end  ()       { return std::vector<interface*>::end(); }
+    size_type      size () const { return std::vector<interface*>::size(); }
+    interface*     operator[](size_type index) const
+    { return std::vector<interface*>::operator[](index); }
+    interface*&    operator[](size_type index)
+    { return std::vector<interface*>::operator[](index); }
+#endif
 
   // registers tags
     combined& with(interface& object)
@@ -40,7 +52,7 @@ public:
 
     bool from(const char* fn)
     {
-        bool result = false;
+        bool result = size() == 0;
         for(const_iterator p = begin(); p != end(); )
             result |= (*p++)->from(fn);
         return result;
@@ -49,7 +61,7 @@ public:
 protected:
     bool vmodify(const char* fn, const stredit::function& func) const
     {
-        bool result = false;
+        bool result = size() == 0;
         for(const_iterator p = begin(); p != end(); )
             result |= (*p++)->modify(fn, func);
         return result;

@@ -64,7 +64,6 @@ namespace lyrics3 {
         { return lhs += rhs; }
 
         const std::string& str() const { return *this; }
-        using std::string::size_type;
         using std::string::size;
         using std::string::c_str;
 

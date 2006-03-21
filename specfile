@@ -1,0 +1,39 @@
+Summary: mass tagging utility for audio files
+URL: http://home.wanadoo.nl/squell/id3.html
+Name: id3mtag
+Version: 0.77
+Release: 1
+License: Two-clause BSD
+Group: Applications/Multimedia
+Packager: squell <squell@alumina.nl>
+Source: http://home.wanadoo.nl/squell/files/id3-%{version}.tar.gz
+Prefix: %{_usr}
+BuildRoot: %{_tmppath}/%{name}
+
+%description
+id3 mass tagger is a tool for manipulating id3 and id3v2 tags in multiple
+files. It can generate tag fields from the filename and other variables,
+and/or rename files, using an intuitive syntax.
+
+%prep
+%setup -n id3-%{version}
+%build
+%ifarch %{ix86}
+make CFLAGS='-O2 -m32'
+%else
+make
+%endif
+%install
+make prefix=%{buildroot}%{_prefix} \
+     bindir=%{buildroot}%{_bindir} \
+     mandir=%{buildroot}%{_mandir} \
+     docdir=%{buildroot}%{_docdir}/id3mtag install-full
+%clean
+rm -rf %{buildroot}
+
+%files
+%defattr(-,root,root)
+%{_bindir}/id3
+%{_mandir}/man1/*
+%doc %{_docdir}/%{name}
+

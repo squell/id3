@@ -16,7 +16,7 @@
 #include "mass_tag.h"
 #include "pattern.h"
 
-#define _version_ "0.78 (20060xx)"
+#define _version_ "0.78 (2006080)"
 
 /*
 
@@ -80,8 +80,9 @@ static void Help()
         " -M\t\t"          "preserve modification time of files\n"
         " -V\t\t"          "print version info\n"
 #ifndef LITE
-        "Only on last selected tag:\n"
+        "Only on last selected tag type:\n"
         " -s <size>\t"     "set tag size\n"
+        " -E\t\t"          "only write if tag already exists\n"
         " -u\t\t"          "update all standard fields\n"
         " -rTYPE\t\t"      "erase all `TYPE' frames\n"
         " -wTYPE <data>\t" "write a `TYPE' frame\n"
@@ -191,14 +192,12 @@ namespace op {
 
     struct tag_info :
       out::query,
-#ifndef LITE
       box<out::ID3>,
+#ifndef LITE
       box<out::ID3v2>,
       box<out::Lyrics3>,
-      out::file
-#else
-      out::ID3
 #endif
+      out::file
     {
     };
 
@@ -229,7 +228,7 @@ int main_(int argc, char *argv[])
     op::tag_info tag;
 
     ID3field field;
-    const char*   val[FIELD_MAX] = { };        // fields to alter
+    const char*   val[FIELD_MAX] = { 0, };     // fields to alter
 
     tag::reader*  source  = 0;                 // pointer to first enabled
     tag::handler* chosen  = 0;                 // pointer to last enabled
@@ -257,6 +256,7 @@ int main_(int argc, char *argv[])
         case force_fn:                         // argument is filespec
                 if(!chosen) {
                     source = &use<out::ID3>(tag);   // use default tags
+                    tag.with( use<out::Lyrics3>(tag) );
                     tag.with( use<out::ID3>(tag).create() );
                 } else {                       // modify source tag as last
                     swap(tag[0], tag[tag.size()-1]);     
@@ -386,6 +386,12 @@ int main_(int argc, char *argv[])
                         break;
                     }
 
+                case 'E':
+                    if(chosen) {
+                        chosen->create(false);
+                        break;
+                    }
+
                     eprintf("specify tag format before -%c\n", opt[-1]);
                     shelp();
 
@@ -409,7 +415,7 @@ int main_(int argc, char *argv[])
             state |= clobr;
             break;
 
-#ifndef NO_V2
+#ifndef LITE
         case custom_field:                     // v2 - write a custom field
             if(! chosen->set(opt, argv[i]) ) {
                 eprintf("selected tag does not have `%s' frames\n", opt);

@@ -69,6 +69,7 @@ public:
 
 protected:
     virtual bool vmodify(const char*, const function&) const = 0;
+    ~writer() { }              // disable outside destruction
 };
 
   ///////////////////////////////////////////////////////

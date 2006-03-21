@@ -53,115 +53,32 @@ mainl.o:
 
 ## dependencies -MM ########################################################
 
+main.o: main.cpp setgroup.h set_base.h sedit.h charconv.h setid3.h \
+  setfname.h setquery.h setid3v2.h setlyr3.h mass_tag.h fileexp.h \
+  pattern.h
+mainl.o: main.cpp setgroup.h set_base.h sedit.h charconv.h setid3.h \
+  setfname.h setquery.h mass_tag.h fileexp.h pattern.h
+sedit.o: sedit.cpp sedit.h charconv.h
+varexp.o: varexp.cpp varexp.h
+fileexp.o: fileexp.cpp varexp.h auto_dir.h fileexp.h
+mass_tag.o: mass_tag.cpp charconv.h sedit.h set_base.h mass_tag.h \
+  fileexp.h
+pattern.o: pattern.cpp set_base.h sedit.h charconv.h mass_tag.h fileexp.h \
+  pattern.h
+charconv.o: charconv.cpp charconv.h
+char_ucs.o: char_ucs.cpp char_ucs.h charconv.h
+setid3.o: setid3.cpp id3v1.h getid3.h set_base.h sedit.h charconv.h \
+  setid3.h
+setid3v2.o: setid3v2.cpp char_ucs.h charconv.h id3v1.h id3v2.h fileops.h \
+  getid3v2.h set_base.h sedit.h setid3v2.h
+setfname.o: setfname.cpp sedit.h charconv.h setfname.h setgroup.h \
+  set_base.h
+setquery.o: setquery.cpp setquery.h set_base.h sedit.h charconv.h
+getid3.o: getid3.cpp getid3.h set_base.h sedit.h charconv.h id3v1.h
+getid3v2.o: getid3v2.cpp char_ucs.h charconv.h id3v2.h getid3v2.h \
+  set_base.h sedit.h
+fileops.o: fileops.c fileops.h
+id3v1.o: id3v1.c id3v1.h
+id3v2.o: id3v2.c fileops.h id3v2.h
 
 ############################################################################
-abc.o: abc.cpp c:/temp/dj/bin/../lib/gcc/djgpp/4.01/djgpp.ver
-bor.o: bor.cpp c:/temp/dj/bin/../lib/gcc/djgpp/4.01/djgpp.ver set_base.h \
-  sedit.h charconv.h setid3.h setfname.h setgroup.h setquery.h setid3v2.h \
-  mass_tag.h fileexp.h pattern.h
-borry.o: borry.cpp c:/temp/dj/bin/../lib/gcc/djgpp/4.01/djgpp.ver sedit.h \
-  charconv.h
-char_ucs.o: char_ucs.cpp c:/temp/dj/bin/../lib/gcc/djgpp/4.01/djgpp.ver \
-  char_ucs.h charconv.h
-charconv.o: charconv.cpp c:/temp/dj/bin/../lib/gcc/djgpp/4.01/djgpp.ver \
-  charconv.h
-duck.o: duck.cpp c:/temp/dj/bin/../lib/gcc/djgpp/4.01/djgpp.ver
-eur.o: eur.cpp c:/temp/dj/bin/../lib/gcc/djgpp/4.01/djgpp.ver
-expr.o: expr.cpp c:/temp/dj/bin/../lib/gcc/djgpp/4.01/djgpp.ver
-expr~1.o: expr~1.cpp c:/temp/dj/bin/../lib/gcc/djgpp/4.01/djgpp.ver
-fileexp.o: fileexp.cpp c:/temp/dj/bin/../lib/gcc/djgpp/4.01/djgpp.ver \
-  varexp.h auto_dir.h fileexp.h
-getid3.o: getid3.cpp c:/temp/dj/bin/../lib/gcc/djgpp/4.01/djgpp.ver \
-  getid3.h set_base.h sedit.h charconv.h id3v1.h
-getid3v2.o: getid3v2.cpp c:/temp/dj/bin/../lib/gcc/djgpp/4.01/djgpp.ver \
-  char_ucs.h charconv.h id3v2.h getid3v2.h set_base.h sedit.h
-getlyr3.o: getlyr3.cpp c:/temp/dj/bin/../lib/gcc/djgpp/4.01/djgpp.ver \
-  lyrics3.h getid3.h set_base.h sedit.h charconv.h id3v1.h getlyr3.h
-inquire.o: inquire.cpp c:/temp/dj/bin/../lib/gcc/djgpp/4.01/djgpp.ver \
-  mass_tag.h fileexp.h set_base.h sedit.h charconv.h setquery.h getid3.h \
-  id3v1.h getid3v2.h
-inspect.o: inspect.cpp c:/temp/dj/bin/../lib/gcc/djgpp/4.01/djgpp.ver \
-  fileexp.h main.cpp set_base.h sedit.h charconv.h setid3.h setfname.h \
-  setgroup.h setquery.h setid3v2.h mass_tag.h pattern.h
-intel_covar.o: intel_covar.cpp \
-  c:/temp/dj/bin/../lib/gcc/djgpp/4.01/djgpp.ver
-koe.o: koe.cpp c:/temp/dj/bin/../lib/gcc/djgpp/4.01/djgpp.ver
-ls.o: ls.cpp c:/temp/dj/bin/../lib/gcc/djgpp/4.01/djgpp.ver fileexp.h
-lyrics3.o: lyrics3.cpp c:/temp/dj/bin/../lib/gcc/djgpp/4.01/djgpp.ver \
-  lyrics3.h
-main.o: main.cpp c:/temp/dj/bin/../lib/gcc/djgpp/4.01/djgpp.ver \
-  set_base.h sedit.h charconv.h setid3.h setfname.h setgroup.h setquery.h \
-  setid3v2.h mass_tag.h fileexp.h pattern.h
-mass_tag.o: mass_tag.cpp c:/temp/dj/bin/../lib/gcc/djgpp/4.01/djgpp.ver \
-  charconv.h sedit.h set_base.h mass_tag.h fileexp.h
-nsed.o: nsed.cpp c:/temp/dj/bin/../lib/gcc/djgpp/4.01/djgpp.ver varexp.h
-null.o: null.cpp c:/temp/dj/bin/../lib/gcc/djgpp/4.01/djgpp.ver
-null2.o: null2.cpp c:/temp/dj/bin/../lib/gcc/djgpp/4.01/djgpp.ver
-null3.o: null3.cpp c:/temp/dj/bin/../lib/gcc/djgpp/4.01/djgpp.ver
-pattern.o: pattern.cpp c:/temp/dj/bin/../lib/gcc/djgpp/4.01/djgpp.ver \
-  set_base.h sedit.h charconv.h mass_tag.h fileexp.h pattern.h
-sedit.o: sedit.cpp c:/temp/dj/bin/../lib/gcc/djgpp/4.01/djgpp.ver sedit.h \
-  charconv.h
-seditold.o: seditold.cpp c:/temp/dj/bin/../lib/gcc/djgpp/4.01/djgpp.ver \
-  sedit.h charconv.h
-setquery.o: setquery.cpp c:/temp/dj/bin/../lib/gcc/djgpp/4.01/djgpp.ver \
-  setquery.h set_base.h sedit.h charconv.h
-setfname.o: setfname.cpp c:/temp/dj/bin/../lib/gcc/djgpp/4.01/djgpp.ver \
-  sedit.h charconv.h setfname.h setgroup.h set_base.h
-setgroup.o: setgroup.cpp c:/temp/dj/bin/../lib/gcc/djgpp/4.01/djgpp.ver \
-  setgroup.h set_base.h sedit.h charconv.h
-setid3.o: setid3.cpp c:/temp/dj/bin/../lib/gcc/djgpp/4.01/djgpp.ver \
-  id3v1.h getid3.h set_base.h sedit.h charconv.h setid3.h
-setid3v2.o: setid3v2.cpp c:/temp/dj/bin/../lib/gcc/djgpp/4.01/djgpp.ver \
-  char_ucs.h charconv.h id3v1.h id3v2.h fileops.h getid3v2.h set_base.h \
-  sedit.h setid3v2.h
-setlyr3.o: setlyr3.cpp c:/temp/dj/bin/../lib/gcc/djgpp/4.01/djgpp.ver \
-  lyrics3.h getlyr3.h getid3.h set_base.h sedit.h charconv.h id3v1.h \
-  setlyr3.h
-stamp.o: stamp.cpp c:/temp/dj/bin/../lib/gcc/djgpp/4.01/djgpp.ver
-t2.o: t2.cpp c:/temp/dj/bin/../lib/gcc/djgpp/4.01/djgpp.ver
-taf.o: taf.cpp c:/temp/dj/bin/../lib/gcc/djgpp/4.01/djgpp.ver
-test.o: test.cpp c:/temp/dj/bin/../lib/gcc/djgpp/4.01/djgpp.ver \
-  set_base.h sedit.h charconv.h setquery.h
-test10.o: test10.cpp c:/temp/dj/bin/../lib/gcc/djgpp/4.01/djgpp.ver
-test2.o: test2.cpp c:/temp/dj/bin/../lib/gcc/djgpp/4.01/djgpp.ver \
-  set_base.h sedit.h charconv.h setquery.h
-test3.o: test3.cpp c:/temp/dj/bin/../lib/gcc/djgpp/4.01/djgpp.ver \
-  set_base.h sedit.h charconv.h setquery.h setid3.h
-test4.o: test4.cpp c:/temp/dj/bin/../lib/gcc/djgpp/4.01/djgpp.ver \
-  set_base.h sedit.h charconv.h setquery.h setid3.h
-test5.o: test5.cpp c:/temp/dj/bin/../lib/gcc/djgpp/4.01/djgpp.ver \
-  set_base.h sedit.h charconv.h
-test6.o: test6.cpp c:/temp/dj/bin/../lib/gcc/djgpp/4.01/djgpp.ver \
-  setgroup.h set_base.h sedit.h charconv.h
-test7.o: test7.cpp c:/temp/dj/bin/../lib/gcc/djgpp/4.01/djgpp.ver \
-  setgroup.h set_base.h sedit.h charconv.h setquery.h
-testaa.o: testaa.cpp c:/temp/dj/bin/../lib/gcc/djgpp/4.01/djgpp.ver
-testab.o: testab.cpp c:/temp/dj/bin/../lib/gcc/djgpp/4.01/djgpp.ver
-testad.o: testad.cpp c:/temp/dj/bin/../lib/gcc/djgpp/4.01/djgpp.ver
-testc.o: testc.cpp c:/temp/dj/bin/../lib/gcc/djgpp/4.01/djgpp.ver
-tester.o: tester.cpp c:/temp/dj/bin/../lib/gcc/djgpp/4.01/djgpp.ver
-testet.o: testet.cpp c:/temp/dj/bin/../lib/gcc/djgpp/4.01/djgpp.ver
-testg.o: testg.cpp c:/temp/dj/bin/../lib/gcc/djgpp/4.01/djgpp.ver \
-  setgroup.h set_base.h sedit.h charconv.h
-testt.o: testt.cpp c:/temp/dj/bin/../lib/gcc/djgpp/4.01/djgpp.ver
-tet.o: tet.cpp c:/temp/dj/bin/../lib/gcc/djgpp/4.01/djgpp.ver
-tet2.o: tet2.cpp c:/temp/dj/bin/../lib/gcc/djgpp/4.01/djgpp.ver
-tet~1.o: tet~1.cpp c:/temp/dj/bin/../lib/gcc/djgpp/4.01/djgpp.ver
-tif.o: tif.cpp c:/temp/dj/bin/../lib/gcc/djgpp/4.01/djgpp.ver
-tl3.o: tl3.cpp c:/temp/dj/bin/../lib/gcc/djgpp/4.01/djgpp.ver getlyr3.h \
-  lyrics3.h getid3.h set_base.h sedit.h charconv.h id3v1.h
-tl4.o: tl4.cpp c:/temp/dj/bin/../lib/gcc/djgpp/4.01/djgpp.ver set_base.h \
-  sedit.h charconv.h
-tt.o: tt.cpp c:/temp/dj/bin/../lib/gcc/djgpp/4.01/djgpp.ver getid3.h \
-  set_base.h sedit.h charconv.h id3v1.h getid3v2.h
-ttt.o: ttt.cpp c:/temp/dj/bin/../lib/gcc/djgpp/4.01/djgpp.ver
-tttt.o: tttt.cpp c:/temp/dj/bin/../lib/gcc/djgpp/4.01/djgpp.ver
-ttt~2.o: ttt~2.cpp c:/temp/dj/bin/../lib/gcc/djgpp/4.01/djgpp.ver
-tt~1.o: tt~1.cpp c:/temp/dj/bin/../lib/gcc/djgpp/4.01/djgpp.ver getid3.h \
-  set_base.h sedit.h charconv.h id3v1.h getid3v2.h
-tyy.o: tyy.cpp c:/temp/dj/bin/../lib/gcc/djgpp/4.01/djgpp.ver getlyr3.h \
-  lyrics3.h getid3.h set_base.h sedit.h charconv.h id3v1.h
-varexp.o: varexp.cpp c:/temp/dj/bin/../lib/gcc/djgpp/4.01/djgpp.ver \
-  varexp.h
-vt.o: vt.cpp c:/temp/dj/bin/../lib/gcc/djgpp/4.01/djgpp.ver charconv.h

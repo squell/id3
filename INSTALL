@@ -1,5 +1,5 @@
 ---------------------------------------------------------------
-| id3 mass tagger v0.77
+| id3 mass tagger v0.78
 -------------------------------------------------------------
 
 the contents of the source distribution:
@@ -12,17 +12,20 @@ the contents of the source distribution:
  makefile       - generic (gnu) makefile
  makefile.dj    - makefile for djgpp2
  makefile.bcc   - makefile for borland c++
+ specfile       - RPM specfile
 
  main.cpp       - main program file                             (C++)
  pattern.*      - + automatic variables                         (C++)
  sedit.*        - string formatting                             (C++)
- set_base.*     - abstract patch class                          (C++)
+ set_base.h     - abstract patch class                          (C++)
  setid3.*       - + id3v1 implementation                        (C++)
  getid3.*       - + id3v1 reader                                (C++)
  setid3v2.*     - + id3v2 implementation                        (C++)
  getid3v2.*     - + id3v2 reader                                (C++)
- setfname.*     - + file renamer                                (C++)
- setecho.*      - + stdout formatter                            (C++)
+ setlyr3.*      - + lyrics3 implementation                      (C++)
+ getlyr3.*      - + lyrics3 reader                              (C++)
+ setfname.*     - + file renamer/handler                        (C++)
+ setquery.*     - + stdout formatter                            (C++)
  setgroup.h     - + combiner                                    (C++)
  varexp.*       - wildcard/pattern matching class               (C++)
  fileexp.*      - filefinder/matcher                            (C++)
@@ -34,6 +37,7 @@ the contents of the source distribution:
  id3v1.*        - definitions & data relevant to ID3v1 tag data (C)
  id3v2.*        - basic ID3v2 reading/writing interface         (C)
  fileops.*      - auxiliary file functions                      (C)
+ lyrics3.*      - Lyrics3v2 interface                           (C++)
 
  id3.man        - raw man page                                  (troff -man)
 

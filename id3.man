@@ -35,6 +35,7 @@ id3 \- a commandline mass tagger
 .br
 .RB [ \-s
 .IR size ]
+.RB [ \-E ]
 .RB [ \-u ]
 .RB [ \-r\fIFRAME ]
 .RB [ \-w\fIFRAME
@@ -79,11 +80,17 @@ be verbose
 preserve last modification time of files operated on
 .TP
 .B \-1
-process ID3v1 tags (default). See `-2'.
+process/add ID3v1 tags (default).
 .TP
 .B \-2
-process ID3v2 tags. If both `-1' and `-2' are specified, both tag formats are
-selected.
+process/add ID3v2 tags.
+.TP
+.B \-3
+process/add Lyrics3 tags.
+
+If more than one tag type is specified, they are all written, but only the
+left-most tag is read from. If no tag type is specified, this is equivalent
+to `-1 -3E'.
 .TP
 .B \-d
 do not re-use existing tag data. If no new tag information is specified in
@@ -160,6 +167,11 @@ update all standard tag fields by copying them from the source tag. This is
 similar to writing `-talnygc %t %a %l %n %y %g %c', but only operates on the
 most recent tag. It is possible for the source and destination tag to be the
 same.
+.TP
+.BI \-E
+only write a tag of the selected type if a file already contains it; do not
+add new ones. If `-3' is not specified, this is the default behaviour for
+Lyrics3 tags.
 .TP
 .BI \-s " size
 try to write a new tag using exactly \fIsize\fR bytes, adding / removing

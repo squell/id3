@@ -1,5 +1,9 @@
 Changelog for 'id3'.
 
+2006-078 (W11):                                ---------[v0.78]-----------
+  main.cpp: integrated Lyrics3 support
+  setfname.cpp: renaming-to-self allowed
+
 2006-073 (W11):
   main: [CLI CHANGE] -R has been made into a simple switch which enables the
     matching of '/' against wildcards.

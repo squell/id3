@@ -67,7 +67,7 @@ bool file::vmodify(const char* fname, const function& edit) const
     }
 
     const char* newfn = name.c_str();
-    if(access(newfn, F_OK) == 0)                          // check if exists
+    if(name != fname && access(newfn, F_OK) == 0)  // check if already exists
         throw failure(newfn, ": file already exists");
 
     bool ok = combined<interface>::vmodify(fname, edit);
