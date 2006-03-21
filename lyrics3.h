@@ -51,8 +51,8 @@ namespace lyrics3 {
     public:
         friend info field(const std::string& id,  const std::string& content);
         friend info cast (const std::string&);
-        friend info read (const char* fn, void* id3 = 0);
-        friend int  write(const char* fn, const info& tag, const void* newid3 = 0);
+        friend info read (const char* fn, void* id3);
+        friend int  write(const char* fn, const info& tag, const void* newid3);
 
         friend std::string     find     (const info& s, const std::string& sig);
         friend info::size_type find_next(const info& s, info::size_type pos);
@@ -80,6 +80,14 @@ namespace lyrics3 {
         info(const std::string& s) : std::string(s) { }
     };
 
+    info field(const std::string& id,  const std::string& content);
+    info cast (const std::string&);
+    info read (const char* fn, void* id3 = 0);
+    int  write(const char* fn, const info& tag, const void* newid3 = 0);
+
+    std::string     find     (const info& s, const std::string& sig);
+    info::size_type find_next(const info& s, info::size_type pos);
+    info field(const std::string& s);
 }
 
 #endif
