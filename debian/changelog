@@ -1,3 +1,11 @@
+id3mtag (0.78) unstable; urgency=low
+
+  * Added support for Lyrics3 v2 tags
+  * Added -E
+  * Other minor changes
+
+ -- Marc R. Schoolderman <squell@alumina.nl>  Tue, 21 Mar 2006 09:25:33 +0100
+
 id3mtag (0.77) unstable; urgency=low
 
   * Added support for ID3v2.2 tags and Unicode inside ID3v2 tags.
