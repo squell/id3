@@ -90,7 +90,7 @@ process/add Lyrics3 tags.
 
 If more than one tag type is specified, they are all written, but only the
 left-most tag is read from. If no tag type is specified, this is equivalent
-to `-1 -3E'.
+to `-3E -1'.
 .TP
 .B \-d
 do not re-use existing tag data. If no new tag information is specified in
