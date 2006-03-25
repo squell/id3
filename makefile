@@ -224,16 +224,21 @@ pattern.o: pattern.cpp set_base.h sedit.h charconv.h mass_tag.h fileexp.h \
   pattern.h
 charconv.o: charconv.cpp charconv.h
 char_ucs.o: char_ucs.cpp char_ucs.h charconv.h
+lyrics3.o: lyrics3.cpp lyrics3.h
 setid3.o: setid3.cpp id3v1.h getid3.h set_base.h sedit.h charconv.h \
   setid3.h
 setid3v2.o: setid3v2.cpp char_ucs.h charconv.h id3v1.h id3v2.h fileops.h \
   getid3v2.h set_base.h sedit.h setid3v2.h
+setlyr3.o: setlyr3.cpp charconv.h lyrics3.h getlyr3.h getid3.h set_base.h \
+  sedit.h id3v1.h setlyr3.h
 setfname.o: setfname.cpp sedit.h charconv.h setfname.h setgroup.h \
   set_base.h
 setquery.o: setquery.cpp setquery.h set_base.h sedit.h charconv.h
 getid3.o: getid3.cpp getid3.h set_base.h sedit.h charconv.h id3v1.h
 getid3v2.o: getid3v2.cpp char_ucs.h charconv.h id3v2.h getid3v2.h \
   set_base.h sedit.h
+getlyr3.o: getlyr3.cpp lyrics3.h getid3.h set_base.h sedit.h charconv.h \
+  id3v1.h getlyr3.h
 fileops.o: fileops.c fileops.h
 id3v1.o: id3v1.c id3v1.h
 id3v2.o: id3v2.c fileops.h id3v2.h
