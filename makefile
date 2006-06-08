@@ -190,10 +190,10 @@ OBJECTS = main $(OBJ_GEN) $(OBJ_1) $(OBJ_2) $(OBJ_3) $(OBJ_F)
 OBJX_L	= mainl $(OBJ_GEN) $(OBJ_1) $(OBJ_F)
 
 id3: $(OBJECTS:=.o)
-	$(CXX) $(OBJECTS:=.o) $(LDFLAGS) -o $@
+	$(CXX) $(CXXFLAGS) $(OBJECTS:=.o) $(LDFLAGS) -o $@
 
 id3l: $(OBJX_L:=.o)
-	$(CXX) $(OBJX_L:=.o) $(LDFLAGS) -o $@
+	$(CXX) $(CXXFLAGS) $(OBJX_L:=.o) $(LDFLAGS) -o $@
 
 .cpp.o:
 	$(CXX) $(CXXFLAGS) -c $<
