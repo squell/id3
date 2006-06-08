@@ -44,7 +44,16 @@ bool find::glob(const char* filemask, bool wildslash)
     t.path[0] = t.mask[sizeof t.mask-1] = '\0'; // duct tape
     t.invoker = this;
     t.recurse = wildslash;
-    return t.nested(auto_dir("./"), t.path, t.mask);
+    if(strncmp(t.mask, "//", 2) == 0) {         // unc path
+       char* shmask = strchr(t.mask+2, '/');
+       if(shmask && (shmask=strchr(++shmask, '/'))) {
+           *shmask++ = '\0';                    // separate sharename
+           char* shpath = t.pathcpy(t.pathcpy(t.path, t.mask), "/");
+           return t.nested(auto_dir(t.mask), shpath, shmask);
+       }
+       return false;
+    } else
+       return t.nested(auto_dir("./"), t.path, t.mask);
 }
 
 struct filefind::direxp : varexp {              // special dotfile handling

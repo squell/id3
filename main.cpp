@@ -16,7 +16,7 @@
 #include "mass_tag.h"
 #include "pattern.h"
 
-#define _version_ "0.78 (2006080)"
+#define _version_ "0.78-2 (2006084)"
 
 /*
 

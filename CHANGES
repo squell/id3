@@ -1,5 +1,8 @@
 Changelog for 'id3'.
 
+2006-084 (W12):
+  fileexp.cpp: added support for unc pathnames
+
 2006-078 (W11):                                ---------[v0.78]-----------
   main.cpp: integrated Lyrics3 support
   setfname.cpp: renaming-to-self allowed
