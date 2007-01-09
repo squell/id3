@@ -1,3 +1,7 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
 #include "varexp.h"
 
 /*
@@ -14,87 +18,110 @@
 
 */
 
-/*
-  needs optimization; to do: cull untried matches from the solution set when
-  it's become clear that they will never match.
-*/
-
-bool varexp::match(const char* mask, const char* test)
+bool varexp::match(const char *mask, const char *test)
 {
-    pairvec::size_type prevlen = var.size();   // backup value
-    bool flag = false;
-
-    char m, c;
+    char c, m;
+    const char *flag = &c;                            // dummy value
     do {
-        switch( c=*test++, m=*mask++ ) {
-        case '[':
-            if( in_set(c,mask,test) ) return 1;
-        default :
-            if( m != c ) return 0;
-        case '?':
-            flag = false;
-            break;
-
-        case '*':
-            if(!flag) {                   // add entry for new variable
-                var.push_back(pairvec::value_type(test-1, 0));
-                flag = true;
-            }
-            if( match(mask,test-1) ) return 1;
-            --mask, ++var.back().second;
-        }
-    } while(c);
-
-    if(m != '\0') {
-        var.resize(prevlen);
-        return 0;
-    }
-    return 1;
+        const char* resume[2] = { flag, };
+	do {
+retry:      switch( c=*test++, m=*mask++ ) {
+            default :
+		if( m != c ) goto fail; 	      // double break
+	    case '?':
+		continue;
+	    case '*':
+                if(*resume)
+                    flag = 0, var.push_back(pairvec::value_type(test-1, 0));
+                else
+                    var.back().second++;
+                resume[0] = mask-1, resume[1] = test;
+                --test;
+		goto retry;			      // forced continue
+            case '[':
+                if(! (mask=in_set(c, mask)) ) goto fail;
+	    }
+	} while(c);
+fail:	mask = resume[0];
+	test = resume[1];
+    } while(c && test);
+    return !(m|c);
 }
 
  /*
      auxilliary code to detect character ranges in expressions
-     uses plain value comparison to detect ranges
+     uses plain value comparison to detect ranges; not collating sequences.
+
+     issue: refuses to compare non-ascii characters in order to avoid
+     serious problems with UTF-8 strings; varexp should really be lifted
+     to the wchar_t world.
  */
 
-int varexp::in_set(char c, const char* set, const char* rest)
+const char *varexp::in_set(char c, const char *set)
 {
+    const char *start = set;
     int  neg = 0, truth = 0;
     char prev, m;
     if(*set=='!' || *set=='^') {
-        neg = 1;                       // match chars NOT in set
-        ++set;
+	neg = 1;		       // match chars NOT in set
+	++set;
     }
-    for(prev = 0; (m = *set++); prev = m)
+    for(prev = 0; (m = *set++) && !(m & 0x80); prev = m) {
         if(m=='-' && prev && *set!='\0' && *set!=']') {
-            truth |= (c >= prev) && (c <= *set);
-        } else {
-            if(m==']')
-                return (truth^neg) && match(set, rest);
-            truth |= (m==c);
-        }
-    return 0;
+	    truth |= (c >= prev) && (c <= *set);
+	} else {
+	    if(m==']')
+                return (truth^neg)? set : 0;
+	    truth |= (m==c);
+	}
+    }
+    return (c == '[')? start : 0;      // not a set notation
 }
 
 /*
 
- C version without pattern matching (more concise):
+ primitive C version without pattern matching (inefficient)
 
 int match(const char *mask, const char *test)
 {
     char c, m;
     do {
-        switch( c=*test++, m=*mask++ ) {
-        default :
-            if( m != c ) return 0;
-        case '?':
-            break;
-        case '*':
-            if( match(mask,test-1) ) return 1;
-            --mask;
-        }
+	switch( c=*test++, m=*mask++ ) {
+	default :
+	    if( m != c ) return 0;
+	case '?':
+	    break;
+	case '*':
+	    if( match(mask,test-1) ) return 1;
+	    --mask;
+	}
     } while(c);
     return !m;
+}
+
+ non-recursive C version without pattern matching
+
+int match(const char *mask, const char *test)
+{
+    char c, m;
+    do {
+	const char* resume[2] = { 0, };
+	do {
+retry:	    switch( c=*test++, m=*mask++ ) {
+	    default :
+		if( m != c ) goto fail; 	      // double break
+	    case '?':
+		continue;
+	    case '*':
+		resume[0] = mask-1, resume[1] = test;
+		--test;
+		goto retry;			      // forced continue
+	    }
+	} while(c);
+fail:	mask = resume[0];
+	test = resume[1];
+    } while(c && mask);
+    return !(m|c);
 }
 
 */

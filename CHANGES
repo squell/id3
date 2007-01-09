@@ -1,5 +1,8 @@
 Changelog for 'id3'.
 
+2006-287 (W41):
+  varexp.cpp: replaced inefficient wildcard matching
+
 2006-084 (W12):
   fileexp.cpp: added support for unc pathnames
 

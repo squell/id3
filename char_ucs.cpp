@@ -67,7 +67,7 @@ namespace charset {
 
         for( ; len--; ) {
             wchar_t c = *w++;
-            if(c < 0x10000)
+            if(c < 0x10000)                    // innocent warning by gcc
                 (build += c>>i & 0xFF) += c>>(8^i) & 0xFF;
             else
                 (build += '?'>>i) += '?'>>(8^i);

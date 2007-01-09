@@ -81,7 +81,7 @@ protected:
     bool result;
 
     bool match(const char* mask, const char* test);
-    int in_set(char c, const char* set, const char* rest);
+    const char* in_set(char c, const char* set);
     friend class iterator;
 };
 
