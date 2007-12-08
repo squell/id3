@@ -1,5 +1,8 @@
 Changelog for 'id3'.
 
+2007-009 (W02):
+  charconv.h: should now compile out of the box in Cygwin without -mno-cygwin
+
 2006-287 (W41):
   varexp.cpp: replaced inefficient wildcard matching
 
