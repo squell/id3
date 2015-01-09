@@ -1,5 +1,6 @@
 #include <vector>
 #include <cstdio>
+#include <cstring>
 #include "char_ucs.h"
 #include "id3v2.h"
 #include "getid3v2.h"
