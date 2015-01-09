@@ -3,6 +3,7 @@
 #  include <cstdio>
 #endif
 #include <cstdlib>
+#include <cstring>
 #include <clocale>
 #include <climits>
 #if defined(__STDC_ISO_10646__) || defined(__WIN32__)

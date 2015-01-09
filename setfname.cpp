@@ -1,4 +1,5 @@
 #include <cstdio>
+#include <cstring>
 #include <cctype>
 #include <ctime>                                    // borland needs this
 #include <sys/stat.h>
