@@ -16,6 +16,7 @@ Removes all ID3v1 tags from all mp3's
 id3 -g "psych rock" *.mp3
 ```
 Sets genre to "Psychedelic Rock" all mp3's
+```sh
 id3 -2 -1 -u "*.mp3"
 ```
 Copy ID3v2 tag to ID3v1 tag in all files.
