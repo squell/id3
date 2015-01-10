@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta charset='utf-8'>
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <meta name="description" content="id3 : a command-line mass tagger">
+
+    <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/stylesheet.css">
+
+    <title>id3</title>
+  </head>
+
+  <body>
+
+    <!-- HEADER -->
+    <div id="header_wrap" class="outer">
+        <header class="inner">
+          <a id="forkme_banner" href="https://github.com/squell/id3">View on GitHub</a>
+
+          <h1 id="project_title">id3</h1>
+          <h2 id="project_tagline">a command-line mass tagger</h2>
+
+            <section id="downloads">
+              <a class="zip_download_link" href="https://github.com/squell/id3/zipball/master">Download this project as a .zip file</a>
+              <a class="tar_download_link" href="https://github.com/squell/id3/tarball/master">Download this project as a tar.gz file</a>
+            </section>
+        </header>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div id="main_content_wrap" class="outer">
+      <section id="main_content" class="inner">
+        <h3>
+<a id="description" class="anchor" href="#description" aria-hidden="true"><span class="octicon octicon-link"></span></a>Description</h3>
+
+<p>id3 mass tagger is a tool for manipulating id3 and id3v2 tags in multiple files. It can generate tag fields from the filename and other variables, and/or rename files, using an intuitive syntax. id3 currently supports the old-style ID3 format with track-number extension (ID3 v1.1), as well as the more complicated ID3v2 (ID3 v2.2.0, v2.3.0) format. This also means its use should be limited to audio files which use these formats (i.e., MP3).</p>
+
+<h3>
+<a id="examples" class="anchor" href="#examples" aria-hidden="true"><span class="octicon octicon-link"></span></a>Examples</h3>
+
+<div class="highlight highlight-sh"><pre>id3 -a <span class="pl-s1"><span class="pl-pds">"</span>Stallman<span class="pl-pds">"</span></span> -t <span class="pl-s1"><span class="pl-pds">"</span>Free Software Song<span class="pl-pds">"</span></span> fs_song.mp3<span class="pl-s1"><span class="pl-pds">"</span></span></pre></div>
+
+<p>Add a simple tag to a file.</p>
+
+<div class="highlight highlight-sh"><pre>id3 -d <span class="pl-k">*</span>.mp3</pre></div>
+
+<p>Removes all ID3v1 tags from all mp3's</p>
+
+<div class="highlight highlight-sh"><pre>id3 -g <span class="pl-s1"><span class="pl-pds">"</span>psych rock<span class="pl-pds">"</span></span> <span class="pl-k">*</span>.mp3</pre></div>
+
+<p>Sets genre to "Psychedelic Rock" all mp3's
+id3 -2 -1 -u "*.mp3"</p>
+
+<pre><code>Copy ID3v2 tag to ID3v1 tag in all files.
+id3 -a "TAFKAT" -n "%1" -t "%+2" "*. *.mp3"
+</code></pre>
+
+<p>Update tag fields similar to this;</p>
+
+<blockquote>
+<p>id3 -a "TAFKAT" -n "01" -t "My Song"  "01. my_song.mp3"<br>
+id3 -a "TAFKAT" -n "02" -t "Untitled" "02. untitled.mp3"</p>
+</blockquote>
+
+<div class="highlight highlight-sh"><pre>id3 -2 -f <span class="pl-s1"><span class="pl-pds">"</span>%a - %t.mp3<span class="pl-pds">"</span></span> blaet.mp3</pre></div>
+
+<p>Rename file to a standard "Artist - Title" format, using ID3v2 values.</p>
+
+<div class="highlight highlight-sh"><pre>id3 -g <span class="pl-s1"><span class="pl-pds">"</span>alt rock<span class="pl-pds">"</span></span> -a <span class="pl-s1"><span class="pl-pds">"</span>The Author<span class="pl-pds">"</span></span> -l %1 -n %2 -t %3 <span class="pl-s1"><span class="pl-pds">"</span>Author - */(*) *.mp3<span class="pl-pds">"</span></span></pre></div>
+
+<p>Process multiple directories at once.</p>
+
+<div class="highlight highlight-sh"><pre>id3 -g <span class="pl-s1"><span class="pl-pds">"</span>alt rock<span class="pl-pds">"</span></span> -a <span class="pl-s1"><span class="pl-pds">"</span>The Author<span class="pl-pds">"</span></span> -m <span class="pl-s1"><span class="pl-pds">"</span>Author - %l/(%n) %t.mp3<span class="pl-pds">"</span></span></pre></div>
+
+<p>Shorthand for the previous example.</p>
+
+<div class="highlight highlight-sh"><pre>id3 -a %t -t %a <span class="pl-s1"><span class="pl-pds">"</span>*.mp3<span class="pl-pds">"</span></span></pre></div>
+
+<p>Swap artist and title fields in all mp3's.</p>
+
+<div class="highlight highlight-sh"><pre>id3 -D <span class="pl-s3">source</span>.mp3 -1 -2 dest.mp3</pre></div>
+
+<p>Copy ID3v1 and ID3v2 tags of source.mp3 to dest.mp3</p>
+
+<div class="highlight highlight-sh"><pre>id3 -D <span class="pl-s3">source</span>.mp3 -1u -2u dest.mp3</pre></div>
+
+<p>As above, but only replaces the non-standard or blank fields in dest.mp3 by data from source.mp3.</p>
+
+<div class="highlight highlight-sh"><pre>id3 -2 -rAPIC -s 0 <span class="pl-k">*</span>.mp3</pre></div>
+
+<p>Removes embedded images and padding from all mp3's.</p>
+
+<div class="highlight highlight-sh"><pre>id3 -2 -rAPIC -s 0 -R <span class="pl-s1"><span class="pl-pds">"</span>*.mp3<span class="pl-pds">"</span></span> <span class="pl-s1"><span class="pl-pds">"</span>/my documents<span class="pl-pds">"</span></span></pre></div>
+
+<p>As above, but works recursively on all mp3's in the directory tree starting at /my documents</p>
+
+<div class="highlight highlight-sh"><pre>id3 -2 -q <span class="pl-s1"><span class="pl-pds">"</span>%| %a - %|Untitled|t || %t || %1 |?<span class="pl-pds">"</span></span> <span class="pl-s1"><span class="pl-pds">"</span>*.mp3<span class="pl-pds">"</span></span></pre></div>
+
+<p>Generate a playlist, using the best possible text</p>
+
+<div class="highlight highlight-sh"><pre>id3 -2 -c <span class="pl-s1"><span class="pl-pds">"</span>Was: %_f<span class="pl-pds">"</span></span> -f <span class="pl-s1"><span class="pl-pds">"</span>%a - %|Untitled (%#x)|t.mp3<span class="pl-pds">"</span></span> <span class="pl-s1"><span class="pl-pds">"</span>*.mp3<span class="pl-pds">"</span></span></pre></div>
+
+<p>Advanced rename. Saves previous filename in the comment field, and renames files without proper tags to;</p>
+
+<blockquote>
+<p>Unknown - Untitled (01).mp3<br>
+Unknown - Untitled (02).mp3<br>
+... etc</p>
+</blockquote>
+
+<p>Fore more information, consult the <a href="https://github.com/squell/id3/blob/master/README">documentation</a>.</p>
+
+<h3>
+<a id="limitations" class="anchor" href="#limitations" aria-hidden="true"><span class="octicon octicon-link"></span></a>Limitations</h3>
+
+<p>ID3v2.4 tags are not supported; because ID3v2.4 is a horrible 'standard'. Also, do not use this program to tag Ogg Vorbis or FLAC files.</p>
+
+<h3>
+<a id="getting-it" class="anchor" href="#getting-it" aria-hidden="true"><span class="octicon octicon-link"></span></a>Getting it</h3>
+
+<p>You can find release tarballs, and binaries for Windows <a href="https://github.com/squell/id3/releases/latest/">here</a>.</p>
+
+<p>id3 mass tagger may also be a available on your system by default:</p>
+
+<p><strong>Arch Linux</strong>: <code>pacman -S id3</code></p>
+
+<p><strong>FreeBSD</strong>: <code>pkg install id3mtag</code></p>
+
+<h3>
+<a id="copyright" class="anchor" href="#copyright" aria-hidden="true"><span class="octicon octicon-link"></span></a>Copyright</h3>
+
+<p>© Marc Schoolderman 2003-2006. All rights reserved.</p>
+
+<p>This program may be used freely, and you are welcome to redistribute it under certain conditions.</p>
+
+<p>For the actual licensing conditions you should read the file <a href="https://raw.githubusercontent.com/squell/id3/master/COPYING">COPYING</a>, which should be accompanying the files you receive.</p>
+
+<p>These files are distributed in the hope that they will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+accompanying file <a href="https://raw.githubusercontent.com/squell/id3/master/COPYING">COPYING</a> for more details.</p>
+      </section>
+    </div>
+
+    <!-- FOOTER  -->
+    <div id="footer_wrap" class="outer">
+      <footer class="inner">
+        <p class="copyright">id3 maintained by <a href="https://github.com/squell">squell</a></p>
+        <p>Published with <a href="http://pages.github.com">GitHub Pages</a></p>
+      </footer>
+    </div>
+
+    
+
+  </body>
+</html>
