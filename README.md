@@ -19,6 +19,7 @@ Sets genre to "Psychedelic Rock" all mp3's
 id3 -2 -1 -u "*.mp3"
 ```
 Copy ID3v2 tag to ID3v1 tag in all files.
+```sh
 id3 -a "TAFKAT" -n "%1" -t "%+2" "*. *.mp3"
 ```
 Update tag fields similar to this;
