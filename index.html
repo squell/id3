@@ -49,12 +49,13 @@
 
 <div class="highlight highlight-sh"><pre>id3 -g <span class="pl-s1"><span class="pl-pds">"</span>psych rock<span class="pl-pds">"</span></span> <span class="pl-k">*</span>.mp3</pre></div>
 
-<p>Sets genre to "Psychedelic Rock" all mp3's
-id3 -2 -1 -u "*.mp3"</p>
+<p>Sets genre to "Psychedelic Rock" all mp3's</p>
 
-<pre><code>Copy ID3v2 tag to ID3v1 tag in all files.
-id3 -a "TAFKAT" -n "%1" -t "%+2" "*. *.mp3"
-</code></pre>
+<div class="highlight highlight-sh"><pre>id3 -2 -1 -u <span class="pl-s1"><span class="pl-pds">"</span>*.mp3<span class="pl-pds">"</span></span></pre></div>
+
+<p>Copy ID3v2 tag to ID3v1 tag in all files.</p>
+
+<div class="highlight highlight-sh"><pre>id3 -a <span class="pl-s1"><span class="pl-pds">"</span>TAFKAT<span class="pl-pds">"</span></span> -n <span class="pl-s1"><span class="pl-pds">"</span>%1<span class="pl-pds">"</span></span> -t <span class="pl-s1"><span class="pl-pds">"</span>%+2<span class="pl-pds">"</span></span> <span class="pl-s1"><span class="pl-pds">"</span>*. *.mp3<span class="pl-pds">"</span></span></pre></div>
 
 <p>Update tag fields similar to this;</p>
 
