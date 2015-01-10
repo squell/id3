@@ -37,8 +37,8 @@ INSTALL_STRIP	= $(INSTALL_PROGRAM) -s
 .PHONY: build all final clean depend help
 .PHONY: install install-strip install-full uninstall
 .PHONY: installdirs installman installdoc
-.PHONY: dist dist-zip dist-clean dist-check diff
-.PHONY: wget-orig fetch-orig curl-orig
+.PHONY: dist dist-zip dist-clean dist-check
+.PHONY: git-repo
 
 .SUFFIXES: .c .cpp .o
 
@@ -147,29 +147,12 @@ dist-clean: $(DISTFILES)
 	mv .tmp/* `pwd`
 	-rm -rf .tmp
 
-orig = `pwd`.tar.gz
-
-diff:
-	rm -rf .tmp; mkdir .tmp && ln -s `pwd` .tmp/{current}
-	ln -s `pwd`-$(D_VER).diff.gz .tmp/.diff
-	$(TAR) Cxfz .tmp $(orig)
-	cd .tmp; diff -x '.*' -durN * | gzip -9 > .diff
-	-rm -rf .tmp
-
-URI	 = http://home.wanadoo.nl/squell
-HTMLPROC = sed -n '1,/tar[.]gz/s:^.*"\([^"]*tar[.]gz\)".*$$:\1:p'
-
-wget-orig:
-	which wget
-	wget -nv $(URI)/`wget -nv -O - $(URI)/id3.html | $(HTMLPROC)`
-
-fetch-orig:
-	which fetch
-	fetch $(URI)/`fetch -o - $(URI)/id3.html | $(HTMLPROC)`
-
-curl-orig:
-	which curl
-	curl -# -O $(URI)/`curl -# $(URI)/id3.html | $(HTMLPROC)`
+git-repo: .git
+.git:	# transform into a git working tree
+	which git
+	git init
+	git remote add origin -t master -f git@github.com:squell/id3.git
+	git reset FETCH_HEAD
 
 AWKCMD = "BEGIN { pretty = \"figlet -fmini | sed '\$$s/ /~/g'\" } \
 	/ID3\(1\)/ { next } \
