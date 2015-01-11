@@ -1,0 +1,10 @@
+*.o
+*.s
+*.swp
+a.out
+id3
+id3l
+debian/files
+debian/substvars
+debian/tmp/*
+debian/*~
