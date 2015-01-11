@@ -1,4 +1,4 @@
-id3mtag (0.78) unstable; urgency=low
+id3mtag (0.78-1) unstable; urgency=low
 
   * Added support for Lyrics3 v2 tags
   * Added -E to only process existing tags
@@ -7,7 +7,7 @@ id3mtag (0.78) unstable; urgency=low
 
  -- Marc R. Schoolderman <squell@alumina.nl>  Tue, 21 Mar 2006 09:25:33 +0100
 
-id3mtag (0.77) unstable; urgency=low
+id3mtag (0.77-1) unstable; urgency=low
 
   * Added support for ID3v2.2 tags and Unicode inside ID3v2 tags.
   * Added -M to preserve file timestamps
@@ -16,7 +16,7 @@ id3mtag (0.77) unstable; urgency=low
 
  -- Marc R. Schoolderman <squell@alumina.nl>  Tue, 31 Jan 2006 18:16:58 +0100
 
-id3mtag (0.76) unstable; urgency=low
+id3mtag (0.76-1) unstable; urgency=low
 
   * Added -m switch for shorthand tagging (-m "%a.mp3" == -a %1 "*.mp3")
   * Added -R switch for GNU find-like recursive searching
@@ -24,7 +24,7 @@ id3mtag (0.76) unstable; urgency=low
 
  -- Marc R. Schoolderman <squell@alumina.nl>  Wed, 20 Jul 2005 22:44:40 +0200
 
-id3mtag (0.75) unstable; urgency=low
+id3mtag (0.75-1) unstable; urgency=low
 
   * First Debianization; see `CHANGES' for further history.
 
