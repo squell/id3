@@ -69,7 +69,7 @@ ID3v2::array ID3v2::listing() const
     array vec;
     if(tag) {
         ID3VER version = ID3_start(f, tag);
-        char   vstr[2] = { version+'0' };
+        char   vstr[2] = { char(version+'0'), };
         vec.push_back( array::value_type("ID3v2", vstr) );
         while(ID3_frame(f)) {
             vec.push_back( array::value_type(f->ID, unbinarize(f)) );
