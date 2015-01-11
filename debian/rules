@@ -2,15 +2,23 @@
 
 .PHONY: build binary binary-arch binary-indep clean get-orig-source
 
-package := $(shell sed -n 's/Package: \(.*\)/\1/p' debian/control)
+package  := $(shell sed -n 's/Package: \(.*\)/\1/p' debian/control)
 
-build:
+CFLAGS   := $(shell dpkg-buildflags --get CFLAGS)
+CXXFLAGS := $(shell dpkg-buildflags --get CXXFLAGS)
+LDFLAGS  := $(shell dpkg-buildflags --get LDFLAGS)
+
+build: build-arch
+
+build-arch:
 	$(checkdir)
-	make
+	make CFLAGS="$(CFLAGS)" CXXFLAGS="$(CXXFLAGS) -fno-rtti" LDFLAGS="$(LDFLAGS)"
+
+build-indep:
 
 clean:
 	$(checkdir)
-	-make -i clean
+	make clean
 	-rm -rf debian/tmp debian/*~ debian/files* debian/substvars
 
 install: checkroot build
