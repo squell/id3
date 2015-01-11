@@ -129,22 +129,13 @@ E.g: "make install prefix=$HOME" to install in $HOME/bin instead. See inside
 | useful links
 -------------------------------------------------------------
 
-(DOS) DJGPP v2:
-  http://www.delorie.com/djgpp/
+(Win32) Borland C++ 5.5 (vintage):
+  http://edn.embarcadero.com/article/20633
 
-(Win32) Borland C++ 5.5:
-  ftp://ftpd.borland.com/download/bcppbuilder/freecommandLinetools.exe
-
-(Win32) MinGW 2.0:
+(Win32) Minimalist GNU for Windows:
   http://www.mingw.org/
 
-(Linux, Win32) Intel C++ 8.0:         (30 day evaluation/non-commercial only)
-  http://www.intel.com/software/products/compilers/
-
-(Win32 -> DOS extender)               (Use Win32 compilers to create DOS apps)
-  http://michael.tippach.bei.t-online.de/wdosx/
-
 ---------------------------------------------------------------
-| contact: (pri.) squell@goth.net, (alt.) squell@alumina.nl
+| contact: squell@alumina.nl
 -------------------------------------------------------------
 
