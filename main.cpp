@@ -160,7 +160,7 @@ private:
         if(verbose::show) {
             static timer initialize;
             if(counter==1 && name-f.path)
-                 fprintf(stderr, "%.*s\n", name-f.path, f.path);
+                 fprintf(stderr, "%.*s\n", int(name-f.path), f.path);
             fprintf(stderr, "\t%s\n", name);
         }
         if(! mass_tag::file(name, f) )
