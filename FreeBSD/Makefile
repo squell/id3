@@ -4,7 +4,7 @@
 PORTNAME=	id3mtag
 PORTVERSION=	0.78
 CATEGORIES=	audio
-MASTER_SITES=	http://home.wanadoo.nl/squell/files/
+MASTER_SITES=	http://github.com/squell/id3/releases/download/${PORTVERSION}/
 DISTNAME=	id3-${PORTVERSION}
 
 MAINTAINER=	squell@alumina.nl
