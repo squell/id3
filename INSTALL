@@ -12,7 +12,6 @@ the contents of the source distribution:
  makefile       - generic (gnu) makefile
  makefile.dj    - makefile for djgpp2
  makefile.bcc   - makefile for borland c++
- specfile       - RPM specfile
 
  main.cpp       - main program file                             (C++)
  pattern.*      - + automatic variables                         (C++)
@@ -41,6 +40,10 @@ the contents of the source distribution:
 
  id3.man        - raw man page                                  (troff -man)
 
+ debian/	- Debian files for creating a .deb package
+ rpm/		- RPM specfile for creating a .rpm package
+ FreeBSD/	- FreeBSD port files
+
 ---------------------------------------------------------------
 | (c) squell 2003-2006 - copyright notice
 -------------------------------------------------------------
@@ -57,7 +60,32 @@ For the actual licensing conditions you should read the file 'COPYING',
 which should be included in this source distribution.
 
 ---------------------------------------------------------------
-| building it on your system
+| building and installing using a package manager
+-------------------------------------------------------------
+
+Files are included for building packages for .deb and .rpm-based Linux 
+distributions, and FreeBSD. The package will identify itself as `id3mtag'.
+
+* .deb (Debian/Ubuntu)
+
+From the source tree, run:
+> dpkg-buildpackage -b
+
+This should create a .deb file in the parent directory.
+
+* .rpm (Fedora/CentOS)
+
+The simplest way is to simply run:
+> rpmbuild -ta id3-0.78.tar.gz
+
+Then look in your RPM build area ($HOME/rpmbuild)
+
+* FreeBSD
+
+Install audio/id3mtag from the ports collection.
+
+---------------------------------------------------------------
+| building and installing manually
 -------------------------------------------------------------
 
 Successfully compiled with (non-exhaustive list):
