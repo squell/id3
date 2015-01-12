@@ -16,6 +16,10 @@
 #ifndef __ZF_ID3V1_H
 #define __ZF_ID3V1_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 extern const char         *const ID3v1_genre[];
 extern       unsigned char const ID3v1_numgenres;
 
@@ -33,5 +37,7 @@ struct ID3v1 {                                   /* ID3 v1.1 tag structure */
 
 typedef int ID3v1_is_128bytes_check [sizeof(struct ID3v1)==128 ? 1 : -1];
 
+#ifdef __cplusplus
+}
 #endif
-
+#endif

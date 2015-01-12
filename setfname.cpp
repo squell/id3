@@ -3,7 +3,11 @@
 #include <cctype>
 #include <ctime>                                    // borland needs this
 #include <sys/stat.h>
-#include <utime.h>
+#if defined(_MSC_VER)
+#    include <sys/utime.h>
+#else
+#    include <utime.h>
+#endif
 #if defined(__WIN32__)
 #    include <io.h>
 #    define F_OK 0
