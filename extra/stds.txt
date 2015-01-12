@@ -1,0 +1,10 @@
+POSIX.1-1988 standard
+    _POSIX_VERSION==198808L
+POSIX.1-1990 standard
+    _POSIX_VERSION==199009L
+ISO POSIX-1:1996 standard
+    _POSIX_VERSION==199506L
+Single UNIX Specification, Version 1
+    _XOPEN_UNIX and _XOPEN_VERSION==4
+Single UNIX Specification, Version 2
+    _XOPEN_UNIX and _XOPEN_VERSION==500
