@@ -44,6 +44,7 @@ bool find::glob(const char* filemask, bool wildslash)
     t.path[0] = t.mask[sizeof t.mask-1] = '\0'; // duct tape
     t.invoker = this;
     t.recurse = wildslash;
+#if defined(__WIN32__)
     if(strncmp(t.mask, "//", 2) == 0) {         // unc path
        char* shmask = strchr(t.mask+2, '/');
        if(shmask && (shmask=strchr(++shmask, '/'))) {
@@ -53,6 +54,7 @@ bool find::glob(const char* filemask, bool wildslash)
        }
        return false;
     } else
+#endif
        return t.nested(auto_dir("./"), t.path, t.mask);
 }
 
