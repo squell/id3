@@ -16,7 +16,7 @@ typedef int concreteness_check[ sizeof query() ];
 
 bool query::vmodify(const char* fname, const function& edit) const
 {
-    return log( edit(fmt).c_str() ), true;
+    return log( edit(fmt).str().c_str() ), true;
 }
 
 void query::log(const char* msg) const

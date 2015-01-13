@@ -138,7 +138,7 @@ template<size_t N>
 static inline bool setfield(char (*dest)[N], const charset::conv<>* src, size_t maxlen = N)
 {
     if(src)
-        return strncpy(*dest, src->template c_str<charset::latin1>(), maxlen);
+        return strncpy(*dest, src->template str<charset::latin1>().c_str(), maxlen);
     else
         return false;
 }
@@ -187,7 +187,7 @@ bool ID3::vmodify(const char* fn, const function& edit) const
 
         if(field = update[track])
             if(function::result rs = edit(*field)) {
-                ++n, tag.track = atoi( rs.c_str<latin1>() );
+                ++n, tag.track = atoi( rs.str<latin1>().c_str() );
                 tag.zero = '\0';
             }
 

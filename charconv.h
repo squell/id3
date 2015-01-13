@@ -50,6 +50,7 @@ namespace charset {
         typedef std::wstring data;
         static const int cellsize = sizeof(wchar_t) / sizeof(data::value_type);
 
+/*
         template<class T> struct proxy {                // value wrapper
             typedef typename conv<T>::char_type char_t;
             operator const char_t*() const { return str.c_str(); }
@@ -57,6 +58,7 @@ namespace charset {
         private:
             const std::basic_string<char_t> str;
         };
+*/
 
         data internal;
         explicit conv(const data& s) : internal(s) { }
@@ -84,8 +86,10 @@ namespace charset {
         template<class E>
           std::basic_string<typename conv<E>::char_type>
                    str()   const    { return conv<E>(*this); }
+/*
         template<class E>
           proxy<E> c_str() const    { return str<E>(); }
+*/
 
       // outside operations
         friend conv<> operator+ (const conv<>& lhs, const conv<>& rhs) { return conv<>(lhs.internal + rhs.internal); }
@@ -118,13 +122,17 @@ namespace charset {
         { return encode(internal.data(), internal.size()/cellsize); }
 
         std::string const str() const { return *this; }
+/*
         proxy<char> c_str()     const { return str(); }
+*/
 
         template<class E>     // some compilers dont like using conv<>::str?
           std::basic_string<typename conv<E>::char_type>
                    str()   const    { return conv<>::str<E>(); }
+/*
         template<class E>
           proxy<E> c_str() const    { return conv<>::c_str<E>(); }
+*/
 
         typedef char char_type;
     public:           // too many compilers crap on template friend templates
@@ -152,8 +160,10 @@ namespace charset {
         template<class E>
           std::basic_string<typename conv<E>::char_type>
                    str()   const    { return conv<>::str<E>(); }
+/*
         template<class E>
           proxy<E> c_str() const    { return conv<>::c_str<E>(); }
+*/
 
         typedef wchar_t char_type;
     };

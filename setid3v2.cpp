@@ -115,7 +115,7 @@ namespace {
 static string binarize(const string field, charset::conv<charset::latin1> content)
 {
     if(field == "TCON" || field == "TCO") {                // genre by number
-        unsigned int x = atoi(content.c_str())-1;          // is portable
+        unsigned int x = atoi(content.str().c_str())-1;          // is portable
         if(x < ID3v1_numgenres) content = ID3v1_genre[x];
     }
 
@@ -126,7 +126,7 @@ static string binarize(const string field, charset::conv<charset::latin1> conten
     if(!ID3v2::is_valid(field))
         return data;
     if(ID3v2::is_counter(field)) {
-        unsigned long t = strtoul(content.c_str(), 0, 0);
+        unsigned long t = strtoul(content.str().c_str(), 0, 0);
         data.push_back(t >> 24 & 0xFF);
         data.push_back(t >> 16 & 0xFF);
         data.push_back(t >>  8 & 0xFF);
