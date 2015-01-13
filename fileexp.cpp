@@ -89,10 +89,9 @@ char* filefind::pathcpy(char* dest, const char* src)
     return dest-1;                              // return *resume*-ptr
 }
 
-struct slash {
-    slash(char* p) : ptr(p) { if(ptr) *ptr++  = '\0'; }
-   ~slash()                 { if(ptr) ptr[-1] = '/'; }
-    operator char*() const  { return ptr;    }
+struct slash_split {
+    slash_split(char* p) : ptr(p) { *ptr = '\0'; }
+   ~slash_split()                 { *ptr = '/'; }
 private:
     char* ptr;
 };
@@ -109,32 +108,32 @@ bool filefind::nested(auto_dir dir, char* pathpos, char* filespec)
 
     bool w = false;                             // idle check
 
-    while( slash fndirsep = strchr(filespec, '/') ) {
+    while( char* fndirsep = strchr(filespec, '/') ) {
+	slash_split lock(fndirsep++);
         wpos = pathcpy(pathcpy(pathpos, filespec), "/");
         if(auto_dir newdir = auto_dir(path)) {
             dir      = newdir;                  // if allready a valid
             pathpos  = wpos;                    //   directory, use as is
-            filespec = fndirsep;
-            continue;                           // (tail recursion)
-        }
-        if(! strpbrk(filespec, "*?") )          // shortcut mismatchers
-            return false;
-
-        if(recurse) break;
-
-        while( dirent* fn = dir.read() ) {      // search cur open dir
-            direxp match(filespec, fn->d_name);
-            if(match) {
-                wpos = pathcpy(pathcpy(pathpos, fn->d_name), "/");
-                if(auto_dir newdir = auto_dir(path)) {
-                    for(varexp::iterator i = match.begin(); i != match.end(); ++i)
-                        var.push_back(*i);
-                    w |= nested(newdir, wpos, fndirsep);
-                    var.resize(prevlen);
-                }
-            }
-        }
-        return w;
+            filespec = fndirsep;                // (tail recursion)
+        } else if(! strpbrk(filespec, "*?") ) {
+	    return false;                       // shortcut mismatchers
+	} else if(recurse) {
+	    break;
+	} else {
+	    while( dirent* fn = dir.read() ) {  // search cur open dir
+		direxp match(filespec, fn->d_name);
+		if(match) {
+		    wpos = pathcpy(pathcpy(pathpos, fn->d_name), "/");
+		    if(auto_dir newdir = auto_dir(path)) {
+			for(varexp::iterator i = match.begin(); i != match.end(); ++i)
+			    var.push_back(*i);
+			w |= nested(newdir, wpos, fndirsep);
+			var.resize(prevlen);
+		    }
+		}
+	    }
+	    return w;
+	}
     }
 
     if(! invoker->dir(*this) )
