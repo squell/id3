@@ -1,4 +1,4 @@
-#if defined(__WIN32__)
+#if defined(_WIN32)
 #  include <windows.h>
 #  include <cstdio>
 #endif
@@ -6,7 +6,7 @@
 #include <cstring>
 #include <clocale>
 #include <climits>
-#if defined(__STDC_ISO_10646__) || defined(__WIN32__)
+#if defined(__STDC_ISO_10646__) || defined(_WIN32)
 #  include <wchar.h>
 #  define fallback(call) (0)
 #elif defined(__DJGPP__)
@@ -87,7 +87,7 @@ namespace charset {
         {
             if(loc && ok_locale(0))
                 return 1;
-#  if defined(__WIN32__)
+#  if defined(_WIN32)
             char cp[12];
             sprintf(cp, ".%d", GetACP() & 0xFFF);
             loc = cp;

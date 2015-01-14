@@ -48,7 +48,7 @@
 #include <climits>
 #include <vector>
 #include <string>
-#if defined(__WIN32__) && !defined(PATH_MAX)
+#if defined(_WIN32) && !defined(PATH_MAX)
 #  include <windows.h>
 #  define PATH_MAX MAX_PATH
 #endif

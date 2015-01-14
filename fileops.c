@@ -8,7 +8,7 @@
 #else
 #    include <utime.h>
 #endif
-#if !defined(__WIN32__)
+#if !defined(_WIN32)
 #    include <unistd.h>
 #else
 #    include <io.h>
@@ -62,7 +62,7 @@ size_t fpadd(char c, size_t len, FILE *dest)
 FILE *ftemp(char *templ, const char *mode)
 {
     FILE *f;
-#if defined(__DJGPP__) || defined(__WIN32__)
+#if defined(__DJGPP__) || defined(_WIN32)
     FILE *fc;
     if(mktemp(templ) && (fc = fopen(templ, "wb+"))) {
         if(f = freopen(templ, mode, fc)) return f;

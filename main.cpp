@@ -124,7 +124,7 @@ static long argtol(const char* arg)            // convert argument to long
 
 inline static char* argpath(char* arg)
 {
-#if defined(__DJGPP__) || defined(__WIN32__)
+#if defined(__DJGPP__) || defined(_WIN32)
     for(char* p = arg; *p; ++p)                // convert backslashes
         if(*p == '\\') *p = '/';
 #endif
@@ -472,7 +472,7 @@ int main(int argc, char *argv[])
 {
     if(char* prog = argv[0]) {                // set up program name
         if(char* p = strrchr(argpath(prog), '/')) prog = p+1;
-#if defined(__DJGPP__) || defined(__WIN32__)
+#if defined(__DJGPP__) || defined(_WIN32)
         char* end = strchr(prog, '\0');       // make "unixy" in appearance
         for(char* p = prog; p != end; ++p) *p = tolower(*p);
         if(end-prog > 4 && strcmp(end-4, ".exe") == 0) end[-4] = '\0';

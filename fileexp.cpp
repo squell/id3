@@ -2,7 +2,7 @@
 #include <algorithm>
 #include "varexp.h"
 #include "auto_dir.h"
-#if defined(__WIN32__)
+#if defined(_WIN32)
 #    include <io.h>
 #    define F_OK 0
 #else
@@ -19,7 +19,7 @@
 
 */
 
-#if defined(__DJGPP__) || defined(__WIN32__)
+#if defined(__DJGPP__) || defined(_WIN32)
 #    define readlink(path, buf, n) (-1)         // readlink dummy
 #endif
 
@@ -44,7 +44,7 @@ bool find::glob(const char* filemask, bool wildslash)
     t.path[0] = t.mask[sizeof t.mask-1] = '\0'; // duct tape
     t.invoker = this;
     t.recurse = wildslash;
-#if defined(__WIN32__)
+#if defined(_WIN32)
     if(strncmp(t.mask, "//", 2) == 0) {         // unc path
        char* shmask = strchr(t.mask+2, '/');
        if(shmask && (shmask=strchr(++shmask, '/'))) {
@@ -66,7 +66,7 @@ struct filefind::direxp : varexp {              // special dotfile handling
 
     direxp(const char* mask, const char* test, bool force = false)
     {
-#if defined(__DJGPP__) || defined(__WIN32__)
+#if defined(__DJGPP__) || defined(_WIN32)
         if(force || !is_special(test))
             result = match(mask, test);
         else

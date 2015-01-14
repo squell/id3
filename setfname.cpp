@@ -8,7 +8,7 @@
 #else
 #    include <utime.h>
 #endif
-#if defined(__WIN32__)
+#if defined(_WIN32)
 #    include <io.h>
 #    define F_OK 0
 #else

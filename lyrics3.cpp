@@ -14,7 +14,7 @@
 
 */
 
-#if defined(__WIN32__)
+#if defined(_WIN32)
 #    include <io.h>
 #    define ftrunc(f)  chsize(fileno(f), ftell(f))
 #else
