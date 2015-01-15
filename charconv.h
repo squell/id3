@@ -118,7 +118,7 @@ namespace charset {
         { return encode(internal.data(), internal.size()/cellsize); }
 
         std::string const str() const { return *this; }
-        proxy<char> c_str()     const { return str(); }
+        inline proxy<char> c_str() const;  // conv is still incomplete...
 
         template<class E>     // some compilers dont like using conv<>::str?
           std::basic_string<typename conv<E>::char_type>
@@ -131,6 +131,9 @@ namespace charset {
         static conv<>::data decode(const char*, std::size_t);
         static std::string  encode(const void*, std::size_t);
     };
+
+    template<class Encoding>
+      conv<>::proxy<char> conv<Encoding>::c_str() const { return str(); }
 
   /*
       Direct wide char interface
