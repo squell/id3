@@ -4,7 +4,7 @@ SHELL	 = /bin/sh
 
 CC	 = gcc
 CXX	 = g++
-CFLAGS	 = -Wformat -g -O2
+CFLAGS	 = -Wformat -g -Os
 CXXFLAGS = $(CFLAGS) -fno-rtti
 LDFLAGS  =
 

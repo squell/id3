@@ -1,8 +1,8 @@
-## id3 makefile for Borland C++ (tested with 5.5) ##########################
+## id3 makefile for Borland/Embarcadero C++ (tested with 5.5) ##############
 
 CC     = bcc32 -q -D_POSIX_
 !ifndef CFLAGS
-CFLAGS = -w- -d -k- -O2
+CFLAGS = -w- -d -k- -O1
 !endif
 
 .autodepend
@@ -28,9 +28,7 @@ final: id3.exe id3l.exe
 	upx --best $**				## requires upx installed ##
 
 clean:
-	del *.tds
-	del *.obj
-	del *.exe
+	del *.tds *.obj *.exe
 
 ############################################################################
 
