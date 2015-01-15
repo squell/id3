@@ -1,39 +1,33 @@
-Summary: mass tagging utility for audio files
-URL: http://home.wanadoo.nl/squell/id3.html
+Summary: Command line mass tagging utility for audio files
 Name: id3mtag
-Version: 0.78
-Release: 1
-License: Two-clause BSD
-Group: Applications/Multimedia
-Packager: squell <squell@alumina.nl>
-Source: http://home.wanadoo.nl/squell/files/id3-%{version}.tar.gz
-Prefix: %{_usr}
-BuildRoot: %{_tmppath}/%{name}
+Version: 0.78.2
+Release: 1%{?dist}
+License: BSD
+Source: http://github.com/squell/id3/releases/download/%{version}/id3-%{version}.tar.gz
+URL: https://squell.github.io/id3
 
 %description
-id3 mass tagger is a tool for manipulating id3 and id3v2 tags in multiple
-files. It can generate tag fields from the filename and other variables,
-and/or rename files, using an intuitive syntax.
+id3 mass tagger is a tool for manipulating id3, id3v2 and lyrics3 tags in
+multiple files. It can generate tag fields from the filename and other 
+variables, and/or rename files, using an intuitive syntax.
 
 %prep
-%setup -n id3-%{version}
+%setup -q -n id3-%{version}
+
 %build
-%ifarch %{ix86}
-make CFLAGS='-O2 -m32'
-%else
-make
-%endif
+make %{?_smp_mflags} CFLAGS="%{optflags}"
+strip -s id3
+
+# makeinstall ("prefix=") is correct here, not make_install ("DESTDIR=")
 %install
-make prefix=%{buildroot}%{_prefix} \
-     bindir=%{buildroot}%{_bindir} \
-     mandir=%{buildroot}%{_mandir} \
-     docdir=%{buildroot}%{_docdir}/id3mtag install-full
-%clean
-rm -rf %{buildroot}
+%makeinstall
 
 %files
-%defattr(-,root,root)
+%defattr(-,root,root,-)
 %{_bindir}/id3
 %{_mandir}/man1/*
-%doc %{_docdir}/%{name}
+%doc README CHANGES COPYING
 
+%changelog
+* Mon Jan 12 2015 Marc Schoolderman <squell@alumina.nl> 0.78-1
+- created new specfile
