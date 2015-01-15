@@ -107,6 +107,8 @@ namespace charset {
   */
 
     template<class Encoding> class conv : public conv<> {
+	// prevent the compiler from instantiating proxy<char> too early
+	struct _proxy { typedef proxy<char> type; };
     public:
         conv(const std::string& s)         : conv<>(decode(s.data(), s.size())) { }
         conv(const char* p, std::size_t l) : conv<>(decode(p,l)) { }
@@ -118,7 +120,7 @@ namespace charset {
         { return encode(internal.data(), internal.size()/cellsize); }
 
         std::string const str() const { return *this; }
-        proxy<char> c_str()     const { return str(); }
+        typename _proxy::type c_str() const { return str(); }
 
         template<class E>     // some compilers dont like using conv<>::str?
           std::basic_string<typename conv<E>::char_type>
