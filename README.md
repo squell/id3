@@ -9,24 +9,19 @@ id3 -a "Stallman" -t "Free Software Song" fs_song.mp3"
 ```
 Add a simple tag to a file.
 ```sh
-id3 -d *.mp3
-```
-Removes all ID3v1 tags from all mp3's
-```sh
 id3 -g "psych rock" *.mp3
 ```
-Sets genre to "Psychedelic Rock" all mp3's
+Sets genre to "Psychedelic Rock" in all mp3's
 ```sh
-id3 -2 -1 -u "*.mp3"
+id3 -2 -a "TAFKAT" -n "%1" -t "%+2" "*. *.mp3"
 ```
-Copy ID3v2 tag to ID3v1 tag in all files.
-```sh
-id3 -a "TAFKAT" -n "%1" -t "%+2" "*. *.mp3"
-```
-Update tag fields similar to this;
+Update ID3v2 tag fields similar to this;
 >id3 -a "TAFKAT" -n "01" -t "My Song"  "01. my_song.mp3"<br/>
 >id3 -a "TAFKAT" -n "02" -t "Untitled" "02. untitled.mp3"
-
+```sh
+id3 -2 -m "%n. %+t.mp3"
+```
+Shorthand notation for the above, using the -m option.
 ```sh
 id3 -2 -f "%a - %t.mp3" blaet.mp3
 ```
@@ -36,9 +31,17 @@ id3 -g "alt rock" -a "The Author" -l %1 -n %2 -t %3 "Author - */(*) *.mp3"
 ```
 Process multiple directories at once.
 ```sh
-id3 -g "alt rock" -a "The Author" -m "Author - %l/(%n) %t.mp3"
+id3 -ga "alt rock" "The Author" -m "Author - %l/(%n) %t.mp3"
 ```
 Shorthand for the previous example.
+```sh
+id3 -1 -3 -d *.mp3
+```
+Removes all ID3v1 and Lyrics3 tags from all mp3's
+```sh
+id3 -2 -1 -u "*.mp3"
+```
+Copy ID3v2 tag to ID3v1 tag in all files.
 ```sh
 id3 -a %t -t %a "*.mp3"
 ```
