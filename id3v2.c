@@ -205,8 +205,8 @@ void *ID3_readf(const char *fname, size_t *tagsize)
         refuse(abort_mem, "tag larger than reported size (%ld bytes)", pad);
 
     while(size < pad) {
-        if( buf[size++] != 0 )                        /* padding not zero */
-	    refuse(abort_mem, "padding contains non-null data (%02x)", buf[size-1]);
+        if( buf[size++] == 0xff )                     /* padding not zero */
+	    refuse(abort_mem, "padding contains framesync (%02x)", buf[size-1]);
     }
 
     fclose(f);
