@@ -114,14 +114,23 @@ static long getsize(struct raw_hdr *h)
          | (h->size[3] & 0x7F);
 }
 
-static long calcsize(uchar *buf, long max)
+static int checkid(const char *ID, size_t n)    /* check ID for A..Z0..9 */
+{
+    while(n--) {
+        if( !isupper(*ID) && !isdigit(*ID) ) return 0;
+        ++ID;
+    }
+    return 1;
+}
+
+static long calcsize(uchar *buf, ulong max)
 {
     union raw_frm *frame;
-    long size = 0;
-    long step;
+    ulong size = 0;
+    ulong step;
     int version = buf[-1];
 
-    while(size < max && *buf) {            /* terminates if used properly */
+    while(size < max && checkid(buf,1+version)) {
         frame = (union raw_frm*)buf;
         switch(version) {
             case  2: step = sizeof(frame->v2) + (ul4(frame->v2.size) >> 8); break;
@@ -132,15 +141,6 @@ static long calcsize(uchar *buf, long max)
         buf  += step;
     }
     return size<=max? size : -1;
-}
-
-static int checkid(const char *ID, size_t n)    /* check ID for A..Z0..9 */
-{
-    while(n--) {
-        if( !isupper(*ID) && !isdigit(*ID) ) return 0;
-        ++ID;
-    }
-    return 1;
 }
 
 /* ==================================================== */
@@ -179,6 +179,8 @@ void *ID3_readf(const char *fname, size_t *tagsize)
 
     if( rh.flags & XTND ) {                 /* get rid of extended header */
         ulong xsiz = ul4(buf) + 4;      /* note: compression bit in v2.2, */
+	if(xsiz >= size)
+	    goto abort_mem;
         size -= xsiz;                                   /* but try anyway */
         memmove(&buf[0], &buf[xsiz], size);
     }
