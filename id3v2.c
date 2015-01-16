@@ -18,6 +18,16 @@
 
 */
 
+/* some programs write evil tags. it's probably nice to see failure modes */
+#ifdef ID3v2_DEBUG
+#   define refuse(label, msg, info) { \
+	fprintf(stderr, "%s: id3v2 "msg"\n", fname, info); \
+	goto label; \
+    }
+#else
+#   define refuse(label, msg, info) goto label;
+#endif
+
 typedef unsigned long ulong;
 typedef unsigned char uchar;
 
@@ -154,25 +164,27 @@ void *ID3_readf(const char *fname, size_t *tagsize)
     FILE *f = fopen(fname, "rb");
 
     if( !f )
-        goto abort;
+	refuse(abort, "could not open", 0);
 
     if( fread(&rh, sizeof(struct raw_hdr), 1, f) != 1 )
-        goto abort_file;                                     /* IO error */
+	refuse(abort_file, "file too small", 0);             /* IO error */
 
-    if( memcmp(rh.ID, "ID3", 3) != 0 || (rh.ver|1) != 3 )
-        goto abort_file;                          /* not an ID3v2/2.3 tag */
+    if( memcmp(rh.ID, "ID3", 3) != 0 )               /* not an ID3v2 tag */
+	refuse(abort_file, "contains no ID3 identifier", 0); 
+    if( (rh.ver|1) != 3 )			      /* unknown version */
+	refuse(abort_file, "unsupported ID3v2.%d", rh.ver);
 
     size = getsize(&rh);
 
     buf = malloc(size+1+4);                      /* over-alloc 4+1 chars */
     if(!buf)                                         /* ohhhhhhh.. crap. */
-        goto abort_file;
+	refuse(abort_file, "could not allocate tag (%ld bytes)", size);
 
     (++buf)[-1] = rh.ver;                        /* prepend version byte */
     buf[size] = 0;       /* make sure we have a pseudoframe to terminate */
 
     if( fread(buf,size,1,f) != 1 )
-        goto abort_mem;                        /* empty tag, or IO error */
+	refuse(abort_mem, "could not read tag from file (%ld bytes)", size);
 
     if( rh.flags & UNSYNC )
         size = unsync_dec(buf, size) - buf;
@@ -180,7 +192,7 @@ void *ID3_readf(const char *fname, size_t *tagsize)
     if( rh.flags & XTND ) {                 /* get rid of extended header */
         ulong xsiz = ul4(buf) + 4;      /* note: compression bit in v2.2, */
 	if(xsiz >= size)
-	    goto abort_mem;
+	    refuse(abort_mem, "extended header incorrect (%ld bytes)", xsiz);
         size -= xsiz;                                   /* but try anyway */
         memmove(&buf[0], &buf[xsiz], size);
     }
@@ -190,11 +202,11 @@ void *ID3_readf(const char *fname, size_t *tagsize)
     if(tagsize) *tagsize = size;
 
     if(size < 0)                                 /* semantic error in tag */
-        goto abort_mem;
+        refuse(abort_mem, "tag larger than reported size (%ld bytes)", pad);
 
     while(size < pad) {
         if( buf[size++] != 0 )                        /* padding not zero */
-            goto abort_mem;
+	    refuse(abort_mem, "padding contains non-null data (%02x)", buf[size-1]);
     }
 
     fclose(f);
