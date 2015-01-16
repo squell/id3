@@ -18,6 +18,7 @@ id3 -2 -a "TAFKAT" -n "%1" -t "%+2" "*. *.mp3"
 Update ID3v2 tag fields similar to this;
 >id3 -a "TAFKAT" -n "01" -t "My Song"  "01. my_song.mp3"<br/>
 >id3 -a "TAFKAT" -n "02" -t "Untitled" "02. untitled.mp3"
+
 ```sh
 id3 -2 -m "%n. %+t.mp3"
 ```
