@@ -114,11 +114,11 @@ static long getsize(struct raw_hdr *h)
          | (h->size[3] & 0x7F);
 }
 
-static long calcsize(uchar *buf, long max)
+static long calcsize(uchar *buf, ulong max)
 {
     union raw_frm *frame;
-    long size = 0;
-    long step;
+    ulong size = 0;
+    ulong step;
     int version = buf[-1];
 
     while(size < max && *buf) {            /* terminates if used properly */
@@ -179,6 +179,8 @@ void *ID3_readf(const char *fname, size_t *tagsize)
 
     if( rh.flags & XTND ) {                 /* get rid of extended header */
         ulong xsiz = ul4(buf) + 4;      /* note: compression bit in v2.2, */
+	if(xsiz >= size)
+	    goto abort_mem;
         size -= xsiz;                                   /* but try anyway */
         memmove(&buf[0], &buf[xsiz], size);
     }
