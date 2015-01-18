@@ -37,19 +37,26 @@ typedef unsigned char uchar;
 enum ID3_hdr_flag {
     UNSYNC = 0x80,
     XTND   = 0x40,      /* 2.3; in 2.2: unused compression bit */
-    XPER   = 0x20
+    XPER   = 0x20,
+    FOOTER = 0x10       /* 2.4 */
 };
 
 enum ID3_frm_flag1 {
-    TAP    = 0x80,
+    TAP    = 0x80,      /* 2.3, in 2.4: shifted 1 to the right */
     FAP    = 0x40,
     RO     = 0x20
 };
 
 enum ID3_frm_flag2 {
-    PACK   = 0x80,
+    PACK   = 0x80,      /* 2.3 */
     ENC    = 0x40,
-    GRP    = 0x20
+    GRP    = 0x20,
+
+    GRP4   = 0x40,      /* 2.4 */
+    PACK4  = 0x08,
+    ENC4   = 0x04,
+    UNSYNC4= 0x02,
+    DLI4   = 0x01
 };
 
 struct raw_hdr {
@@ -149,6 +156,7 @@ static long calcsize(uchar *buf, ulong max)
         switch(version) {
             case  2: step = sizeof(frame->v2) + (ul4(frame->v2.size) >> 8); break;
             case  3: step = sizeof(frame->v3) + ul4(frame->v3.size);        break;
+            case  4: step = sizeof(frame->v3) + ul4ss(frame->v3.size);      break;
             default: return -1;
         }
         size += step;
@@ -176,7 +184,7 @@ void *ID3_readf(const char *fname, size_t *tagsize)
     if( memcmp(rh.ID, "ID3", 3) != 0 )                /* not an ID3v2 tag */
         refuse(abort_file, "contains no ID3 identifier", 0);
 
-    if( rh.ver < 2 || rh.ver > 3 )                     /* unknown version */
+    if( rh.ver < 2 || rh.ver > 4 )                     /* unknown version */
         refuse(abort_file, "unsupported ID3v2.%d", rh.ver);
 
     size = ul4ss(rh.size);
@@ -191,11 +199,11 @@ void *ID3_readf(const char *fname, size_t *tagsize)
     if( fread(buf,1,size,f) != size )
         refuse(abort_mem, "could not read tag from file (%ld bytes)", size);
 
-    if( rh.flags & UNSYNC )                       /* unsync on entire tag */
+    if( rh.flags & UNSYNC && rh.ver <= 3 )        /* unsync on entire tag */
         size = unsync_dec(buf, size) - buf;
 
     if( rh.flags & XTND ) {                 /* get rid of extended header */
-        ulong xsiz = ul4(buf) + 4;
+        ulong xsiz = (rh.ver==3?ul4:ul4ss)(buf) + 4;
         if(xsiz >= size)
             refuse(abort_mem, "extended header incorrect (%ld bytes)", xsiz);
         size -= xsiz;                                   /* but try anyway */
@@ -216,6 +224,8 @@ void *ID3_readf(const char *fname, size_t *tagsize)
             else
                 refuse(abort_mem, "padding contains framesync (%02x)", buf[size-1]);
     }
+
+    ;                       /* nothing required to handle ID3v2.4 footers */
 
     fclose(f);
     return --buf;
@@ -359,7 +369,7 @@ ID3VER ID3_start(ID3FRAME f, const void *buf)
     f->encrypted  =
     f->grouped    = 0;
 
-    return ver>=2 && ver<=3? ver : 0;
+    return ver>=2 && ver<=4? 2+(ver>2) : 0; /* pretend v2.4 = v2.3 */
 }
 
 int ID3_frame(ID3FRAME f)
@@ -381,6 +391,20 @@ int ID3_frame(ID3FRAME f)
         f->packed     = !!( frame->v3.flags[1] & PACK );
         f->encrypted  = !!( frame->v3.flags[1] & ENC  );
         f->grouped    = !!( frame->v3.flags[1] & GRP  );
+    } else if(version==4) {
+        f->size       = ul4ss(frame->v3.size);
+        f->tag_volit  = !!( frame->v3.flags[0]>>1 & TAP  );
+        f->file_volit = !!( frame->v3.flags[0]>>1 & FAP  );
+        f->readonly   = !!( frame->v3.flags[0]>>1 & RO   );
+
+        f->packed     = !!( frame->v3.flags[1] & PACK4 );
+        f->encrypted  = !!( frame->v3.flags[1] & ENC4  );
+        f->grouped    = !!( frame->v3.flags[1] & GRP4  );
+
+        if( frame->v3.flags[1] & DLI4 )          /* id3v2.4 crufty stuff */
+            f->data += 4, f->size -= 4;
+        if( frame->v3.flags[1] & UNSYNC4 )
+            f->size = unsync_dec((uchar*)f->data, f->size) - (uchar*)f->data;
     } else {
         f->size       = ul4(frame->v2.size) >> 8;
     }
