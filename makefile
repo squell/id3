@@ -2,8 +2,8 @@
 
 SHELL	 = /bin/sh
 
-CC	 = gcc
-CXX	 = g++
+CC	 = cc
+CXX	 = c++
 CFLAGS	 = -Wformat -g -Os
 CXXFLAGS = $(CFLAGS) -fno-rtti
 LDFLAGS  =
