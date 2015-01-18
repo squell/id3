@@ -13,7 +13,13 @@
 #  include <map>
 #  include <dos.h>
 #else
+#  include <stdexcept>
 #  include <langinfo.h>
+#  if !defined(NO_ICONV)
+#  include <cerrno>
+#  include <vector>
+#  include <iconv.h>
+#  endif
 #  define fallback(call) (call)
 #endif
 #include "charconv.h"
@@ -99,10 +105,12 @@ namespace charset {
         static bool wchar_unicode()
         {
             static bool const set = ok_locale("");
-#  if fallback(1)
-#    ifdef CODESET
+#  if fallback(1) && defined(NO_ICONV)
+#    if defined(CODESET)
+#    warning "Assuming Unicode if (and only if) CODESET is UTF-8; 7-bit ASCII otherwise."
             return strcmp(nl_langinfo(CODESET), "UTF-8") == 0;
 #    else
+#    warning "Unicode not available on this platform; only supporting 7-bit ASCII"
             return false;
 #    endif
 #  else
@@ -111,17 +119,51 @@ namespace charset {
         }
     } // end anon. namespace
 
-#if fallback(1)
+#if fallback(1) && !defined(NO_ICONV)
+
+    static bool recode_error(const char* to, const char* from)
+    {
+	throw std::runtime_error(std::string("iconv -f ") + from + " -t " + to + " not working; recompile with -DNO_ICONV");
+    }
+
+    bool recode(char* out, size_t avail, const void* src, size_t len, const char* to, const char* from)
+    {
+	const char* in = (const char*)src;
+
+	iconv_t cvt = iconv_open(to, from);
+	if(cvt == (iconv_t)-1)
+	    return false;
+
+	struct guard_t { 
+	    iconv_t cvt;
+	    ~guard_t() { iconv_close(cvt); } 
+	} const guard = { cvt };
+
+	while(len > 0) {
+	    size_t result = iconv(cvt, &in, &len, &out, &avail);
+	    if(result == (size_t)-1) {
+		if(errno == E2BIG)
+		    throw std::logic_error("broken iconv");
+		do {
+		    len--;      // skip some bytes and re-try
+		} while(*++in == '\0');
+	    } else if(len != 0)
+		throw std::logic_error("broken iconv");
+	}
+	return true;
+    }
+
+#elif fallback(1)
 
     // fallback conversion, 7bit ASCII <-> unicode
-    // (probably should replace this with something based on iconv, some day)
 
     template<> conv<>::data conv<_7bit>::decode(const char* s, size_t len)
     {
         conv<>::data build;
         build.reserve(len);
         for( ; len--; ) {
-            build += wide(*s++ & 0x7F);
+	    int c = *s++ & 0xFF;
+            build += wide(c < 0x80? c : '?');
         }
         return build;
     }
@@ -138,10 +180,34 @@ namespace charset {
         return build;
     }
 
-#endif // end-of-ASCII convertor
+#endif
+
+    inline static const char* UCS() 
+    {
+	union { short int bom; unsigned char byte; } endian_test;
+	endian_test.bom = 0xFFFE;
+	if(sizeof(wchar_t) == 4 && endian_test.byte == 0xFE)
+	    return "UCS-4LE";
+	else if(sizeof(wchar_t) == 2 && endian_test.byte == 0xFE)
+	    return "UCS-2LE";
+	else if(sizeof(wchar_t) == 4 && endian_test.byte != 0xFE)
+	    return "UCS-4BE";
+	else if(sizeof(wchar_t) == 2 && endian_test.byte != 0xFE)
+	    return "UCS-2BE";
+	else
+	    return "ASCII";
+    }
 
     template<> conv<>::data conv<local>::decode(const char* s, size_t len)
     {
+#   if fallback(1) && !defined(NO_ICONV)
+	std::vector<char> build((len+1)*sizeof(wchar_t));
+        wchar_unicode();
+
+	recode(build.data(), build.size(), s, len, UCS(), nl_langinfo(CODESET)) 
+	|| recode_error(UCS(), nl_langinfo(CODESET));
+	return conv<>::data((wchar_t*)build.data());
+#   else
         if(!wchar_unicode())
             return fallback(conv<_7bit>::decode(s, len));
 
@@ -155,10 +221,19 @@ namespace charset {
             build += wide(wc);
         }
         return build;
+#   endif
     }
 
     template<> std::string conv<local>::encode(const void* p, size_t len)
     {
+#   if fallback(1) && !defined(NO_ICONV)
+	std::vector<char> build((len+1)*4);
+        wchar_unicode();
+
+	recode(build.data(), build.size(), p, len*sizeof(wchar_t), nl_langinfo(CODESET), UCS()) 
+	|| recode_error(nl_langinfo(CODESET), UCS());
+	return build.data();
+#   else
         if(!wchar_unicode())
             return fallback(conv<_7bit>::encode(p, len));
 
@@ -173,11 +248,12 @@ namespace charset {
             else       build += '?';
         }
         return build;
+#   endif
     }
 
 #elif defined(__DJGPP__)
 
-  // mess-dos codepages (hardcoded, one-on-one relationship to unicode)
+ // mess-dos codepages (hardcoded, one-on-one relationship to unicode)
 
     namespace {
         typedef wchar_t charmap[128];
