@@ -146,7 +146,7 @@ static string binarize(const string field, charset::conv<charset::latin1> conten
 
     if(data.length() > 1 || ID3v2::is_text(field)) {
         return data + (data[0]==0 || ID3v2::is_url(field) ?
-                         content.str() : conv<charset::ucs2>(content).str());
+                         content.str() : conv<charset::utf16>(content).str());
     } else if(ID3v2::is_url(field)) {
         return content;
     } else {

@@ -131,9 +131,11 @@ static ID3v2::value_string unbinarize(ID3FRAME f)
     if(hdrsiz > 1 || ID3v2::is_text(field)) {
         switch(*f->data) {
         case  0:
-            return conv<latin1>(p, f->size-hdrsiz);
+            return conv<latin1> (p, f->size-hdrsiz);
         case  1:
-            return conv<ucs2>  (p, f->size-hdrsiz);
+            return conv<utf16>  (p, f->size-hdrsiz);
+        case  2:
+            return conv<utf16be>(p, f->size-hdrsiz);
         default:
             return ID3v2::value_string(cs("<unsupported encoding>"),0);
         };

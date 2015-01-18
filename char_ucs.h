@@ -28,9 +28,9 @@ namespace charset {
 
     template<byte_order = marked> class unicode;
 
-    typedef unicode<marked>        ucs2;
-    typedef unicode<little_endian> ucs2le;
-    typedef unicode<big_endian>    ucs2be;
+    typedef unicode<marked>        utf16;
+    typedef unicode<little_endian> utf16le;
+    typedef unicode<big_endian>    utf16be;
 
     class conv_wide : public conv<> {
     protected:
