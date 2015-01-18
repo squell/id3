@@ -28,6 +28,9 @@
 #   define refuse(label, msg, info) goto label;
 #endif
 
+/* fix bugs introduced by other programs? */
+#define ID3v2_FIX 1
+
 typedef unsigned long ulong;
 typedef unsigned char uchar;
 
@@ -206,7 +209,10 @@ void *ID3_readf(const char *fname, size_t *tagsize)
 
     while(size < pad) {
         if( buf[size++] == 0xff )                     /* padding not zero */
-	    refuse(abort_mem, "padding contains framesync (%02x)", buf[size-1]);
+	    if(size-1 == pad-sizeof(struct raw_hdr) && ID3v2_FIX)
+		;           /* tag contains a rare bug; make an exception */
+	    else
+		refuse(abort_mem, "padding contains framesync (%02x)", buf[size-1]);
     }
 
     fclose(f);
@@ -256,6 +262,16 @@ int ID3_writef(const char *fname, const void *buf, size_t reqsize)
 
         orig = getsize(&rh);
 
+        if( fseek(f, orig, SEEK_CUR) != 0 )
+            goto abort;
+
+	if( ID3v2_FIX && fseek(f, -10, SEEK_CUR) == 0 ) {
+	    if(ungetc(getc(f), f) == 0xFF)        /* fix off-by-10 error */
+	        orig -= 10;
+	    else
+		if( fseek(f, 10, SEEK_CUR) != 0 ) goto abort;
+	}
+
         if( size>0 && size<=orig && !reqsize) { /* enough reserved space */
             setsize(&new_h, orig);
             rewind(f);
@@ -265,8 +281,6 @@ int ID3_writef(const char *fname, const void *buf, size_t reqsize)
             fclose(f);
             return 1;
         }
-        if( fseek(f, orig, SEEK_CUR) != 0 )
-            goto abort;
     } else {
         if(size == 0) {
             fclose(f);
