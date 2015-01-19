@@ -96,7 +96,7 @@ uninstall:
 ## distribution ############################################################
 
 SRC_CPP     = sedit varexp fileexp mass_tag pattern	\
-	      charconv char_ucs lyrics3			\
+	      charconv char_ucs char_utf8 lyrics3	\
 	      setid3 setid3v2 setlyr3 setfname setquery \
 	      getid3 getid3v2 getlyr3
 SRC_C	    = fileops id3v1 id3v2
@@ -168,7 +168,7 @@ README: id3.man
 
 OBJ_GEN = sedit varexp fileexp charconv mass_tag pattern
 OBJ_1	= setid3 getid3 id3v1
-OBJ_2	= setid3v2 getid3v2 id3v2 fileops char_ucs
+OBJ_2	= setid3v2 getid3v2 id3v2 fileops char_ucs char_utf8
 OBJ_3	= setlyr3 getlyr3 lyrics3
 OBJ_F	= setfname setquery
 OBJECTS = main $(OBJ_GEN) $(OBJ_1) $(OBJ_2) $(OBJ_3) $(OBJ_F)
@@ -209,6 +209,7 @@ pattern.o: pattern.cpp set_base.h sedit.h charconv.h mass_tag.h fileexp.h \
   pattern.h
 charconv.o: charconv.cpp charconv.h
 char_ucs.o: char_ucs.cpp char_ucs.h charconv.h
+char_utf8.o: char_utf8.cpp utf8.h char_utf8.h charconv.h
 lyrics3.o: lyrics3.cpp lyrics3.h
 setid3.o: setid3.cpp id3v1.h getid3.h set_base.h sedit.h charconv.h \
   setid3.h
@@ -220,8 +221,8 @@ setfname.o: setfname.cpp sedit.h charconv.h setfname.h setgroup.h \
   set_base.h
 setquery.o: setquery.cpp setquery.h set_base.h sedit.h charconv.h
 getid3.o: getid3.cpp getid3.h set_base.h sedit.h charconv.h id3v1.h
-getid3v2.o: getid3v2.cpp char_ucs.h charconv.h id3v2.h getid3v2.h \
-  set_base.h sedit.h
+getid3v2.o: getid3v2.cpp char_ucs.h charconv.h char_utf8.h id3v2.h \
+  getid3v2.h set_base.h sedit.h
 getlyr3.o: getlyr3.cpp lyrics3.h getid3.h set_base.h sedit.h charconv.h \
   id3v1.h getlyr3.h
 fileops.o: fileops.c fileops.h

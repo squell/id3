@@ -2,6 +2,7 @@
 #include <cstdio>
 #include <cstring>
 #include "char_ucs.h"
+#include "char_utf8.h"
 #include "id3v2.h"
 #include "getid3v2.h"
 
@@ -129,6 +130,7 @@ static ID3v2::value_string unbinarize(ID3FRAME f, charset::conv<>* descriptor)
                 case 0: *descriptor += conv<charset::latin1> (p); break;
                 case 1: *descriptor += conv<charset::utf16>  (p); break;
                 case 2: *descriptor += conv<charset::utf16be>(p); break;
+                case 3: *descriptor += conv<charset::utf8>   (p); break;
             }
         }
         p = q+1+wide;
@@ -143,6 +145,8 @@ static ID3v2::value_string unbinarize(ID3FRAME f, charset::conv<>* descriptor)
             return conv<utf16>  (p, f->size-hdrsiz);
         case  2:
             return conv<utf16be>(p, f->size-hdrsiz);
+        case  3:
+            return conv<utf8>   (p, f->size-hdrsiz);
         default:
             return ID3v2::value_string(cs("<unsupported encoding>"),0);
         };
