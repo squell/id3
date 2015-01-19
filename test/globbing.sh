@@ -4,9 +4,13 @@
 
 test `whoami` != root || exit 1
 
+randstr() {
+	head -c4 /dev/urandom | shasum | head -c16 | tr -d '[:digit:]'
+}
+
 iter=0
 while [ $iter -lt 50 ]; do
-	files="$(date +%N | md5sum | tr -d '[:digit:][:space:]-' | sed 'y:abcdef:./?*e*:')*"
+	files="$(randstr | sed 'y:abcdef:./?*e*:')*"
 	files="${files%.}"
 	files="${files%.}"
 	if [ "$files" = "/${files#*/}" ]; then  # begins with /

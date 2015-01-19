@@ -4,12 +4,17 @@
 
 test `whoami` != root || exit 1
 
+randstr() {
+	head -c4 /dev/urandom | shasum | head -c16 | tr -d '[:digit:]'
+}
+
 iter=0
 while [ $iter -lt 30 ]; do
-	files="$(date +%N | md5sum | tr -d '[:digit:][:space:]-' | sed 'y:abcdef:.s?*e?:')*"
+	files="$(randstr | sed 'y:abcdef:.s?*e?:')*"
 	files="/etc/${files}"
 	stars=$(echo "$files" | tr -cd '*' | wc -c)
 	test "$stars" -lt 4 && continue
+	test -z "$(echo "$files" | tr -cd es)" && continue
 	for f in $files; do
 		if [ "$f" != "$files" ]; then
 			iter=$(expr $iter + 1)

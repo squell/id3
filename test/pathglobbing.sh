@@ -4,21 +4,30 @@
 
 test `whoami` != root || exit 1
 
+randstr() {
+	head -c4 /dev/urandom | shasum | head -c16 | tr -d '[:digit:]'
+}
+
 iter=0
 while [ $iter -lt 10 ]; do
-	files="$(date +%N | md5sum | tr -d '[:digit:][:space:]-' | sed 'y:abcdef:./?*es:')*"
-
-	if [ "$files" = "/${files#*/}" ]; then  # begins with /
-		files="/usr${files}"
-		base="/usr"
-	else
-		files="/home/${files}"
-		base="/home"
+	files="$(randstr | sed 'y:abcdef:./?*es:')*"
+	if [ -z "$(echo "$files" | tr -cd es)" ]; then
+		continue
+	fi
+	if [ -z "$(echo "$files" | tr -cd /)" ]; then
+		continue
 	fi
 
+	if [ "$files" = "/${files#*/}" ]; then  # begins with /
+		base="/usr/share"
+	else
+		base="$HOME"
+	fi
+	files="${base}/${files}"
+
 	# id3 -R implements a slight superset of find
-	files=$(echo "$files" | sed 's:/\+:/:g') # remove double slashes
-	files=$(echo "$files" | sed 's:/\.\+::g') # remove "." and ".."
+	files=$(echo "$files" | sed 's://*:/:g') # remove double slashes
+	files=$(echo "$files" | sed 's:/\.\.*::g') # remove "." and ".."
 
 	for f in $files; do
 		if [ "$f" != "$files" ]; then

@@ -2,7 +2,7 @@
 
 # basic functionality
 
-set -e -v
+set -e
 
 test `whoami` != root
 
@@ -11,6 +11,7 @@ FILE=/tmp/id3-test/nULL
 mkdir -p  /tmp/id3-test
 cat /dev/null > $FILE
 
+set -v
 # wildcard
 ./id3 -a "%+1" "/tmp/id3-test/*"
 ./id3 -q %a $FILE | grep -q '^Null$'
