@@ -98,6 +98,7 @@ typedef struct _ID3FRAME {
     unsigned packed     : 1;
     unsigned encrypted  : 1;
     unsigned grouped    : 1;
+    unsigned _rev       : 2;
 } ID3FRAME[1];
 
 typedef enum {

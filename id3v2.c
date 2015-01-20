@@ -21,8 +21,8 @@
 /* some programs write evil tags. it's probably nice to see failure modes */
 #ifdef ID3v2_DEBUG
 #   define refuse(label, msg, info) { \
-	fprintf(stderr, "%s: id3v2 "msg"\n", fname, info); \
-	goto label; \
+        fprintf(stderr, "%s: id3v2 "msg"\n", fname, info); \
+        goto label; \
     }
 #else
 #   define refuse(label, msg, info) goto label;
@@ -36,7 +36,7 @@ typedef unsigned char uchar;
 
 enum ID3_hdr_flag {
     UNSYNC = 0x80,
-    XTND   = 0x40,
+    XTND   = 0x40,      /* 2.3; in 2.2: unused compression bit */
     XPER   = 0x20
 };
 
@@ -97,10 +97,10 @@ static uchar *unsync_dec(uchar *buf, ulong size)
 
 static ulong ul4(uchar n[4])
 {
-    return (ulong)n[0]<<24 |
-           (ulong)n[1]<<16 |
-           (ulong)n[2]<< 8 |
-           (ulong)n[3]<< 0 ;
+    return (ulong)n[0]<<24
+         | (ulong)n[1]<<16
+         | (ulong)n[2]<< 8
+         | (ulong)n[3]<< 0;
 }
 
 static void nbo4(uchar h[4], ulong n)
@@ -111,20 +111,20 @@ static void nbo4(uchar h[4], ulong n)
     h[3] = (n      );
 }
 
-static void setsize(struct raw_hdr *h, ulong size)
+static ulong ul4ss(uchar h[4])                            /* "synch safe" */
 {
-    h->size[0] = (size >> 21) & 0x7F;
-    h->size[1] = (size >> 14) & 0x7F;
-    h->size[2] = (size >>  7) & 0x7F;
-    h->size[3] = (size      ) & 0x7F;
+    return (ulong)(h[0] & 0x7F) << 21
+         | (ulong)(h[1] & 0x7F) << 14
+         | (ulong)(h[2] & 0x7F) <<  7
+         | (ulong)(h[3] & 0x7F);
 }
 
-static long getsize(struct raw_hdr *h)
+static void nbo4ss(uchar h[4], ulong n)
 {
-    return (h->size[0] & 0x7F) << 21
-         | (h->size[1] & 0x7F) << 14
-         | (h->size[2] & 0x7F) <<  7
-         | (h->size[3] & 0x7F);
+    h[0] = (n >> 21) & 0x7F;
+    h[1] = (n >> 14) & 0x7F;
+    h[2] = (n >>  7) & 0x7F;
+    h[3] = (n      ) & 0x7F;
 }
 
 static int checkid(const char *ID, size_t n)    /* check ID for A..Z0..9 */
@@ -142,8 +142,9 @@ static long calcsize(uchar *buf, ulong max)
     ulong size = 0;
     ulong step;
     int version = buf[-1];
+    int ID_siz = 3+(version>2);
 
-    while(size < max && checkid(buf,1+version)) {
+    while(size < max && checkid(buf, ID_siz)) {
         frame = (union raw_frm*)buf;
         switch(version) {
             case  2: step = sizeof(frame->v2) + (ul4(frame->v2.size) >> 8); break;
@@ -167,35 +168,36 @@ void *ID3_readf(const char *fname, size_t *tagsize)
     FILE *f = fopen(fname, "rb");
 
     if( !f )
-	refuse(abort, "could not open", 0);
+        refuse(abort, "could not open", 0);
 
     if( fread(&rh, sizeof(struct raw_hdr), 1, f) != 1 )
-	refuse(abort_file, "file too small", 0);             /* IO error */
+        refuse(abort_file, "file too small", 0);              /* IO error */ 
 
-    if( memcmp(rh.ID, "ID3", 3) != 0 )               /* not an ID3v2 tag */
-	refuse(abort_file, "contains no ID3 identifier", 0); 
-    if( (rh.ver|1) != 3 )			      /* unknown version */
-	refuse(abort_file, "unsupported ID3v2.%d", rh.ver);
+    if( memcmp(rh.ID, "ID3", 3) != 0 )                /* not an ID3v2 tag */
+        refuse(abort_file, "contains no ID3 identifier", 0);
 
-    size = getsize(&rh);
+    if( rh.ver < 2 || rh.ver > 3 )                     /* unknown version */
+        refuse(abort_file, "unsupported ID3v2.%d", rh.ver);
 
-    buf = malloc(size+1+4);                      /* over-alloc 4+1 chars */
-    if(!buf)                                         /* ohhhhhhh.. crap. */
-	refuse(abort_file, "could not allocate tag (%ld bytes)", size);
+    size = ul4ss(rh.size);
 
-    (++buf)[-1] = rh.ver;                        /* prepend version byte */
-    buf[size] = 0;       /* make sure we have a pseudoframe to terminate */
+    buf = malloc(size+1+4);                       /* over-alloc 4+1 chars */
+    if(!buf)                                          /* ohhhhhhh.. crap. */
+        refuse(abort_file, "could not allocate tag (%ld bytes)", size);
 
-    if( fread(buf,size,1,f) != 1 )
-	refuse(abort_mem, "could not read tag from file (%ld bytes)", size);
+    (++buf)[-1] = rh.ver;                         /* prepend version byte */
+    buf[size] = 0;        /* make sure we have a pseudoframe to terminate */
 
-    if( rh.flags & UNSYNC )
+    if( fread(buf,1,size,f) != size )
+        refuse(abort_mem, "could not read tag from file (%ld bytes)", size);
+
+    if( rh.flags & UNSYNC )                       /* unsync on entire tag */
         size = unsync_dec(buf, size) - buf;
 
     if( rh.flags & XTND ) {                 /* get rid of extended header */
-        ulong xsiz = ul4(buf) + 4;      /* note: compression bit in v2.2, */
-	if(xsiz >= size)
-	    refuse(abort_mem, "extended header incorrect (%ld bytes)", xsiz);
+        ulong xsiz = ul4(buf) + 4;
+        if(xsiz >= size)
+            refuse(abort_mem, "extended header incorrect (%ld bytes)", xsiz);
         size -= xsiz;                                   /* but try anyway */
         memmove(&buf[0], &buf[xsiz], size);
     }
@@ -209,10 +211,10 @@ void *ID3_readf(const char *fname, size_t *tagsize)
 
     while(size < pad) {
         if( buf[size++] == 0xff )                     /* padding not zero */
-	    if(size-1 == pad-sizeof(struct raw_hdr) && ID3v2_FIX)
-		;           /* tag contains a rare bug; make an exception */
-	    else
-		refuse(abort_mem, "padding contains framesync (%02x)", buf[size-1]);
+            if(size-1 == pad-sizeof(struct raw_hdr) && ID3v2_FIX)
+                ;           /* tag contains a rare bug; make an exception */
+            else
+                refuse(abort_mem, "padding contains framesync (%02x)", buf[size-1]);
     }
 
     fclose(f);
@@ -260,20 +262,20 @@ int ID3_writef(const char *fname, const void *buf, size_t reqsize)
         if( (rh.ver|1) != 3)
             goto abort;                       /* handles ID3v2.2 and 2.3 */
 
-        orig = getsize(&rh);
+        orig = ul4ss(rh.size);
 
         if( fseek(f, orig, SEEK_CUR) != 0 )
             goto abort;
 
-	if( ID3v2_FIX && fseek(f, -10, SEEK_CUR) == 0 ) {
-	    if(ungetc(getc(f), f) == 0xFF)        /* fix off-by-10 error */
-	        orig -= 10;
-	    else
-		if( fseek(f, 10, SEEK_CUR) != 0 ) goto abort;
-	}
+        if( ID3v2_FIX && fseek(f, -10, SEEK_CUR) == 0 ) {
+            if(ungetc(getc(f), f) == 0xFF)        /* fix off-by-10 error */
+                orig -= 10;
+            else
+                if( fseek(f, 10, SEEK_CUR) != 0 ) goto abort;
+        }
 
         if( size>0 && size<=orig && !reqsize) { /* enough reserved space */
-            setsize(&new_h, orig);
+            nbo4ss(new_h.size, orig);
             rewind(f);
             fwrite(&new_h, sizeof new_h, 1, f);   /* i don't check these */
             fwrite(src, size, 1, f);
@@ -305,7 +307,7 @@ int ID3_writef(const char *fname, const void *buf, size_t reqsize)
             goto abort;
 
         if(size != 0) {
-            setsize(&new_h, nsize);
+            nbo4ss(new_h.size, nsize);
             ok = fwrite(&new_h, 1, sizeof new_h, nf) == sizeof new_h
               && fwrite(src, 1, size, nf)            == size
               && fpadd(0, nsize-size, nf)            == nsize-size
@@ -345,8 +347,8 @@ static const size_t raw_frm_sizeof[2]
 ID3VER ID3_start(ID3FRAME f, const void *buf)
 {
     register uchar ver = *(uchar*)buf;
-    f->ID[3] = ver == 3;                 /* set to indicate tag version */
-    f->ID[4] = 0;
+    f->_rev  = ver-2;
+    f->ID[3] = f->ID[4] = 0;
     f->data  = (char*)buf + 1;
     f->size  = 0;
 
@@ -357,24 +359,25 @@ ID3VER ID3_start(ID3FRAME f, const void *buf)
     f->encrypted  =
     f->grouped    = 0;
 
-    return (ver|1) == 3 ? ver : 0;
+    return ver>=2 && ver<=3? ver : 0;
 }
 
 int ID3_frame(ID3FRAME f)
 {
     union raw_frm *frame = (union raw_frm*)(f->data + f->size);
-    int ver = !!f->ID[3];
+    int version = f->_rev+2;
+    int ID_siz = 3+(version>2);
 
-    f->data += f->size + raw_frm_sizeof[ver];
+    f->data += f->size + raw_frm_sizeof[version>2];
 
-    memcpy(f->ID, frame->ID, 3+ver);
+    memcpy(f->ID, frame->ID, ID_siz);
 
-    if(ver) {                                           /* ID3v2.3 stuff */
+    if(version==3) {                                    /* ID3v2.3 stuff */
         f->size       = ul4(frame->v3.size);          /* copy essentials */
         f->tag_volit  = !!( frame->v3.flags[0] & TAP  );
         f->file_volit = !!( frame->v3.flags[0] & FAP  );
-
         f->readonly   = !!( frame->v3.flags[0] & RO   );
+
         f->packed     = !!( frame->v3.flags[1] & PACK );
         f->encrypted  = !!( frame->v3.flags[1] & ENC  );
         f->grouped    = !!( frame->v3.flags[1] & GRP  );
@@ -382,7 +385,7 @@ int ID3_frame(ID3FRAME f)
         f->size       = ul4(frame->v2.size) >> 8;
     }
 
-    return checkid(f->ID, 3+ver);
+    return checkid(f->ID, ID_siz);
 }
 
 /* ==================================================== */
