@@ -2,7 +2,7 @@
 
   tag::write::ID3v2 applicative class
 
-  copyright (c) 2004, 2005 squell <squell@alumina.nl>
+  copyright (c) 2004, 2005, 2015 squell <squell@alumina.nl>
 
   use, modification, copying and distribution of this software is permitted
   under the conditions described in the file 'COPYING'.
@@ -24,7 +24,8 @@
 
   c. - deleting a frame using .rm() deletes *ALL* frames of a specific type.
 
-  (a) requires an extra distinguisher function.
+  (a) requires an extra distinguisher function; for frames that have has_desc() true, append a
+      ":descriptor" to denote a unique frame
   (b) is not a real problem, but it could be solved by porting to multimap
   (c) is what users would expect, therefore intended behaviour
 

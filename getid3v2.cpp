@@ -21,7 +21,7 @@ using tag::read::ID3v2;
 using tag::ID3field;
 
 static bool getframe(const void*, ID3FRAME, int n, const char*);
-static ID3v2::value_string unbinarize(ID3FRAME);
+static ID3v2::value_string unbinarize(ID3FRAME, charset::conv<>* descriptor);
 
 ID3v2::ID3v2(const char* fn) : tag(ID3_readf(fn,0))
 {
@@ -57,7 +57,7 @@ ID3v2::value_string ID3v2::operator[](ID3field field) const
         const bool v = ID3_start(f, tag) > 2;
         ok = getframe(tag, f, 3+v, fieldtag[field][v]);
     }
-    return ok? unbinarize(f) : value_string();
+    return ok? unbinarize(f,0) : value_string();
 }
 
 /* ====================================================== */
@@ -72,7 +72,9 @@ ID3v2::array ID3v2::listing() const
         char   vstr[2] = { char(version+'0'), };
         vec.push_back( array::value_type("ID3v2", vstr) );
         while(ID3_frame(f)) {
-            vec.push_back( array::value_type(f->ID, unbinarize(f)) );
+            charset::conv<local> desc;
+            value_string val = unbinarize(f, &desc);
+            vec.push_back( array::value_type(f->ID+desc.str(), val) );
         }
     }
     return vec;
@@ -95,7 +97,7 @@ static bool getframe(const void* tag, ID3FRAME f, int n, const char* field)
     return 0;
 }
 
-static ID3v2::value_string unbinarize(ID3FRAME f)
+static ID3v2::value_string unbinarize(ID3FRAME f, charset::conv<>* descriptor)
 {
     typedef conv<latin1> cs;
 
@@ -114,17 +116,22 @@ static ID3v2::value_string unbinarize(ID3FRAME f)
         return conv<latin1>(buf);
     }
 
-    if(ID3v2::has_lang(field))
+    if(ID3v2::has_lang(field)) {
         p += 3;                                // skip-ignore language field
+    }
     if(ID3v2::has_desc(field)) {
-        const int   skip = !!*f->data;
-        const char* lim  = f->data + f->size - skip;  // safety
-        const char* q;
-        for(q = p; q < lim && (*q || q[-skip]); )
-            q += 1 + skip;                     // find null (grmbl)
-        if(q++ == lim)
-            return conv<>();                   // error
-        p = q;
+        bool wide = *f->data == 1 || *f->data == 2;
+        const char *q = (const char*)memchr(p, 0, f->size - (p - f->data) - wide);
+        if(!q || wide && q[1]) return conv<>();// no null-terminator
+        if(descriptor && *p) {
+            *descriptor = conv<charset::latin1>(":");
+            switch(*f->data) {
+                case 0: *descriptor += conv<charset::latin1> (p); break;
+                case 1: *descriptor += conv<charset::utf16>  (p); break;
+                case 2: *descriptor += conv<charset::utf16be>(p); break;
+            }
+        }
+        p = q+1+wide;
     }
 
     size_t hdrsiz = p - f->data;

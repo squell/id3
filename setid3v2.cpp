@@ -137,12 +137,20 @@ static string binarize(const string field, charset::conv<charset::latin1> conten
     const wstring& ws = content.str<wchar_t>();
     const char nul[2] = { 0 };
 
+    // figure out of latin1 is enough to encode strings
     data = char(ws.end() != find_if(ws.begin(), ws.end(),
                                       bind2nd(greater<wchar_t>(), 0xFF)));
-    if(ID3v2::has_lang(field))
+    if(ID3v2::has_lang(field)) {
         data.append("xxx");
-    if(ID3v2::has_desc(field))             // desc fields to be implemented
+    }
+    if(ID3v2::has_desc(field)) {
+        string::size_type sep = field.find(':');
+        if(sep != string::npos) {
+            if(data[0]==0) data.append(conv<charset::latin1>(field.substr(sep+1)));
+            else           data.append(conv<charset::utf16> (field.substr(sep+1)));
+        }
         data.append(nul, 1);
+    }
 
     if(data.length() > 1 || ID3v2::is_text(field)) {
         return data + (data[0]==0 || ID3v2::is_url(field) ?
@@ -252,8 +260,9 @@ bool ID3v2::vmodify(const char* fn, const function& edit) const
     for(db::iterator p = table.begin(); p != table.end(); ++p) {
         if(!p->second.empty()) {
             if(function::result s = edit(p->second)) {
+                string field = p->first.substr(0, p->first.find(':'));
                 string b = binarize(p->first, s);
-                tag.put(p->first.c_str(), b.data(), b.length());
+                tag.put(field.c_str(), b.data(), b.length());
             }
         }
     }
