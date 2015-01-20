@@ -3,6 +3,7 @@
 #include <stdexcept>
 #include <vector>
 #include <string>
+#include <algorithm>
 #include "charconv.h"
 #include "sedit.h"
 #include "set_base.h"
@@ -82,7 +83,7 @@ namespace {
         substvars(const substvars&);       // don't copy
     };
 
-    substvars::result substvars::var(ptr& p, ptr) const
+    substvars::result substvars::var(ptr& p, ptr end) const
     {
         static const result empty(conv<latin1>("<empty>"), false);
         switch(wchar_t c = *p++) {
@@ -116,6 +117,24 @@ namespace {
                 error[sizeof error-2] = (c+1)%10 + '0', throw out_of_range(error);
             }
             return conv<local>(filerec->var[c]);
+	case '{': {
+	    ptr q = std::find(p, end, '}');
+	    if(p == end) {
+                throw out_of_range("missing } in variable");
+	    }
+	    const string key = conv<wchar_t>(wstring(p, q)).str<latin1>();
+	    p = q+1;
+
+            if(!tag_data) tag_data = tag->read(filerec->path);
+	    typedef tag::metadata::array info;
+	    const info frames = tag_data->listing();
+	    for(info::const_iterator rec = frames.begin(); rec != frames.end(); rec++) {
+		if(key == rec->first.substr(0,max(string::size_type(3),key.length())))
+		    return rec->second;
+	    }
+	    return conv<>();
+	}
+
         default:
             ID3field i; i = mass_tag::field(c);
             if(i >= tag::FIELD_MAX) {
