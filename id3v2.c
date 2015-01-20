@@ -87,11 +87,8 @@ typedef int raw_frm_size_check [sizeof(union  raw_frm)==10 ? 1 : -1];
 
  /* en-/de- unsynchronizing */
 
-static uchar *unsync_dec(uchar *buf, ulong size)
+static uchar *unsync_dec(uchar *dst, uchar *src, ulong size)
 {
-    uchar *dst, *src;
-
-    dst = src = buf;                          /* in-place de-unsync'ing */
     while(size--)
         if( (*dst++ = *src++) == 0xFF && size > 0 ) {
             size--;
@@ -165,6 +162,32 @@ static long calcsize(uchar *buf, ulong max)
     return size<=max? size : -1;
 }
 
+/* in v2.4, unsync is per-frame for not adequately explained reasons.
+   this function requires the actual size as determined by calcsize() */
+
+static ulong unsync_frames_v2_4(uchar *buf, ulong size)
+{
+    uchar *end = buf+size;
+    uchar *out = buf;
+
+    while(buf < end) {
+        union raw_frm *frame = (union raw_frm*)buf;
+        ulong step = sizeof(frame->v3) + ul4ss(frame->v3.size);
+        if( frame->v3.flags[1] & UNSYNC4 ) {
+            frame = (union raw_frm*)out;
+            out = unsync_dec(out, buf, step);
+            /* update frame size & clear UNSYNC4 bit */
+            nbo4ss(frame->v3.size, out-frame->ID - sizeof(*frame));
+            frame->v3.flags[1] &= ~UNSYNC4;
+        } else {
+            out = memmove(out, buf, step) + step;
+        }
+        buf += step;
+    }
+    memset(out, 0, buf-out);
+    return out - (end-size);
+}
+
 /* ==================================================== */
 
 void *ID3_readf(const char *fname, size_t *tagsize)
@@ -200,7 +223,7 @@ void *ID3_readf(const char *fname, size_t *tagsize)
         refuse(abort_mem, "could not read tag from file (%ld bytes)", size);
 
     if( rh.flags & UNSYNC && rh.ver <= 3 )        /* unsync on entire tag */
-        size = unsync_dec(buf, size) - buf;
+        size = unsync_dec(buf, buf, size) - buf;
 
     if( rh.flags & XTND ) {                 /* get rid of extended header */
         ulong xsiz = (rh.ver==3?ul4:ul4ss)(buf) + 4;
@@ -212,6 +235,10 @@ void *ID3_readf(const char *fname, size_t *tagsize)
 
     pad  = size;                                /* check semantics of tag */
     size = calcsize(buf, size);
+
+    if( rh.ver == 4 && size > 0 )  /* v2.4: just ignore the global UNSYNC */
+        size = unsync_frames_v2_4(buf, size);
+
     if(tagsize) *tagsize = size;
 
     if(size < 0)                                 /* semantic error in tag */
@@ -403,8 +430,6 @@ int ID3_frame(ID3FRAME f)
 
         if( frame->v3.flags[1] & DLI4 )          /* id3v2.4 crufty stuff */
             f->data += 4, f->size -= 4;
-        if( frame->v3.flags[1] & UNSYNC4 )
-            f->size = unsync_dec((uchar*)f->data, f->size) - (uchar*)f->data;
     } else {
         f->size       = ul4(frame->v2.size) >> 8;
     }
