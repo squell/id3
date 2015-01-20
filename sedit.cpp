@@ -54,7 +54,7 @@ struct char_to_lower {
     { return to_lower(c); }
 };
 
- // compress("    bla    bla  ", 4) -> "bla bla"
+ // compress("    bla    bla  ") -> "bla bla"
 
 void compress(wstring& s)
 {
@@ -65,7 +65,27 @@ void compress(wstring& s)
         s.erase(s.begin());
 }
 
- // capitalize("hElLo wOrLd", 4) -> "Hello World"
+ // noleadzero("(0300/0004)=0075") -> "300/4=75"
+
+void noleadzero(wstring& s)
+{
+    const wchar_t zero[] = L"0";
+    wstring::size_type p, q = 0;
+    do {
+        p = s.find_first_of(zero, q);
+        q = s.find_first_not_of(zero, p);
+        if(q == p)
+            return;
+        if(p == 0 || !is_(digit, s[p-1])) {
+            s.erase(p, q-p);
+            if(s.empty() || !is_(digit,s[0]))
+                s.insert(0, zero);
+            q = p+1;
+        }
+    } while(1);
+}
+
+ // capitalize("hElLo wOrLd") -> "Hello World"
 
 void capitalize(wstring& s)
 {
@@ -190,6 +210,7 @@ function::result format::code(ptr& p, ptr end) const
             wstring s = conv<wchar_t>(subst).str();
             if(!raw) {                          // remove gunk
                 replace_if(s.begin(), s.end(), filtered_char(), ' ');
+                noleadzero(s);
                 compress(s);
             }
             if(caps == split)
