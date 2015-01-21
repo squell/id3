@@ -148,7 +148,7 @@ static long calcsize(uchar *buf, ulong max)
     int version = buf[-1];
     int ID_siz = 3+(version>2);
 
-    while(size < max && checkid(buf, ID_siz)) {
+    while(size < max && checkid((char*)buf, ID_siz)) {
         frame = (union raw_frm*)buf;
         switch(version) {
             case  2: step = sizeof(frame->v2) + (ul4(frame->v2.size) >> 8); break;
@@ -180,7 +180,7 @@ static ulong unsync_frames_v2_4(uchar *buf, ulong size)
             nbo4ss(frame->v3.size, out-frame->ID - sizeof(*frame));
             frame->v3.flags[1] &= ~UNSYNC4;
         } else {
-            out = memmove(out, buf, step) + step;
+            out = (uchar*)memmove(out, buf, step) + step;
         }
         buf += step;
     }
@@ -265,6 +265,8 @@ abort:
     if(tagsize) *tagsize = size;
     return 0;
 }
+
+#ifndef ID3v2_READONLY
 
 static void _wfail(const char *srcname, const char *dstname)
 {
@@ -371,6 +373,8 @@ abort:                                  /* close file and return failure */
     return 0;
 }
 
+#endif
+
 void ID3_free(const void *buf)
 {
     free((void*)buf);
@@ -439,6 +443,8 @@ int ID3_frame(ID3FRAME f)
 
 /* ==================================================== */
 
+#ifndef ID3v2_READONLY
+
 void *ID3_put(void *dest, ID3VER version, const char ID[4], const void *src, size_t len)
 {
     union raw_frm *frame = (union raw_frm*)dest;
@@ -466,3 +472,4 @@ void *ID3_put(void *dest, ID3VER version, const char ID[4], const void *src, siz
     return cdest + len;
 }
 
+#endif
