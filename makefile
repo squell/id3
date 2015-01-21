@@ -46,13 +46,13 @@ INSTALL_STRIP	= $(INSTALL_PROGRAM) -s
 
 build: id3
 
-all  : id3 id3l
+all  : id3 id3l id3-images
 
-final: id3 id3l
-	$(STRIP) id3 id3l
+final: id3 id3l id3-images
+	$(STRIP) id3 id3l id3-images
 
 clean:
-	-rm -f *.o id3 id3l
+	-rm -f *.o id3 id3l id3-images
 
 depend:
 	(echo '/$@encies/+2;/^$$/-1c'; $(MKALLDEP); \
@@ -105,7 +105,7 @@ DIR_RPM     = id3mtag.spec
 DIR_FREEBSD = Makefile pkg-descr
 
 DISTFILES = INSTALL $(docdata) makefile makefile.dj makefile.bcc \
-	main.cpp auto_dir.h set_base.h setgroup.h $(SRC_CPP:=.h) $(SRC_C:=.h) \
+	main.cpp id3-images.c auto_dir.h set_base.h setgroup.h $(SRC_CPP:=.h) $(SRC_C:=.h) \
 	$(SRC_CPP:=.cpp) $(SRC_C:=.c) id3.man \
 	$(DIR_DEBIAN:%=debian/%) \
 	$(DIR_RPM:%=rpm/%) \
@@ -179,6 +179,9 @@ id3: $(OBJECTS:=.o)
 
 id3l: $(OBJX_L:=.o)
 	$(CXX) $(CXXFLAGS) $(OBJX_L:=.o) $(LDFLAGS) -o $@
+
+id3-images: id3-images.c id3v2.c id3v2.h
+	$(CC) $(CFLAGS) $(LDFLAGS) id3-images.c id3v2.c -DID3v2_READONLY -o $@
 
 .cpp.o:
 	$(CXX) $(CXXFLAGS) -c $<
