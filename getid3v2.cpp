@@ -98,6 +98,19 @@ static bool getframe(const void* tag, ID3FRAME f, int n, const char* field)
     return 0;
 }
 
+  // safely find a terminator in multi-string frames
+
+static const char *membrk0(const char* buf, size_t size, bool wide)
+{
+    const char* const end = buf + size - wide;
+    const int step = 1+wide;
+    for( ; buf < end; buf += step) {
+	if(!buf[0] && !buf[wide])
+	    return buf+step;
+    }
+    return 0;
+}
+
 static ID3v2::value_string unbinarize(ID3FRAME f, charset::conv<>* descriptor)
 {
     typedef conv<latin1> cs;
@@ -122,9 +135,9 @@ static ID3v2::value_string unbinarize(ID3FRAME f, charset::conv<>* descriptor)
     }
     if(ID3v2::has_desc(field)) {
         bool wide = *f->data == 1 || *f->data == 2;
-        const char *q = (const char*)memchr(p, 0, f->size - (p - f->data) - wide);
-        if(!q || wide && q[1]) return conv<>();// no null-terminator
-        if(descriptor && *p) {
+        const char *q = membrk0(p, f->size - (p - f->data), wide);
+        if(!q) return conv<>();                // malformed frame
+        if(descriptor && p[0] && p[wide]) {
             *descriptor = conv<charset::latin1>(":");
             switch(*f->data) {
                 case 0: *descriptor += conv<charset::latin1> (p); break;
@@ -133,7 +146,7 @@ static ID3v2::value_string unbinarize(ID3FRAME f, charset::conv<>* descriptor)
                 case 3: *descriptor += conv<charset::utf8>   (p); break;
             }
         }
-        p = q+1+wide;
+        p = q;
     }
 
     size_t hdrsiz = p - f->data;
