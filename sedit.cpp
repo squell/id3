@@ -78,8 +78,8 @@ void noleadzero(wstring& s)
             return;
         if(p == 0 || !is_(digit, s[p-1])) {
             s.erase(p, q-p);
-            if(s.empty() || !is_(digit,s[0]))
-                s.insert(0, zero);
+            if(s.empty() || !is_(digit,s[p]))
+                s.insert(p, zero);
             q = p+1;
         }
     } while(1);
@@ -172,7 +172,7 @@ function::result format::code(ptr& p, ptr end) const
     vector<wstring> alt;
     style caps       = as_is;
     bool raw         = false;
-    unsigned num_pad = 1;
+    unsigned num_pad = 0;
 
     for(++p; p != end; ) {
         switch(wchar_t c = *p++) {
@@ -210,7 +210,6 @@ function::result format::code(ptr& p, ptr end) const
             wstring s = conv<wchar_t>(subst).str();
             if(!raw) {                          // remove gunk
                 replace_if(s.begin(), s.end(), filtered_char(), ' ');
-                noleadzero(s);
                 compress(s);
             }
             if(caps == split)
@@ -219,6 +218,8 @@ function::result format::code(ptr& p, ptr end) const
                 capitalize(s);
             if(caps == lowr)
                 transform(s.begin(), s.end(), s.begin(), char_to_lower());
+            if(num_pad > 0)
+                noleadzero(s);
             padnumeric(s, num_pad);
             return result(conv<wchar_t>(s), subst.good());
         }

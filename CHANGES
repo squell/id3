@@ -1,7 +1,8 @@
 Changelog for 'id3'.
 
 2015-020 (W04):
-  sedit.cpp: remove leading zeroes from numbers in %subsitution unless _ used
+  [CLI CHANGE]: %##n now means 'pad embedded numbers in %n out to width two'
+  sedit.cpp: remove leading zeroes from numbers in %subsitution if # used
   getid3v2.cpp/setid3v2.cpp: allow accessing user-defined TXXX/COMM flags with
     descriptors; for example with -wTXXX:FMPS_Rating
 
