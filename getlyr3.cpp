@@ -49,6 +49,13 @@ Lyrics3::value_string Lyrics3::operator[](ID3field field) const
 
 Lyrics3::array Lyrics3::listing() const
 {
-    throw this;
+    lyrics3::info s = lyrics_tag;
+    string::size_type i, next;
+    array vec;
+
+    for(i = 0; next=find_next(s, i); i = next)
+	vec.push_back( array::value_type(s.id(i), s.content(i, next - i)) );
+
+    return vec;
 }
 
