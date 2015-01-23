@@ -112,6 +112,7 @@ bool filefind::nested(auto_dir dir, char* pathpos, char* filespec)
 
     bool w = false;                             // idle check
 
+    if(!rec_base || path == pathpos)
     while( char* fndirsep = strchr(filespec, '/') ) {
 	slash_split lock(fndirsep++);
         wpos = pathcpy(pathcpy(pathpos, filespec), "/");
@@ -171,7 +172,8 @@ bool filefind::nested(auto_dir dir, char* pathpos, char* filespec)
         }
     }
 
-    if(rec_base) for(strvec::iterator fn = files.begin(); fn != files.end(); ++fn) {
+    if(rec_base)
+    for(strvec::iterator fn = files.begin(); fn != files.end(); ++fn) {
         wpos = pathcpy(pathpos, fn->c_str());
         auto_dir newdir(path);
         char sympath[1];
