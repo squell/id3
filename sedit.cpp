@@ -35,7 +35,7 @@ using namespace charset;
 
 extern void deprecated(const char*);
 
-namespace stredit {
+namespace {
 
 enum style { as_is, name, lowr, split };
 
@@ -132,6 +132,23 @@ void padnumeric(wstring& s, unsigned pad)
     } while(1);
 }
 
+wchar_t codepoint(wstring::const_iterator& p, wstring::const_iterator const q, int digits)
+{
+    long val = 0;
+    for( ; digits-- && p < q; ++p) {
+        wchar_t c = to_upper(*p);
+        if(is_(digit, c)) c -= '0';
+        else if(c >= 'A' && c <= 'F') c -= 'A'-10;
+        else break;
+        val = val << 4 | (c&0xF);
+    }
+    return val;
+}
+
+} // end of anon. namespace
+
+namespace stredit {
+
 function::result format::edit(const wstring& format, bool atomic) const
 {
     conv<wchar_t> build;
@@ -150,6 +167,8 @@ function::result format::edit(const wstring& format, bool atomic) const
             case 'r':  c = '\r'; break;
             case 't':  c = '\t'; break;
             case 'v':  c = '\v'; break;
+            case 'u':  c = codepoint(p, format.end(), 4); break;
+            case 'U':  c = codepoint(p, format.end(), 8); break;
             }
         default:
             build += c;
