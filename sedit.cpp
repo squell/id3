@@ -33,8 +33,6 @@ using namespace charset;
 #    define is_(what, c) isw##what(c)
 #endif
 
-extern void deprecated(const char*);
-
 namespace {
 
 enum style { as_is, name, lowr, split };
@@ -202,13 +200,6 @@ function::result format::code(ptr& p, ptr end) const
         case '#': ++num_pad;        continue;
         case prefix:
             return conv<wchar_t>(1, prefix);
-/* */   case ',':                               // deprecated new line macro
-            { struct _deprecated {
-                _deprecated() { (void) string(""); }
-               ~_deprecated()
-                { deprecated("`%,' will be removed, use `\\n' or `\\n\\r' instead"); }
-              } static _warning; }
-/* */       return conv<wchar_t>(1, '\n');
 
         case '|': {
             ptr q = matching(p-1, end);
