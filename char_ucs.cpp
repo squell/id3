@@ -55,7 +55,7 @@ namespace charset {
             else if(ch.code < 0xDC00 && (s+=2) < end) { // UTF-16 surrogate
                 wide lo( s[0^i] & 0xFF | s[1^i]<<8 & 0xFF00U );
                 if(lo.code >= 0xDC00 && lo.code < 0xE000)
-                    build += wide((ch.code&0x3FF)<<10 | (lo.code&0x3FF));
+                    build += wide((ch.code&0x3FF)<<10 | (lo.code&0x3FF) | 0x10000);
             }
         }
         return build;
@@ -78,7 +78,7 @@ namespace charset {
                 (build += c>>i & 0xFF) += c>>(8^i) & 0xFF;
             else {                             // encode a UTF16 surrogate pair
                 c -= 0x10000;
-                wchar_t hi = (c>>10)&0x3FF, lo = c&0x3FF;
+                wchar_t hi = (c>>10)&0x3FF | 0xD800, lo = c&0x3FF | 0xDC00;
                 (build += hi>>i & 0xFF) += hi>>(8^i) & 0xFF;
                 (build += lo>>i & 0xFF) += lo>>(8^i) & 0xFF;
             }
