@@ -119,8 +119,11 @@ namespace {
             return conv<local>(filerec->var[c]);
 	case '{': {
 	    ptr q = std::find(p, end, '}');
-	    if(p == end) {
+	    if(q == end) {
                 throw out_of_range("missing } in variable");
+	    } else if(q == p+1) {
+		const result& tmp = var(p, end);
+		return ++p, tmp;
 	    }
 	    const string key = conv<wchar_t>(wstring(p, q)).str<latin1>();
 	    p = q+1;
