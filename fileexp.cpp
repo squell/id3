@@ -163,7 +163,7 @@ bool filefind::nested(auto_dir dir, char* pathpos, char* filespec)
 
     for(strvec::iterator fn = files.begin(); fn != files.end(); ++fn) {
         wpos = pathcpy(pathpos, fn->c_str());
-        direxp match(filespec, rec_base? rec_base : pathpos, rec_base);
+        direxp match(filespec, rec_base? rec_base : pathpos, !!rec_base);
         if(match) {
             for(varexp::iterator i = match.begin(); i != match.end(); ++i)
                 var.push_back(*i);

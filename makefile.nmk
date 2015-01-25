@@ -3,7 +3,7 @@
 CL     = cl
 LINK   = link /ltcg
 !ifndef CFLAGS
-CFLAGS = /O1 /EHsc /GL
+CFLAGS = /O1 /EHsc /GL /wd4804
 !endif
 
 ############################################################################
@@ -12,7 +12,7 @@ id3.exe: main.obj varexp.obj fileexp.obj sedit.obj mass_tag.obj pattern.obj \
 	 setid3.obj getid3.obj id3v1.obj \
 	 setid3v2.obj getid3v2.obj id3v2.obj fileops.obj \
 	 setlyr3.obj getlyr3.obj lyrics3.obj \
-	 setfname.obj setquery.obj charconv.obj char_ucs.obj
+	 setfname.obj setquery.obj charconv.obj char_ucs.obj char_utf8.obj
 	$(LINK) /out:$@ $**
 
 id3l.exe: mainl.obj sedit.obj varexp.obj fileexp.obj charconv.obj mass_tag.obj pattern.obj \
@@ -59,6 +59,7 @@ pattern.o: pattern.cpp set_base.h sedit.h charconv.h mass_tag.h fileexp.h \
   pattern.h
 charconv.o: charconv.cpp charconv.h
 char_ucs.o: char_ucs.cpp char_ucs.h charconv.h
+char_utf8.o: char_utf8.cpp utf8.h char_utf8.h charconv.h
 lyrics3.o: lyrics3.cpp lyrics3.h
 setid3.o: setid3.cpp id3v1.h getid3.h set_base.h sedit.h charconv.h \
   setid3.h
@@ -70,8 +71,8 @@ setfname.o: setfname.cpp sedit.h charconv.h setfname.h setgroup.h \
   set_base.h
 setquery.o: setquery.cpp setquery.h set_base.h sedit.h charconv.h
 getid3.o: getid3.cpp getid3.h set_base.h sedit.h charconv.h id3v1.h
-getid3v2.o: getid3v2.cpp char_ucs.h charconv.h id3v2.h getid3v2.h \
-  set_base.h sedit.h
+getid3v2.o: getid3v2.cpp char_ucs.h charconv.h char_utf8.h id3v2.h \
+  getid3v2.h set_base.h sedit.h
 getlyr3.o: getlyr3.cpp lyrics3.h getid3.h set_base.h sedit.h charconv.h \
   id3v1.h getlyr3.h
 fileops.o: fileops.c fileops.h
