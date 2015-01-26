@@ -10,14 +10,15 @@ randstr() {
 
 iter=0
 while [ $iter -lt 50 ]; do
-	files="$(randstr | sed 'y:abcdef:./?*e*:')*"
+	files="$(randstr | sed 'y:abcdef:./?*es:')*"
 	files="${files%.}"
 	files="${files%.}"
 	if [ "$files" = "/${files#*/}" ]; then  # begins with /
-		files="/usr${files}"
-		base="/usr"
-	else
+		files="${files#*/}"
 		base="."
+	else
+		files="/usr/${files}"
+		base="/usr"
 	fi
 	for f in $files; do
 		if [ "$f" != "$files" ]; then
