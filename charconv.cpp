@@ -1,10 +1,5 @@
-#if defined(_WIN32)
-#  include <windows.h>
-#  include <cstdio>
-#endif
 #include <cstdlib>
 #include <cstring>
-#include <clocale>
 #include <climits>
 #if defined(__STDC_ISO_10646__) || defined(_WIN32)
 #  include <wchar.h>
@@ -89,22 +84,8 @@ namespace charset {
     namespace {
         struct _7bit;
 
-        inline bool ok_locale(const char* loc)
-        {
-            if(loc && ok_locale(0))
-                return 1;
-#  if defined(_WIN32)
-            char cp[12];
-            sprintf(cp, ".%d", GetACP() & 0xFFF);
-            loc = cp;
-#  endif
-            const char* tmp = setlocale(LC_CTYPE, loc);
-            return tmp && strcmp(tmp, "C") != 0;
-        }
-
         static bool wchar_unicode()
         {
-            static bool const set = ok_locale("");
 #  if fallback(1) && defined(NO_ICONV)
 #    if defined(CODESET)
 #    warning "Assuming Unicode if (and only if) CODESET is UTF-8; 7-bit ASCII otherwise."
@@ -123,34 +104,34 @@ namespace charset {
 
     static bool recode_error(const char* to, const char* from)
     {
-	throw std::runtime_error(std::string("iconv -f ") + from + " -t " + to + " not working; recompile with -DNO_ICONV");
+        throw std::runtime_error(std::string("iconv -f ") + from + " -t " + to + " not working; recompile with -DNO_ICONV");
     }
 
     bool recode(char* out, size_t avail, const void* src, size_t len, const char* to, const char* from)
     {
-	const char* in = (const char*)src;
+        const char* in = (const char*)src;
 
-	iconv_t cvt = iconv_open(to, from);
-	if(cvt == (iconv_t)-1)
-	    return false;
+        iconv_t cvt = iconv_open(to, from);
+        if(cvt == (iconv_t)-1)
+            return false;
 
-	struct guard_t { 
-	    iconv_t cvt;
-	    ~guard_t() { iconv_close(cvt); } 
-	} const guard = { cvt };
+        struct guard_t { 
+            iconv_t cvt;
+            ~guard_t() { iconv_close(cvt); } 
+        } const guard = { cvt };
 
-	while(len > 0) {
-	    size_t result = iconv(cvt, &in, &len, &out, &avail);
-	    if(result == (size_t)-1) {
-		if(errno == E2BIG)
-		    throw std::logic_error("broken iconv");
-		do {
-		    len--;      // skip some bytes and re-try
-		} while(*++in == '\0');
-	    } else if(len != 0)
-		throw std::logic_error("broken iconv");
-	}
-	return true;
+        while(len > 0) {
+            size_t result = iconv(cvt, &in, &len, &out, &avail);
+            if(result == (size_t)-1) {
+                if(errno == E2BIG)
+                    throw std::logic_error("broken iconv");
+                do {
+                    len--;      // skip some bytes and re-try
+                } while(*++in == '\0');
+            } else if(len != 0)
+                throw std::logic_error("broken iconv");
+        }
+        return true;
     }
 
 #elif fallback(1)
@@ -162,7 +143,7 @@ namespace charset {
         conv<>::data build;
         build.reserve(len);
         for( ; len--; ) {
-	    int c = *s++ & 0xFF;
+            int c = *s++ & 0xFF;
             build += wide(c < 0x80? c : '?');
         }
         return build;
@@ -184,29 +165,29 @@ namespace charset {
 
     inline static const char* UCS() 
     {
-	union { short int bom; unsigned char byte; } endian_test;
-	endian_test.bom = 0xFFFE;
-	if(sizeof(wchar_t) == 4 && endian_test.byte == 0xFE)
-	    return "UCS-4LE";
-	else if(sizeof(wchar_t) == 2 && endian_test.byte == 0xFE)
-	    return "UCS-2LE";
-	else if(sizeof(wchar_t) == 4 && endian_test.byte != 0xFE)
-	    return "UCS-4BE";
-	else if(sizeof(wchar_t) == 2 && endian_test.byte != 0xFE)
-	    return "UCS-2BE";
-	else
-	    return "ASCII";
+        union { short int bom; unsigned char byte; } endian_test;
+        endian_test.bom = 0xFFFE;
+        if(sizeof(wchar_t) == 4 && endian_test.byte == 0xFE)
+            return "UCS-4LE";
+        else if(sizeof(wchar_t) == 2 && endian_test.byte == 0xFE)
+            return "UCS-2LE";
+        else if(sizeof(wchar_t) == 4 && endian_test.byte != 0xFE)
+            return "UCS-4BE";
+        else if(sizeof(wchar_t) == 2 && endian_test.byte != 0xFE)
+            return "UCS-2BE";
+        else
+            return "ASCII";
     }
 
     template<> conv<>::data conv<local>::decode(const char* s, size_t len)
     {
 #   if fallback(1) && !defined(NO_ICONV)
-	std::vector<char> build((len+1)*sizeof(wchar_t));
+        std::vector<char> build((len+1)*sizeof(wchar_t));
         wchar_unicode();
 
-	recode(build.data(), build.size(), s, len, UCS(), nl_langinfo(CODESET)) 
-	|| recode_error(UCS(), nl_langinfo(CODESET));
-	return conv<>::data((wchar_t*)build.data());
+        recode(build.data(), build.size(), s, len, UCS(), nl_langinfo(CODESET)) 
+        || recode_error(UCS(), nl_langinfo(CODESET));
+        return conv<>::data((wchar_t*)build.data());
 #   else
         if(!wchar_unicode())
             return fallback(conv<_7bit>::decode(s, len));
@@ -227,12 +208,12 @@ namespace charset {
     template<> std::string conv<local>::encode(const void* p, size_t len)
     {
 #   if fallback(1) && !defined(NO_ICONV)
-	std::vector<char> build((len+1)*4);
+        std::vector<char> build((len+1)*4);
         wchar_unicode();
 
-	recode(build.data(), build.size(), p, len*sizeof(wchar_t), nl_langinfo(CODESET), UCS()) 
-	|| recode_error(nl_langinfo(CODESET), UCS());
-	return build.data();
+        recode(build.data(), build.size(), p, len*sizeof(wchar_t), nl_langinfo(CODESET), UCS()) 
+        || recode_error(nl_langinfo(CODESET), UCS());
+        return build.data();
 #   else
         if(!wchar_unicode())
             return fallback(conv<_7bit>::encode(p, len));

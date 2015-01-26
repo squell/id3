@@ -15,6 +15,9 @@
 #endif
 #include "mass_tag.h"
 #include "pattern.h"
+#ifdef _WIN32
+#    include <windows.h>
+#endif
 
 #define _version_ "0.78-2 (2006084)"
 
@@ -480,6 +483,21 @@ int main(int argc, char *argv[])
         Name = prog;
     }
     try {
+#  if defined(_WIN32)                         // set up locale
+        char codepage[12];
+        sprintf(codepage, ".%d", GetACP() & 0xFFFF);
+        setlocale(LC_CTYPE, codepage);
+        struct chcp {                         // fiddle with the console fonts
+            int const cp_in, cp_out;
+            chcp(int cp_new = GetACP()) 
+            : cp_in(GetConsoleCP()), cp_out(GetConsoleOutputCP()) 
+            { SetConsoleCP(cp_new), SetConsoleOutputCP(cp_new); }
+            ~chcp()
+            { SetConsoleCP(cp_in),  SetConsoleOutputCP(cp_out); }
+        } lock;
+#  else
+        setlocale(LC_CTYPE, "");
+#  endif
         return main_(argc, argv);
     } catch(const tag::failure& f) {
         eprintf("%s (tagging aborted)\n", f.what());
