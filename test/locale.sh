@@ -23,4 +23,12 @@ test `./id3 -q '\U10330' /dev/null` = '𐌰'
 test `./id3 -2 -q '%a' $FILE` = '€'
 test `./id3 -2 -q '%t' $FILE` = '𐌰' 
 
+# storing unicode in filename
+rm -f /tmp/id3-test/euro*
+./id3 -2 -f "euro%aeuro" $FILE
+test `./id3 -2 -q '%a' /tmp/id3-test/euro€euro` = '€'
+test `./id3 -2 -q '%a' /tmp/id3-test/euro*euro` = '€'
+test `./id3 -2 -q '%a' "/tmp/id3-test/euro?euro"` = '€'
+test `./id3 -2 -q '%1' "/tmp/id3-test/euro*euro"` = '€'
+
 # seems fine
