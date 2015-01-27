@@ -165,7 +165,7 @@ namespace charset {
 
     inline static const char* UCS() 
     {
-        union { short int bom; unsigned char byte; } endian_test;
+        union { unsigned short bom; unsigned char byte; } endian_test;
         endian_test.bom = 0xFFFE;
         if(sizeof(wchar_t) == 4 && endian_test.byte == 0xFE)
             return "UCS-4LE";

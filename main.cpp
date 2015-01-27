@@ -3,6 +3,7 @@
 #include <cstdarg>
 #include <cstring>
 #include <ctime>
+#include <clocale>
 #include <stdexcept>
 #include <string>
 #include "setgroup.h"

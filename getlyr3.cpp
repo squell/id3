@@ -54,7 +54,7 @@ Lyrics3::array Lyrics3::listing() const
     array vec;
 
     for(i = 0; next=find_next(s, i); i = next)
-	vec.push_back( array::value_type(s.id(i), s.content(i, next - i)) );
+        vec.push_back( array::value_type(s.id(i), s.content(i, next - i)) );
 
     return vec;
 }

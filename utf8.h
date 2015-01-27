@@ -83,11 +83,11 @@ typedef char mbbuf[6];                       // maximum symbol length
 template<class T = void> class base {
 public:
     template<class utfIter> struct error {
-        inline wchar operator()(utfIter, wchar ucs)
+        inline wchar operator()(utfIter, wchar)
         { return 0xFFFDu; }
     };
 protected:
-    base() { (T)void(); }                    // ensure T == void
+    base() { (T)void("ensure T == void"); }
     static inline wchar max(unsigned n);
     static unsigned char dectab[];
 };
@@ -146,7 +146,7 @@ utfIter encode(charIter begin, charIter end, utfIter out);
 template<class T>
 inline wchar base<T>::max(unsigned n)           /* max. code of seq. n */
 {
-    return 1ul << n*5+1;                        /* 2 ** [ 6(n-1) + 7-n ] */
+    return 1ul << (n*5+1);                      /* 2 ** [ 6(n-1) + 7-n ] */
 }
 
 template<class T>
@@ -170,14 +170,13 @@ inline bool decoder<utfIter,Error>::i_get(wchar& out)
     int seq;
     unsigned char c;
 
-chrloop:
     if(p != end)                                /* seq == 0 loop */
         switch((c=*p++) & 0xC0) {
         default:                                /* 0x00 .. 0x7F */
             return out=c, 1;
         case 0xC0:                              /* start of sequence */
-            if(seq = dectab[c & 0x3F]) {
-                ucs = c & (1<<8-seq)-1;         /* mask off good bits */
+            if((seq=dectab[c & 0x3F])) {
+                ucs = c & ((1<<(8-seq))-1);     /* mask off good bits */
                 lng = max(--seq);               /* determine minimum */
                 lng <<= seq==1;                 /* fix 2 byte minimum */
                 goto seqloop;
@@ -217,7 +216,7 @@ inline void encoder<utfIter>::i_put(wchar ucs)
         for(n=2; max(n) <= ucs; ) ++n;          /* could be faster? */
 
         for(c = 0xFF^(0xFF >> n); n--; c = 0x80)
-            *p++ = c | (ucs >> n*6) & 0x3F;
+            *p++ = c | ((ucs >> n*6) & 0x3F);
     }
 }
 
@@ -240,7 +239,7 @@ void encoder<utfIter>::put(wchar ucs)
 template<class utfIter>
 unsigned long length(utfIter begin, utfIter end)
 {
-    register decoder<utfIter> utf(begin, end);
+    decoder<utfIter> utf(begin, end);
     unsigned long cnt = 0;
     for(wchar wc; utf.i_get(wc); ) ++cnt;
     return cnt;
@@ -249,7 +248,7 @@ unsigned long length(utfIter begin, utfIter end)
 template<class utfIter>
 unsigned long length(utfIter begin)
 {
-    register decoder<utfIter> utf(begin);
+    decoder<utfIter> utf(begin);
     unsigned long cnt = 0;
     for(wchar wc; utf.i_get(wc), wc; ) ++cnt;
     return cnt;
@@ -258,7 +257,7 @@ unsigned long length(utfIter begin)
 template<class utfIter, class charIter>
 charIter decode(utfIter begin, utfIter end, charIter out)
 {
-    register decoder<utfIter> utf(begin, end);
+    decoder<utfIter> utf(begin, end);
     wchar wc;
     while( utf.i_get(wc) )
         *out++ = wc;
@@ -268,7 +267,7 @@ charIter decode(utfIter begin, utfIter end, charIter out)
 template<class utfIter, class charIter>
 utfIter encode(charIter begin, charIter end, utfIter out)
 {
-    register encoder<utfIter> utf(out);
+    encoder<utfIter> utf(out);
     while(begin != end)
         utf.i_put(*begin++);
     return utf.base();

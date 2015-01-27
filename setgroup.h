@@ -11,6 +11,8 @@ namespace tag {
   // run-time delegation using standard container      //
   ///////////////////////////////////////////////////////
 
+#pragma clang diagnostic ignored "-Wempty-body"
+
 template<class Interface>
 class combined : public Interface, private std::vector<Interface*> {
 public:

@@ -105,8 +105,8 @@ static const char *membrk0(const char* buf, size_t size, bool wide)
     const char* const end = buf + size - wide;
     const int step = 1+wide;
     for( ; buf < end; buf += step) {
-	if(!buf[0] && !buf[wide])
-	    return buf+step;
+        if(!buf[0] && !buf[wide])
+            return buf+step;
     }
     return 0;
 }

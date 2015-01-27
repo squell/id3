@@ -244,13 +244,13 @@ void *ID3_readf(const char *fname, size_t *tagsize)
     if(size < 0)                                 /* semantic error in tag */
         refuse(abort_mem, "tag larger than reported size (%ld bytes)", pad);
 
-    while(size < pad) {
-        if( buf[size++] == 0xff )                     /* padding not zero */
+    while(size < pad)
+        if( buf[size++] == 0xff ) {                   /* padding not zero */
             if(size-1 == pad-sizeof(struct raw_hdr) && ID3v2_FIX)
                 ;           /* tag contains a rare bug; make an exception */
             else
                 refuse(abort_mem, "padding contains framesync (%02x)", buf[size-1]);
-    }
+        }
 
     ;                       /* nothing required to handle ID3v2.4 footers */
 

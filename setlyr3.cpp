@@ -23,6 +23,8 @@ namespace {
     typedef int concreteness_check[ sizeof Lyrics3() ];
 }
 
+#pragma GCC diagnostic ignored "-Wswitch"
+
 Lyrics3& Lyrics3::set(ID3field i, string m)
 {
     const char (*ptr)[4] = read::Lyrics3::field_name;

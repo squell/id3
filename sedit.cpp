@@ -221,7 +221,7 @@ function::result format::code(ptr& p, ptr end) const
 
         default :
             result subst = var(--p, end);
-            if(!subst.good()) for(int i = 0; i < alt.size(); ++i)
+            if(!subst.good()) for(unsigned i = 0; i < alt.size(); ++i)
                 if(result tmp = edit(alt[i], true)) {
                     subst = tmp;
                     break;

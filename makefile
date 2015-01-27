@@ -4,9 +4,10 @@ SHELL	 = /bin/sh
 
 CC	 = cc
 CXX	 = c++
-CFLAGS	 = -Wformat -g -Os
+CFLAGS	 = $(WARNINGS:%=-W%) -pedantic -g -Os
 CXXFLAGS = $(CFLAGS) -fno-rtti
 LDFLAGS  =
+WARNINGS = format no-parentheses
 
 STRIP	 = strip
 TAR	 = tar
