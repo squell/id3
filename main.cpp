@@ -6,6 +6,7 @@
 #include <clocale>
 #include <stdexcept>
 #include <string>
+#include <memory>
 #include "setgroup.h"
 #include "setid3.h"
 #include "setfname.h"
@@ -36,6 +37,10 @@ using namespace std;
 using fileexp::mass_tag;
 using tag::ID3field;
 using tag::FIELD_MAX;
+
+#if __cplusplus < 201103L
+#define unique_ptr auto_ptr
+#endif
 
 /* ====================================================== */
 
@@ -200,9 +205,21 @@ namespace op {
 #ifndef LITE
       box<out::ID3v2>,
       box<out::Lyrics3>,
+      tag::reader,
 #endif
       out::file
     {
+#ifndef LITE
+	tag::metadata* read(const char* fn) const
+	{
+	    std::unique_ptr<tag::metadata> tag( box<out::ID3v2>::object.read(fn) );
+	    if(!tag.get() || !*tag)
+		tag.reset( box<out::Lyrics3>::object.read(fn) );
+	    if(!tag.get() || !*tag)
+		tag.reset( box<out::ID3>::object.read(fn) );
+	    return tag.release();
+	}
+#endif
     };
 
 }
@@ -260,7 +277,8 @@ int main_(int argc, char *argv[])
         case force_fn:                         // argument is filespec
                 if(!chosen) {
 #ifndef LITE
-                    source = &use<out::Lyrics3>(tag);   // use default tags
+                    source = &tag;             // use default tags
+                    tag.with( use<out::ID3v2>(tag) );
                     tag.with( use<out::Lyrics3>(tag) );
 #else
                     source = &use<out::ID3>(tag);
