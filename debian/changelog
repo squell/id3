@@ -1,3 +1,12 @@
+id3mtag (0.79-1) unstable; urgency=low
+
+  * Added tag viewing
+  * Will now read/write ID3v2 tags by default if already present
+  * Support for reading non-standard ID3v2 frames using %{XXXX}
+  * Minor bug fixes
+
+ -- Marc R. Schoolderman <squell@alumina.nl>  Thu, 29 Jan 2015 18:17:23 +0100
+
 id3mtag (0.78-1) unstable; urgency=low
 
   * Added support for Lyrics3 v2 tags

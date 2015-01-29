@@ -21,7 +21,7 @@
 #    include <windows.h>
 #endif
 
-#define _version_ "0.78-2 (2006084)"
+#define _version_ "0.79 (2015029)"
 
 /*
 

@@ -2,7 +2,7 @@
 # $FreeBSD$
 
 PORTNAME=	id3mtag
-PORTVERSION=	0.78
+PORTVERSION=	0.79
 CATEGORIES=	audio
 MASTER_SITES=	http://github.com/squell/id3/releases/download/${PORTVERSION}/
 DISTNAME=	id3-${PORTVERSION}
@@ -21,6 +21,9 @@ PLIST_FILES=	bin/id3 man/man1/id3.1.gz
 PORTDOCS=	README CHANGES
 
 OPTIONS_DEFINE=	DOCS
+
+CFLAGS+=	-Wno-parentheses
+CXXFLAGS+=	-fno-rtti
 
 do-install:
 	${INSTALL_PROGRAM} ${WRKSRC}/id3 ${STAGEDIR}${PREFIX}/bin
