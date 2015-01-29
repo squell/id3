@@ -146,9 +146,8 @@ class verbose : public mass_tag {
 public:
     verbose(const tag::writer& write, const tag::reader& read)
     : mass_tag(write, read) { }
-    static void enable(bool t = true) { verbose::show = t; }
+    static bool enable;
 private:
-    static bool    show;
     static clock_t time;
 
     struct timer {
@@ -156,7 +155,7 @@ private:
        ~timer()
         {
             time = clock() - time;
-            if(show) {
+            if(enable) {
                 if(exitc!=0) fprintf(stderr, "Errors were encountered\n");
                 if(exitc!=1) fprintf(stderr, "(%lu files in %.3fs) done\n", mass_tag::total(), double(time) / CLOCKS_PER_SEC);
             }
@@ -166,7 +165,7 @@ private:
 
     virtual bool file(const char* name, const fileexp::record& f)
     {
-        if(verbose::show) {
+        if(verbose::enable) {
             static timer initialize;
             if(counter==1 && name-f.path)
                  fprintf(stderr, "%.*s\n", int(name-f.path), f.path);
@@ -178,7 +177,7 @@ private:
     }
 };
 
-bool    verbose::show;
+bool    verbose::enable;
 clock_t verbose::time;
 
 /* ====================================================== */
@@ -210,24 +209,19 @@ namespace op {
       out::file
     {
 #ifndef LITE
-	tag::metadata* read(const char* fn) const
-	{
-	    std::unique_ptr<tag::metadata> tag( box<out::ID3v2>::object.read(fn) );
-	    if(!tag.get() || !*tag)
-		tag.reset( box<out::Lyrics3>::object.read(fn) );
-	    if(!tag.get() || !*tag)
-		tag.reset( box<out::ID3>::object.read(fn) );
-	    return tag.release();
-	}
+        tag::metadata* read(const char* fn) const
+        {
+            std::unique_ptr<tag::metadata> tag( box<out::ID3v2>::object.read(fn) );
+            if(!tag.get() || !*tag)
+                tag.reset( box<out::Lyrics3>::object.read(fn) );
+            if(!tag.get() || !*tag)
+                tag.reset( box<out::ID3>::object.read(fn) );
+            return tag.release();
+        }
 #endif
     };
 
 }
-
-struct null_op : fileexp::find {
-    bool file(const char*, const fileexp::record& r)
-    { return eprintf("nothing to do with %s\n", r.path), true; }
-};
 
 /* ====================================================== */
 
@@ -241,6 +235,48 @@ int process_(fileexp::find& work, char* files[], bool recur)
     } while(*++files);
     return exitc;
 }
+
+  // tag lister
+
+struct listtag : fileexp::find {
+    listtag(tag::reader& in) : m_reader(in)
+    { }
+    tag::reader& m_reader;
+
+    static void content(const char* fmt, tag::metadata::value_string data)
+    {
+        if(data.good()) {
+            string str = data.str();
+            for(string::iterator p = str.begin(); p != str.end(); ++p) 
+                if(*p < 0x20) *p = ' ';   // remove control chars
+            printf(fmt, str.c_str());
+        }
+    }
+
+    virtual bool file(const char*, const fileexp::record& rec)
+    {
+        using namespace tag;
+        std::unique_ptr<metadata> ptr( m_reader.read(rec.path) );
+        if(ptr.get()) {
+            const metadata& tag = *ptr;
+            printf("File: %s\n", rec.path);
+            if(tag) {
+                content("Metadata: %s\n",tag[FIELD_MAX]);
+                content("Title: %s\n",   tag[title]);
+                content("Artist: %s\n",  tag[artist]);
+                content("Album: %s\n",   tag[album]);
+                content("Track: %s\n",   tag[track]);
+                content("Year: %s\n",    tag[year]);
+                content("Genre: %s\n",   tag[genre]);
+                content("Comment: %s\n", tag[cmnt]);
+            } else {
+                content("Metadata: %s\n", "none found");
+            }
+            printf("\n");
+        }
+        return true;
+    }
+};
 
   // contains CLI interface loop
 
@@ -320,15 +356,15 @@ int main_(int argc, char *argv[])
                     eprintf("cannot combine -q with any modifying operation\n");
                     shelp();
                 case op::no_op:
-                    null_op dummy;
-                    return process_(dummy, &argv[i], state & recur);
+                    listtag viewer(*source);
+                    return process_(viewer, &argv[i], state & recur);
                 }
 
                 verbose tagger(*selected, *source);
                 return process_(tagger, &argv[i], state & recur);
             } else {
                 switch( *opt++ ) {             // argument is a switch
-                case 'v': verbose::enable(); break;
+                case 'v': verbose::enable=1;  break;
                 case 'M': tag.touch(false);   break;
                 case 'f': cmd = set_rename;   break;
                 case 'q': cmd = set_query;    break;

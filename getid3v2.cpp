@@ -57,6 +57,11 @@ ID3v2::value_string ID3v2::operator[](ID3field field) const
     if(tag && field < FIELD_MAX) {
         const bool v = ID3_start(f, tag) > 2;
         ok = getframe(tag, f, 3+v, fieldtag[field][v]);
+    } else if(tag && field == FIELD_MAX) {
+        ID3_start(f, tag);
+        char buf[] = "ID3v2._";
+        buf[6] = f->_rev+'2';
+        return buf;
     }
     return ok? unbinarize(f,0) : value_string();
 }

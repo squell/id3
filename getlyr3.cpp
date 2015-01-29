@@ -35,6 +35,8 @@ Lyrics3::value_string Lyrics3::operator[](ID3field field) const
     const value_string& id3 = ID3::operator[](field);
     const char (*ptr)[4] = field_name;
     switch(field) {
+    case tag::FIELD_MAX:
+        return "Lyrics3 v2.0";
     default:
         return id3;
     case tag::album:  ++ptr;

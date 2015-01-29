@@ -36,13 +36,14 @@ ID3::ID3(const char* fn) : tag(readtag(fn))
 {
 }
 
-#pragma GCC diagnostic ignored "-Wswitch"
 ID3::value_string ID3::operator[](ID3field field) const
 {
     char buf[31]     = { 0, };         // enough to hold largest ID3 field+1
 
     if(*tag.TAG)
         switch( field ) {
+        case FIELD_MAX:
+            return "ID3v1";
         case title:
             strncpy(buf, tag.title,  sizeof tag.title);
             break;
