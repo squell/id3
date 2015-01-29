@@ -1,12 +1,12 @@
 .TH ID3 1 "id3 mass tagger"
 .SH NAME
-id3 \- a commandline mass tagger
+id3 \- a command line mass tagger
 .SH SYNOPSIS
 .HP 2
 .B id3
 .RB [ \-v ]
-.RB [ \-M ]
-.RB [ \-12 ]
+.RB [ \-m ]
+.RB [ \-123 ]
 .RB [ \-d ]
 .RB [ \-t
 .IR title ]
@@ -28,14 +28,14 @@ id3 \- a commandline mass tagger
 .IR template ]
 .RB [ \-q
 .IR format ]
-.RB [ \-m ]
 .RB [ \-D
 .IR file ]
 .RB [ \-R ]
+.RB [ \-M ]
 .br
+.RB [ \-E ]
 .RB [ \-s
 .IR size ]
-.RB [ \-E ]
 .RB [ \-u ]
 .RB [ \-r\fIFRAME ]
 .RB [ \-w\fIFRAME
@@ -43,7 +43,8 @@ id3 \- a commandline mass tagger
 .IR \*(lqfilespec\*(rq
 .SH DESCRIPTION
 .I id3
-mass tagger is a tool for manipulating id3 and id3v2 tags in multiple
+mass tagger is a tool for listing and manipulating ID3 and Lyrics3
+tags in multiple
 files. It can generate tag fields from the filename and other variables,
 and/or rename files, using an intuitive syntax.
 
@@ -58,17 +59,11 @@ Order of the options is only important where specified.
 .B filespec ...
 specifies the file(s) to be affected by the command.
 
-If you use wildcards, it is STRONGLY recommended to enclose the specification
-in double quotes ("").
-.I id3
-has internal shell pattern matching which will not work if your shell also
-performs this function.
-
-The shell pattern matching can be applied to both file names and directory
-names.
+If you use wildcards, it is necessary to enclose the specification
+in double quotes ("") for pattern matching to work.
 .TP
 .B \-h
-show commandline help
+show command line help
 .TP
 .B \-V
 display version number and copyright
@@ -76,11 +71,8 @@ display version number and copyright
 .B \-v
 be verbose
 .TP
-.B \-M
-preserve last modification time of files operated on
-.TP
 .B \-1
-process/add ID3v1 tags (default).
+process/add ID3v1 tags.
 .TP
 .B \-2
 process/add ID3v2 tags.
@@ -89,8 +81,27 @@ process/add ID3v2 tags.
 process/add Lyrics3 tags.
 
 If more than one tag type is specified, they are all written, but only the
-left-most tag is read from. If no tag type is specified, this is equivalent
-to `-3E -1'.
+left-most tag is read from. If no tag type is specified, 
+.I id3 
+will by default
+attempt to read ID3v2, Lyrics3 and ID3v1 tags in that order, only modify existing ID3v2 and Lyrics3 tags, and modify/add ID3v1 tags.
+.TP
+.BI \-R
+searches recursively; Normally, path separators in \fIfilespec\fR do not get
+matched by `?' or `*' wildcards. With this switch, they are treated as an
+ordinary character.
+.TP
+.B \-M
+preserve last modification time of files operated on
+.TP
+.B \--
+force the following argument to be interpreted as a filename. Use this for
+files that start with a `-' (dash).
+.P
+.SS Modifying operations
+The default operation of 
+.I id3
+is to list the tags found. By using any of the following options, this behaviour is inhibited.
 .TP
 .B \-d
 do not re-use existing tag data. If no new tag information is specified in
@@ -147,31 +158,20 @@ been read, but before any fields are updated.
 Any original tag values not explicitly copied to the new tag (for example, by
 using -u) are lost. If \fIfilename\fR does not have any tags, this option is
 identical to the -d option.
-.TP
-.BI \-R
-searches recursively; Normally, path seperators in \fIfilespec\fR do not get
-matched by `?' or `*' wildcards. With this switch, they are treated as an
-ordinary character.
-.TP
-.B \--
-force the following argument to be interpreted as a filename. Use this for
-files that start with a `-' (dash).
 .B SUBSTITUTION
 below.
 .PP
 The following options only apply on the tag most recently selected before
 them, and only have meaning where relevant.
 .TP
+.BI \-E
+only write a tag of the most recently selected type if a file already contains it; do not add new ones.
+.TP
 .BI \-u
 update all standard tag fields by copying them from the source tag. This is
 similar to writing `-talnygc %t %a %l %n %y %g %c', but only operates on the
 most recent tag. It is possible for the source and destination tag to be the
 same.
-.TP
-.BI \-E
-only write a tag of the selected type if a file already contains it; do not
-add new ones. If `-3' is not specified, this is the default behaviour for
-Lyrics3 tags.
 .TP
 .BI \-s " size
 try to write a new tag using exactly \fIsize\fR bytes, adding / removing
@@ -197,9 +197,10 @@ is equivalent to:
    id3 -2 -d -a "Artist" -l "Album" -t "Title" *.mp3
 
 .SH SUBSTITUTION
-id3 can perform \*(lqprintf-like\*(rq substitution on the values prior to
+.I id3 
+can perform \*(lqprintf-like\*(rq substitution on the values prior to
 writing them to a tag. Note that if you want to use pattern matching, you
-HAVE TO enclose the wildcard specification on the commandline in double quotes
+HAVE TO enclose the wildcard specification on the command line in double quotes
 to prevent your shell from expanding any wildcards.
 .TP
 .BI \(rs c
@@ -269,11 +270,12 @@ Use the raw value of the variable. Normally, substitution replaces any
 underscores with spaces, and condenses empty whitespace.
 .TP
 .BR * " (asterisk)
-Split the variable into seperate words by looking at the capitalization.
+Split the variable into separate words by looking at the capitalization.
 .TP
 .BR # " (hash\ or\ pound\ sign)
-Pad all numeric values within the substituted value, if necessary.
-Multiple hash signs can be stacked to increase desired width. If there are
+Attempt to fit numeric values in the substituted string to a desired width, 
+by removing or adding leading zeros.
+Multiple hash signs can be stacked to indicate the desired width. If there are
 no numeric values, this modifier has no effect.
 .TP
 .BI | fall-back |
@@ -284,10 +286,15 @@ fails and will not be used. If more than one fall-back is provided, successive
 fall-backs are tried until one succeeds.
 .RE
 .SH EXAMPLES
-Here are some examples of using id3:
+Here are some examples of using 
+.I id3
+:
 .TP
 \fBid3 -a "Stallman" -t "Free Software Song" fs_song.mp3"
 Add a simple tag to a file.
+.TP
+\fBid3 muzak.mp3
+List tag information in a file.
 .TP
 \fBid3 -d *.mp3
 Removes all ID3v1 tags from all mp3's.

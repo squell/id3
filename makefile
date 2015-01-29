@@ -157,7 +157,7 @@ git-repo: .git
 	git remote add origin -t master -f git@github.com:squell/id3.git
 	git reset FETCH_HEAD
 
-AWKCMD = "BEGIN { pretty = \"figlet -fmini | sed '\$$s/ /~/g'\" } \
+AWKCMD = "BEGIN { pretty = \"figlet -fsmall\" } \
 	/ID3\(1\)/ { next } \
 	 /^[A-Z]/ { print tolower(\$$0) | pretty; close(pretty) } \
 	!/^[A-Z]/ { print }"
