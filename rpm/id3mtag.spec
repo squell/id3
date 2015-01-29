@@ -29,5 +29,5 @@ strip -s id3
 %doc README CHANGES COPYING
 
 %changelog
-* Mon Jan 12 2015 Marc Schoolderman <squell@alumina.nl> 0.78-1
-- created new specfile
+* Thu Jan 29 2015 Marc Schoolderman <squell@alumina.nl> 0.79-1
+- update to new version

@@ -33,6 +33,7 @@ the contents of the source distribution:
  charconv.*     - character conversion                          (C++)
  char_ucs.*     - + utf16 encoding                              (C++)
  char_utf8.*    - + utf8 encoding                               (C++)
+ utf8.h         - stand-alone utf8 encoder/decoder              (C++)
  auto_dir.h     - smart dirent pointer class                    (C++)
 
  id3v1.*        - definitions & data relevant to ID3v1 tag data (C)

@@ -21,7 +21,7 @@
 #    include <windows.h>
 #endif
 
-#define _version_ "0.79 (2015029)"
+#define _version_ "0.79 (2015030)"
 
 /*
 
@@ -53,7 +53,7 @@ static void Copyright()
 {
  //      |=======================64 chars wide==========================|
     printf(
-        "%s " _version_ ", Copyright (C) 2003, 04, 05, 06 Marc R. Schoolderman\n"
+        "%s " _version_ ", Copyright (C) 2003, 04, 05, 06, 15 Marc R. Schoolderman\n"
         "This program comes with ABSOLUTELY NO WARRANTY.\n\n"
         "This is free software, and you are welcome to redistribute it\n"
         "under certain conditions; see the file named COPYING in the\n"
