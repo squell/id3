@@ -153,7 +153,7 @@ git-repo: .git
 .git:	# transform into a git working tree
 	which git
 	git init
-	git remote add origin -t master -f git@github.com:squell/id3.git
+	git remote add origin -t master -f https://github.com/squell/id3.git
 	git reset FETCH_HEAD
 
 AWKCMD = "BEGIN { pretty = \"figlet -fsmall\" } \
