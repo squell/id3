@@ -23,7 +23,7 @@
 
   character conversion (user locale -> latin1) (portable)
 
-  copyright (c) 2005, 2006 squell <squell@alumina.nl>
+  copyright (c) 2005, 2006, 2015 squell <squell@alumina.nl>
 
   use, modification, copying and distribution of this software is permitted
   under the conditions described in the file 'COPYING'.

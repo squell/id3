@@ -113,8 +113,8 @@ const char *membrk0(const char *buf, size_t size, int wide)
     const char* const end = buf + size - wide;
     const int step = 1+wide;
     for( ; buf < end; buf += step) {
-	if(!buf[0] && !buf[wide])
-	    return buf+step;
+        if(!buf[0] && !buf[wide])
+            return buf+step;
     }
     return 0;
 }
@@ -126,7 +126,7 @@ int main(int argc, char *argv[])
     if(*++argv) {
         void *tag = ID3_readf(*argv, 0);
         ID3FRAME f;
-	int counter = 0;
+        int counter = 0;
 
         if(!tag) return 0;
 
@@ -161,13 +161,13 @@ int main(int argc, char *argv[])
                                 mime_ext(*argv, mime_type),
                                 blob, 
                                 f->size - (blob - f->data) );
-		    counter++;
+                    counter++;
                 }
             }
         }
 
-	if(counter == 0)
-	    eprintf("%s contains no embedded images\n", *argv);
+        if(counter == 0)
+            eprintf("%s contains no embedded images\n", *argv);
         ID3_free(tag);
     }
     return 0;

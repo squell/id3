@@ -11,7 +11,7 @@
 
 /*
 
-  copyright (c) 2004-2006 squell <squell@alumina.nl>
+  copyright (c) 2004-2006, 2015 squell <squell@alumina.nl>
 
   use, modification, copying and distribution of this software is permitted
   under the conditions described in the file 'COPYING'.
@@ -117,26 +117,26 @@ namespace {
                 error[sizeof error-2] = (c+1)%10 + '0', throw out_of_range(error);
             }
             return conv<local>(filerec->var[c]);
-	case '{': {
-	    ptr q = std::find(p, end, '}');
-	    if(q == end) {
+        case '{': {
+            ptr q = std::find(p, end, '}');
+            if(q == end) {
                 throw out_of_range("missing } in variable");
-	    } else if(q == p+1) {
-		const result& tmp = var(p, end);
-		return ++p, tmp;
-	    }
-	    const string key = conv<wchar_t>(wstring(p, q)).str<latin1>();
-	    p = q+1;
+            } else if(q == p+1) {
+                const result& tmp = var(p, end);
+                return ++p, tmp;
+            }
+            const string key = conv<wchar_t>(wstring(p, q)).str<latin1>();
+            p = q+1;
 
             if(!tag_data) tag_data = tag->read(filerec->path);
-	    typedef tag::metadata::array info;
-	    const info frames = tag_data->listing();
-	    for(info::const_iterator rec = frames.begin(); rec != frames.end(); rec++) {
-		if(key == rec->first.substr(0,max(string::size_type(3),key.length())))
-		    return rec->second;
-	    }
-	    return conv<>();
-	}
+            typedef tag::metadata::array info;
+            const info frames = tag_data->listing();
+            for(info::const_iterator rec = frames.begin(); rec != frames.end(); rec++) {
+                if(key == rec->first.substr(0,max(string::size_type(3),key.length())))
+                    return rec->second;
+            }
+            return conv<>();
+        }
 
         default:
             ID3field i; i = mass_tag::field(c);
