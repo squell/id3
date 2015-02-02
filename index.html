@@ -4,7 +4,7 @@
   <head>
     <meta charset='utf-8'>
     <meta http-equiv="X-UA-Compatible" content="chrome=1">
-    <meta name="description" content="id3 : a command-line mass tagger">
+    <meta name="description" content="id3 : a portable command-line mass tagger">
 
     <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/stylesheet.css">
 
@@ -19,7 +19,7 @@
           <a id="forkme_banner" href="https://github.com/squell/id3">View on GitHub</a>
 
           <h1 id="project_title">id3</h1>
-          <h2 id="project_tagline">a command-line mass tagger</h2>
+          <h2 id="project_tagline">a portable command-line mass tagger</h2>
 
             <section id="downloads">
               <a class="zip_download_link" href="https://github.com/squell/id3/zipball/master">Download this project as a .zip file</a>
@@ -43,26 +43,26 @@
 
 <p>Add a simple tag to a file.</p>
 
-<div class="highlight highlight-sh"><pre>id3 -d <span class="pl-k">*</span>.mp3</pre></div>
+<div class="highlight highlight-sh"><pre>id3 mysong.mp3</pre></div>
 
-<p>Removes all ID3v1 tags from all mp3's</p>
+<p>List tag info contained in file</p>
 
 <div class="highlight highlight-sh"><pre>id3 -g <span class="pl-s1"><span class="pl-pds">"</span>psych rock<span class="pl-pds">"</span></span> <span class="pl-k">*</span>.mp3</pre></div>
 
-<p>Sets genre to "Psychedelic Rock" all mp3's</p>
+<p>Sets genre to "Psychedelic Rock" in all mp3's</p>
 
-<div class="highlight highlight-sh"><pre>id3 -2 -1 -u <span class="pl-s1"><span class="pl-pds">"</span>*.mp3<span class="pl-pds">"</span></span></pre></div>
+<div class="highlight highlight-sh"><pre>id3 -2 -a <span class="pl-s1"><span class="pl-pds">"</span>TAFKAT<span class="pl-pds">"</span></span> -n <span class="pl-s1"><span class="pl-pds">"</span>%1<span class="pl-pds">"</span></span> -t <span class="pl-s1"><span class="pl-pds">"</span>%+2<span class="pl-pds">"</span></span> <span class="pl-s1"><span class="pl-pds">"</span>*. *.mp3<span class="pl-pds">"</span></span></pre></div>
 
-<p>Copy ID3v2 tag to ID3v1 tag in all files.</p>
-
-<div class="highlight highlight-sh"><pre>id3 -a <span class="pl-s1"><span class="pl-pds">"</span>TAFKAT<span class="pl-pds">"</span></span> -n <span class="pl-s1"><span class="pl-pds">"</span>%1<span class="pl-pds">"</span></span> -t <span class="pl-s1"><span class="pl-pds">"</span>%+2<span class="pl-pds">"</span></span> <span class="pl-s1"><span class="pl-pds">"</span>*. *.mp3<span class="pl-pds">"</span></span></pre></div>
-
-<p>Update tag fields similar to this;</p>
+<p>Update ID3v2 tag fields similar to this;</p>
 
 <blockquote>
 <p>id3 -a "TAFKAT" -n "01" -t "My Song"  "01. my_song.mp3"<br>
 id3 -a "TAFKAT" -n "02" -t "Untitled" "02. untitled.mp3"</p>
 </blockquote>
+
+<div class="highlight highlight-sh"><pre>id3 -2 -m <span class="pl-s1"><span class="pl-pds">"</span>%n. %+t.mp3<span class="pl-pds">"</span></span></pre></div>
+
+<p>Shorthand notation for the above, using the -m option.</p>
 
 <div class="highlight highlight-sh"><pre>id3 -2 -f <span class="pl-s1"><span class="pl-pds">"</span>%a - %t.mp3<span class="pl-pds">"</span></span> blaet.mp3</pre></div>
 
@@ -72,9 +72,17 @@ id3 -a "TAFKAT" -n "02" -t "Untitled" "02. untitled.mp3"</p>
 
 <p>Process multiple directories at once.</p>
 
-<div class="highlight highlight-sh"><pre>id3 -g <span class="pl-s1"><span class="pl-pds">"</span>alt rock<span class="pl-pds">"</span></span> -a <span class="pl-s1"><span class="pl-pds">"</span>The Author<span class="pl-pds">"</span></span> -m <span class="pl-s1"><span class="pl-pds">"</span>Author - %l/(%n) %t.mp3<span class="pl-pds">"</span></span></pre></div>
+<div class="highlight highlight-sh"><pre>id3 -ga <span class="pl-s1"><span class="pl-pds">"</span>alt rock<span class="pl-pds">"</span></span> <span class="pl-s1"><span class="pl-pds">"</span>The Author<span class="pl-pds">"</span></span> -m <span class="pl-s1"><span class="pl-pds">"</span>Author - %l/(%n) %t.mp3<span class="pl-pds">"</span></span></pre></div>
 
 <p>Shorthand for the previous example.</p>
+
+<div class="highlight highlight-sh"><pre>id3 -1 -3 -d <span class="pl-k">*</span>.mp3</pre></div>
+
+<p>Removes all ID3v1 and Lyrics3 tags from all mp3's</p>
+
+<div class="highlight highlight-sh"><pre>id3 -2 -1 -u <span class="pl-s1"><span class="pl-pds">"</span>*.mp3<span class="pl-pds">"</span></span></pre></div>
+
+<p>Copy ID3v2 tag to ID3v1 tag in all files.</p>
 
 <div class="highlight highlight-sh"><pre>id3 -a %t -t %a <span class="pl-s1"><span class="pl-pds">"</span>*.mp3<span class="pl-pds">"</span></span></pre></div>
 
@@ -120,7 +128,36 @@ Unknown - Untitled (02).mp3<br>
 <h3>
 <a id="getting-it" class="anchor" href="#getting-it" aria-hidden="true"><span class="octicon octicon-link"></span></a>Getting it</h3>
 
-<p>You can find release tarballs, and binaries for Windows <a href="https://github.com/squell/id3/releases/latest/">here</a>.</p>
+<table>
+<thead>
+<tr>
+<th>Version</th>
+<th>Release date</th>
+<th>Source</th>
+<th>Pre-built binaries</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0.79</td>
+<td>30 Jan 2015</td>
+<td>
+<a href="https://github.com/squell/id3/releases/download/0.79/id3-0.79.tar.gz">tarball</a>/<a href="https://github.com/squell/id3/releases/download/0.79/id3-079s.zip">zip</a>
+</td>
+<td>
+<a href="https://github.com/squell/id3/releases/download/0.79/id3-079w.zip">Win32</a>, <a href="https://github.com/squell/id3/releases/downoad/0.79/id3mtag_0.79-1_amd64.deb">Debian/Ubuntu amd64</a>, <a href="https://github.com/squell/id3/releases/downoad/0.79/id3mtag_0.79-1_i386.deb">Debian/Ubuntu i386</a>
+</td>
+</tr>
+<tr>
+<td>0.78</td>
+<td>21 Mar 2006</td>
+<td>
+<a href="https://github.com/squell/id3/releases/download/0.78/id3-0.78.tar.gz">tarball</a>/<a href="https://github.com/squell/id3/releases/download/0.78/id3-078s.zip">zip</a>
+</td>
+<td><a href="https://github.com/squell/id3/releases/download/0.78/id3-078w.zip">Win32</a></td>
+</tr>
+</tbody>
+</table>
 
 <p>id3 mass tagger may also be a available on your system by default:</p>
 
@@ -128,10 +165,19 @@ Unknown - Untitled (02).mp3<br>
 
 <p><strong>FreeBSD</strong>: <code>pkg install id3mtag</code></p>
 
+<p>You can also find release notes, tarballs, and binaries <a href="https://github.com/squell/id3/releases/latest/">here</a>.</p>
+
+<h3>
+<a id="developer-notes" class="anchor" href="#developer-notes" aria-hidden="true"><span class="octicon octicon-link"></span></a>Developer notes</h3>
+
+<p>Like many small projects, this started as something hacked together to scratch a need. Besides its obvious purpose, this has also become an exercise in writing a fully portable program, trying out C++ features on various compilers, etc.</p>
+
+<p>If you like this program, you can help by trying to build and test it on an uncommon system, or becoming a package maintainer for some Linux distribution. Please contact me if you do so.</p>
+
 <h3>
 <a id="copyright" class="anchor" href="#copyright" aria-hidden="true"><span class="octicon octicon-link"></span></a>Copyright</h3>
 
-<p>© Marc Schoolderman 2003-2006. All rights reserved.</p>
+<p>© Marc Schoolderman 2003-2015. All rights reserved.</p>
 
 <p>This program may be used freely, and you are welcome to redistribute it under certain conditions.</p>
 
