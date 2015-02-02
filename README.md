@@ -9,6 +9,10 @@ id3 -a "Stallman" -t "Free Software Song" fs_song.mp3"
 ```
 Add a simple tag to a file.
 ```sh
+id3 mysong.mp3
+```
+List tag info contained in file
+```sh
 id3 -g "psych rock" *.mp3
 ```
 Sets genre to "Psychedelic Rock" in all mp3's
@@ -82,7 +86,10 @@ ID3v2.4 tags are not supported; because ID3v2.4 is a horrible 'standard'. Also, 
 
 ### Getting it
 
-You can find release tarballs, and binaries for Windows [here](https://github.com/squell/id3/releases/latest/).
+Version  | Release date | Source | Pre-built binaries
+-------- | ------------ | ------ | ------
+0.79     | 30 Jan 2015  | [tarball](https://github.com/squell/id3/releases/download/0.79/id3-0.79.tar.gz)/[zip](https://github.com/squell/id3/releases/download/0.79/id3-079s.zip) | [Win32](https://github.com/squell/id3/releases/download/0.79/id3-079w.zip), [Debian/Ubuntu amd64](https://github.com/squell/id3/releases/downoad/0.79/id3mtag_0.79-1_amd64.deb), [Debian/Ubuntu i386](https://github.com/squell/id3/releases/downoad/0.79/id3mtag_0.79-1_i386.deb)
+0.78     | 21 Mar 2006  | [tarball](https://github.com/squell/id3/releases/download/0.78/id3-0.78.tar.gz)/[zip](https://github.com/squell/id3/releases/download/0.78/id3-078s.zip) | [Win32](https://github.com/squell/id3/releases/download/0.78/id3-078w.zip)
 
 id3 mass tagger may also be a available on your system by default:
 
@@ -90,9 +97,17 @@ id3 mass tagger may also be a available on your system by default:
 
 **FreeBSD**: `pkg install id3mtag`
 
+You can also find release notes, tarballs, and binaries [here](https://github.com/squell/id3/releases/latest/).
+
+### Developer notes
+
+Like many small projects, this started as something hacked together to scratch a need. Besides its obvious purpose, this has also become an exercise in writing a fully portable program, trying out C++ features on various compilers, etc.
+
+If you like this program, you can help by trying to build and test it on an uncommon system, or becoming a package maintainer for some Linux distribution. Please contact me if you do so.
+
 ### Copyright
 
-&copy; Marc Schoolderman 2003-2006. All rights reserved.
+&copy; Marc Schoolderman 2003-2015. All rights reserved.
 
 This program may be used freely, and you are welcome to redistribute it under certain conditions.
 
