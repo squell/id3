@@ -1,17 +1,18 @@
-## generic GNU makefile ####################################################
+## generic *nix makefile ###################################################
 
 SHELL	 = /bin/sh
 
-CC	 = cc
-CXX	 = c++
-CFLAGS	 = $(WARNINGS:%=-W%) -pedantic -g -Os
-CXXFLAGS = $(CFLAGS) -fno-rtti
-LDFLAGS  =
-WARNINGS = format no-parentheses
+CC	 ?= cc
+CXX	 ?= c++
 
-STRIP	 = strip
-TAR	 = tar
-MKDEP	 = $(CC) -MM
+CFLAGS	 ?= -g -Os -pedantic
+CFLAGS	 += $(WARNINGS:%=-W%)
+CXXFLAGS ?= $(DEFFLAGS)
+CXXFLAGS += -fno-rtti $(WARNINGS:%=-W%)
+LDFLAGS	 ?=
+
+DEFFLAGS := $(CFLAGS)
+WARNINGS = format no-parentheses
 
 ## installation vars #######################################################
 
@@ -19,19 +20,25 @@ prefix	 = /usr/local
 bindir	 = $(prefix)/bin
 mandir	 = $(prefix)/man
 manext	 = 1
-man1dir  = $(mandir)/man$(manext)
+man1dir	 = $(mandir)/man$(manext)
 
 binary	 = id3
+package	 = $(binary)
 
-datadir  = $(prefix)/share
-docdir	 = $(datadir)/doc/id3
-docdata  = README CHANGES COPYING
+datadir	 = $(prefix)/share
+docdir	 = $(datadir)/doc/$(package)
+docdata	 = README CHANGES COPYING
 
-INSTALL 	= install
-INSTALL_PROGRAM = $(INSTALL)
-INSTALL_DATA	= $(INSTALL) -m 644
-INSTALL_DIR	= $(INSTALL) -d
-INSTALL_STRIP	= $(INSTALL_PROGRAM) -s
+INSTALL		?= install
+INSTALL_PROGRAM	?= $(BSD_INSTALL_PROGRAM)
+INSTALL_DATA	?= $(BSD_INSTALL_DATA)
+INSTALL_MAN	?= $(BSD_INSTALL_MAN)
+INSTALL_DIR	?= $(INSTALL) -d
+INSTALL_STRIP	?= $(INSTALL_PROGRAM) -s
+
+BSD_INSTALL_PROGRAM ?= $(INSTALL)
+BSD_INSTALL_DATA    ?= $(INSTALL) -m 644
+BSD_INSTALL_MAN     ?= $(INSTALL) -m 644
 
 ## makefile setup ##########################################################
 
@@ -49,9 +56,6 @@ build: id3
 
 all  : id3 id3l id3-images
 
-final: id3 id3l id3-images
-	$(STRIP) id3 id3l id3-images
-
 clean:
 	-rm -f *.o id3 id3l id3-images
 
@@ -60,30 +64,37 @@ depend:
 	 echo .; echo wq) | ed makefile
 
 help:
-	@sed -e '1,/vars/!d' -e '/^[[:upper:]]/!d' makefile
+	#@sed -e '1,/vars/!d' -e '/^[[:upper:]]/!d' makefile
+	@echo "SHELL    = $(SHELL)"
+	@echo "CC       = $(CC)"
+	@echo "CFLAGS   = $(CFLAGS)"
+	@echo "CXX      = $(CXX)"
+	@echo "CXXFLAGS = $(CXXFLAGS)"
+	@echo "LDFLAGS  = $(LDFLAGS)"
+	@echo "WARNINGS = $(WARNINGS)"
 	@echo
-	@sed -e '1,/setup/!d' -e '/^[[:lower:]]/!d' makefile
+	@sed -e '1,/setup/!d' -e '/^[[:lower:]].*.i.\>/!d' makefile
 	@echo
 	@grep '^.PHONY' makefile
 
 ## installation ############################################################
 
 installdirs:
-	$(INSTALL_DIR) $(bindir) $(man1dir)
+	$(INSTALL_DIR) $(DESTDIR)$(bindir) $(DESTDIR)$(man1dir)
 
 installman: id3.man
-	$(INSTALL_DATA) id3.man $(man1dir)/id3.$(manext)
+	$(INSTALL_MAN) id3.man $(DESTDIR)$(man1dir)/$(binary).$(manext)
 
 installdoc: $(docdata)
-	$(INSTALL_DIR) $(docdir)
+	$(INSTALL_DIR) $(DESTDIR)$(docdir)
 	for f in $(docdata); do \
-	    $(INSTALL_DATA) $${f} $(docdir)/$${f}; done
+	    $(INSTALL_DATA) $${f} $(DESTDIR)$(docdir)/$${f}; done
 
-install: $(binary) installdirs installman
-	$(INSTALL_PROGRAM) $(binary) $(bindir)/id3
+install: id3 installdirs installman
+	$(INSTALL_PROGRAM) id3 $(DESTDIR)$(bindir)/$(binary)
 
-install-strip: $(binary) installdirs installman
-	$(INSTALL_STRIP) $(binary) $(bindir)/id3
+install-strip: id3 installdirs installman
+	$(INSTALL_STRIP) id3 $(DESTDIR)$(bindir)/$(binary)
 
 install-full: install-strip installdoc
 
@@ -100,7 +111,7 @@ SRC_CPP     = sedit varexp fileexp mass_tag pattern	\
 	      charconv char_ucs char_utf8 lyrics3	\
 	      setid3 setid3v2 setlyr3 setfname setquery \
 	      getid3 getid3v2 getlyr3
-SRC_C	    = fileops id3v1 id3v2
+SRC_C       = fileops id3v1 id3v2
 DIR_DEBIAN  = control rules copyright changelog
 DIR_RPM     = id3mtag.spec
 DIR_FREEBSD = Makefile pkg-descr
@@ -120,20 +131,22 @@ D_PKG = pkg=id3-$(D_VER); \
 D_FIL = `echo $(DISTFILES) | sed "s:[^ ]*:$${pkg}/&:g"`
 
 D_TMP = rm -rf .tmp; mkdir .tmp && \
-	$(TAR) cf - $(DISTFILES) | $(TAR) Cxf .tmp -
+	tar cf - $(DISTFILES) | tar Cxf .tmp -
 
 dist: $(DISTFILES)
-	$(D_PKG) && $(TAR) chofz $${pkg}.tar.gz $(D_FIL); rm -f $${pkg}
+	$(D_PKG) && tar chofz $${pkg}.tar.gz $(D_FIL); rm -f $${pkg}
 
 dist-zip: $(DISTFILES)
 	$(D_PKG) && zip -9Tl $${pkg//.}s.zip $(D_FIL); rm -f $${pkg}
 
 dist-check: all $(DISTFILES)
 	if [ -f !* ]; then echo !*; false; fi
-	test `sed -n '/^#define _version_.*(\(.*\)).*/s//\1/p' < main.cpp` \
-	   = `date +%Y%j`
 	grep $(D_VER) INSTALL
 	grep $(D_VER) CHANGES
+	grep `date +%Y` COPYING
+	grep "Copyright.*`date +%y`" main.cpp
+	test `sed -n '/^#define _version_.*(\(.*\)).*/s//\1/p' < main.cpp` \
+	   = `date +%Y%j`
 	d=`(cat INSTALL | sed -n -e '/contents/,/---/!d' \
 	  -e '/(C++)$$/{ s/^ \([^ ]*\)[*].*/\1h/p; s/h$$/cpp/p;}' \
 	  -e '/(C)$$/  { s/^ \([^ ]*\)[*].*/\1h/p; s/h$$/c/p;  }' \
@@ -181,7 +194,7 @@ id3l: $(OBJX_L:=.o)
 	$(CXX) $(CXXFLAGS) $(OBJX_L:=.o) $(LDFLAGS) -o $@
 
 id3-images: id3-images.c id3v2.c id3v2.h
-	$(CC) $(CFLAGS) $(LDFLAGS) id3-images.c id3v2.c -DID3v2_READONLY -o $@
+	$(CC) $(CFLAGS) -DID3v2_READONLY id3-images.c id3v2.c $(LDFLAGS) -o $@
 
 .cpp.o:
 	$(CXX) $(CXXFLAGS) -c $<
@@ -191,10 +204,10 @@ id3-images: id3-images.c id3v2.c id3v2.h
 mainl.o:
 	$(CXX) $(CXXFLAGS) -DLITE -o $@ -c main.cpp
 
-MKALLDEP = $(MKDEP) $(CXXFLAGS) main.cpp;				   \
-	   $(MKDEP) $(CXXFLAGS) -DLITE main.cpp | sed 's/main.o/mainl.o/'; \
-	   $(MKDEP) $(CXXFLAGS) $(SRC_CPP:=.cpp);			   \
-	   $(MKDEP) $(CFLAGS)	$(SRC_C:=.c)
+MKALLDEP = $(CXX) -MM $(CXXFLAGS) main.cpp;				   \
+	   $(CXX) -MM $(CXXFLAGS) -DLITE main.cpp | sed 's/main.o/mainl.o/'; \
+	   $(CXX) -MM $(CXXFLAGS) $(SRC_CPP:=.cpp);			   \
+	   $(CC)  -MM $(CFLAGS)	$(SRC_C:=.c)
 
 ## dependencies -MM ########################################################
 

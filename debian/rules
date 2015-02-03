@@ -24,8 +24,7 @@ clean:
 install: checkroot build
 	$(checkdir)
 	rm -rf debian/tmp
-	make prefix=./debian/tmp/usr mandir='$$(datadir)'/man \
-		docdir='$$(datadir)/doc/'$(package) install-full
+	make install-full prefix=./debian/tmp/usr mandir='$$(datadir)'/man package=id3mtag
 
 binary: binary-arch
 
