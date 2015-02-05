@@ -27,10 +27,9 @@
        tags in multiple files. It can generate tag fields  from  the  filename
        and other variables, and/or rename files, using an intuitive syntax.
 
-       id3  currently  supports  the  old-style  ID3  format with track-number
-       extension (ID3 v1.1), as  well  as  the	more  complicated  ID3v2  (ID3
-       v2.2.0,	v2.3.0) format.  This also means use is pretty much limited to
-       audio files which use these formats, e.g, MPEG-1 Layer III.
+       id3  currently supports old-style ID3v1 tags, Lyrics3v2, as well as the
+       more complex ID3v2 format.  This means its  use	is  limited  to  audio
+       files which use these formats, i.e. MPEG-1 Layer III.
 
           _   _             
  ___ _ __| |_(_)___ _ _  ___
@@ -42,7 +41,7 @@
        filespec ...
 	      specifies the file(s) to be affected by the command.
 
-	      If you use wildcards, it is necessary to enclose the  specifica‐
+	      If  you use wildcards, it is necessary to enclose the specifica‐
 	      tion in double quotes ("") for pattern matching to work.
 
        -h     show command line help
@@ -57,27 +56,27 @@
 
        -3     process/add Lyrics3 tags.
 
-	      If  more	than  one tag type is specified, they are all written,
+	      If more than one tag type is specified, they  are  all  written,
 	      but only the left-most tag is read from. If no tag type is spec‐
-	      ified,  id3  will  by default attempt to read ID3v2, Lyrics3 and
+	      ified, id3 will by default attempt to read  ID3v2,  Lyrics3  and
 	      ID3v1 tags in that order, only modify existing ID3v2 and Lyrics3
 	      tags, and modify/add ID3v1 tags.
 
-       -R     searches	recursively;  Normally, path separators in filespec do
-	      not get matched by `?' or `*' wildcards. With this switch,  they
+       -R     searches recursively; Normally, path separators in  filespec  do
+	      not  get matched by `?' or `*' wildcards. With this switch, they
 	      are treated as an ordinary character.
 
        -M     preserve last modification time of files operated on
 
-       --     force  the  following  argument to be interpreted as a filename.
+       --     force the following argument to be interpreted  as  a  filename.
 	      Use this for files that start with a `-' (dash).
 
    Modifying operations
        The default operation of id3 is to list the tags found. By using any of
        the following options, this behaviour is inhibited.
 
-       -d     do  not  re-use  existing tag data. If no new tag information is
-	      specified in conjunction with this  option,  all	selected  tags
+       -d     do not re-use existing tag data. If no new  tag  information  is
+	      specified  in  conjunction  with	this option, all selected tags
 	      will be removed.
 
        -t title
@@ -88,50 +87,50 @@
        -g genre
        -c comment
 
-	      add/replace  the	specified fields in all selected tags with the
-	      values given. Field values are scanned  for  substitution  vari‐
-	      ables,  see  SUBSTITUTION  below.  If  a field value is a single
+	      add/replace the specified fields in all selected tags  with  the
+	      values  given.  Field  values are scanned for substitution vari‐
+	      ables, see SUBSTITUTION below. If a  field  value  is  a	single
 	      variable, and its substitution fails, no operation is performed.
 
-	      Genres can be specified either directly or with  their  assigned
+	      Genres  can  be specified either directly or with their assigned
 	      number, regardless of tag format.
 
        -f filename-template
-	      rename  files  encountered  according to filename-template.  The
-	      argument is scanned for substitution variables. An  empty  vari‐
-	      able  will  by  default  get replaced with “Unknown”.  Trying to
+	      rename files encountered according  to  filename-template.   The
+	      argument	is  scanned for substitution variables. An empty vari‐
+	      able will by default get replaced  with  “Unknown”.   Trying  to
 	      rename to an already existing file will cause an error.
 
        -q format
 	      for each file encountered, format will get scanned for substitu‐
-	      tion  variables,	and  written  to  standard  output. Using this
+	      tion variables, and  written  to	standard  output.  Using  this
 	      option will block any attempt to modify files.
 
-       -m     match mode; interpret any variables found in  a  filespec  as  a
-	      wildcard,  and  set  the	tag field corresponding to the matched
-	      wildcard.    Thus,   `-m "%a - %t.mp3"'	is   equivalent    for
-	      `-a %1 -t %2 "* - *.mp3"'.   This  option  is merely a shorthand
-	      and does not add any intelligence; in particular,  any  variable
+       -m     match  mode;  interpret  any  variables found in a filespec as a
+	      wildcard, and set the tag field  corresponding  to  the  matched
+	      wildcard.     Thus,   `-m "%a - %t.mp3"'	 is   equivalent   for
+	      `-a %1 -t %2 "* - *.mp3"'.  This option is  merely  a  shorthand
+	      and  does  not add any intelligence; in particular, any variable
 	      interpreted still counts as a wildcard, see SUBSTITUTION below.
 
        -D filename
-	      duplicate  and copy the tags of the specified format as found in
-	      filename to the target files. The tag in each file  is  replaced
-	      after  any  variables  have been read, but before any fields are
+	      duplicate and copy the tags of the specified format as found  in
+	      filename	to  the target files. The tag in each file is replaced
+	      after any variables have been read, but before  any  fields  are
 	      updated.
 
-	      Any original tag values not explicitly copied  to  the  new  tag
-	      (for  example,  by using -u) are lost. If filename does not have
-	      any tags, this option is identical to the -d option.   SUBSTITU‐
+	      Any  original  tag  values  not explicitly copied to the new tag
+	      (for example, by using -u) are lost. If filename does  not  have
+	      any  tags, this option is identical to the -d option.  SUBSTITU‐
 	      TION below.
 
-       The  following  options	only  apply  on the tag most recently selected
+       The following options only apply on  the  tag  most  recently  selected
        before them, and only have meaning where relevant.
 
-       -E     only write a tag of the most recently selected type  if  a  file
+       -E     only  write  a  tag of the most recently selected type if a file
 	      already contains it; do not add new ones.
 
-       -u     update  all  standard tag fields by copying them from the source
+       -u     update all standard tag fields by copying them from  the	source
 	      tag. This is similar to writing `-talnygc %t %a %l %n %y %g %c',
 	      but only operates on the most recent tag. It is possible for the
 	      source and destination tag to be the same.
@@ -142,15 +141,15 @@
 	      if size is smaller than the actual size necessary.
 
        -rFRAME
-	      remove all occurrences of frames named FRAME from the tag.  Con‐
+	      remove  all occurrences of frames named FRAME from the tag. Con‐
 	      sult the format documentation for valid FRAME names.
 
        -wFRAME data
 	      add / update a frame named FRAME with data in the  tag.  data is
-	      scanned for substitution variables. Again,  consult  the	format
+	      scanned  for  substitution  variables. Again, consult the format
 	      documentation. See COMPATIBILITY for more information.
 
-       Individual  options can be stacked in a single argument for more conve‐
+       Individual options can be stacked in a single argument for more	conve‐
        nience.	For example, running
 
 	  id3 -2d -alt "Artist" "Album" "Title" *.mp3
@@ -166,17 +165,17 @@
 /__/\_,_|_.__/__/\__|_|\__|\_,_|\__|_\___/_||_|
                                                
        id3 can perform “printf-like” substitution on the values prior to writ‐
-       ing  them  to a tag. Note that if you want to use pattern matching, you
-       HAVE TO enclose the wildcard specification on the command line in  dou‐
+       ing them to a tag. Note that if you want to use pattern	matching,  you
+       HAVE  TO enclose the wildcard specification on the command line in dou‐
        ble quotes to prevent your shell from expanding any wildcards.
 
-       \c     escape  sequence. \n, \r, \t, \v, \f, \b, \a, get replaced as in
-	      C, any other character will be stripped of any special  meaning.
+       \c     escape sequence. \n, \r, \t, \v, \f, \b, \a, get replaced as  in
+	      C,  any other character will be stripped of any special meaning.
 	      E.g., \n becomes the newline character, \\ a single backslash.
 
        %<modifiers>N
-	      where  N	<-  [0..9]  replaced with the portion of the file path
-	      matching the nth `*' (asterisk) wildcard in the file  specifica‐
+	      where N <- [0..9] replaced with the portion  of  the  file  path
+	      matching	the nth `*' (asterisk) wildcard in the file specifica‐
 	      tion. 0 is taken to mean 10.
 
        %<modifiers>c
@@ -196,19 +195,19 @@
 	      %X file counter
 
 	      Values get read (where applicable) from the source tag, which is
-	      the left-most tag selected on the command line, and reflect  the
-	      state  of  the  file  before any modifications were made. If the
-	      source value is not available, the variable  fails.   %p%f  com‐
-	      bines  to  the  full  path  and  file  name.  The  %x value gets
-	      increased every time it has been	substituted  inside  the  same
-	      directory,  and is intended for auto-numbering. %X increases for
+	      the  left-most tag selected on the command line, and reflect the
+	      state of the file before any modifications  were	made.  If  the
+	      source  value is not available, the variable fails.  %_p%_f com‐
+	      bines to the raw full path and file  name.  The  %x  value  gets
+	      increased  every	time  it  has been substituted inside the same
+	      directory, and is intended for auto-numbering. %X increases  for
 	      every file processed.
 
        %%     replaced with a single “%”, equivalent to \%
 
        %|text||alt text||...|?
 	      substituted by the first text that was completely successful, or
-	      fails  as  empty,  see  fall-backs below. This can be used as an
+	      fails as empty, see fall-backs below. This can  be  used	as  an
 	      all-or-nothing substitution. A lone “%?” always fails.
 
    Available <modifiers> (optional):
@@ -219,26 +218,26 @@
 	      Convert all characters to lowercase
 
        _ (underscore)
-	      Use the  raw  value  of  the  variable.  Normally,  substitution
+	      Use  the	raw  value  of	the  variable.	Normally, substitution
 	      replaces any underscores with spaces, and condenses empty white‐
 	      space.
 
        * (asterisk)
-	      Split the variable into separate words by looking at  the  capi‐
+	      Split  the  variable into separate words by looking at the capi‐
 	      talization.
 
        # (hash or pound sign)
-	      Attempt  to  fit	numeric  values in the substituted string to a
-	      desired width, by removing or adding  leading  zeros.   Multiple
-	      hash  signs  can	be  stacked  to indicate the desired width. If
+	      Attempt to fit numeric values in the  substituted  string  to  a
+	      desired  width,  by  removing or adding leading zeros.  Multiple
+	      hash signs can be stacked to  indicate  the  desired  width.  If
 	      there are no numeric values, this modifier has no effect.
 
        |fall-back|
 	      If substitution for a variable fails, attempt fall-back instead.
 	      fall-back  itself  may  be  empty  or  contain  other  variables
-	      (including other fall-backs). If	fall-back  contains  variables
-	      that  fail,  the	fall-back  fails and will not be used. If more
-	      than one fall-back is provided, successive fall-backs are  tried
+	      (including  other  fall-backs).  If fall-back contains variables
+	      that fail, the fall-back fails and will not  be  used.  If  more
+	      than  one fall-back is provided, successive fall-backs are tried
 	      until one succeeds.
 
                          _        
@@ -300,20 +299,20 @@
 | ' \/ _ \  _/ -_|_-<
 |_||_\___/\__\___/__/
                      
-       The  internal  pattern matching emulates the normal pattern matching of
+       The internal pattern matching emulates the normal pattern  matching  of
        “sh”. It supports ?, * and [].
 
-       A shell pattern will never match a forward slash (“/”) or a  dot  (“.”)
+       A  shell  pattern will never match a forward slash (“/”) or a dot (“.”)
        beginning a filename. Wildcards can be used for directories as well (to
        arbitrary depths), in which case a search will be performed.
 
-       In an ambiguous situation, the pattern matcher will  always  resolve  a
-       “*”  wildcard to the shortest possible sequence of tokens. This differs
-       from the behavior of regular expressions,  however  it  tends  to  make
+       In  an  ambiguous  situation, the pattern matcher will always resolve a
+       “*” wildcard to the shortest possible sequence of tokens. This  differs
+       from  the  behavior  of	regular  expressions, however it tends to make
        sense in the context of filenames.
 
        Do NOT add ID3 tags to files for which it does not make sense, i.e, add
-       them only to MP3 files. In particular, do not add  ID3v2  tags  to  Ogg
+       them  only  to  MP3  files. In particular, do not add ID3v2 tags to Ogg
        files, since ID3v2 tags start at the beginning of the file.
 
                          _   _ _    _ _ _ _        
@@ -322,29 +321,28 @@
 \__\___/_|_|_| .__/\__,_|\__|_|_.__/_|_|_|\__|\_, |
              |_|                              |__/ 
        id3 has a built-in genre list of 148 genres. If you pass the -g parame‐
-       ter a string instead of a number when using ID3v1, id3  tries  to  find
-       the  specified  genre  in  this	list, and selects the closest possible
-       match (if any). For the genre numbers and exact spelling,  see  id3v1.c
-       in  the	source distribution. An empty or invalid genre is assigned the
+       ter  a  string  instead of a number when using ID3v1, id3 tries to find
+       the specified genre in this list,  and  selects	the  closest  possible
+       match  (if  any). For the genre numbers and exact spelling, see id3v1.c
+       in the source distribution. An empty or invalid genre is  assigned  the
        number 0.
 
-       id3 automatically writes Unicode tags  where  necessary.  Depending  on
-       your  system, you may only be able to fully work with all characters if
-       you are using an UTF-8 locale.
+       The ID3v1 format only supports to the ISO-8859-1 (Latin 1) encoding. If
+       you need other Unicode characters, you need to use ID3v2 tags.
 
-       id3 will write the ID3v2 tag version that was encountered and does  not
-       convert	from  one version to another. If no existing tag is found, ID3
-       v2.3 will be written (this may change in a future version).
+       When using -2, id3 will write ID3 v2.3 by default,  unless  a  file  is
+       already tagged with ID3 v2.2 (this is done by iTunes). id3 can read ID3
+       v2.4 tags, but these will be converted to ID3 v2.3 when modified.
 
-       The  -wFRAME  parameter	only  knows  the  following  ID3v2.2  (3  let‐
-       ter)/ID3v2.3  (4  letter)  frames:  T??/T???  (text), W??/W??? (links),
-       COM/COMM (comment), IPL/IPLS  (involved	 people),  ULT/USLT  (lyrics),
-       CNT/PCNT (numeric play counter) and USER (tos, v2.3 only).  Frames that
-       do not match the tag type encountered are ignored and not converted. It
-       is a no-op for ID3v1.
+       The -wFRAME parameter and %{FRAME} substitution only know the following
+       ID3v2.2 (3 letter)/ID3v2.3 (4 letter) frames: T??/T??? (text), W??/W???
+       (links), COM/COMM  (comment),  IPL/IPLS	(involved   people),  ULT/USLT
+       (lyrics),  CNT/PCNT  (numeric  play counter) and USER (tos, v2.3 only).
+       Frames that do not match the tag type encountered are ignored  and  not
+       converted. It is a no-op for ID3v1.
 
-       id3 does not (currently) support ID3v2 v4.0 tags. It also does not sup‐
-       port ID3v2 features as compression, encryption, ...
+       id3  does  not  support unnecessary ID3v2 features such as compression,
+       encryption, or embedding binary data (including image files).
 
            _   _            
  __ _ _  _| |_| |_  ___ _ _ 
@@ -368,7 +366,6 @@
 /__/\___\___| \__,_|_/__/\___/
                               
        Program homepage: https://squell.github.io/id3
-
 
 
 
