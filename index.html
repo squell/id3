@@ -34,7 +34,7 @@
         <h3>
 <a id="description" class="anchor" href="#description" aria-hidden="true"><span class="octicon octicon-link"></span></a>Description</h3>
 
-<p>id3 mass tagger is a tool for manipulating id3 and id3v2 tags in multiple files. It can generate tag fields from the filename and other variables, and/or rename files, using an intuitive syntax. id3 currently supports the old-style ID3 format with track-number extension (ID3 v1.1), as well as the more complicated ID3v2 (ID3 v2.2.0, v2.3.0) format. This also means its use should be limited to audio files which use these formats (i.e., MP3).</p>
+<p>id3 mass tagger is a tool for manipulating id3 and id3v2 tags in multiple files. It can generate tag fields from the filename and other variables, and/or rename files, using an intuitive syntax. id3 currently supports old-style ID3v1 tags, Lyrics3v2, as well as the more complex ID3v2 format. This means its use is limited to audio files which use these formats, i.e. MP3.</p>
 
 <h3>
 <a id="examples" class="anchor" href="#examples" aria-hidden="true"><span class="octicon octicon-link"></span></a>Examples</h3>
@@ -123,7 +123,9 @@ Unknown - Untitled (02).mp3<br>
 <h3>
 <a id="limitations" class="anchor" href="#limitations" aria-hidden="true"><span class="octicon octicon-link"></span></a>Limitations</h3>
 
-<p>ID3v2.4 tags are not supported; because ID3v2.4 is a horrible 'standard'. Also, do not use this program to tag Ogg Vorbis or FLAC files.</p>
+<p>ID3v2.4 at the start of a file can be read, but will be converted to ID3v2.3 when written. Also, do not use this program to tag anything else than MP3 files.</p>
+
+<p>On Windows, support for non-ASCII characters (e.g. Russian or Korean characters) is dependent on your language settings.</p>
 
 <h3>
 <a id="getting-it" class="anchor" href="#getting-it" aria-hidden="true"><span class="octicon octicon-link"></span></a>Getting it</h3>
@@ -145,7 +147,7 @@ Unknown - Untitled (02).mp3<br>
 <a href="https://github.com/squell/id3/releases/download/0.79/id3-0.79.tar.gz">tarball</a>/<a href="https://github.com/squell/id3/releases/download/0.79/id3-079s.zip">zip</a>
 </td>
 <td>
-<a href="https://github.com/squell/id3/releases/download/0.79/id3-079w.zip">Win32</a>, <a href="https://github.com/squell/id3/releases/download/0.79/id3mtag_0.79-1_amd64.deb">Debian/Ubuntu amd64</a>, <a href="https://github.com/squell/id3/releases/download/0.79/id3mtag_0.79-1_i386.deb">Debian/Ubuntu i386</a>
+<a href="https://github.com/squell/id3/releases/download/0.79/id3-079w.zip">Windows</a><br> Debian/Ubuntu: <a href="https://github.com/squell/id3/releases/download/0.79/id3mtag_0.79-1_amd64.deb">amd64</a>/<a href="https://github.com/squell/id3/releases/download/0.79/id3mtag_0.79-1_i386.deb">i386</a>
 </td>
 </tr>
 <tr>
@@ -154,7 +156,7 @@ Unknown - Untitled (02).mp3<br>
 <td>
 <a href="https://github.com/squell/id3/releases/download/0.78/id3-0.78.tar.gz">tarball</a>/<a href="https://github.com/squell/id3/releases/download/0.78/id3-078s.zip">zip</a>
 </td>
-<td><a href="https://github.com/squell/id3/releases/download/0.78/id3-078w.zip">Win32</a></td>
+<td><a href="https://github.com/squell/id3/releases/download/0.78/id3-078w.zip">Windows</a></td>
 </tr>
 </tbody>
 </table>
