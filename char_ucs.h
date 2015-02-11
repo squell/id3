@@ -50,10 +50,10 @@ namespace charset {
         conv(const conv<>& other)          : conv_wide(other) { }
         conv(void)                         : conv_wide() { }
 
-        operator std::string const() const
+        operator std::string() const
         { return encode(internal.data(), internal.size()/cellsize, Order); }
 
-        std::string const str() const { return *this; }
+        std::string str() const     { return *this; }
 
         template<class E>
           std::basic_string<typename conv<E>::char_type>

@@ -114,10 +114,10 @@ namespace charset {
         conv(const conv<>& other)          : conv<>(other) { }
         conv(void)                         : conv<>() { }
 
-        operator std::string const() const
+        operator std::string() const
         { return encode(internal.data(), internal.size()/cellsize); }
 
-        std::string const str() const { return *this; }
+        std::string str() const     { return *this; }
         inline proxy<char> c_str() const;  // conv is still incomplete...
 
         template<class E>     // some compilers dont like using conv<>::str?
@@ -148,8 +148,8 @@ namespace charset {
         conv(void)                            : conv<>() { }
         conv(std::size_t n, wchar_t c)        : conv<>(std::wstring(n,c)) { }
 
-        operator std::wstring const() const { return internal; }
-        std::wstring const str()      const { return internal; }
+        operator std::wstring () const { return internal; }
+        std::wstring str()       const { return internal; }
   //    const wchar_t* c_str()        const { return internal.c_str(); }
 
         template<class E>
