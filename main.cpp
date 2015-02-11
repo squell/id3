@@ -3,6 +3,7 @@
 #include <cstdarg>
 #include <cstring>
 #include <ctime>
+#include <cctype>
 #include <clocale>
 #include <stdexcept>
 #include <string>
@@ -248,7 +249,7 @@ struct listtag : fileexp::find {
         if(data.good()) {
             string str = data.str();
             for(string::iterator p = str.begin(); p != str.end(); ++p) 
-                if(*p < 0x20) *p = ' ';   // remove control chars
+                if(std::iscntrl(*p)) *p = ' ';
             printf(fmt, str.c_str());
         }
     }
