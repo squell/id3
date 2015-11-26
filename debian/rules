@@ -24,7 +24,7 @@ clean:
 install: checkroot build
 	$(checkdir)
 	rm -rf debian/tmp
-	make install-full prefix=./debian/tmp/usr mandir='$$(datadir)'/man package=id3mtag
+	make install-full DESTDIR=./debian/tmp prefix=/usr mandir='$$(datadir)'/man package=id3mtag
 
 binary: binary-arch
 
@@ -44,7 +44,7 @@ binary-arch: checkroot build install
 	cd debian/tmp && md5sum `\
 	  find -name DEBIAN -prune -or -type f -printf '%P\n'` > DEBIAN/md5sums
 	dpkg-shlibdeps debian/tmp/usr/bin/*
-	dpkg-gencontrol -isp
+	dpkg-gencontrol
 	chown -R root.root debian/tmp
 	chmod -R go=rX debian/tmp
 	dpkg --build debian/tmp ..
