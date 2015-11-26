@@ -20,7 +20,10 @@ INSTALL_TARGET=	install installdoc package=id3mtag
 PLIST_FILES=	bin/id3 man/man1/id3.1.gz
 PORTDOCS=	README CHANGES
 
-OPTIONS_DEFINE=	DOCS
+OPTIONS_DEFINE=	DOCS BASH
+BASH_DESC=	Support for bash auto-completion
+BASH_INSTALL_TARGET=	bash_completion
+BASH_PLIST_FILES=	share/bash-completion/completions/id3
 
 USES=		iconv
 

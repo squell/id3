@@ -45,6 +45,7 @@ the contents of the source distribution:
 
  debian/        - Debian files for creating a .deb package
  rpm/           - RPM specfile for creating a .rpm package
+ bash/          - definitions for bash auto-completion
 
 ---------------------------------------------------------------
 | (c) squell 2003-2015 - copyright notice

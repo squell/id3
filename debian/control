@@ -13,6 +13,7 @@ Priority: extra
 Depends: ${shlibs:Depends}
 Conflicts: id3
 Replaces: id3
+Suggests: bash-completion
 Description: mass tagging utility for audio files
  id3 mass tagger is a tool for manipulating id3 and id3v2 tags in multiple
  files. It can generate tag fields from the filename and other variables,

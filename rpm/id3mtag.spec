@@ -6,6 +6,9 @@ License: BSD
 Source: http://github.com/squell/id3/releases/download/%{version}/id3-%{version}.tar.gz
 URL: https://squell.github.io/id3
 
+# disable installation of bash-completion using --without completion
+%bcond_without completion
+
 %description
 id3 mass tagger is a tool for manipulating id3, id3v2 and lyrics3 tags in
 multiple files. It can generate tag fields from the filename and other 
@@ -20,12 +23,13 @@ strip -s id3
 
 # makeinstall ("prefix=") is correct here, not make_install ("DESTDIR=")
 %install
-%makeinstall
+%makeinstall %{?with_completion:bash_completion}
 
 %files
 %defattr(-,root,root,-)
 %{_bindir}/id3
 %{_mandir}/man1/*
+%{_datarootdir}/bash-completion/completions/id3
 %doc README CHANGES COPYING
 
 %changelog

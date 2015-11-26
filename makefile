@@ -44,7 +44,7 @@ BSD_INSTALL_MAN     ?= $(INSTALL) -m 644
 
 .PHONY: build all final clean depend help
 .PHONY: install install-strip install-full uninstall
-.PHONY: installdirs installman installdoc
+.PHONY: installdirs installman installdoc bash_completion
 .PHONY: dist dist-zip dist-clean dist-check
 .PHONY: git-repo
 
@@ -96,14 +96,23 @@ install: id3 installdirs installman
 install-strip: id3 installdirs installman
 	$(INSTALL_STRIP) id3 $(DESTDIR)$(bindir)/$(binary)
 
-install-full: install-strip installdoc
+install-full: install-strip installdoc bash_completion
 
 uninstall:
-	-rm -f $(man1dir)/id3.$(manext)
-	-rm -f $(bindir)/id3
+	-rm -f $(man1dir)/$(binary).$(manext)
+	-rm -f $(bindir)/$(binary)
 	-for f in $(docdata); do \
 	    rm -f $(docdir)/$${f}; done
 	-rmdir $(docdir)
+	-rm -f $(bashcompdir)/$(binary)
+
+bashcompdir = $(datadir)/bash-completion/completions
+
+bash_completion:
+	sed '/^complete/s/id3$$/$(binary)/' bash/complete > bash/complete.out
+	$(INSTALL_DIR) $(DESTDIR)$(bashcompdir)
+	$(INSTALL_DATA) bash/complete.out $(DESTDIR)$(bashcompdir)/$(binary)
+	-rm -f bash/complete.out
 
 ## distribution ############################################################
 
@@ -118,7 +127,7 @@ DIR_FREEBSD = Makefile pkg-descr
 
 DISTFILES = INSTALL $(docdata) makefile makefile.dj makefile.bcc makefile.nmk \
 	main.cpp auto_dir.h set_base.h setgroup.h utf8.h $(SRC_CPP:=.h) $(SRC_C:=.h) \
-	$(SRC_CPP:=.cpp) $(SRC_C:=.c) id3.man \
+	$(SRC_CPP:=.cpp) $(SRC_C:=.c) id3.man bash/complete \
 	$(DIR_DEBIAN:%=debian/%) \
 	$(DIR_RPM:%=rpm/%) \
 

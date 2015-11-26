@@ -1,0 +1,31 @@
+# Bash completion script for id3 mass tagger
+# To use this script you should have the bash-completion package installed
+
+# very simple right now. possible extensions:
+# - ID3v2 frames lists for -w
+
+_id3mtag() {
+	local cur prev arg n
+	local IFS=$'\n'
+
+	COMPREPLY=()
+	cur="${COMP_WORDS[COMP_CWORD]}"
+	prev="${COMP_WORDS[COMP_CWORD-1]}"
+
+	# don't complete filenames if argument matches an option of the following:
+	# -talnygc, -fq, -s, -wXXXX, -D; or if the -m or -R switch is being used
+
+	for ((n=1; n<COMP_CWORD; n++)); do
+		arg="${COMP_WORDS[n]}"
+		if [ "${arg:0:1}" = "-" ]; then
+			[ "$arg" = "--" ] && { n=$COMP_CWORD; break; }
+			[ "${arg//[!mR]/}" != "" ] && { n=0; break; }
+			arg="${arg//[!talnygcDfqsw]/}"
+			n="$((n+${#arg}))"
+		fi
+	done
+	if [ $n == $COMP_CWORD ] || [ $((n-1)) == $COMP_CWORD -a "$prev" == "-D" ]; then
+		COMPREPLY=( $( compgen -f -X '!*.mp3' -- "$cur" ) )
+	fi
+} &&
+complete -o filenames -F _id3mtag id3
