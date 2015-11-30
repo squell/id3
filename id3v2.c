@@ -298,8 +298,8 @@ int ID3_writef(const char *fname, const void *buf, size_t reqsize)
     if( fread(&rh, sizeof(struct raw_hdr), 1, f) && memcmp(rh.ID, "ID3", 3) == 0 ) {
         long orig;                                   /* allready tagged? */
 
-        if( (rh.ver|1) != 3)
-            goto abort;                       /* handles ID3v2.2 and 2.3 */
+        if( rh.ver < 2 || rh.ver > 4 )
+            goto abort;                           /* handles ID3v2.[234] */
 
         orig = ul4ss(rh.size);
 
