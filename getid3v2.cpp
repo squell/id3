@@ -21,10 +21,18 @@ using namespace charset;
 using tag::read::ID3v2;
 using tag::ID3field;
 
-static bool getframe(const void*, ID3FRAME, int n, const char*);
-static ID3v2::value_string unbinarize(ID3FRAME, charset::conv<>* descriptor);
+static bool getframe(ID3FRAME f, const char* field, size_t n);
+
+// setid3v2 also needs the following function; but the outside world doesn't
+namespace tag {
+    extern ID3v2::value_string unbinarize(ID3FRAME, charset::conv<>* descriptor);
+}
 
 ID3v2::ID3v2(const char* fn) : tag(ID3_readf(fn,0))
+{
+}
+
+ID3v2::ID3v2(const void* id3v2_data) : tag(id3v2_data)
 {
 }
 
@@ -53,17 +61,28 @@ ID3v2::value_string ID3v2::operator[](ID3field field) const
     };
 
     ID3FRAME f;
-    bool ok = false;
     if(tag && field < FIELD_MAX) {
-        const bool v = ID3_start(f, tag) > 2;
-        ok = getframe(tag, f, 3+v, fieldtag[field][v]);
+        const bool  version = ID3_start(f, tag) > 2;
+        const char*  id_str = fieldtag[field][version];
+        const size_t id_len = 3+version;
+
+        // return the first ID of the above list that produces a clear match
+        for( ; *id_str != '\0'; id_str += id_len) {
+            ID3_start(f, tag);
+            while( getframe(f, id_str, id_len) ) {
+                charset::conv<local> desc;
+                value_string val = unbinarize(f, &desc);
+                if(desc.empty())
+                    return val;
+            }
+        }
     } else if(tag && field == FIELD_MAX) {
         ID3_start(f, tag);
         char buf[] = "ID3v2._";
         buf[6] = f->_rev+'2';
         return buf;
     }
-    return ok? unbinarize(f,0) : value_string();
+    return value_string();
 }
 
 /* ====================================================== */
@@ -88,18 +107,15 @@ ID3v2::array ID3v2::listing() const
 
 /* ====================================================== */
 
-static bool getframe(const void* tag, ID3FRAME f, int n, const char* field)
+static bool getframe(ID3FRAME f, const char* field, size_t n)
 {
-    for( ; *field != '\0'; field+=n) {
-        ID3_start(f, tag);
-        while(ID3_frame(f))
-            if(strncmp(field, f->ID, n) == 0) {
-                if(f->ID[0] == 'T') {
-                    if(f->size > 1) return 1;
-                } else
-                    return 1;
-            }
-    }
+    while(ID3_frame(f))
+        if(strncmp(field, f->ID, n) == 0) {
+            if(f->ID[0] == 'T') {
+                if(f->size > 1) return 1;
+            } else
+                return 1;
+        }
     return 0;
 }
 
@@ -116,7 +132,7 @@ static const char *membrk0(const char* buf, size_t size, bool wide)
     return 0;
 }
 
-static ID3v2::value_string unbinarize(ID3FRAME f, charset::conv<>* descriptor)
+extern ID3v2::value_string tag::unbinarize(ID3FRAME f, charset::conv<>* descriptor)
 {
     typedef conv<latin1> cs;
 

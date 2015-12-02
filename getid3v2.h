@@ -29,6 +29,7 @@ namespace tag {
 
             typedef metadata::factory<ID3v2> factory;
             explicit ID3v2(const char* fn);
+            explicit ID3v2(const void* id3v2_data);
            ~ID3v2();
             value_string operator[](ID3field field) const;
             array listing() const;
@@ -39,9 +40,8 @@ namespace tag {
                      field == "USLT" || field == "ULT" ||
                      field == "USER"; }
 
-            static bool has_desc(const std::string field_desc) // implies has_enc
-            { const std::string field = field_desc.substr(0,4);
-              return field == "TXXX" || field == "TXX" ||
+            static bool has_desc(const std::string field)  // implies has_enc
+            { return field == "TXXX" || field == "TXX" ||
                      field == "WXXX" || field == "WXX" ||
                      field == "COMM" || field == "COM" ||
                      field == "USLT" || field == "ULT"; }
@@ -59,7 +59,7 @@ namespace tag {
             {
                  using namespace std;
                  string::size_type n;
-                 for(n = 0; n < field.length() && field[n] != ':'; ++n) {
+                 for(n = 0; n < field.length(); ++n) {
                      if(!isupper(field[n]) && !isdigit(field[n]))
                          return false;
                  }

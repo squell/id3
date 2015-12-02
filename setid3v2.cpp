@@ -101,13 +101,13 @@ namespace {
 
     extern "C" void copy_failure(const char* oldn, const char* newn)
     {
-	if(oldn == newn) {
-	    string emsg("error writing ID3 to ");
-	    guard::err = emsg + oldn;
-	} else {
-	    string emsg(": file lost, contents still in `");
-	    guard::err = newn + emsg + oldn + '\'';
-	}
+        if(oldn == newn) {
+            string emsg("error writing ID3 to ");
+            guard::err = emsg + oldn;
+        } else {
+            string emsg(": file lost, contents still in `");
+            guard::err = newn + emsg + oldn + '\'';
+        }
     }
 
 }
@@ -119,11 +119,11 @@ namespace {
 
 static const string binarize(string field, charset::conv<charset::latin1> content)
 {
-    string::size_type sep = field.find(':');	           // split description
+    string::size_type sep = field.find(':');               // split description
     string descr;
     if(sep != string::npos) {
-	descr.assign(field, sep+1, string::npos);
-	field.erase(sep);
+        descr.assign(field, sep+1, string::npos);
+        field.erase(sep);
     }
 
     if(field == "TCON" || field == "TCO") {                // genre by number
@@ -162,7 +162,7 @@ static const string binarize(string field, charset::conv<charset::latin1> conten
         }
         data.append(nul, 1);
     } else if(sep != string::npos) {
-	return string();
+        return string();
     }
 
     if(data.length() > 1 || ID3v2::is_text(field)) {
@@ -228,25 +228,23 @@ tag::metadata* ID3v2::read(const char* fn) const
     return new read::ID3v2(fn);
 }
 
+namespace tag {
+    extern read::ID3v2::value_string unbinarize(ID3FRAME, charset::conv<>* descriptor);
+}
+
 bool ID3v2::vmodify(const char* fn, const function& edit) const
 {
-    struct wrapper {
-        void* data;
-        operator void*() { return data;  }
-       ~wrapper()        { ID3_free(data); }
-    };
-
     size_t check;
-    wrapper buf = { ID3_readf(fn, &check) };
+    read::ID3v2 info( ID3_readf(fn, &check) );
 
-    if(!buf) {
-	if(check != 0)
-	    return false;                           // evil ID3 tag
-	if(!force)
-	    return true;
+    if(!info.tag) {
+        if(check != 0)
+            return false;                           // evil ID3 tag
+        if(!force)
+            return true;
     }
 
-    const void* src = fresh? null_tag : (void*)buf;
+    const void* src = fresh? null_tag : info.tag;
     ::writer tag;
     db table(mod);
 
@@ -255,7 +253,13 @@ bool ID3v2::vmodify(const char* fn, const function& edit) const
         tag.init(0x1000, ID3_start(f, src));
 
         while(ID3_frame(f)) {
-            db::iterator p = table.find(f->ID);
+            string field = f->ID;
+            if(read::ID3v2::has_desc(f->ID)) {
+                charset::conv<charset::local> descr;
+                unbinarize(f, &descr);
+                field += descr.str();
+            }
+            db::iterator p = table.find(field);
             if(p == table.end())
                 tag.put(f->ID, f->data, f->size);
             else {
@@ -277,8 +281,8 @@ bool ID3v2::vmodify(const char* fn, const function& edit) const
     for(db::iterator p = table.begin(); p != table.end(); ++p) {
         if(!p->second.empty()) {
             if(function::result s = edit(p->second)) {
-                string field = p->first.substr(0, p->first.find(':'));
-                string b = binarize(p->first, s);
+                const string field = p->first.substr(0, p->first.find(':'));
+                const string b = binarize(p->first, s);
                 tag.put(field.c_str(), b.data(), b.length());
             }
         }

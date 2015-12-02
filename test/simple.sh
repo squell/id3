@@ -61,11 +61,14 @@ rm -f $FILE
 # file mod. presrve
 sleep 1
 cp $FILE /tmp/test1
-./id3 -M -1 -2u $FILE
+./id3 -M -1u $FILE
 test /tmp/test1 -nt $FILE
 
 # id3v2 (incomplete)
+./id3 -2 -wCOMM:descr unalterable $FILE
+./id3 -1 -2u $FILE
 ./id3 -2 -q "%_t:%_a:%_n:%_c" $FILE | grep -q '^Null:Art01st:1:01$'
+./id3 -2 -q "%{COMM:descr}" $FILE | grep -q '^unalterable$'
 ./id3 -2 -rTALB -wTPE2 "%{TALB}" $FILE
 ./id3 -2 -q "%l:%a" $FILE | grep -q '^<empty>:Art01st$'
 ./id3 -2rTPE1 $FILE
