@@ -40,7 +40,8 @@ public:
 
   // registers tags
     combined& with(interface& object)
-    { this->push_back(&object); return *this; }
+    { for(iterator p = begin(); p != end(); ++p) if(*p == &object) return *this;
+      this->push_back(&object); return *this; }
     combined& ignore(size_type pos, size_type num = 1)
     { this->erase(begin()+pos, begin()+pos+num); return *this; }
 
