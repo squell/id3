@@ -160,6 +160,9 @@ bool ID3::vmodify(const char* fn, const function& edit) const
             tag = synth_tag;                  // create new tag
             clearerr(f);
             err = fseek(f,    0, ftell(f)<128? SEEK_END : SEEK_CUR);
+        } else {
+            fclose(f);
+            return true;
         }
 
         if( err != 0 ) {

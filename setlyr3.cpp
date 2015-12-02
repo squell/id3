@@ -75,7 +75,7 @@ bool Lyrics3::vmodify(const char* fn, const function& edit) const
     if(src.size() != 0 || gen) {
         if(fresh) src = lyrics3::cast(null_tag);
     } else
-        return false;
+        return true;
 
     for(long n, i = 0; n=lyrics3::find_next(src,i); i = n) {
         db::iterator p = table.find( src.id(i) );
@@ -99,6 +99,8 @@ bool Lyrics3::vmodify(const char* fn, const function& edit) const
         }
     }
 
-    return lyrics3::write(fn, tag) == 0;
+    int status = lyrics3::write(fn, tag);
+    if(status < 0)
+        throw tag::failure("error writing LYRICS to ", fn);
+    return status == 0;
 }
-

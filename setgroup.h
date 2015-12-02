@@ -63,10 +63,10 @@ public:
 protected:
     bool vmodify(const char* fn, const stredit::function& func) const
     {
-        bool result = size() == 0;
+        bool success = true;
         for(const_iterator p = begin(); p != end(); )
-            result |= (*p++)->modify(fn, func);
-        return result;
+            success &= (*p++)->modify(fn, func);
+        return success;
     }
 };
 

@@ -226,8 +226,12 @@ bool ID3v2::vmodify(const char* fn, const function& edit) const
     size_t check;
     wrapper buf = { ID3_readf(fn, &check) };
 
-    if(!buf && (!force || check != 0))              // evil ID3 tag
-        return false;
+    if(!buf) {
+	if(check != 0) 
+	    return false;                           // evil ID3 tag
+	if(!force)
+	    return true;
+    }
 
     const void* src = fresh? null_tag : (void*)buf;
     ::writer tag;
