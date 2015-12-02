@@ -71,11 +71,13 @@ test /tmp/test1 -nt $FILE
 ./id3 -2rTPE1 $FILE
 ./id3 -2 -q "%|%g|l:%a" $FILE | grep -q '^Bass:ThisISAnAlbum$'
 ./id3 -2 -wTXXX:descr tag $FILE
+./id3 -2 -wCOMM:extra tag $FILE
 cat /dev/null > ${FILE}2
 ./id3 -2 -D $FILE ${FILE}2
 ./id3 -2d $FILE
 test $(cat $FILE | wc -c) -eq 128
 ./id3 -2 -q "%{TXXX:descr}" ${FILE}2 | grep -q '^tag$'
+./id3 -2 -q "%{COMM:extra}" ${FILE}2 | grep -q '^tag$'
 cp -f ${FILE}2 $FILE
 ./id3 -2a "a loooooooooooooooooooooooooooooonger artist name" $FILE
 test $(cat $FILE | wc -c) -eq $(cat ${FILE}2 | wc -c)

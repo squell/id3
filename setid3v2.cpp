@@ -117,8 +117,15 @@ namespace {
  // code for constructing ID3v2 frames. rather hairy, but hey, ID3v2 sucks
  // returns empty string if unsupported
 
-static string binarize(const string field, charset::conv<charset::latin1> content)
+static const string binarize(string field, charset::conv<charset::latin1> content)
 {
+    string::size_type sep = field.find(':');	           // split description
+    string descr;
+    if(sep != string::npos) {
+	descr.assign(field, sep+1, string::npos);
+	field.erase(sep);
+    }
+
     if(field == "TCON" || field == "TCO") {                // genre by number
         unsigned int x = atoi(content.c_str())-1;          // is portable
         if(x < ID3v1_numgenres) content = ID3v1_genre[x];
@@ -149,12 +156,13 @@ static string binarize(const string field, charset::conv<charset::latin1> conten
         data.append("xxx");
     }
     if(ID3v2::has_desc(field)) {
-        string::size_type sep = field.find(':');
         if(sep != string::npos) {
-            if(data[0]==0) data.append(conv<charset::latin1>(field.substr(sep+1)));
-            else           data.append(conv<charset::utf16> (field.substr(sep+1)));
+            if(data[0]==0) data.append(conv<charset::latin1>(descr));
+            else           data.append(conv<charset::utf16> (descr));
         }
         data.append(nul, 1);
+    } else if(sep != string::npos) {
+	return string();
     }
 
     if(data.length() > 1 || ID3v2::is_text(field)) {
