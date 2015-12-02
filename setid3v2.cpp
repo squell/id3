@@ -101,8 +101,13 @@ namespace {
 
     extern "C" void copy_failure(const char* oldn, const char* newn)
     {
-        string emsg(": file lost, contents still in `");
-        guard::err = newn + emsg + oldn + '\'';
+	if(oldn == newn) {
+	    string emsg("error writing ID3 to ");
+	    guard::err = emsg + oldn;
+	} else {
+	    string emsg(": file lost, contents still in `");
+	    guard::err = newn + emsg + oldn + '\'';
+	}
     }
 
 }
@@ -227,7 +232,7 @@ bool ID3v2::vmodify(const char* fn, const function& edit) const
     wrapper buf = { ID3_readf(fn, &check) };
 
     if(!buf) {
-	if(check != 0) 
+	if(check != 0)
 	    return false;                           // evil ID3 tag
 	if(!force)
 	    return true;

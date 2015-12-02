@@ -202,7 +202,7 @@ void *ID3_readf(const char *fname, size_t *tagsize)
         refuse(abort, "could not open", 0);
 
     if( fread(&rh, sizeof(struct raw_hdr), 1, f) != 1 )
-        refuse(abort_file, "file too small", 0);              /* IO error */ 
+        refuse(abort_file, "file too small", 0);              /* IO error */
 
     if( memcmp(rh.ID, "ID3", 3) != 0 )                /* not an ID3v2 tag */
         refuse(abort_file, "contains no ID3 identifier", 0);
@@ -316,10 +316,13 @@ int ID3_writef(const char *fname, const void *buf, size_t reqsize)
         if( size>0 && size<=orig && !reqsize) { /* enough reserved space */
             nbo4ss(new_h.size, orig);
             rewind(f);
-            fwrite(&new_h, sizeof new_h, 1, f);   /* i don't check these */
+            fwrite(&new_h, sizeof new_h, 1, f);
             fwrite(src, size, 1, f);
             fpadd(0, orig-size, f);
-            fclose(f);
+            if(ferror(f) | fclose(f)) {         /* abandon all hope,     */
+                ID3_wfail(fname, fname);            /* ye who enter here */
+                return 0;
+            }
             return 1;
         }
     } else {
