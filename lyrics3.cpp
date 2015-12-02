@@ -177,8 +177,8 @@ int write(const char* fn, const info& tag, const void* newid3)
             result = -(ferror(f) || ftrunc(f) != 0);
         }
     }
-    fclose(f);
-    return result;
+
+    return fclose(f) | result;
 }
 
 }

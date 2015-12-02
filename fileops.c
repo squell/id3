@@ -110,7 +110,7 @@ int cpfile(const char *srcnam, const char *dstnam)
     if(src = fopen(srcnam, "rb")) {
         if(dst = fopen(dstnam, "wb")) {
             result = fcopy(dst, src);
-            fclose(dst);
+            if(fclose(dst) != 0) result = 0;
         }
         fclose(src);
     }

@@ -355,7 +355,7 @@ int ID3_writef(const char *fname, const void *buf, size_t reqsize)
             ok = fcopy(nf, f);                  /* remove ID3v2 tag only */
         }
         fclose(f);
-        fclose(nf);
+        ok = fclose(nf) == 0 && ok;
 
         if(ok) {
             ok = mvfile(tmp, fname);

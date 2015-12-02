@@ -213,7 +213,7 @@ bool ID3::vmodify(const char* fn, const function& edit) const
             err = fwrite(&tag, 1, 128, f) != 128;
         }
 
-        fclose(f);
+        err |= fclose(f) != 0;
 
         if(err)
             throw failure("error writing TAG to ", fn);
