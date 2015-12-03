@@ -40,6 +40,12 @@ namespace charset {
        ~conv_wide() { }
         static conv<>::data decode(const char*, std::size_t, byte_order);
         static std::string  encode(const void*, std::size_t, byte_order);
+        static std::size_t  ucslen(const char* p)
+        {
+            for(std::size_t len = 0; ; len += 2)
+                if( (p[len]|p[len+1]) == 0 )
+                    return len;
+        }
     };
 
     template<byte_order Order>
@@ -47,6 +53,7 @@ namespace charset {
     public:
         conv(const std::string& s)         : conv_wide(decode(s.data(), s.size(),Order)) { }
         conv(const char* p, std::size_t l) : conv_wide(decode(p,l,Order)) { }
+        conv(const char* p)                : conv_wide(decode(p,ucslen(p),Order)) { }
         conv(const conv<>& other)          : conv_wide(other) { }
         conv(void)                         : conv_wide() { }
 
