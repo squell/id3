@@ -1,5 +1,19 @@
 Changelog for 'id3'.
 
+2015-336 (W49):
+  ?etid3v2.cpp: [bugfixes] frames being written by -wCOMM:xxxx lacked a
+    language field, potentially producing invalidly formatted frames;
+    fixed behaviour in presence of multiple COMM frames;
+    fix behaviour with non-Latin1 characters in TXXX/COMM:xxxx tags
+
+2015-335 (W49):
+  id3v2.c: [bugfix] fix check that prevented removal of ID3v2.4 tags
+  set*.cpp: tighter error checking; should produce more warnings
+
+2015-332 (W48):
+  [cli change] added support for bash auto-completion; installed with
+    'make install-full' or 'make install bash_completion'
+
 2015-029 (W05):                                ---------[v0.79]-----------
   main.cpp: [cli change] if no tags are selected (using -1, -2, -3), id3 will
     select the best tag to read from; also, in this case ID3v2 will be
