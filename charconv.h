@@ -97,11 +97,6 @@ namespace charset {
         friend bool operator>=(const conv<>& lhs, const conv<>& rhs) { return lhs.internal >= rhs.internal; }
     };
 
-    inline conv<> operator+(conv<> lhs, const conv<>& rhs)
-    {
-        return lhs += rhs;
-    }
-
   /*
       Any parameterization simply is a different "face" of the same class.
   */
