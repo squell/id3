@@ -161,10 +161,10 @@ extern ID3v2::value_string tag::unbinarize(ID3FRAME f, charset::conv<>* descript
         if(descriptor && p[0] && p[wide]) {
             *descriptor = conv<charset::latin1>(":");
             switch(*f->data) {
-                case 0: *descriptor += conv<charset::latin1> (p); break;
-                case 1: *descriptor += conv<charset::utf16>  (p); break;
-                case 2: *descriptor += conv<charset::utf16be>(p); break;
-                case 3: *descriptor += conv<charset::utf8>   (p); break;
+                case 0: *descriptor += conv<charset::latin1> (p, q-p-1); break;
+                case 1: *descriptor += conv<charset::utf16>  (p, q-p-2); break;
+                case 2: *descriptor += conv<charset::utf16be>(p, q-p-2); break;
+                case 3: *descriptor += conv<charset::utf8>   (p, q-p-1); break;
             }
         }
         p = q;
