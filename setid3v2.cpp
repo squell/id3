@@ -117,12 +117,21 @@ namespace {
  // code for constructing ID3v2 frames. rather hairy, but hey, ID3v2 sucks
  // returns empty string if unsupported
 
+bool needs_unicode(charset::conv<wchar_t> str)
+{
+    const wstring& ws = str;
+    return ws.end() != find_if(ws.begin(), ws.end(), bind2nd(greater<wchar_t>(), 0xFF));
+}
+
 static const string binarize(string field, charset::conv<charset::latin1> content)
 {
+    using tag::read::ID3v2;
+    using charset::conv;
+
     string::size_type sep = field.find(':');               // split description
-    string descr;
+    conv<charset::local> descr;
     if(sep != string::npos) {
-        descr.assign(field, sep+1, string::npos);
+        descr = field.substr(sep+1);
         field.erase(sep);
     }
 
@@ -130,9 +139,6 @@ static const string binarize(string field, charset::conv<charset::latin1> conten
         unsigned int x = atoi(content.c_str())-1;          // is portable
         if(x < ID3v1_numgenres) content = ID3v1_genre[x];
     }
-
-    using tag::read::ID3v2;
-    using charset::conv;
 
     string data;
     if(!ID3v2::is_valid(field))
@@ -146,12 +152,10 @@ static const string binarize(string field, charset::conv<charset::latin1> conten
         return data;
     }
 
-    const wstring& ws = content.str<wchar_t>();
+    // figure out of latin1 is enough to encode strings
+    data = char(needs_unicode(content + descr));
     const char nul[2] = { 0 };
 
-    // figure out of latin1 is enough to encode strings
-    data = char(ws.end() != find_if(ws.begin(), ws.end(),
-                                      bind2nd(greater<wchar_t>(), 0xFF)));
     if(ID3v2::has_lang(field)) {
         data.append("xxx");
     }
@@ -160,7 +164,7 @@ static const string binarize(string field, charset::conv<charset::latin1> conten
             if(data[0]==0) data.append(conv<charset::latin1>(descr));
             else           data.append(conv<charset::utf16> (descr));
         }
-        data.append(nul, 1);
+        data.append(nul, 1+(data[0]==1));
     } else if(sep != string::npos) {
         return string();
     }

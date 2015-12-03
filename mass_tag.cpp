@@ -125,7 +125,7 @@ namespace {
                 const result& tmp = var(p, end);
                 return ++p, tmp;
             }
-            const string key = conv<wchar_t>(wstring(p, q)).str<latin1>();
+            const string key = conv<wchar_t>(wstring(p, q)).str<local>();
             p = q+1;
 
             if(!tag_data) tag_data = tag->read(filerec->path);

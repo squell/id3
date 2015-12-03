@@ -23,6 +23,16 @@ test `./id3 -q '\U10330' /dev/null` = '𐌰'
 test `./id3 -2 -q '%a' $FILE` = '€'
 test `./id3 -2 -q '%t' $FILE` = '𐌰' 
 
+# storing unicode in id3v2's complex frame
+./id3 -2 -c '\u20ac' $FILE
+test `./id3 -2 -q '%c' $FILE` = '€'
+./id3 -2 -wTXXX:test '\u20ac' $FILE
+test `./id3 -2 -q '%{TXXX:test}' $FILE` = '€'
+./id3 -2 -wTXXX:€u greece $FILE
+test `./id3 -2 -q '%{TXXX:€u}' $FILE` = 'greece'
+./id3 -2 -wTXXX:un€u 'unic\U00010330de' $FILE
+test `./id3 -2 -q '%{TXXX:un€u}' $FILE` = 'unic𐌰de' 
+
 # storing unicode in filename
 rm -f /tmp/id3-test/euro*
 ./id3 -2 -f "euro%aeuro" $FILE
