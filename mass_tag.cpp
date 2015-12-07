@@ -132,7 +132,12 @@ namespace {
             typedef tag::metadata::array info;
             const info frames = tag_data->listing();
             for(info::const_iterator rec = frames.begin(); rec != frames.end(); rec++) {
+#if TXXX_STRICT
+		// not entirely strict; FOO:bar will match FOO:bar:hguk
+                if(key == rec->first.substr(0,rec->first.find(':', key.length())))
+#else
                 if(key == rec->first.substr(0,max(string::size_type(3),key.length())))
+#endif
                     return rec->second;
             }
             return conv<>();
