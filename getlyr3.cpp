@@ -36,7 +36,7 @@ Lyrics3::value_string Lyrics3::operator[](ID3field field) const
     const char (*ptr)[4] = field_name;
     switch(field) {
     case tag::FIELD_MAX:
-        return "Lyrics3 v2.0";
+        return "Lyrics3v2.0";
     default:
         return id3;
     case tag::album:  ++ptr;
@@ -55,6 +55,7 @@ Lyrics3::array Lyrics3::listing() const
     string::size_type i, next;
     array vec;
 
+    vec.push_back( array::value_type("Lyrics3", "2.0") );
     for(i = 0; next=find_next(s, i); i = next)
         vec.push_back( array::value_type(s.id(i), s.content(i, next - i)) );
 

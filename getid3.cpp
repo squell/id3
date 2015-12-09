@@ -42,8 +42,6 @@ ID3::value_string ID3::operator[](ID3field field) const
 
     if(*tag.TAG)
         switch( field ) {
-        case FIELD_MAX:
-            return "ID3v1";
         case title:
             strncpy(buf, tag.title,  sizeof tag.title);
             break;
@@ -66,6 +64,11 @@ ID3::value_string ID3::operator[](ID3field field) const
         case genre:
             if(tag.genre < ID3v1_numgenres)
                 return conv<latin1>(ID3v1_genre[tag.genre]);
+            break;
+        case FIELD_MAX:
+            char ver[] = "ID3v1._";
+            ver[6] = '0'+!tag.zero;
+            return ver;
         }
     return conv<latin1>(buf);
 }
