@@ -408,6 +408,7 @@ int main_(int argc, char *argv[])
                 case '3':
                         if(!source) source = &use<out::Lyrics3>(tag);
                         chosen = &use<out::Lyrics3>(tag);
+                        tag.with(use<out::ID3>(tag).create());
                         break;
                     }
                     tag.with(chosen->create());
