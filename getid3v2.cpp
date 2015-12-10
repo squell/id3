@@ -142,7 +142,7 @@ extern ID3v2::value_string tag::unbinarize(ID3FRAME f, charset::conv<>* descript
 
     const string field  = f->ID;
     const char*  p      = f->data + 1;
-    const bool wide     = *f->data == 1 || *f->data == 2;
+    bool wide           = *f->data == 1 || *f->data == 2;
 
     if(f->packed || f->encrypted || f->grouped)
         return ID3v2::value_string(cs("<compressed or encrypted>"),0);
@@ -177,10 +177,14 @@ extern ID3v2::value_string tag::unbinarize(ID3FRAME f, charset::conv<>* descript
     size_t hdrsiz = p - f->data;
     if(hdrsiz > 1 || ID3v2::is_text(field)) {
         size_t txtsiz = f->size - hdrsiz;
+        char encoding = *f->data;
+        if(ID3v2::is_url(field)) {
+            wide = encoding = 0;               // the WXXX frame is so weird
+        }
         if(const char *q = membrk0(p, txtsiz, wide)) {
             txtsiz = q - p;                    // useless null-terminator
         }
-        switch(*f->data) {
+        switch(encoding) {
         case  0:
             return conv<latin1> (p, txtsiz);
         case  1:
