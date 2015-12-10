@@ -66,16 +66,15 @@ namespace {
                   const fileexp::record& rec,
                   const tag::reader& info,
                   unsigned long& x)
-        : tag_data(0), num(0),
-          tag(&info), filename(fn), filerec(&rec), cnt(&x) { }
+        : tag_data(info.read(rec.path)), num(0),
+          filename(fn), filerec(&rec), cnt(&x) { }
        ~substvars()
         { delete tag_data; }
 
     private:
-        mutable const tag::metadata* tag_data;
+        const tag::metadata*   const tag_data;
         mutable unsigned long int    num;
 
-        const tag::reader*     const tag;
         const char*            const filename;
         const fileexp::record* const filerec;
         unsigned long int*     const cnt;
@@ -128,12 +127,11 @@ namespace {
             const string key = conv<wchar_t>(wstring(p, q)).str<local>();
             p = q+1;
 
-            if(!tag_data) tag_data = tag->read(filerec->path);
             typedef tag::metadata::array info;
             const info frames = tag_data->listing();
             for(info::const_iterator rec = frames.begin(); rec != frames.end(); rec++) {
 #if TXXX_STRICT
-		// not entirely strict; FOO:bar will match FOO:bar:hguk
+                // not entirely strict; FOO:bar will match FOO:bar:hguk
                 if(key == rec->first.substr(0,rec->first.find(':', key.length())))
 #else
                 if(key == rec->first.substr(0,max(string::size_type(3),key.length())))
@@ -149,7 +147,6 @@ namespace {
                 static char error[] = "unknown variable: %_";
                 error[sizeof error-2] = c, throw out_of_range(error);
             }
-            if(!tag_data) tag_data = tag->read(filerec->path);
             const result& tmp = (*tag_data)[i];
             return tmp.empty()? empty : tmp;
         };

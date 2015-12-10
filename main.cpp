@@ -321,8 +321,6 @@ int main_(int argc, char *argv[])
                     source = &use<out::ID3>(tag);
 #endif
                     tag.with( use<out::ID3>(tag).create() );
-                } else {                       // modify source tag as last
-                    swap(tag[0], tag[tag.size()-1]);     
                 }
                 for(int f = 0; f < FIELD_MAX; ++f)
                     if(val[f]) tag.set(ID3field(f), val[f]);
