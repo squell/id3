@@ -18,6 +18,15 @@ test `./id3 -q '\u20ac' /dev/null` = '‚Ç¨'
 echo testing higher unicode
 test `./id3 -q '\U10330' /dev/null` = 'êå∞' 
 
+# reading uncode from ID3v2
+export LC_CTYPE=en_US.ISO8859-15
+test "`./id3 -q '%{TXXX:latin1}' test/encoding.tag `"  = "a latin1 string with £ sign"
+test "`./id3 -q '%{TXXX:utf16}' test/encoding.tag`"    = "a utf16 string with § sign (le bom)"
+test "`./id3 -q '%{TXXX:utf16bom}' test/encoding.tag`" = "a utf16 string with § sign (be bom)"
+test "`./id3 -q '%{TXXX:utf16be}' test/encoding.tag`"  = "a utf16be string with § sign"
+test "`./id3 -q '%{TXXX:utf8}' test/encoding.tag`"     = "a utf8 string with § sign"
+export LC_CTYPE=en_US.UTF-8
+
 # storing unicode in id3v2
 ./id3 -2 -a '\u20ac' -t '\U010330' $FILE
 test `./id3 -2 -q '%a' $FILE` = '‚Ç¨'

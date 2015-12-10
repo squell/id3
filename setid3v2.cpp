@@ -123,6 +123,23 @@ bool needs_unicode(charset::conv<wchar_t> str)
     return ws.end() != find_if(ws.begin(), ws.end(), bind2nd(greater<wchar_t>(), 0xFF));
 }
 
+static const string encode(int enc, const charset::conv<>& str)
+{
+    using charset::conv;
+    switch(enc) {
+    case 0:
+        return conv<charset::latin1>(str);
+    case 1:
+        return conv<charset::utf16>(str);
+    /*
+    case 2:
+        return conv<charset::utf16be>(str);
+    case 3:
+        return conv<charset::utf8>(str);
+    */
+    }
+}
+
 static const string binarize(string field, charset::conv<charset::latin1> content)
 {
     using tag::read::ID3v2;
@@ -154,24 +171,19 @@ static const string binarize(string field, charset::conv<charset::latin1> conten
 
     // figure out of latin1 is enough to encode strings
     data = char(needs_unicode(content + descr));
-    const char nul[2] = { 0 };
 
     if(ID3v2::has_lang(field)) {
         data.append("xxx");
     }
     if(ID3v2::has_desc(field)) {
-        if(sep != string::npos) {
-            if(data[0]==0) data.append(conv<charset::latin1>(descr));
-            else           data.append(conv<charset::utf16> (descr));
-        }
-        data.append(nul, 1+(data[0]==1));
+        const char nul = 0;
+        data.append(encode(data[0], descr+conv<char>(&nul,1)));
     } else if(sep != string::npos) {
         return string();
     }
 
     if(data.length() > 1 || ID3v2::is_text(field)) {
-        return data + (data[0]==0 || ID3v2::is_url(field) ?
-                         content.str() : conv<charset::utf16>(content).str());
+        return data.append(ID3v2::is_url(field)? content.str() : encode(data[0], content));
     } else if(ID3v2::is_url(field)) {
         return content;
     } else {
