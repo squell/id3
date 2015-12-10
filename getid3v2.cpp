@@ -131,7 +131,7 @@ static const char *membrk0(const char* buf, size_t size, bool wide)
     const int step = 1+wide;
     for( ; buf < end; buf += step) {
         if(!buf[0] && !buf[wide])
-            return buf+step;
+            return buf;
     }
     return 0;
 }
@@ -142,6 +142,7 @@ extern ID3v2::value_string tag::unbinarize(ID3FRAME f, charset::conv<>* descript
 
     const string field  = f->ID;
     const char*  p      = f->data + 1;
+    const bool wide     = *f->data == 1 || *f->data == 2;
 
     if(f->packed || f->encrypted || f->grouped)
         return ID3v2::value_string(cs("<compressed or encrypted>"),0);
@@ -159,32 +160,35 @@ extern ID3v2::value_string tag::unbinarize(ID3FRAME f, charset::conv<>* descript
         p += 3;                                // skip-ignore language field
     }
     if(ID3v2::has_desc(field)) {
-        bool wide = *f->data == 1 || *f->data == 2;
         const char *q = membrk0(p, f->size - (p - f->data), wide);
         if(!q) return conv<>();                // malformed frame
         if(descriptor) {
             *descriptor = conv<charset::latin1>(":");
             switch(*f->data) {
-                case 0: *descriptor += conv<charset::latin1> (p, q-p-1); break;
-                case 1: *descriptor += conv<charset::utf16>  (p, q-p-2); break;
-                case 2: *descriptor += conv<charset::utf16be>(p, q-p-2); break;
-                case 3: *descriptor += conv<charset::utf8>   (p, q-p-1); break;
+                case 0: *descriptor += conv<charset::latin1> (p, q-p); break;
+                case 1: *descriptor += conv<charset::utf16>  (p, q-p); break;
+                case 2: *descriptor += conv<charset::utf16be>(p, q-p); break;
+                case 3: *descriptor += conv<charset::utf8>   (p, q-p); break;
             }
         }
-        p = q;
+        p = q+1+wide;
     }
 
     size_t hdrsiz = p - f->data;
     if(hdrsiz > 1 || ID3v2::is_text(field)) {
+        size_t txtsiz = f->size - hdrsiz;
+        if(const char *q = membrk0(p, txtsiz, wide)) {
+            txtsiz = q - p;                    // useless null-terminator
+        }
         switch(*f->data) {
         case  0:
-            return conv<latin1> (p, f->size-hdrsiz);
+            return conv<latin1> (p, txtsiz);
         case  1:
-            return conv<utf16>  (p, f->size-hdrsiz);
+            return conv<utf16>  (p, txtsiz);
         case  2:
-            return conv<utf16be>(p, f->size-hdrsiz);
+            return conv<utf16be>(p, txtsiz);
         case  3:
-            return conv<utf8>   (p, f->size-hdrsiz);
+            return conv<utf8>   (p, txtsiz);
         default:
             return ID3v2::value_string(cs("<unsupported encoding>"),0);
         };
