@@ -82,7 +82,7 @@ static void Help()
         " -y <year>\t"     "\t value of tag field in file = %%t %%a %%l %%n %%y %%g %%c)\n"
         " -g <genre>\t"    "\n"
         " -c <comment>\t"  "\n"
-        " -D <filename\t"  "duplicate tags read from filename\n"
+        " -D <filename>\t" "duplicate tags read from filename\n"
         " -f <template>\t" "rename files according to template\n"
         " -q <format>\t"   "print formatted string on standard output\n"
         " -m\t\t"          "match variables in filespec\n"
@@ -186,7 +186,7 @@ clock_t verbose::time;
 namespace op {
 
     enum {                                     // state information bitset
-        no_op =  0x00,                         
+        no_op =  0x00,
         recur =  0x01,                         // work recursively?
         w     =  0x02,                         // write  requested?
         ren   =  0x04,                         // rename requested?
@@ -226,17 +226,6 @@ namespace op {
 
 /* ====================================================== */
 
-  // performs the actual operations
-
-int process_(fileexp::find& work, char* files[], bool recur)
-{
-    do {
-        if(! work.glob(argpath(*files), recur) )
-            eprintf("no files matching %s\n", *files);
-    } while(*++files);
-    return exitc;
-}
-
   // tag lister
 
 struct listtag : fileexp::find {
@@ -248,7 +237,7 @@ struct listtag : fileexp::find {
     {
         if(data.good()) {
             string str = data.str();
-            for(string::iterator p = str.begin(); p != str.end(); ++p) 
+            for(string::iterator p = str.begin(); p != str.end(); ++p)
                 if(std::iscntrl(*p)) *p = ' ';
             printf(fmt, str.c_str());
         }
@@ -279,6 +268,17 @@ struct listtag : fileexp::find {
     }
 };
 
+  // performs the selected operations on the file arguments
+
+int process_(fileexp::find& work, char* files[], bool recur)
+{
+    do {
+        if(! work.glob(argpath(*files), recur) )
+            eprintf("no files matching %s\n", *files);
+    } while(*++files);
+    return exitc;
+}
+
   // contains CLI interface loop
 
 int main_(int argc, char *argv[])
@@ -308,162 +308,119 @@ int main_(int argc, char *argv[])
     for(int i=1; i < argc; i++) {
         switch( cmd ) {
         case no_value:                         // process a command argument
-            if(*opt != '\0') --i; else
-                if(argv[i][0] == '-') opt = argv[i]+1;
-            if(*opt == '\0') {
-        case force_fn:                         // argument is filespec
-                if(!chosen) {
-#ifndef LITE
-                    source = &tag;             // use default tags
-                    tag.with( use<out::ID3v2>(tag) );
-                    tag.with( use<out::Lyrics3>(tag) );
-#else
-                    source = &use<out::ID3>(tag);
-#endif
-                    tag.with( use<out::ID3>(tag).create() );
-                }
-                for(int f = 0; f < FIELD_MAX; ++f)
-                    if(val[f]) tag.set(ID3field(f), val[f]);
-                if(copyfn && !tag.from(copyfn))
-                    eprintf("note: could not read tags from %s\n", copyfn);
-                if(state & clobr)
-                    tag.rewrite();
+            if(*opt == '\0' && argv[i][0] == '-')
+                opt = argv[i]+1;
+            else --i;                          // stash argument for later
 
-                if(state & patrn) {
-                    if(argv[i+1]) {
-                        eprintf("-m %s: no file arguments are allowed\n", argv[i]);
+            switch( *opt++ ) {
+            case 'v': verbose::enable=1;  break;
+            case 'M': tag.touch(false);   break;
+            case 'f': cmd = set_rename;   break;
+            case 'q': cmd = set_query;    break;
+
+            case 'm': if(!(state & recur)) {
+                          state |= patrn; break;
+                      } else if(false)         // skip next statement
+            case 'R': if(!(state & patrn)) {
+                          state |= recur; break;
+                      }
+                eprintf("cannot use -R and -m at the same time\n");
+                shelp();
+
+            case 'D': if(!(state&clobr)) {
+                          cmd = set_copyfrom; break;
+                      }
+            case 'd': if(!(state&clobr)) {
+                          state |= (w|clobr); break;
+                      }
+                eprintf("cannot use either -d or -D more than once\n");
+                shelp();
+
+            default:
+                field = mass_tag::field(opt[-1]);
+                if(field == FIELD_MAX) {
+                    eprintf("-%c: unrecognized switch\n", opt[-1]);
+                    shelp();
+                }
+                cmd = std_field; break;
+#ifndef LITE
+                while(1) {
+            case '1':
+                    if(!source) source = &use<out::ID3>(tag);
+                    chosen = &use<out::ID3>(tag);
+                    break;
+            case '2':
+                    if(!source) source = &use<out::ID3v2>(tag);
+                    chosen = &use<out::ID3v2>(tag);
+                    break;
+            case '3':
+                    if(!source) source = &use<out::Lyrics3>(tag);
+                    chosen = &use<out::Lyrics3>(tag);
+                    tag.with(use<out::ID3>(tag).create());
+                    break;
+                }
+                tag.with(chosen->create());
+                break;
+
+            case 's':                      // tag specific switches
+                if(chosen) {
+                    if(*opt == '\0')
+                        cmd = suggest_size;
+                    else {
+                        long n = argtol(opt);
+                        chosen->reserve(n);
+                        state |= w;
+                    }
+                    opt = none;
+                    break;
+                }
+            case 'w':
+                if(chosen) {
+                    cmd = custom_field;
+                    break;
+                }
+            case 'r':
+                if(chosen) {
+                    if(! chosen->rm(opt) ) {
+                        eprintf("selected tag does not have `%s' frames\n", opt);
                         shelp();
                     }
-                    pattern spec(tag, argpath(argv[i]));
-                    if(spec.vars() > 0) state |= w;
-                    strcpy(argv[i], spec.c_str());
-                }
-
-                tag::writer* selected = &(out::file&) tag;
-
-                switch(state & (w|rd|ren)) {
-                case op::rd:
-                    selected = &(out::query&) tag;
-                case op::ren:
-                    if(chosen && tag.size() > 1)
-                        eprintf("note: multiple selected tags ignored when reading\n");
-                    tag.ignore(0, tag.size()); // don't perform no-ops
-                case op::w | op::ren:
-                case op::w:
+                    state |= w;
+                    opt = none;
                     break;
-                default:
-                    eprintf("cannot combine -q with any modifying operation\n");
-                    shelp();
-                case op::no_op:
-                    listtag viewer(*source);
-                    return process_(viewer, &argv[i], state & recur);
                 }
-
-                verbose tagger(*selected, *source);
-                return process_(tagger, &argv[i], state & recur);
-            } else {
-                switch( *opt++ ) {             // argument is a switch
-                case 'v': verbose::enable=1;  break;
-                case 'M': tag.touch(false);   break;
-                case 'f': cmd = set_rename;   break;
-                case 'q': cmd = set_query;    break;
-
-                case 'm': if(!(state & recur)) {
-                              state |= patrn; break;
-                          } else if(false)     // skip next statement
-                case 'R': if(!(state & patrn)) {
-                              state |= recur; break;
-                          }
-                    eprintf("cannot use -R and -m at the same time\n");
-                    shelp();
-
-                case 'D': if(!(state&clobr)) {
-                              cmd = set_copyfrom; break;
-                          }
-                case 'd': if(!(state&clobr)) {
-                              state |= (w|clobr); break;
-                          }
-                    eprintf("cannot use either -d or -D more than once\n");
-                    shelp();
-
-                default:
-                    field = mass_tag::field(opt[-1]);
-                    if(field == FIELD_MAX) {
-                        eprintf("-%c: unrecognized switch\n", opt[-1]);
-                        shelp();
-                    }
-                    cmd = std_field; break;
-#ifndef LITE
-                    while(1) {
-                case '1':
-                        if(!source) source = &use<out::ID3>(tag);
-                        chosen = &use<out::ID3>(tag);
-                        break;
-                case '2':                
-                        if(!source) source = &use<out::ID3v2>(tag);
-                        chosen = &use<out::ID3v2>(tag);
-                        break;
-                case '3':
-                        if(!source) source = &use<out::Lyrics3>(tag);
-                        chosen = &use<out::Lyrics3>(tag);
-                        tag.with(use<out::ID3>(tag).create());
-                        break;
-                    }
-                    tag.with(chosen->create());
-                    break;
-
-                case 's':                      // tag specific switches
-                    if(chosen) {
-                        if(*opt == '\0')
-                            cmd = suggest_size;
-                        else {
-                            long n = argtol(opt);
-                            chosen->reserve(n);
-                            state |= w;
-                        }
-                        opt = none;
-                        break;
-                    }
-                case 'w':
-                    if(chosen) {
-                        cmd = custom_field;
-                        break;
-                    }
-                case 'r':
-                    if(chosen) {
-                        if(! chosen->rm(opt) ) {
-                            eprintf("selected tag does not have `%s' frames\n", opt);
-                            shelp();
-                        }
-                        state |= w;
-                        opt = none;
-                        break;
-                    }
 #endif
-                case 'u':
-                    if(chosen) {
-                        for(int i = 0; i < FIELD_MAX; ++i)
-                            chosen->set(ID3field(i), mass_tag::var(i));
-                        state |= w;
-                        break;
-                    }
+            case 'u':
+                if(chosen) {
+                    for(int i = 0; i < FIELD_MAX; ++i)
+                        chosen->set(ID3field(i), mass_tag::var(i));
+                    state |= w;
+                    break;
+                }
 
-                case 'E':
-                    if(chosen) {
-                        chosen->create(false);
-                        break;
-                    }
+            case 'E':
+                if(chosen) {
+                    chosen->create(false);
+                    break;
+                }
 
-                    eprintf("specify tag format before -%c\n", opt[-1]);
+                eprintf("specify tag format before -%c\n", opt[-1]);
+                shelp();
+
+            case 'h': Help();
+            case 'V': Copyright();
+
+            case '-':
+                if(opt-2 != argv[i]) {
+                    eprintf("cant use - in option pack\n");
                     shelp();
-
-                case 'h': Help();
-                case 'V': Copyright();
-                case '-':
-                    if(opt == argv[i]+2 && *opt == '\0') {
-                       cmd = force_fn;
-                       break;
-                    }
+                } else if(*opt == '\0') {
+            case '\0':                         // end of switches
+                    cmd = force_fn;
+                    opt = none;
+                } else {                       // --long-option
+                    eprintf("unrecognized option: -%s\n", opt-1);
+                    shelp();
                 }
             }
             continue;
@@ -486,10 +443,8 @@ int main_(int argc, char *argv[])
             opt = none;
             break;
 
-        case suggest_size: {                   // v2 - suggest size
-                long n = argtol(argv[i]);
-                chosen->reserve(n);
-            }
+        case suggest_size:                     // v2 - suggest size
+            chosen->reserve( argtol(argv[i]) );
             break;
 #endif
 
@@ -511,6 +466,58 @@ int main_(int argc, char *argv[])
             state |= rd;
             cmd = no_value;
             continue;
+
+        case force_fn:                         // argument is filespec
+            if(!chosen) {
+#ifndef LITE
+                source = &tag;                 // use default tags
+                tag.with( use<out::ID3v2>(tag) );
+                tag.with( use<out::Lyrics3>(tag) );
+#else
+                source = &use<out::ID3>(tag);
+#endif
+                tag.with( use<out::ID3>(tag).create() );
+            }
+
+            for(int f = 0; f < FIELD_MAX; ++f) // propagate general ops
+                if(val[f]) tag.set(ID3field(f), val[f]);
+            if(copyfn && !tag.from(copyfn))
+                eprintf("note: could not read tags from %s\n", copyfn);
+            if(state & clobr)
+                tag.rewrite();
+
+            if(state & patrn) {
+                if(argv[i+1]) {
+                    eprintf("-m %s: no file arguments are allowed\n", argv[i]);
+                    shelp();
+                }
+                pattern spec(tag, argpath(argv[i]));
+                if(spec.vars() > 0) state |= w;
+                strcpy(argv[i], spec.c_str());
+            }
+
+            tag::writer* selected = &(out::file&) tag;
+
+            switch(state & (w|rd|ren)) {
+            case op::rd:
+                selected = &(out::query&) tag;
+            case op::ren:
+                if(chosen && tag.size() > 1)
+                    eprintf("note: multiple selected tags ignored when reading\n");
+                tag.ignore(0, tag.size()); // don't perform no-ops
+            case op::w | op::ren:
+            case op::w:
+                break;
+            default:
+                eprintf("cannot combine -q with any modifying operation\n");
+                shelp();
+            case op::no_op:
+                listtag viewer(*source);
+                return process_(viewer, &argv[i], state & recur);
+            }
+
+            verbose tagger(*selected, *source);
+            return process_(tagger, &argv[i], state & recur);
         }
 
         state |= w;                            // set operation done flag
@@ -544,8 +551,8 @@ int main(int argc, char *argv[])
         setlocale(LC_CTYPE, codepage);
         struct chcp {                         // fiddle with the console fonts
             int const cp_in, cp_out;
-            chcp(int cp_new = GetACP()) 
-            : cp_in(GetConsoleCP()), cp_out(GetConsoleOutputCP()) 
+            chcp(int cp_new = GetACP())
+            : cp_in(GetConsoleCP()), cp_out(GetConsoleOutputCP())
             { SetConsoleCP(cp_new), SetConsoleOutputCP(cp_new); }
             ~chcp()
             { SetConsoleCP(cp_in),  SetConsoleOutputCP(cp_out); }
