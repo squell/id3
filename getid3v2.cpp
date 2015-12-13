@@ -70,14 +70,10 @@ ID3v2::value_string ID3v2::operator[](ID3field field) const
         for( ; *id_str != '\0'; id_str += id_len) {
             ID3_start(f, tag);
             while( getframe(f, id_str, id_len) ) {
-#if TXXX_STRICT
                 charset::conv<local> desc;
                 value_string val = unbinarize(f, &desc);
                 if(desc.length() <= 1)
                     return val;
-#else
-                return unbinarize(f, 0);
-#endif
             }
         }
     } else if(tag && field == FIELD_MAX) {
