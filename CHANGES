@@ -1,5 +1,9 @@
 Changelog for 'id3'.
 
+2015-347 (W50):
+  fileexp.cpp: [bugfix] globbing failed if prefix contained a directory
+    without read access; also fixes a segfault if cwd wasn't readable
+
 2015-336 (W49):
   ?etid3v2.cpp: [bugfixes] frames being written by -wCOMM:xxxx lacked a
     language field, potentially producing invalidly formatted frames;

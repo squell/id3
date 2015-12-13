@@ -5,6 +5,7 @@
 #if defined(_WIN32)
 #    include <io.h>
 #    define F_OK 0
+#    define X_OK 0
 #else
 #    include <unistd.h>
 #endif
@@ -116,12 +117,12 @@ bool filefind::nested(auto_dir dir, char* pathpos, char* filespec)
     while( char* fndirsep = strchr(filespec, '/') ) {
         slash_split lock(fndirsep++);
         wpos = pathcpy(pathcpy(pathpos, filespec), "/");
-        if(auto_dir newdir = auto_dir(path)) {
-            dir      = newdir;                  // if allready a valid
+        if(access(path, X_OK) == 0) {
+            dir      = auto_dir(path);          // if allready a valid
             pathpos  = wpos;                    //   directory, use as is
             filespec = fndirsep;                // (tail recursion)
             if(rec_base) rec_base = pathpos;
-        } else if(! strpbrk(filespec, "*?") ) {
+        } else if(!strpbrk(filespec, "*?") || !dir) {
             return false;                       // shortcut mismatchers
         } else if(rec_base) {
             break;
@@ -153,6 +154,9 @@ bool filefind::nested(auto_dir dir, char* pathpos, char* filespec)
         return invoker->file(pathpos, *this);   // (speeds up simple cases)
     }
 
+    if(! dir )                                  // we might not have read access
+        return false;
+
     strvec files;
     while( dirent* fn = dir.read() ) {          // read all files in dir
         if(!direxp::is_special(fn->d_name))
@@ -176,7 +180,7 @@ bool filefind::nested(auto_dir dir, char* pathpos, char* filespec)
     for(strvec::iterator fn = files.begin(); fn != files.end(); ++fn) {
         wpos = pathcpy(pathpos, fn->c_str());
         auto_dir newdir(path);
-        char sympath[1];
+        char sympath[1];                         // dont recurse into symlinks
         if(newdir && readlink(path, sympath, sizeof sympath) < 0)
             w |= nested(newdir, pathcpy(wpos, "/"), filespec);
     }
