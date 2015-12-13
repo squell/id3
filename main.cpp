@@ -64,8 +64,37 @@ static void Copyright()
     exit(exitc=1);
 }
 
-static void Help()
+static const char* const Options[] = {
+    "v", "-verbose",
+    "d", "-delete",
+    "t", "-title",
+    "a", "-artist",
+    "l", "-album",
+    "n", "-track",
+    "y", "-year",
+    "g", "-genre",
+    "c", "-comment",
+    "D", "-duplicate",
+    "f", "-rename",
+    "q", "-query",
+    "m", "-match",
+    "R", "-recursive",
+    "M", "-keep-time",
+    "V", "-version",
+    "s", "-size",
+    "E", "-if-exists",
+    "u", "-update",
+    "r", "-remove=",
+    "w", "-frame=",
+    "1", "-id3v1",
+    "2", "-id3v2",
+    "3", "-lyrics3",
+    "?", "-help"
+};
+
+static void Help(bool long_opt=false)
 {
+    const char*const* const flags = Options+long_opt;
     printf(
         "%s " _version_ "\n"
 #ifndef LITE
@@ -73,40 +102,43 @@ static void Help()
 #else
         "usage: %s [OPTIONS] filespec ...\n"
 #endif
-        " -v\t\t"          "give verbose output\n"
-        " -d\t\t"          "clear existing tag\n"
-        " -t <title>\t"    "set tag fields\n"
-        " -a <artist>\t"   "\n"
-        " -l <album>\t"    "\t(i'th matched `*' wildcard  = %%1-%%9,%%0\n"
-        " -n <tracknr>\t"  "\t path/file name/counters    = %%p %%f %%x %%X\n"
-        " -y <year>\t"     "\t value of tag field in file = %%t %%a %%l %%n %%y %%g %%c)\n"
-        " -g <genre>\t"    "\n"
-        " -c <comment>\t"  "\n"
-        " -D <filename>\t" "duplicate tags read from filename\n"
-        " -f <template>\t" "rename files according to template\n"
-        " -q <format>\t"   "print formatted string on standard output\n"
-        " -m\t\t"          "match variables in filespec\n"
-        " -R\t\t"          "search recursively\n"
-        " -M\t\t"          "preserve modification time of files\n"
-        " -V\t\t"          "print version info\n"
+        " -%s\t\t"          "give verbose output\n"
+        " -%s\t\t"          "clear existing tag\n"
+        " -%s <title>\t"    "set tag fields\n"
+        " -%s <artist>\t"   "\n"
+        " -%s <album>\t"    "   (i'th matched `*' wildcard  = %%1-%%9,%%0\n"
+        " -%s <tracknr>\t"  "    path/file name/counters    = %%p %%f %%x %%X\n"
+        " -%s <year>  \t"   "    value of tag field in file = %%t %%a %%l %%n %%y %%g %%c)\n"
+        " -%s <genre>\t"    "\n"
+        " -%s <comment>\t"  "\n"
+        " -%s <filename>\t" "copy tags read from filename\n"
+        " -%s <template>\t" "rename files according to template\n"
+        " -%s <format>\t"   "print formatted string on standard output\n"
+        " -%s\t\t"          "match variables in filespec\n"
+        " -%s\t\t"          "search recursively\n"
+        " -%s\t\t"          "preserve modification time of files\n"
+        " -%s\t\t"          "print version info\n"
 #ifndef LITE
         "Only on last selected tag type:\n"
-        " -s <size>\t"     "set tag size\n"
-        " -E\t\t"          "only write if tag already exists\n"
-        " -u\t\t"          "update all standard fields\n"
-        " -rTYPE\t\t"      "erase all `TYPE' frames\n"
-        " -wTYPE <data>\t" "write a `TYPE' frame\n"
+        " -%s <size>  \t"   "set tag size\n"
+        " -%s\t\t"          "only write if tag already exists\n"
+        " -%s\t\t"          "update all standard fields\n"
+        " -%sTYPE\t\t"      "erase all `TYPE' frames\n"
+        " -%sTYPE <data>\t" "write a `TYPE' frame\n"
 #endif
         "\nReport bugs to <squell@alumina.nl>.\n",
         Name,
-        Name
+        Name,
+        flags[ 0], flags[ 2], flags[ 4], flags[ 6], flags[ 8], flags[10], flags[12], flags[14], flags[16], flags[18],
+        flags[20], flags[22], flags[24], flags[26], flags[28], flags[30], flags[32], flags[34], flags[36], flags[38],
+        flags[40]
     );
     exit(exitc=1);
 }
 
 static int shelp(bool quit = true)
 {
-    fprintf(stderr, "Try `%s -h' for more information.\n", Name);
+    fprintf(stderr, "Try `%s -h' or `%s --help' for more information.\n", Name, Name);
     if(quit) exit  (exitc=1);
     else     return(exitc=1);
 }
@@ -119,6 +151,17 @@ static void eprintf(const char* msg, ...)
     fprintf  (stderr, "%s: ", Name);
     vfprintf (stderr, msg, args);
     va_end(args);
+}
+
+static const char* cmdalias(const char* arg)
+{
+    for(size_t i=1; i < sizeof Options/sizeof(const char*); i+=2) {
+        if(strcmp(arg,Options[i]) == 0) {
+            return Options[i-1];
+        }
+    }
+    eprintf("unrecognized switch `-%s'\n", arg);
+    shelp();
 }
 
 static long argtol(const char* arg)            // convert argument to long
@@ -339,8 +382,8 @@ int main_(int argc, char *argv[])
             default:
                 field = mass_tag::field(opt[-1]);
                 if(field == FIELD_MAX) {
-                    eprintf("-%c: unrecognized switch\n", opt[-1]);
-                    shelp();
+                    char tmp[2] = { opt[-1] };
+                    cmdalias(tmp);             // will produce error
                 }
                 cmd = std_field; break;
 #ifndef LITE
@@ -407,21 +450,30 @@ int main_(int argc, char *argv[])
                 eprintf("specify tag format before -%c\n", opt[-1]);
                 shelp();
 
+            case '?': Help(1);
             case 'h': Help();
             case 'V': Copyright();
 
             case '-':
                 if(opt-2 != argv[i]) {
-                    eprintf("cant use - in option pack\n");
-                    shelp();
+                    cmdalias(opt-2);           // will produce error
                 } else if(*opt == '\0') {
             case '\0':                         // end of switches
                     cmd = force_fn;
-                    opt = none;
                 } else {                       // --long-option
-                    eprintf("unrecognized option: -%s\n", opt-1);
-                    shelp();
+                    char *sep = strchr(opt, '=');
+                    if(sep) {
+                        const char save = sep[1];
+                        sep[1] = '\0';         // this is a kludge
+                        sep[0] = *cmdalias(argv[i]+1);
+                        sep[1] = save;
+                        *(argv[i] = sep-1) = '-';;
+                    } else {
+                        strcpy(argv[i]+1, cmdalias(argv[i]+1));
+                    }
+                    --i;
                 }
+                opt = none;
             }
             continue;
 

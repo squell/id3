@@ -61,13 +61,13 @@ specifies the file(s) to be affected by the command.
 If you use wildcards, it is necessary to enclose the specification
 in double quotes ("") for pattern matching to work.
 .TP
-.B \-h
+.BR \-h ", " \-\-help
 show command line help
 .TP
-.B \-V
+.BR \-V ", " \-\-version
 display version number and copyright
 .TP
-.B \-v
+.BR \-v ", " \-\-verbose
 be verbose
 .TP
 .B \-1
@@ -85,15 +85,15 @@ left-most tag is read from. If no tag type is specified,
 will by default
 attempt to read ID3v2, Lyrics3 and ID3v1 tags in that order, only modify existing ID3v2 and Lyrics3 tags, and modify/add ID3v1 tags.
 .TP
-.BI \-R
+.BR \-R ", " \-\-recursive
 searches recursively; Normally, path separators in \fIfilespec\fR do not get
 matched by `?' or `*' wildcards. With this switch, they are treated as an
 ordinary character.
 .TP
-.B \-M
+.BR \-M ", " \-\-keep\-time
 preserve last modification time of files operated on
 .TP
-.B \--
+.B \-\-
 force the following argument to be interpreted as a filename. Use this for
 files that start with a `-' (dash).
 .P
@@ -102,23 +102,24 @@ The default operation of
 .I id3
 is to list the tags found. By using any of the following options, this behaviour is inhibited.
 .TP
-.B \-d
+.BR \-d ", " \-\-delete
 do not re-use existing tag data. If no new tag information is specified in
 conjunction with this option, all selected tags will be removed.
 .PP
-.BI \-t " title
+.ta 1.4i
+.BR "\-t \fItitle\fP" ",\t" "\-\-title \fItitle\fP"
 .br
-.BI \-a " artist
+.BR "\-a \fIartist\fP" ",\t" "\-\-artist \fIartist\fP"
 .br
-.BI \-l " album
+.BR "\-l \fIalbum\fP" ",\t" "\-\-album \fIalbum\fP"
 .br
-.BI \-n " tracknr
+.BR "\-n \fItracknr\fP" ",\t" "\-\-track \fItracknr\fP"
 .br
-.BI \-y " year
+.BR "\-y \fIyear\fP" ",\t" "\-\-year \fIyear\fP"
 .br
-.BI \-g " genre
+.BR "\-g \fIgenre\fP" ",\t" "\-\-genre \fIgenre\fP"
 .br
-.BI \-c " comment
+.BR "\-c \fIcomment\fP" ",\t" "\-\-comment \fIcomment\fP"
 .IP
 add/replace the specified fields in all selected tags with the values
 given. Field values are scanned for substitution variables, see
@@ -129,32 +130,31 @@ operation is performed.
 Genres can be specified either directly or with their assigned number,
 regardless of tag format.
 .TP
-.BI \-f " filename-template
+.BR "\-f \fIfilename-template\fP" ", " "\-\-rename \fIfilename-template\fP"
 rename files encountered according to \fIfilename-template\fR.
 The argument is scanned for substitution variables. An empty variable will by
 default get replaced with \*(lqUnknown\*(rq.
 Trying to rename to an already existing file will cause an error.
 .TP
-.BI \-q " format
+.BR "\-q \fIformat\fP" ", " "\-\-query \fIformat\fP"
 for each file encountered, \fIformat\fR will get scanned for substitution
 variables, and written to standard output. Using this option will block any
 attempt to modify files.
 .TP
-.B \-m
-match mode; interpret any variables found in a \fIfilespec\fR as a wildcard,
-and set the tag field corresponding to the matched wildcard.
-Thus, `-m\ "%a\ -\ %t.mp3"' is equivalent for `-a\ %1\ -t\ %2\ "*\ -\ *.mp3"'.
-This option is merely a shorthand and does not add any intelligence;
-in particular, any variable interpreted still counts as a wildcard, see
+.BR \-m ", " \-\-match
+match mode; interpret any substitution variables (see
 .B SUBSTITUTION
-below.
+below) found in a \fIfilespec\fR as a wildcard,
+and set the corresponding tag field to the matched portion of the filename.
+
+Thus, `id3 -m\ "%a\ -\ %t.mp3"' is short-hand for `id3 -a\ %1\ -t\ %2\ "*\ -\ *.mp3"'.
 .TP
-.BI \-D " filename
-duplicate and copy the tags of the specified format as found in \fIfilename\fR
-to the target files. The tag in each file is replaced after any variables have
+.BR "\-D \fIfilename\fP" ", " "\-\-duplicate \fIfilename\fP"
+duplicate and copy the tags found in \fIfilename\fR
+to the target files. The tag in each target file is replaced after any variables have
 been read, but before any fields are updated.
 
-Any original tag values not explicitly copied to the new tag (for example, by
+Any original tag values not explicitly written to the new tag (for example, by
 using -u) are lost. If \fIfilename\fR does not have any tags, this option is
 identical to the -d option.
 .B SUBSTITUTION
@@ -163,30 +163,30 @@ below.
 The following options only apply on the tag most recently selected before
 them, and only have meaning where relevant.
 .TP
-.BI \-E
+.BR \-E ", " \-\-if\-exists
 only write a tag of the most recently selected type if a file already contains it; do not add new ones.
 .TP
-.BI \-u
+.BR \-u ", " \-\-update
 update all standard tag fields by copying them from the source tag. This is
 similar to writing `-talnygc %t %a %l %n %y %g %c', but only operates on the
 most recent tag. It is possible for the source and destination tag to be the
 same.
 .TP
-.BI \-s " size
+.BR "\-s \fIsize\fP" ", " "\-\-size \fIsize\fP"
 try to write a new tag using exactly \fIsize\fR bytes, adding / removing
 padding as necessary. The resulting tag will have no padding if \fIsize\fR
 is smaller than the actual size necessary.
 .TP
-.B \-r\fIFRAME
+.BR "\-r\fIFRAME\fP" ", " "\-\-remove=\fIFRAME\fP"
 remove all occurrences of frames named \fIFRAME\fR from the tag. Consult the
 format documentation for valid \fIFRAME\fR names.
 .TP
-.BI \-w\fIFRAME " data
+.BR "\-w\fIFRAME data\fP" ", " "\-\-frame=\fIFRAME data\fP"
 add / update a frame named \fIFRAME\fR with \fIdata\fR in the  tag.
 \fIdata\fR is scanned for substitution variables. Again, consult the format
 documentation. See \fICOMPATIBILITY\fR for more information.
 .PP
-Individual options can be stacked in a single argument for more convenience.
+Short-form options can be stacked in a single argument for more convenience.
 For example, running
 
    id3 -2d -alt "Artist" "Album" "Title" *.mp3
@@ -363,7 +363,7 @@ The ID3v1 format only supports to the ISO-8859-1 (Latin 1) encoding. If you
 need other Unicode characters, you need to use ID3v2 tags.
 
 When using -2, id3 will write ID3 v2.3 by default, unless a file is already
-tagged with ID3 v2.2 (this is done by iTunes). id3 can read ID3 v2.4 tags, but
+tagged with the older ID3 v2.2. id3 can read ID3 v2.4 tags, but
 these will be converted to ID3 v2.3 when modified.
 
 The -w\fIFRAME\fR parameter and %{\fIFRAME\fR} substitution only know the following ID3v2.2 (3 letter)/ID3v2.3 (4 letter) frames:
