@@ -241,6 +241,7 @@ namespace op {
 
     template<class T> struct box { T object; };
     template<class T> T& use(box<T>& x) { return x.object; }
+    template<class T> T& use(T& x) { return x; }
 
     struct tag_info :
       out::query,
@@ -248,20 +249,23 @@ namespace op {
 #ifndef LITE
       box<out::ID3v2>,
       box<out::Lyrics3>,
+      box< tag::combined< tag::reader > >,
       tag::reader,
 #endif
       out::file
     {
 #ifndef LITE
-        tag::metadata* read(const char* fn) const
+        template<class T>
+        T& enable()
         {
-            std::unique_ptr<tag::metadata> tag( box<out::ID3v2>::object.read(fn) );
-            if(!tag.get() || !*tag)
-                tag.reset( box<out::Lyrics3>::object.read(fn) );
-            if(!tag.get() || !*tag)
-                tag.reset( box<out::ID3>::object.read(fn) );
-            return tag.release();
+            T& selected = use<T>(*this);
+            use< tag::combined<tag::handler> >(*this).with(selected);
+            use< tag::combined<tag::reader>  >(*this).with(selected);
+            return selected;
         }
+
+        tag::metadata* read(const char* fn) const
+        { return box< tag::combined<tag::reader> >::object.read(fn); }
 #endif
     };
 
@@ -331,7 +335,6 @@ int main_(int argc, char *argv[])
     ID3field field;
     const char*   val[FIELD_MAX] = { 0, };     // fields to alter
 
-    tag::reader*  source  = 0;                 // pointer to first enabled
     tag::handler* chosen  = 0;                 // pointer to last enabled
     const char*   copyfn  = 0;                 // alternate from-file
 
@@ -387,22 +390,15 @@ int main_(int argc, char *argv[])
                 }
                 cmd = std_field; break;
 #ifndef LITE
-                while(1) {
-            case '1':
-                    if(!source) source = &use<out::ID3>(tag);
-                    chosen = &use<out::ID3>(tag);
-                    break;
-            case '2':
-                    if(!source) source = &use<out::ID3v2>(tag);
-                    chosen = &use<out::ID3v2>(tag);
-                    break;
             case '3':
-                    if(!source) source = &use<out::Lyrics3>(tag);
-                    chosen = &use<out::Lyrics3>(tag);
-                    tag.with(use<out::ID3>(tag).create());
-                    break;
-                }
-                tag.with(chosen->create());
+                chosen = &tag.enable<out::Lyrics3>().create();
+                tag.with(use<out::ID3>(tag)).create();
+                break;
+            case '1':
+                chosen = &tag.enable<out::ID3>().create();
+                break;
+            case '2':
+                chosen = &tag.enable<out::ID3v2>().create();
                 break;
 
             case 's':                      // tag specific switches
@@ -520,15 +516,14 @@ int main_(int argc, char *argv[])
             continue;
 
         case force_fn:                         // argument is filespec
-            if(!chosen) {
+            if(!chosen) {                      // use default tags
 #ifndef LITE
-                source = &tag;                 // use default tags
-                tag.with( use<out::ID3v2>(tag) );
-                tag.with( use<out::Lyrics3>(tag) );
+                tag.enable<out::ID3v2>();
+                tag.enable<out::Lyrics3>();
 #else
                 source = &use<out::ID3>(tag);
 #endif
-                tag.with( use<out::ID3>(tag).create() );
+                tag.enable<out::ID3>().create();
             }
 
             for(int f = 0; f < FIELD_MAX; ++f) // propagate general ops
@@ -548,15 +543,14 @@ int main_(int argc, char *argv[])
                 strcpy(argv[i], spec.c_str());
             }
 
-            tag::writer* selected = &(out::file&) tag;
+            tag::writer* selected = &use<out::file>(tag);
+            tag::reader* source   = &tag;
 
             switch(state & (w|rd|ren)) {
             case op::rd:
-                selected = &(out::query&) tag;
+                selected = &use<out::query>(tag);
             case op::ren:
-                if(chosen && tag.size() > 1)
-                    eprintf("note: multiple selected tags ignored when reading\n");
-                tag.ignore(0, tag.size()); // don't perform no-ops
+                tag.ignore(0, tag.size());     // don't perform no-ops
             case op::w | op::ren:
             case op::w:
                 break;

@@ -2,9 +2,20 @@
 #define __ZF_SETGROUP_HPP
 
 #include <vector>
+#include <memory>
 #include "set_base.h"
 
 namespace tag {
+
+  ///////////////////////////////////////////////////////
+  // placeholder metadata                              //
+  ///////////////////////////////////////////////////////
+
+struct empty_metadata : metadata {
+    value_string operator[](ID3field) const { return value_string(); }
+    array listing() const                   { return array(); }
+    operator bool() const                   { return false; }
+};
 
   ///////////////////////////////////////////////////////
   // generic implementation                            //
@@ -59,6 +70,21 @@ public:
         for(const_iterator p = begin(); p != end(); )
             result |= (*p++)->from(fn);
         return result;
+    }
+
+  // reader functions
+    metadata* read(const char* fn) const
+    {
+        for(const_iterator p = begin(); p != end(); ) {
+#if __cplusplus < 201103L
+            std::auto_ptr<metadata> tag( (*p++)->read(fn) );
+#else
+            std::unique_ptr<metadata> tag( (*p++)->read(fn) );
+#endif
+            if(tag.get() && *tag)
+                return tag.release();
+        }
+        return new empty_metadata;
     }
 
 protected:
