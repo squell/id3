@@ -121,7 +121,6 @@ Pick the makefile you need and rename it to 'makefile' or use 'make -f':
 Standard makefile targets:
 
  make id3           - fully enabled executable (default)
- make id3l          - id3v1 only executable
  make all           - both executables
  make clean         - removes all files produced by make
 

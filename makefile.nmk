@@ -15,15 +15,9 @@ id3.exe: main.obj varexp.obj fileexp.obj sedit.obj mass_tag.obj pattern.obj \
 	 setfname.obj setquery.obj charconv.obj char_ucs.obj char_utf8.obj
 	$(LINK) /out:$@ $**
 
-id3l.exe: mainl.obj sedit.obj varexp.obj fileexp.obj charconv.obj mass_tag.obj pattern.obj \
-	 setid3.obj setfname.obj setquery.obj \
-	 getid3.obj \
-	 id3v1.obj
-	$(LINK) /out:$@ $**
+all  : id3.exe
 
-all  : id3.exe id3l.exe
-
-final: id3.exe id3l.exe
+final: id3.exe
 	upx --best $**				## requires upx installed ##
 
 clean:
@@ -33,9 +27,6 @@ clean:
 
 main.obj: main.cpp
 	$(CL) $(CFLAGS) /c main.cpp
-
-mainl.obj: main.cpp
-	$(CL) $(CFLAGS) /DLITE /Fomainl.obj /c main.cpp
 
 .c.obj:
 	$(CL) $(CFLAGS) /c $<
@@ -48,8 +39,6 @@ mainl.obj: main.cpp
 main.o: main.cpp setgroup.h set_base.h sedit.h charconv.h setid3.h \
   setfname.h setquery.h setid3v2.h setlyr3.h mass_tag.h fileexp.h \
   pattern.h
-mainl.o: main.cpp setgroup.h set_base.h sedit.h charconv.h setid3.h \
-  setfname.h setquery.h mass_tag.h fileexp.h pattern.h
 sedit.o: sedit.cpp sedit.h charconv.h
 varexp.o: varexp.cpp varexp.h
 fileexp.o: fileexp.cpp varexp.h auto_dir.h fileexp.h

@@ -12,10 +12,8 @@
 #include "setid3.h"
 #include "setfname.h"
 #include "setquery.h"
-#ifndef LITE
-#    include "setid3v2.h"
-#    include "setlyr3.h"
-#endif
+#include "setid3v2.h"
+#include "setlyr3.h"
 #include "mass_tag.h"
 #include "pattern.h"
 #ifdef _WIN32
@@ -97,11 +95,7 @@ static void Help(bool long_opt=false)
     const char*const* const flags = Options+long_opt;
     printf(
         "%s " _version_ "\n"
-#ifndef LITE
         "usage: %s [-1 -2 -3] [OPTIONS] filespec ...\n"
-#else
-        "usage: %s [OPTIONS] filespec ...\n"
-#endif
         " -%s\t\t"          "give verbose output\n"
         " -%s\t\t"          "clear existing tag\n"
         " -%s <title>\t"    "set tag fields\n"
@@ -118,14 +112,12 @@ static void Help(bool long_opt=false)
         " -%s\t\t"          "search recursively\n"
         " -%s\t\t"          "preserve modification time of files\n"
         " -%s\t\t"          "print version info\n"
-#ifndef LITE
         "Only on last selected tag type:\n"
         " -%s <size>  \t"   "set tag size\n"
         " -%s\t\t"          "only write if tag already exists\n"
         " -%s\t\t"          "update all standard fields\n"
         " -%sTYPE\t\t"      "erase all `TYPE' frames\n"
         " -%sTYPE <data>\t" "write a `TYPE' frame\n"
-#endif
         "\nReport bugs to <squell@alumina.nl>.\n",
         Name,
         Name,
@@ -246,15 +238,12 @@ namespace op {
     struct tag_info :
       out::query,
       box<out::ID3>,
-#ifndef LITE
       box<out::ID3v2>,
       box<out::Lyrics3>,
       box< tag::combined< tag::reader > >,
       tag::reader,
-#endif
       out::file
     {
-#ifndef LITE
         template<class T>
         T& enable()
         {
@@ -266,7 +255,6 @@ namespace op {
 
         tag::metadata* read(const char* fn) const
         { return box< tag::combined<tag::reader> >::object.read(fn); }
-#endif
     };
 
 }
@@ -389,7 +377,6 @@ int main_(int argc, char *argv[])
                     cmdalias(tmp);             // will produce error
                 }
                 cmd = std_field; break;
-#ifndef LITE
             case '3':
                 chosen = &tag.enable<out::Lyrics3>().create();
                 tag.with(use<out::ID3>(tag)).create();
@@ -428,7 +415,6 @@ int main_(int argc, char *argv[])
                     opt = none;
                     break;
                 }
-#endif
             case 'u':
                 if(chosen) {
                     for(int i = 0; i < FIELD_MAX; ++i)
@@ -482,7 +468,6 @@ int main_(int argc, char *argv[])
             state |= clobr;
             break;
 
-#ifndef LITE
         case custom_field:                     // v2 - write a custom field
             if(! chosen->set(opt, argv[i]) ) {
                 eprintf("selected tag does not have `%s' frames\n", opt);
@@ -494,7 +479,6 @@ int main_(int argc, char *argv[])
         case suggest_size:                     // v2 - suggest size
             chosen->reserve( argtol(argv[i]) );
             break;
-#endif
 
         case set_rename:                       // specify rename format
             if(strrchr(argv[i],'/')) {
@@ -517,12 +501,8 @@ int main_(int argc, char *argv[])
 
         case force_fn:                         // argument is filespec
             if(!chosen) {                      // use default tags
-#ifndef LITE
                 tag.enable<out::ID3v2>();
                 tag.enable<out::Lyrics3>();
-#else
-                source = &use<out::ID3>(tag);
-#endif
                 tag.enable<out::ID3>().create();
             }
 

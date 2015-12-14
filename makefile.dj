@@ -8,17 +8,15 @@ LDFLAGS =
 
 build: id3.exe
 
-all  : id3.exe id3l.exe
+all  : id3.exe
 
-final: id3.exe id3l.exe
+final: id3.exe
 	upx --best $+
 
 clean:
 	del *.o
 	del id3
 	del id3.exe
-	del id3l
-	del id3l.exe
 
 zip:
 	del distrib.zip
@@ -33,17 +31,8 @@ id3.exe: main.o varexp.o fileexp.o sedit.o mass_tag.o pattern.o \
 	 setfname.o setquery.o charconv.o char_ucs.o
 	$(CC) $(CFLAGS) $+ $(LDFLAGS) -o $@
 
-id3l.exe: mainl.o sedit.o varexp.o fileexp.o charconv.o mass_tag.o pattern.o \
-	 setid3.o setfname.o setquery.o \
-	 getid3.o \
-	 id3v1.o
-	$(CC) $(CFLAGS) $+ $(LDFLAGS) -o $@
-
 main.o:
 	$(CC) $(CFLAGS) -c main.cpp
-
-mainl.o:
-	$(CC) $(CFLAGS) -DLITE -o $@ -c main.cpp
 
 %.o : %.cpp %.h
 	$(CC) $(CFLAGS) -c $<
@@ -56,8 +45,6 @@ mainl.o:
 main.o: main.cpp setgroup.h set_base.h sedit.h charconv.h setid3.h \
   setfname.h setquery.h setid3v2.h setlyr3.h mass_tag.h fileexp.h \
   pattern.h
-mainl.o: main.cpp setgroup.h set_base.h sedit.h charconv.h setid3.h \
-  setfname.h setquery.h mass_tag.h fileexp.h pattern.h
 sedit.o: sedit.cpp sedit.h charconv.h
 varexp.o: varexp.cpp varexp.h
 fileexp.o: fileexp.cpp varexp.h auto_dir.h fileexp.h

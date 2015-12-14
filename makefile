@@ -54,10 +54,10 @@ BSD_INSTALL_MAN     ?= $(INSTALL) -m 644
 
 build: id3
 
-all  : id3 id3l id3-images
+all  : id3 id3-images
 
 clean:
-	-rm -f *.o id3 id3l id3-images
+	-rm -f *.o id3 id3-images
 
 depend:
 	(echo '/$@encies/+2;/^$$/-1c'; $(MKALLDEP); \
@@ -194,13 +194,9 @@ OBJ_2	= setid3v2 getid3v2 id3v2 fileops char_ucs char_utf8
 OBJ_3	= setlyr3 getlyr3 lyrics3
 OBJ_F	= setfname setquery
 OBJECTS = main $(OBJ_GEN) $(OBJ_1) $(OBJ_2) $(OBJ_3) $(OBJ_F)
-OBJX_L	= mainl $(OBJ_GEN) $(OBJ_1) $(OBJ_F)
 
 id3: $(OBJECTS:=.o)
 	$(CXX) $(CXXFLAGS) $(OBJECTS:=.o) $(LDFLAGS) -o $@
-
-id3l: $(OBJX_L:=.o)
-	$(CXX) $(CXXFLAGS) $(OBJX_L:=.o) $(LDFLAGS) -o $@
 
 id3-images: id3-images.c id3v2.c id3v2.h
 	$(CC) $(CFLAGS) -DID3v2_READONLY id3-images.c id3v2.c $(LDFLAGS) -o $@
