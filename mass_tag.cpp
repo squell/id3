@@ -110,12 +110,11 @@ namespace {
         case '7':
         case '8':
         case '9':
-            c -= '1';
-            if(c >= filerec->var.size()) {
-                static char error[] = "variable index out of range: %_";
-                error[sizeof error-2] = (c+1)%10 + '0', throw out_of_range(error);
+            if(c-'1' >= filerec->var.size()) {
+                static const char error[] = "variable index out of range: %";
+                throw out_of_range(error+std::string(1,c));
             }
-            return conv<local>(filerec->var[c]);
+            return conv<local>(filerec->var[c-'1']);
         case '{': {
             ptr q = std::find(p, end, '}');
             if(q == end) {
@@ -140,8 +139,8 @@ namespace {
         default:
             ID3field i; i = mass_tag::field(c);
             if(i >= tag::FIELD_MAX) {
-                static char error[] = "unknown variable: %_";
-                error[sizeof error-2] = c, throw out_of_range(error);
+                static const char error[] = "unknown variable: %";
+                throw out_of_range(error+conv<wchar_t>(&c, 1).str<local>());
             }
             const result& tmp = (*tag_data)[i];
             return tmp.empty()? empty : tmp;

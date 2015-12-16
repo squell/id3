@@ -153,14 +153,14 @@ static const char* cmdalias(const char* arg)
         }
     }
     eprintf("unrecognized switch `-%s'\n", arg);
-    shelp();
+    return shelp(), arg;
 }
 
 static long argtol(const char* arg)            // convert argument to long
 {
     char* endp;
     long n = strtol(arg, &endp, 10);
-    if(*endp != '\0') {
+    if(*endp != '\0' || n < 0) {
         eprintf("%s: invalid argument\n", arg);
         exit(exitc=1);
     }
@@ -585,6 +585,8 @@ int main(int argc, char *argv[])
         } lock;
 #  else
         setlocale(LC_CTYPE, "");
+        if(mblen(0,0) != 0)
+            setlocale(LC_CTYPE, "C");
 #  endif
         return main_(argc, argv);
     } catch(const tag::failure& f) {

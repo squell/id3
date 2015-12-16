@@ -70,6 +70,7 @@ FILE *ftemp(char *templ, const char *mode)
 #else
     int fd = mkstemp(templ);
     if(fd >= 0) {
+        FILE* fdopen();                         /* in case -ansi is used */
         if(f = fdopen(fd, mode)) return f;
         close(fd);
 #endif

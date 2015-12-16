@@ -35,7 +35,7 @@ namespace charset {
 
     conv<>::data conv_wide::decode(const char* s, size_t len, byte_order ord)
     {
-        if(!(len &= ~1)) return conv<>::data();   // degenerate
+        if(!(len &= ~1U)) return conv<>::data();   // force len to 2k, k > 0
         const char* end = s+len;
 
         conv<>::data build;

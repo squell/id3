@@ -61,7 +61,7 @@
 #ifndef __ZF_UTF8_HPP
 #define __ZF_UTF8_HPP
 
-#if __STDC_VERSION__ >= 199901L
+#if __STDC_VERSION__ >= 199901L || __cplusplus >= 201103L
 #  include <stdint.h>
 #endif
 

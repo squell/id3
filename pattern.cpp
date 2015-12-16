@@ -25,8 +25,6 @@ using charset::conv;
  // - assumes sedit() processes variables left-to-right
 
 namespace {
-    static char error[] = "illegal variable: %_";
-
     struct counter : stredit::format {
         handler* tag;               // Borland doesn't like ref's in aggr's?
         mutable unsigned w;
@@ -49,8 +47,8 @@ namespace {
         } else if(*p == 'x') {
             ;                                      // pass over in silence
         } else {
-            error[sizeof error-2] = *p;
-            throw std::out_of_range(error);
+            static const char error[] = "illegal variable: %";
+            throw std::out_of_range(error+conv<wchar_t>(&*p, 1).str<char>());
         }
         return ++p, "*";
     }

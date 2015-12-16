@@ -109,10 +109,10 @@ static ulong ul4(uchar n[4])
 
 static void nbo4(uchar h[4], ulong n)
 {
-    h[0] = (n >> 24);
-    h[1] = (n >> 16);
-    h[2] = (n >>  8);
-    h[3] = (n      );
+    h[0] = (n >> 24) & 0xFF;
+    h[1] = (n >> 16) & 0xFF;
+    h[2] = (n >>  8) & 0xFF;
+    h[3] = (n      ) & 0xFF;
 }
 
 static ulong ul4ss(uchar h[4])                            /* "synch safe" */
@@ -156,10 +156,11 @@ static long calcsize(uchar *buf, ulong max)
             case  4: step = sizeof(frame->v3) + ul4ss(frame->v3.size);      break;
             default: return -1;
         }
+        if(size+step <= size) return -1;
         size += step;
         buf  += step;
     }
-    return size<=max? size : -1;
+    return size<=max? (long)size : -1;
 }
 
 /* in v2.4, unsync is per-frame for not adequately explained reasons.
@@ -227,7 +228,7 @@ void *ID3_readf(const char *fname, size_t *tagsize)
 
     if( rh.flags & XTND ) {                 /* get rid of extended header */
         ulong xsiz = (rh.ver==3?ul4:ul4ss)(buf) + 4;
-        if(xsiz >= size)
+        if(xsiz < 4 || xsiz >= size)
             refuse(abort_mem, "extended header incorrect (%ld bytes)", xsiz);
         size -= xsiz;                                   /* but try anyway */
         memmove(&buf[0], &buf[xsiz], size);

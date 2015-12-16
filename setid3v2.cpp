@@ -50,7 +50,7 @@ namespace {
 
         operator char*() { return base; }
 
-        writer()         { }
+        writer()         { base = 0; }
        ~writer()         { free(base); }
 
         void put(const char* ID, const void* src, size_t len);
@@ -66,7 +66,7 @@ namespace {
 
         if(len+10 > avail) {
             while(len+10 > factor) factor *= 2;
-            int size = dest - base;
+            size_t size = dest - base;
             base     = (char*) realloc(base, size+factor);
             avail    = factor;
             if(!base) throw bad_alloc();
@@ -117,7 +117,7 @@ namespace {
  // code for constructing ID3v2 frames. rather hairy, but hey, ID3v2 sucks
  // returns empty string if unsupported
 
-bool needs_unicode(charset::conv<wchar_t> str)
+inline static bool needs_unicode(charset::conv<wchar_t> str)
 {
     const wstring& ws = str;
     return ws.end() != find_if(ws.begin(), ws.end(), bind2nd(greater<wchar_t>(), 0xFF));
@@ -138,6 +138,7 @@ static const string encode(int enc, const charset::conv<>& str)
         return conv<charset::utf8>(str);
     */
     }
+    throw enc;
 }
 
 static const string binarize(string field, charset::conv<charset::latin1> content)
