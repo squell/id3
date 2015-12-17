@@ -1,7 +1,7 @@
 #include <cstdlib>
 #include <cstring>
 #include <climits>
-#if defined(__STDC_ISO_10646__) || defined(_WIN32)
+#if !defined(FORCE_ICONV) && defined(__STDC_ISO_10646__) || defined(_WIN32)
 #  include <wchar.h>
 #  define fallback(call) (0)
 #elif defined(__DJGPP__)
@@ -102,22 +102,34 @@ namespace charset {
 
 #if fallback(1) && !defined(NO_ICONV)
 
-    static bool recode_error(const char* to, const char* from)
+    static void recode_error(const char* to, const char* from)
     {
         throw std::runtime_error(std::string("iconv -f ") + from + " -t " + to + " not working; recompile with -DNO_ICONV");
     }
 
-    bool recode(char* out, size_t avail, const void* src, size_t len, const char* to, const char* from)
+    // Work-around for the ambiguity in SUSv2 specification if iconv; see
+    // https://www.opengroup.org/austin/aardvark/finaltext/xshbug.txt
+    // (Even though POSIX.2001 fixed this, still an issue in 2015...)
+
+    using ::iconv;
+    template<class T> inline size_t iconv(T cd, char **inbuf, size_t *inbytesleft, char **outbuf, size_t *outbytesleft)
     {
+        // Only instantiated if iconv.h doesn't take a "char** inbuf" argument
+        return iconv(cd, (const char**)inbuf, inbytesleft, outbuf, outbytesleft);
+    }
+
+    size_t recode(char* out, size_t avail, const void* src, size_t len, const char* to, const char* from, bool out_wide, size_t in_step)
+    {
+        size_t const max_avail = avail;
         char* in = (char*)src;
 
         iconv_t cvt = iconv_open(to, from);
         if(cvt == (iconv_t)-1)
-            return false;
+            recode_error(to, from);
 
-        struct guard_t { 
+        struct guard_t {
             iconv_t cvt;
-            ~guard_t() { iconv_close(cvt); } 
+            ~guard_t() { iconv_close(cvt); }
         } const guard = { cvt };
 
         while(len > 0) {
@@ -125,13 +137,21 @@ namespace charset {
             if(result == (size_t)-1) {
                 if(errno == E2BIG)
                     throw std::logic_error("broken iconv");
-                do {
-                    len--;      // skip some bytes and re-try
-                } while(*++in == '\0');
+                if(out_wide) {  // emit a placeholder
+                    memcpy(out, wide(0xFFFDu).raw, sizeof(wchar_t));
+                    out  += sizeof(wchar_t);
+                    avail-= sizeof(wchar_t);
+                } else {
+                    *out++ = '?', avail--;
+                }
+                if(len <= in_step)
+                    break;
+                len -= in_step; // skip some bytes and re-try
+                in  += in_step;
             } else if(len != 0)
                 throw std::logic_error("broken iconv");
         }
-        return true;
+        return max_avail - avail;
     }
 
 #elif fallback(1)
@@ -163,7 +183,7 @@ namespace charset {
 
 #endif
 
-    inline static const char* UCS() 
+    inline static const char* UCS()
     {
         union { unsigned short bom; unsigned char byte; } endian_test;
         endian_test.bom = 0xFFFE;
@@ -185,9 +205,8 @@ namespace charset {
         std::vector<char> build((len+1)*sizeof(wchar_t));
         wchar_unicode();
 
-        recode(build.data(), build.size(), s, len, UCS(), nl_langinfo(CODESET)) 
-        || recode_error(UCS(), nl_langinfo(CODESET));
-        return conv<>::data((wchar_t*)build.data());
+        size_t n = recode(build.data(), build.size(), s, len, UCS(), nl_langinfo(CODESET), true, 1);
+        return conv<>::data((wchar_t*)build.data(), n/sizeof(wchar_t));
 #   else
         if(!wchar_unicode())
             return fallback(conv<_7bit>::decode(s, len));
@@ -211,9 +230,8 @@ namespace charset {
         std::vector<char> build((len+1)*4);
         wchar_unicode();
 
-        recode(build.data(), build.size(), p, len*sizeof(wchar_t), nl_langinfo(CODESET), UCS()) 
-        || recode_error(nl_langinfo(CODESET), UCS());
-        return build.data();
+        size_t n = recode(build.data(), build.size(), p, len*sizeof(wchar_t), nl_langinfo(CODESET), UCS(), false, sizeof(wchar_t));
+        return std::string(build.data(), n);
 #   else
         if(!wchar_unicode())
             return fallback(conv<_7bit>::encode(p, len));
