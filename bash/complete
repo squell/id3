@@ -17,15 +17,21 @@ _id3mtag() {
 
 	for ((n=1; n<COMP_CWORD; n++)); do
 		arg="${COMP_WORDS[n]}"
-		if [ "${arg:0:1}" = "-" ]; then
-			[ "$arg" = "--" ] && { n=$COMP_CWORD; break; }
-			[ "${arg//[!mR]/}" != "" ] && { n=0; break; }
+		if [ "${arg:0:1}" = "-" -a "$arg" != "--" ]; then
+			[ "${arg//[!mR]/}" != "" ] && { COMPREPLY=(); return; }
 			arg="${arg//[!talnygcDfqsw]/}"
 			n="$((n+${#arg}))"
+		else
+			n=0
+			break
 		fi
 	done
-	if [ $n == $COMP_CWORD ] || [ $((n-1)) == $COMP_CWORD -a "$prev" == "-D" ]; then
-		COMPREPLY=( $( compgen -f -X '!*.mp3' -- "$cur" ) )
+	if [ $n = $COMP_CWORD -a "${cur::2}" = "--" ]; then
+		# generate options from --help
+		COMPREPLY=( $( compgen -W "$(${COMP_WORDS[0]} --help | grep -oe '--[-=a-zA-Z]\+' | sed '/TYPE/{p;s///}' )" -- "$cur" ) )
+	elif [ $n -le $COMP_CWORD ] || [ $((n-1)) = $COMP_CORD -a "$prev" = "-D" -o "$arg" = "--duplicate" ]; then
+		# generate quoted filenames
+		COMPREPLY=( $( compgen -f -X '!*.mp3' -- "$cur" | sed '/[^[:alnum:]./]/s/.*/"&"/' ) )
 	fi
 } &&
-complete -o filenames -F _id3mtag id3
+complete -F _id3mtag id3
