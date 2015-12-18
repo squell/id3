@@ -34,7 +34,7 @@ while [ $iter -lt 10 ]; do
 			iter=$(expr $iter + 1)
 			echo "$files"
 			find "$base" -path "$files" 2> /dev/null | sort > /tmp/test1
-			./id3 -R -q "%_p%_f" "$files" 2> /dev/null | sort > /tmp/test2
+			./id3 -0 -R -q "%_p%_f" "$files" 2> /dev/null | sort > /tmp/test2
 			diff -q /tmp/test1 /tmp/test2 || exit 1
 		fi
 		break

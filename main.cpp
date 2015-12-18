@@ -387,6 +387,9 @@ int main_(int argc, char *argv[])
             case '2':
                 chosen = &tag.enable<out::ID3v2>().create();
                 break;
+            case '0':
+                chosen = &tag;             // "null" tag - does nothing
+                break;
 
             case 's':                      // tag specific switches
                 if(chosen) {
