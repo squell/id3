@@ -25,7 +25,7 @@ static bool getframe(ID3FRAME f, const char* field, size_t n);
 
 // setid3v2 also needs the following function; but the outside world doesn't
 namespace tag {
-    extern ID3v2::value_string unbinarize(ID3FRAME, charset::conv<>* descriptor);
+    extern ID3v2::value_string unbinarize(ID3FRAME, charset::conv<>& descriptor);
 }
 
 ID3v2::ID3v2(const char* fn) : tag(ID3_readf(fn,0))
@@ -71,9 +71,9 @@ ID3v2::value_string ID3v2::operator[](ID3field field) const
             ID3_start(f, tag);
             while( getframe(f, id_str, id_len) ) {
                 charset::conv<local> desc;
-                value_string val = unbinarize(f, &desc);
-                if(desc.length() <= 1)
-                    return val;
+                value_string val = unbinarize(f, desc);
+                if(desc.length() <= 5) // allow for "::lan"; which works because
+                    return val;        // in fieldtag: has_desc() implies has_lang()
             }
         }
     } else if(tag && field == FIELD_MAX) {
@@ -98,7 +98,7 @@ ID3v2::array ID3v2::listing() const
         vec.push_back( array::value_type("ID3v2", vstr) );
         while(ID3_frame(f)) {
             charset::conv<local> desc;
-            value_string val = unbinarize(f, &desc);
+            value_string val = unbinarize(f, desc);
             vec.push_back( array::value_type(f->ID+desc.str(), val) );
         }
     }
@@ -132,7 +132,7 @@ static const char *membrk0(const char* buf, size_t size, bool wide)
     return 0;
 }
 
-extern ID3v2::value_string tag::unbinarize(ID3FRAME f, charset::conv<>* descriptor)
+extern ID3v2::value_string tag::unbinarize(ID3FRAME f, charset::conv<>& descriptor)
 {
     typedef conv<latin1> cs;
 
@@ -152,23 +152,27 @@ extern ID3v2::value_string tag::unbinarize(ID3FRAME f, charset::conv<>* descript
         return conv<latin1>(buf);
     }
 
+    const char* lang = 0;
     if(ID3v2::has_lang(field)) {
+        lang = p;
         p += 3;                                // skip-ignore language field
     }
     if(ID3v2::has_desc(field)) {
         const char *q = membrk0(p, f->size - (p - f->data), wide);
         if(!q) return conv<>();                // malformed frame
-        if(descriptor) {
-            *descriptor = conv<charset::latin1>(":");
-            switch(*f->data) {
-                case 0: *descriptor += conv<charset::latin1> (p, q-p); break;
-                case 1: *descriptor += conv<charset::utf16>  (p, q-p); break;
-                case 2: *descriptor += conv<charset::utf16be>(p, q-p); break;
-                case 3: *descriptor += conv<charset::utf8>   (p, q-p); break;
-            }
+        descriptor = conv<charset::latin1>(":");
+        switch(*f->data) {
+            case 0: descriptor += conv<charset::latin1> (p, q-p); break;
+            case 1: descriptor += conv<charset::utf16>  (p, q-p); break;
+            case 2: descriptor += conv<charset::utf16be>(p, q-p); break;
+            case 3: descriptor += conv<charset::utf8>   (p, q-p); break;
         }
         p = q+1+wide;
+    } else if(lang) {
+        descriptor += ':';                     // only used by USER; enfore consistency in notation
     }
+    if(lang)
+        (descriptor += ':') += conv<charset::latin1>(lang,3);
 
     size_t hdrsiz = p - f->data;
     if(hdrsiz > 1 || ID3v2::is_text(field)) {

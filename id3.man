@@ -79,8 +79,8 @@ process/add ID3v2 tags.
 .B \-3
 process/add Lyrics3 tags.
 
-If more than one tag type is specified, they are all written, but only the
-left-most tag is read from. If no tag type is specified,
+If more than one tag type is specified, they are all written, and the left-most
+one that is found is used for variable substitution. If no tag type is specified,
 .I id3
 will by default
 attempt to read ID3v2, Lyrics3 and ID3v1 tags in that order, only modify existing ID3v2 and Lyrics3 tags, and modify/add ID3v1 tags.
@@ -176,8 +176,9 @@ padding as necessary. The resulting tag will have no padding if \fIsize\fR
 is smaller than the actual size necessary.
 .TP
 .BR "\-r\fIFRAME\fP" ", " "\-\-remove=\fIFRAME\fP"
-remove all occurrences of frames named \fIFRAME\fR from the tag. Consult the
+remove occurrences of frames named \fIFRAME\fR from the tag. Consult the
 format documentation for valid \fIFRAME\fR names.
+For text frames, it is equivalent to `-w\fIFRAME\fP ""'.
 .TP
 .BR "\-w\fIFRAME data\fP" ", " "\-\-frame=\fIFRAME data\fP"
 add / update a frame named \fIFRAME\fR with \fIdata\fR in the  tag.
@@ -381,10 +382,11 @@ CNT/PCNT (numeric play counter) and
 USER (tos, v2.3 only).
 Attempts to write ID3v2.2 frames to ID3v2.3 or vice versa will be ignored.
 
-Several ID3v2 frames support additional descriptors (TXXX, WXXX, COMM, USLT). These can be read or written using
+Several ID3v2 frames can be specialized with additional descriptors (TXXX, WXXX, COMM, USLT). These can be read or written using
 the extended syntax -w\fIFRAME\fP:\fIdescriptor\fP and %{\fIFRAME\fP:\fIdescriptor\fP}.
 Descriptors are case sensitive and may contain whitespace.
-Which descriptors are meaningful depends on your music player.
+For frames that are language-specific (COMM, USLT), the form \fIFRAME\fP:\fIdescriptor\fP:\fIxxx\fP may also be used, where \fIxxx\fP is a three letter ISO-639-2 language code.
+Which \fIdescriptors\fP are meaningful is application-specific.
 
 id3 does not support unnecessary ID3v2 features such as compression, encryption, or embedding binary data (including image files).
 .SH AUTHOR

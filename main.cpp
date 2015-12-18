@@ -116,7 +116,7 @@ static void Help(bool long_opt=false)
         " -%s <size>  \t"   "set tag size\n"
         " -%s\t\t"          "only write if tag already exists\n"
         " -%s\t\t"          "update all standard fields\n"
-        " -%sTYPE\t\t"      "erase all `TYPE' frames\n"
+        " -%sTYPE\t\t"      "remove `TYPE' frames\n"
         " -%sTYPE <data>\t" "write a `TYPE' frame\n"
         "\nReport bugs to <squell@alumina.nl>.\n",
         Name,
@@ -473,7 +473,7 @@ int main_(int argc, char *argv[])
 
         case custom_field:                     // v2 - write a custom field
             if(! chosen->set(opt, argv[i]) ) {
-                eprintf("selected tag does not have `%s' frames\n", opt);
+                eprintf("writing `%s' frames is not supported\n", opt);
                 shelp();
             }
             opt = none;

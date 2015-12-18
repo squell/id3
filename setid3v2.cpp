@@ -12,7 +12,7 @@
 
 /*
 
-  copyright (c) 2004, 2005 squell <squell@alumina.nl>
+  copyright (c) 2004, 2005, 2015 squell <squell@alumina.nl>
 
   use, modification, copying and distribution of this software is permitted
   under the conditions described in the file 'COPYING'.
@@ -115,7 +115,6 @@ namespace {
 /* ===================================== */
 
  // code for constructing ID3v2 frames. rather hairy, but hey, ID3v2 sucks
- // returns empty string if unsupported
 
 inline static bool needs_unicode(charset::conv<wchar_t> str)
 {
@@ -141,17 +140,34 @@ static const string encode(int enc, const charset::conv<>& str)
     throw enc;
 }
 
+  // split "FIELD[:descr[:lan]]" into three components
+  // returns actual descriptor via result
+
+static string split_field(string& field, string& lang)
+{
+    string descr;
+    const string::size_type colon = field.find(':');       // split description
+    if(colon != string::npos) {
+        descr = field.substr(colon+1);
+        field.erase(colon);
+    }
+    const string::size_type E = descr.size();              // split language
+    if(E >= 4 && descr[E-4] == ':' && isalpha(descr[E-3]) && isalpha(descr[E-2]) && isalpha(descr[E-1])) {
+        lang = descr.substr(E-3);
+        descr.erase(E-4);
+    }
+    return descr;
+}
+
+ // returns empty string if unsupported
+
 static const string binarize(string field, charset::conv<charset::latin1> content)
 {
     using tag::read::ID3v2;
     using charset::conv;
 
-    string::size_type sep = field.find(':');               // split description
-    conv<charset::local> descr;
-    if(sep != string::npos) {
-        descr = field.substr(sep+1);
-        field.erase(sep);
-    }
+    string lang = "xxx";
+    const conv<char>& descr = split_field(field, lang) += '\0';
 
     if(field == "TCON" || field == "TCO") {                // genre by number
         unsigned int x = atoi(content.c_str())-1;          // is portable
@@ -174,17 +190,17 @@ static const string binarize(string field, charset::conv<charset::latin1> conten
     data = char(needs_unicode(content + descr));
 
     if(ID3v2::has_lang(field)) {
-        data.append("xxx");
+        data.append(lang);
     }
     if(ID3v2::has_desc(field)) {
-        const char nul = 0;
-        data.append(encode(data[0], descr+conv<char>(&nul,1)));
-    } else if(sep != string::npos) {
+        data.append(encode(data[0], descr));
+    } else if(descr.length() > 1) {
         return string();
     }
 
     if(data.length() > 1 || ID3v2::is_text(field)) {
-        return data.append(ID3v2::is_url(field)? content.str() : encode(data[0], content));
+        const string blob = ID3v2::is_url(field)? content.str() : encode(data[0], content);
+        return data.append(blob);
     } else if(ID3v2::is_url(field)) {
         return content;
     } else {
@@ -223,10 +239,22 @@ bool ID3v2::from(const char* fn)
     return null_tag = (fn? ID3_readf(fn, 0) : 0);
 }
 
+static void make_canonical(string& field)
+{
+    using tag::read::ID3v2;
+    string lang = "xxx";
+    string descr = split_field(field, lang);
+    if(ID3v2::has_lang(field))
+        field += ':' + descr + ':' + lang;
+    else if(ID3v2::has_desc(field) || !descr.empty())
+        field += ':' + descr;
+}
+
 bool ID3v2::set(string field, string s)
 {
+    make_canonical(field);
     if( binarize(field, "0").length() != 0 ) {      // test a dummy string
-        mod[field] = s;                             // was: mod.insert
+        mod[field] = s;
         return true;
     }
     return false;
@@ -234,6 +262,7 @@ bool ID3v2::set(string field, string s)
 
 bool ID3v2::rm(string field)
 {
+    make_canonical(field);
     mod[field].erase();
     return true;
 }
@@ -246,7 +275,7 @@ tag::metadata* ID3v2::read(const char* fn) const
 }
 
 namespace tag {
-    extern read::ID3v2::value_string unbinarize(ID3FRAME, charset::conv<>* descriptor);
+    extern read::ID3v2::value_string unbinarize(ID3FRAME, charset::conv<>& descriptor);
 }
 
 bool ID3v2::vmodify(const char* fn, const function& edit) const
@@ -273,7 +302,7 @@ bool ID3v2::vmodify(const char* fn, const function& edit) const
             string field = f->ID;
             if(read::ID3v2::has_desc(f->ID)) {
                 charset::conv<charset::local> descr;
-                unbinarize(f, &descr);
+                tag::unbinarize(f, descr);
                 field += descr.str();
             }
             db::iterator p = table.find(field);

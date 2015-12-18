@@ -1,5 +1,9 @@
 Changelog for 'id3'.
 
+2015-348 (W50):
+  main.cpp: %a variable substitution now will read from the first valid
+    tag selected on the commandline, instead of only the first
+
 2015-347 (W50):
   main.cpp: [cli change] added --long-options; see `id3 --help'
   fileexp.cpp: [bugfix] globbing failed if prefix contained a directory
@@ -9,7 +13,7 @@ Changelog for 'id3'.
   ?etid3v2.cpp: [bugfixes] frames being written by -wCOMM:xxxx lacked a
     language field, potentially producing invalidly formatted frames;
     fixed behaviour in presence of multiple COMM frames;
-    fix behaviour with non-Latin1 characters in TXXX/COMM:xxxx tags
+    fix behaviour with Unicode characters in TXXX/COMM:xxxx tags
 
 2015-335 (W49):
   id3v2.c: [bugfix] fix check that prevented removal of ID3v2.4 tags
