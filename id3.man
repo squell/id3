@@ -86,9 +86,8 @@ will by default
 attempt to read ID3v2, Lyrics3 and ID3v1 tags in that order, only modify existing ID3v2 and Lyrics3 tags, and modify/add ID3v1 tags.
 .TP
 .BR \-R ", " \-\-recursive
-searches recursively; Normally, path separators in \fIfilespec\fR do not get
-matched by `?' or `*' wildcards. With this switch, they are treated as an
-ordinary character.
+searches recursively; When this is enabled, `*' wildcards in \fIfilespec\fR will also match against
+directory separators. Normally, this is not the case.
 .TP
 .BR \-M ", " \-\-keep\-time
 preserve last modification time of files operated on

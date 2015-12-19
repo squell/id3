@@ -28,7 +28,7 @@ while [ $iter -lt 50 ]; do
 # id3 will never match "." ".." against wildcards intended to match files;
 # so we need to filter those; also, filter anything containing /proc/ or /dev/
 
-			find $files -prune 2> /dev/null | grep -v '[.]\{1,2\}$' | grep -v -e "/proc/" -e "/dev/" | sort > /tmp/test1
+			find $files -prune 2> /dev/null | grep -v '\(^\|\/\)[.]\{1,2\}$' | grep -v -e "/proc/" -e "/dev/" | sort > /tmp/test1
 			./id3 -0 -q "%_p%_f" "$files" 2> /dev/null | grep -v -e "/proc/" -e "/dev/" | sort > /tmp/test2
 			diff -q /tmp/test1 /tmp/test2 || exit 1
 		fi

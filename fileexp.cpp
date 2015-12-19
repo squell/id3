@@ -13,7 +13,7 @@
 
 /*
 
-  copyright (c) 2004, 2005 squell <squell@alumina.nl>
+  copyright (c) 2004, 2005, 2015 squell <squell@alumina.nl>
 
   use, modification, copying and distribution of this software is permitted
   under the conditions described in the file 'COPYING'.
@@ -27,7 +27,6 @@
 using namespace std;
 
 namespace fileexp {
-
 
  /* filefind::nested variables split in two categories: stuff that drives the
     the recursion (parameters); and supporting information (class members) */
@@ -51,16 +50,17 @@ bool find::glob(const char* filemask, bool wildslash)
     t.rec_base = wildslash? t.path : 0;
 #if defined(_WIN32)
     if(strncmp(t.mask, "//", 2) == 0) {         // unc path
-       char* shmask = strchr(t.mask+2, '/');
-       if(shmask && (shmask=strchr(++shmask, '/'))) {
-           *shmask++ = '\0';                    // separate sharename
-           char* shpath = t.pathcpy(t.pathcpy(t.path, t.mask), "/");
-           return t.nested(auto_dir(t.mask), shpath, shmask);
-       }
-       return false;
+        char* shmask = strchr(t.mask+2, '/');
+        if(shmask && (shmask=strchr(++shmask, '/'))) {
+            *shmask++ = '\0';                   // separate sharename
+            char* shpath = t.pathcpy(t.pathcpy(t.path, t.mask), "/");
+            if(t.rec_base) t.rec_base = shpath;
+            return t.nested(auto_dir(t.mask), shpath, shmask);
+        }
+        return false;
     } else
 #endif
-       return t.nested(auto_dir("./"), t.path, t.mask);
+    return t.nested(auto_dir("./"), t.path, t.mask);
 }
 
 struct filefind::direxp : varexp {              // special dotfile handling
@@ -113,7 +113,7 @@ bool filefind::nested(auto_dir dir, char* pathpos, char* filespec)
 
     bool w = false;                             // idle check
 
-    if(!rec_base || path == pathpos)
+    if(!rec_base || rec_base == pathpos)
     while( char* fndirsep = strchr(filespec, '/') ) {
         slash_split lock(fndirsep++);
         wpos = pathcpy(pathcpy(pathpos, filespec), "/");
@@ -122,15 +122,16 @@ bool filefind::nested(auto_dir dir, char* pathpos, char* filespec)
             pathpos  = wpos;                    //   directory, use as is
             filespec = fndirsep;                // (tail recursion)
             if(rec_base) rec_base = pathpos;
-        } else if(!strpbrk(filespec, "*?") || !dir) {
+        } else if(!strpbrk(filespec, "*?[") || !dir) {
             return false;                       // shortcut mismatchers
-        } else if(rec_base) {
+        } else if(rec_base && strchr(filespec,'*')) {
             break;
         } else {
             while( dirent* fn = dir.read() ) {  // search cur open dir
                 direxp match(filespec, fn->d_name);
                 if(match) {
                     wpos = pathcpy(pathcpy(pathpos, fn->d_name), "/");
+                    if(rec_base) rec_base = wpos;
                     if(auto_dir newdir = auto_dir(path)) {
                         for(varexp::iterator i = match.begin(); i != match.end(); ++i)
                             var.push_back(*i);
@@ -149,10 +150,9 @@ bool filefind::nested(auto_dir dir, char* pathpos, char* filespec)
     if(*filespec == '\0')
         return invoker->file(pathpos, *this);
 
-    if(!rec_base && access(filespec, F_OK) == 0) {
-        pathcpy(pathpos, filespec);             // check if file is 'simple'
-        return invoker->file(pathpos, *this);   // (speeds up simple cases)
-    }
+    pathcpy(pathpos, filespec);                 // check if file is 'simple'
+    if(!strpbrk(filespec, "*?["))
+        return access(path, F_OK) == 0 && invoker->file(pathpos, *this);
 
     if(! dir )                                  // we might not have read access
         return false;
