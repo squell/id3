@@ -1,3 +1,14 @@
+/*
+
+  Interface for combining multiple tag operations
+
+  copyright (c) 2006, 2015 squell <squell@alumina.nl>
+
+  use, modification, copying and distribution of this software is permitted
+  under the conditions described in the file 'COPYING'.
+
+*/
+
 #ifndef __ZF_SETGROUP_HPP
 #define __ZF_SETGROUP_HPP
 
