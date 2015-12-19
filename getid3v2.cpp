@@ -155,6 +155,8 @@ extern ID3v2::value_string tag::unbinarize(ID3FRAME f, charset::conv<>& descript
     const char* lang = 0;
     if(ID3v2::has_lang(field)) {
         lang = p;
+        if(memchr(lang,'\0',3))                // some programs use null-bytes
+            lang = "xxx";
         p += 3;                                // skip-ignore language field
     }
     if(ID3v2::has_desc(field)) {
