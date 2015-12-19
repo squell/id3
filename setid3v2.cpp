@@ -278,6 +278,11 @@ namespace tag {
     extern read::ID3v2::value_string unbinarize(ID3FRAME, charset::conv<>& descriptor);
 }
 
+static inline bool has_enc(const char* ID)
+{
+    return tag::read::ID3v2::is_text(ID) || tag::read::ID3v2::has_desc(ID);
+}
+
 bool ID3v2::vmodify(const char* fn, const function& edit) const
 {
     size_t check;
@@ -301,17 +306,22 @@ bool ID3v2::vmodify(const char* fn, const function& edit) const
         while(ID3_frame(f)) {
             string field = f->ID;
             if(read::ID3v2::has_desc(f->ID)) {
-                charset::conv<charset::local> descr;
+                charset::conv<char> descr;
                 tag::unbinarize(f, descr);
                 field += descr.str();
             }
             db::iterator p = table.find(field);
-            if(p == table.end())
-                tag.put(f->ID, f->data, f->size);
-            else {
+            if(p == table.end()) {
+                if(has_enc(f->ID) && *f->data > 1U) {
+                    charset::conv<char> _;          // recode v2.4 text to UTF16
+                    const string b = binarize(field, tag::unbinarize(f, _));
+                    tag.put(f->ID, b.data(), b.length());
+                } else
+                    tag.put(f->ID, f->data, f->size);
+            } else {
                 if(!p->second.empty()) {            // else: erase frames
                     if(function::result s = edit(p->second)) {
-                        string b = binarize(p->first, s);
+                        const string b = binarize(p->first, s);
                         tag.put(f->ID, b.data(), b.length());
                     } else {
                         tag.put(f->ID, f->data, f->size);
