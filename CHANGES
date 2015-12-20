@@ -7,8 +7,10 @@ Changelog for 'id3'.
 
 2015-352 (W51):
   fileexp.cpp: '?' will no langer match against / in --recursive mode;
-    -R was not working on UNC paths. optimized file access.
+    -R was not working on UNC paths in Windows. optimized file access.
   setid3v2.cpp: convert text encoded using v2.4-only encodings
+  charconv.cpp: fix issues with iconv: const char** vs char** change
+    in FreeBSD; fix faulty behaviour wrt. unconvertible characters
 
 2015-348 (W50):
   main.cpp: %a variable substitution now will read from the first valid

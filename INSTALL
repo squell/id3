@@ -15,6 +15,7 @@ the contents of the source distribution:
  makefile.nmk   - makefile for microsoft c++
 
  main.cpp       - main program file                             (C++)
+ id3-images.c   - auxiliary program to extract album art        (C)
  pattern.*      - + automatic variables                         (C++)
  dumptag.*      - + save/reading tag info                       (C++)
  sedit.*        - string formatting                             (C++)
@@ -100,17 +101,29 @@ Successfully compiled with (non-exhaustive list):
  - Borland/Embarcadero C++ 5.5/6.90
  - Oracle/Sun C++ 5.13, using STLport4
 
-This program is mostly written in portable ISO C90/C++03 so basically all
-you need is a standards-compliant C/C++ compiler.
+This program is written to be portable, assuming at least a C90 and C++03
+compiler and a POSIX:2001 environment. Compilation shouldn't be hard.
+
+Notes for building under Windows:
+
+ * When using MSVC, the file 'dirent.h' is not included with the compiler. You
+   can use the open source replacement by Toni Ronkko, obtainable at 
+   https://github.com/tronkko/dirent/
+
+ * With MinGW, you need to add LDFLAGS="-static-libgcc -static-libstdc++" to
+   the mingw32-make commandline if you want to execute the resulting binary
+   on a machine without MinGW installed.
 
 ===
 Makefiles
 
 Pick the makefile you need and rename it to 'makefile' or use 'make -f':
 
-  'makefile'  is meant for generic GNU/BSD systems. You will have to edit it
-  if you want to/need to use different settings. (You can also use this
-  file for building with mingw32-make)
+  'makefile'  is meant for generic GNU/BSD systems. You can also use this
+  file for building with Cygwin or MinGW.
+
+  Please note that CFLAGS/CXXFLAGS/LDFLAGS set in your environment will
+  override the default (recommended) flags provided in this makefile.
 
   'makefile.dj'  is for DOS systems using DJGPP v2
 
@@ -121,26 +134,27 @@ Pick the makefile you need and rename it to 'makefile' or use 'make -f':
 ===
 Standard makefile targets:
 
- make id3           - fully enabled executable (default)
- make all           - both executables
- make clean         - removes all files produced by make
+ make                 - builds the program
+ make clean           - removes all files produced by make
 
 Generic GNU/BSD makefile targets & variables:
 
- make install       - installs the program
- make install-strip - like install, but strips executable of debug info
- make install-full  - also installs the documentation in $(datadir)/doc
- make uninstall     - uninstall (does not remove documentation)
- make help          - lists all makefile targets and variables
+ make install         - installs the program
+ make install-strip   - like install, but strips executable of debug info
+ make install-full    - also installs the documentation in $(datadir)/doc
+ make uninstall       - uninstall (does not remove documentation)
+ make bash_completion - installs the bash completion support
+ make help            - lists all makefile targets and variables
 
 Because id3 does not have a configure script (yet), you can set
 these variables only on the 'make' commandline:
 
- prefix             - the prefix directory       (def. "/usr/local")
- bindir             - dir for binaries           (def. "$(prefix)/bin")
- mandir             - dir for manpages           (def. "$(prefix)/man")
- datadir            - dir for shared files       (def. "$(prefix)/share")
- binary             - the binary to install      (def. "id3")
+ prefix               - the prefix directory       (def. "/usr/local")
+ bindir               - dir for binaries           (def. "$(prefix)/bin")
+ mandir               - dir for manpages           (def. "$(prefix)/man")
+ datadir              - dir for shared files       (def. "$(prefix)/share")
+ binary               - the binary to install      (def. "id3")
+ DESTDIR              - used for staged installs   (def. "")
 
 E.g: "make install prefix=$HOME" to install in $HOME/bin instead. See inside
 'makefile' or try `make help' for more details (and more variables).

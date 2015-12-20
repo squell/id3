@@ -27,7 +27,7 @@ BASH_PLIST_FILES=	share/bash-completion/completions/id3
 
 USES=		iconv
 
-CFLAGS+=	-I${LOCALBASE}/include
-LDFLAGS+=	-L${LOCALBASE}/lib ${ICONV_LIB}
+CFLAGS+=	-I${ICONV_INCLUDE_PATH}
+LDFLAGS+=	-L${ICONV_PREFIX}/lib ${ICONV_LIB}
 
 .include <bsd.port.mk>

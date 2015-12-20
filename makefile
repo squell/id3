@@ -127,7 +127,7 @@ DIR_FREEBSD = Makefile pkg-descr
 
 DISTFILES = INSTALL $(docdata) makefile makefile.dj makefile.bcc makefile.nmk \
 	main.cpp auto_dir.h set_base.h setgroup.h utf8.h $(SRC_CPP:=.h) $(SRC_C:=.h) \
-	$(SRC_CPP:=.cpp) $(SRC_C:=.c) id3.man bash/complete \
+	id3-images.c $(SRC_CPP:=.cpp) $(SRC_C:=.c) id3.man bash/complete \
 	$(DIR_DEBIAN:%=debian/%) \
 	$(DIR_RPM:%=rpm/%) \
 
@@ -185,7 +185,7 @@ AWKCMD = "BEGIN { pretty = \"figlet -fsmall\" } \
 	!/^[A-Z]/ { print }"
 
 README: id3.man
-	@man -l id3.man | col -b | awk $(AWKCMD) | diff -u README -
+	@export MANWIDTH=80; man -l -E ascii id3.man | col -b | awk $(AWKCMD) | diff -u README -
 
 ## build rules #############################################################
 
