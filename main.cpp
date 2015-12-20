@@ -16,6 +16,7 @@
 #include "setlyr3.h"
 #include "mass_tag.h"
 #include "pattern.h"
+#include "dumptag.h"
 #ifdef _WIN32
 #    include <windows.h>
 #endif
@@ -242,7 +243,8 @@ namespace op {
       box<out::Lyrics3>,
       box< tag::combined< tag::reader > >,
       tag::reader,
-      out::file
+      out::file,
+      fileexp::find
     {
         template<class T>
         T& enable()
@@ -255,6 +257,12 @@ namespace op {
 
         tag::metadata* read(const char* fn) const
         { return box< tag::combined<tag::reader> >::object.read(fn); }
+
+        bool file(const char*, const fileexp::record& rec)
+        {
+            tag::output(use< tag::combined<tag::reader> >(*this), rec.path, stdout);
+            return true;
+        }
     };
 
 }
@@ -541,6 +549,8 @@ int main_(int argc, char *argv[])
                 eprintf("cannot combine -q with any modifying operation\n");
                 shelp();
             case op::no_op:
+                if(verbose::enable)
+                    return process_(tag, &argv[i], state & recur);
                 listtag viewer(*source);
                 return process_(viewer, &argv[i], state & recur);
             }

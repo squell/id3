@@ -201,7 +201,7 @@ extern ID3v2::value_string tag::unbinarize(ID3FRAME f, charset::conv<>& descript
     } else if(ID3v2::is_url(field)) {
         return conv<latin1>(f->data, f->size);
     } else {
-        return conv<>();
+        return ID3v2::value_string(cs("<binary data>", 0));
     }
 }
 

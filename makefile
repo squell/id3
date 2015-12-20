@@ -116,9 +116,9 @@ bash_completion:
 
 ## distribution ############################################################
 
-SRC_CPP     = sedit varexp fileexp mass_tag pattern	\
-	      charconv char_ucs char_utf8 lyrics3	\
-	      setid3 setid3v2 setlyr3 setfname setquery \
+SRC_CPP     = sedit varexp fileexp mass_tag pattern dumptag \
+	      charconv char_ucs char_utf8 lyrics3	    \
+	      setid3 setid3v2 setlyr3 setfname setquery     \
 	      getid3 getid3v2 getlyr3
 SRC_C       = fileops id3v1 id3v2
 DIR_DEBIAN  = control rules copyright changelog
@@ -192,7 +192,7 @@ OBJ_GEN = sedit varexp fileexp charconv mass_tag pattern
 OBJ_1	= setid3 getid3 id3v1
 OBJ_2	= setid3v2 getid3v2 id3v2 fileops char_ucs char_utf8
 OBJ_3	= setlyr3 getlyr3 lyrics3
-OBJ_F	= setfname setquery
+OBJ_F	= setfname setquery dumptag
 OBJECTS = main $(OBJ_GEN) $(OBJ_1) $(OBJ_2) $(OBJ_3) $(OBJ_F)
 
 id3: $(OBJECTS:=.o)
@@ -206,11 +206,7 @@ id3-images: id3-images.c id3v2.c id3v2.h
 .c.o:
 	$(CC) $(CFLAGS) -c $<
 
-mainl.o:
-	$(CXX) $(CXXFLAGS) -DLITE -o $@ -c main.cpp
-
 MKALLDEP = $(CXX) -MM $(CXXFLAGS) main.cpp;				   \
-	   $(CXX) -MM $(CXXFLAGS) -DLITE main.cpp | sed 's/main.o/mainl.o/'; \
 	   $(CXX) -MM $(CXXFLAGS) $(SRC_CPP:=.cpp);			   \
 	   $(CC)  -MM $(CFLAGS)	$(SRC_C:=.c)
 
@@ -218,9 +214,7 @@ MKALLDEP = $(CXX) -MM $(CXXFLAGS) main.cpp;				   \
 
 main.o: main.cpp setgroup.h set_base.h sedit.h charconv.h setid3.h \
  setfname.h setquery.h setid3v2.h setlyr3.h mass_tag.h fileexp.h \
- pattern.h
-mainl.o: main.cpp setgroup.h set_base.h sedit.h charconv.h setid3.h \
- setfname.h setquery.h mass_tag.h fileexp.h pattern.h
+ pattern.h dumptag.h
 sedit.o: sedit.cpp sedit.h charconv.h
 varexp.o: varexp.cpp varexp.h
 fileexp.o: fileexp.cpp varexp.h auto_dir.h fileexp.h
@@ -228,6 +222,7 @@ mass_tag.o: mass_tag.cpp charconv.h sedit.h set_base.h mass_tag.h \
  fileexp.h
 pattern.o: pattern.cpp set_base.h sedit.h charconv.h mass_tag.h fileexp.h \
  pattern.h
+dumptag.o: dumptag.cpp dumptag.h set_base.h sedit.h charconv.h setgroup.h
 charconv.o: charconv.cpp charconv.h
 char_ucs.o: char_ucs.cpp char_ucs.h charconv.h
 char_utf8.o: char_utf8.cpp utf8.h char_utf8.h charconv.h

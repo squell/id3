@@ -9,7 +9,8 @@ CFLAGS = -w- -d -k- -O1
 
 ############################################################################
 
-id3.exe: main.obj varexp.obj fileexp.obj sedit.obj mass_tag.obj pattern.obj \
+id3.exe: main.obj varexp.obj fileexp.obj dumptag.obj \
+	 sedit.obj mass_tag.obj pattern.obj \
 	 setid3.obj getid3.obj id3v1.obj \
 	 setid3v2.obj getid3v2.obj id3v2.obj fileops.obj \
 	 setlyr3.obj getlyr3.obj lyrics3.obj \

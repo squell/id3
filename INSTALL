@@ -16,6 +16,7 @@ the contents of the source distribution:
 
  main.cpp       - main program file                             (C++)
  pattern.*      - + automatic variables                         (C++)
+ dumptag.*      - + save/reading tag info                       (C++)
  sedit.*        - string formatting                             (C++)
  set_base.h     - abstract patch class                          (C++)
  setid3.*       - + id3v1 implementation                        (C++)
