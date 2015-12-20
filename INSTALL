@@ -1,5 +1,5 @@
 ---------------------------------------------------------------
-| id3 mass tagger v0.79
+| id3 mass tagger v0.80
 -------------------------------------------------------------
 
 the contents of the source distribution:
@@ -80,7 +80,7 @@ This should create a .deb file in the parent directory.
 * .rpm (Fedora/CentOS)
 
 The simplest way is to simply run:
-> rpmbuild -ta id3-0.79.tar.gz
+> rpmbuild -ta id3-0.80.tar.gz
 
 Then look in your RPM build area ($HOME/rpmbuild)
 

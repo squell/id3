@@ -71,9 +71,9 @@ static void eprintf(const char* msg, ...)
 
 const char* mime_ext(const char *fname, const char* mime_type)
 {
-    static const char* exts[] = { 
-        "image/jpeg", ".jpg", 
-        "image/png", ".png", 
+    static const char* exts[] = {
+        "image/jpeg", ".jpg",
+        "image/png", ".png",
         0
     };
     size_t i;
@@ -156,9 +156,9 @@ int main(int argc, char *argv[])
                         blob += 1+wide;  /* skip terminator */
                     }
 
-                    write_blob( picture_types[*type], 
+                    write_blob( picture_types[*type],
                                 mime_ext(*argv, mime_type),
-                                blob, 
+                                blob,
                                 f->size - (blob - f->data) );
                     counter++;
                 }

@@ -2,7 +2,7 @@
 # $FreeBSD$
 
 PORTNAME=	id3mtag
-PORTVERSION=	0.79
+PORTVERSION=	0.80
 CATEGORIES=	audio
 MASTER_SITES=	http://github.com/squell/id3/releases/download/${PORTVERSION}/
 DISTNAME=	id3-${PORTVERSION}

@@ -1,3 +1,13 @@
+id3mtag (0.80-1) unstable; urgency=low
+
+  * ID3v2.4 support added: upon writing, will be converted to ID3v2.3
+  * Added support for --long-options
+  * Added complete tag viewing by using -v/--verbose
+  * Added programmable bash completion
+  * Bug fixes to handling of COMM/TXXX frames in ID3v2
+
+ -- Marc R. Schoolderman <squell@alumina.nl>  Sun, 20 Dec 2015 23:51:44 +0100
+
 id3mtag (0.79-1) unstable; urgency=low
 
   * Added tag viewing

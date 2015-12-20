@@ -152,6 +152,7 @@ dist-check: all $(DISTFILES)
 	if [ -f !* ]; then echo !*; false; fi
 	grep $(D_VER) INSTALL
 	grep $(D_VER) CHANGES
+	grep $(D_VER) FILES
 	grep `date +%Y` COPYING
 	grep "Copyright.*`date +%y`" main.cpp
 	test `sed -n '/^#define _version_.*(\(.*\)).*/s//\1/p' < main.cpp` \

@@ -1,5 +1,10 @@
 Changelog for 'id3'.
 
+2015-352 (W51):                                ---------[v0.80]-----------
+  dumptag.cpp: [CLI CHANGE] added a verbose tag viewing mode; if the
+    -v/--verbose flag is added to the commandline, a full listing of
+    the selected tags will be given
+
 2015-352 (W51):
   fileexp.cpp: '?' will no langer match against / in --recursive mode;
     -R was not working on UNC paths. optimized file access.
@@ -21,7 +26,7 @@ Changelog for 'id3'.
     fix behaviour with Unicode characters in TXXX/COMM:xxxx tags
 
 2015-335 (W49):
-  id3v2.c: [bugfix] fix check that prevented removal of ID3v2.4 tags
+  id3v2.c: [bugfix] fix check that prevented conversion of ID3v2.4 tags
   set*.cpp: tighter error checking; should produce more warnings
 
 2015-332 (W48):

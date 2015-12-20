@@ -3,7 +3,7 @@
 CL     = cl
 LINK   = link /ltcg
 !ifndef CFLAGS
-CFLAGS = /O1 /EHsc /GL /wd4804
+CFLAGS = /O1 /EHsc /GR- /GL /wd4804
 !endif
 
 ############################################################################
