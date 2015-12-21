@@ -15,7 +15,7 @@ LICENSE_FILE=	${WRKSRC}/COPYING
 
 MAKEFILE=	makefile
 ALL_TARGET=	build
-INSTALL_TARGET=	install installdoc package=id3mtag
+INSTALL_TARGET=	install package=${PORTNAME}
 
 PLIST_FILES=	bin/id3 man/man1/id3.1.gz
 PORTDOCS=	README CHANGES
@@ -29,5 +29,11 @@ USES=		iconv
 
 CFLAGS+=	-I${ICONV_INCLUDE_PATH}
 LDFLAGS+=	-L${ICONV_PREFIX}/lib ${ICONV_LIB}
+
+post-install-DOCS-on:
+	${MKDIR} ${STAGEDIR}${DOCSDIR}
+.for f in ${PORTDOCS}
+	${INSTALL_DATA} ${WRKSRC}/${f} ${STAGEDIR}${DOCSDIR}
+.endfor
 
 .include <bsd.port.mk>
