@@ -22,8 +22,12 @@
           <h2 id="project_tagline">a portable command-line mass tagger</h2>
 
             <section id="downloads">
-              <a class="zip_download_link" href="https://github.com/squell/id3/zipball/master">Download this project as a .zip file</a>
-              <a class="tar_download_link" href="https://github.com/squell/id3/tarball/master">Download this project as a tar.gz file</a>
+	      <!--
+              <a class="zip_download_link" href="https://github.com/squell/id3/releases/download/0.80/id3-080s.zip">Download this project as a .zip file</a>
+              <a class="tar_download_link" href="https://github.com/squell/id3/releases/download/0.80/id3-0.80.tar.gz">Download this project as a tar.gz file</a>
+	      -->
+              <a class="zip_download_link" href="#getting-it">Download this project as a .zip file</a>
+              <a class="tar_download_link" href="#getting-it">Download this project as a tar.gz file</a>
             </section>
         </header>
     </div>
@@ -125,7 +129,7 @@ Unknown - Untitled (02).mp3<br>
 <a id="limitations" class="anchor" href="#limitations" aria-hidden="true"><span class="octicon octicon-link"></span></a>Limitations</h3>
 
 <p>ID3v2.4 at the start of a file can be read, but will be converted to the universally recognized ID3v2.3 when written. This may actually be a feature rather
-than a limitation; e.g. running <code>id3 -2u</code> is a quick way to convert tags to a form your portable player may recognize.</p>
+than a limitation; <code>id3 -2u</code> is a quick way to convert tags to a form your portable player may recognize.</p>
 
 <p>On Windows, support for non-ASCII characters (e.g. Russian or Korean characters) is dependent on your system language settings. A Unicode version is on the TODO list.</p>
 
@@ -173,7 +177,7 @@ than a limitation; e.g. running <code>id3 -2u</code> is a quick way to convert t
 </tbody>
 </table>
 
-<p>id3 mass tagger may also be a available on your system by default:</p>
+<p>id3 mass tagger may also be available on your system by default:</p>
 
 <p><strong>Arch Linux</strong>: <code>pacman -S id3</code></p>
 

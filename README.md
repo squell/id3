@@ -84,7 +84,7 @@ Fore more information, consult the [documentation](https://github.com/squell/id3
 ### Limitations
 
 ID3v2.4 at the start of a file can be read, but will be converted to the universally recognized ID3v2.3 when written. This may actually be a feature rather
-than a limitation; e.g. running `id3 -2u` is a quick way to convert tags to a form your portable player may recognize.
+than a limitation; `id3 -2u` is a quick way to convert tags to a form your portable player may recognize.
 
 On Windows, support for non-ASCII characters (e.g. Russian or Korean characters) is dependent on your system language settings. A Unicode version is on the TODO list.
 
