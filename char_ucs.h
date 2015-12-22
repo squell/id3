@@ -38,7 +38,7 @@ namespace charset {
           conv_wide(const T& s) : conv<>(s) { }
         conv_wide() { }
        ~conv_wide() { }
-        static conv<>::data decode(const char*, std::size_t, byte_order);
+        static std::wstring decode(const char*, std::size_t, byte_order);
         static std::string  encode(const void*, std::size_t, byte_order);
         static std::size_t  ucslen(const char* p)
         {
@@ -58,13 +58,11 @@ namespace charset {
         conv(void)                         : conv_wide() { }
 
         operator std::string() const
-        { return encode(internal.data(), internal.size()/cellsize, Order); }
-
-        std::string str() const     { return *this; }
+        { return encode(data(), size(), Order); }
 
         template<class E>
           std::basic_string<typename conv<E>::char_type>
-                   str()   const    { return conv<>::str<E>(); }
+            str() const { return conv<>::str<E>(); }
 
         typedef char char_type;
     };

@@ -33,12 +33,12 @@ namespace charset {
         }
     }
 
-    conv<>::data conv_wide::decode(const char* s, size_t len, byte_order ord)
+    std::wstring conv_wide::decode(const char* s, size_t len, byte_order ord)
     {
-        if(!(len &= ~1U)) return conv<>::data();   // force len to 2k, k > 0
+        if(!(len &= ~1U)) return std::wstring();   // force len to 2k, k > 0
         const char* end = s+len;
 
-        conv<>::data build;
+        std::wstring build;
         build.reserve(len / sizeof(wchar_t));
         bool i = (ord == big_endian);
 

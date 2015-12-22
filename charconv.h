@@ -24,67 +24,32 @@
 #define __ZF_CHARCONV_HPP
 
 #include <cstddef>
+#include <cstring>
 #include <string>
 
-  /* most older gcc's don't define wstring, but I only need it as a
-     simple and adequate container, and it works just fine. */
-
-#if (__DJGPP__) || (__CYGWIN__) || (__GNUC__ == 2)
-namespace std {
-    typedef basic_string<wchar_t> wstring;
-}
-#endif
-
 namespace charset {
-    template<class Encoding = void> class conv;
+    template<class Encoding = wchar_t> class conv;
 
   /*
-      Making the default template the base class for non default templates
-      solves the problem of dynamically specifying conversions, removes
-      the need for a template conversion constructor, and moves error messages
-      from the linking stage to the compiler stage.
+      Direct wide char interface
   */
 
-    template<> class conv<void> {
-    protected:
-        typedef std::wstring data;
-        static const int cellsize = sizeof(wchar_t) / sizeof(data::value_type);
-
-        data internal;
-        explicit conv(const data& s) : internal(s) { }
+    template<> class conv<wchar_t> : public std::wstring {
     public:
-        conv(const conv<>& other) : internal(other.internal) { }
-        conv(void)                : internal()               { }
-
-      // some familiar functions
-        bool empty() const          { return internal.empty(); }
-        void clear()                { internal.erase(); }
-        void swap(conv<>& other)    { internal.swap(other.internal); }
-
-        void reserve(std::size_t req = 0)
-                                    { internal.reserve(req * cellsize); }
-        conv<>& operator+=
-          (wchar_t c)               { return internal.append((data::value_type*)&c, cellsize), *this; }
-        conv<>& operator+=
-          (const conv<>& rhs)       { return (internal+=rhs.internal), *this; }
-
-        std::size_t length() const  { return internal.length() / cellsize; }
-
-        conv<> substr(std::size_t pos = 0, std::size_t n = std::size_t(-1))
-        { return conv<>(internal.substr(pos*cellsize, n*cellsize)); }
+        conv(const std::wstring& s)           : std::wstring(s)   { }
+        conv(const wchar_t* p, std::size_t l) : std::wstring(p,l) { }
+        conv(const wchar_t* p)                : std::wstring(p)   { }
+        conv(std::size_t n, wchar_t c)        : std::wstring(n,c) { }
+        conv(void) { }
+    #if __cplusplus >= 201103L
+        conv(std::wstring&& s) { swap(s); }
+    #endif
 
         template<class E>
           std::basic_string<typename conv<E>::char_type>
-                   str()   const    { return conv<E>(*this); }
+            str() const { return conv<E>(*this); }
 
-      // outside operations
-        friend conv<> operator+ (const conv<>& lhs, const conv<>& rhs) { return conv<>(lhs.internal + rhs.internal); }
-        friend bool operator==(const conv<>& lhs, const conv<>& rhs) { return lhs.internal == rhs.internal; }
-        friend bool operator!=(const conv<>& lhs, const conv<>& rhs) { return lhs.internal != rhs.internal; }
-        friend bool operator< (const conv<>& lhs, const conv<>& rhs) { return lhs.internal <  rhs.internal; }
-        friend bool operator<=(const conv<>& lhs, const conv<>& rhs) { return lhs.internal <= rhs.internal; }
-        friend bool operator> (const conv<>& lhs, const conv<>& rhs) { return lhs.internal >  rhs.internal; }
-        friend bool operator>=(const conv<>& lhs, const conv<>& rhs) { return lhs.internal >= rhs.internal; }
+        typedef wchar_t char_type;
     };
 
   /*
@@ -95,43 +60,24 @@ namespace charset {
     public:
         conv(const std::string& s)         : conv<>(decode(s.data(), s.size())) { }
         conv(const char* p, std::size_t l) : conv<>(decode(p,l)) { }
-        conv(const char* p)                : conv<>((conv)std::string(p)) { }
+        conv(const char* p)                : conv<>(decode(p,std::strlen(p))) { }
         conv(const conv<>& other)          : conv<>(other) { }
-        conv(void)                         : conv<>() { }
+        conv(void) { }
+    #if __cplusplus >= 201103L
+        conv(conv<>&& other) { swap(other); }
+    #endif
 
         operator std::string() const
-        { return encode(internal.data(), internal.size()/cellsize); }
+        { return encode(data(), size()); }
 
         template<class E>     // some compilers dont like using conv<>::str?
           std::basic_string<typename conv<E>::char_type>
-                   str()   const    { return conv<>::str<E>(); }
+            str() const { return conv<>::str<E>(); }
 
         typedef char char_type;
     public:           // too many compilers crap on template friend templates
-        static conv<>::data decode(const char*, std::size_t);
+        static std::wstring decode(const char*, std::size_t);
         static std::string  encode(const void*, std::size_t);
-    };
-
-  /*
-      Direct wide char interface
-  */
-
-    template<> class conv<wchar_t> : public conv<> {
-    public:
-        conv(const std::wstring& s)           : conv<>(s) { }
-        conv(const wchar_t* p, std::size_t l) : conv<>(std::wstring(p,l)) { }
-        conv(const wchar_t* p)                : conv<>(p) { }
-        conv(const conv<>& other)             : conv<>(other) { }
-        conv(void)                            : conv<>() { }
-        conv(std::size_t n, wchar_t c)        : conv<>(std::wstring(n,c)) { }
-
-        operator std::wstring () const { return internal; }
-
-        template<class E>
-          std::basic_string<typename conv<E>::char_type>
-                   str()   const    { return conv<>::str<E>(); }
-
-        typedef wchar_t char_type;
     };
 
   /*
@@ -151,10 +97,10 @@ namespace charset {
     typedef char local;
     struct latin1;
 
-    template<> conv<>::data conv<local >::decode(const char*, std::size_t);
+    template<> std::wstring conv<local >::decode(const char*, std::size_t);
     template<> std::string  conv<local >::encode(const void*, std::size_t);
 
-    template<> conv<>::data conv<latin1>::decode(const char*, std::size_t);
+    template<> std::wstring conv<latin1>::decode(const char*, std::size_t);
     template<> std::string  conv<latin1>::encode(const void*, std::size_t);
 }
 

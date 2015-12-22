@@ -54,9 +54,9 @@ namespace charset {
 
   // latin1 <-> unicode interconversion
 
-    template<> conv<>::data conv<latin1>::decode(const char* s, size_t len)
+    template<> std::wstring conv<latin1>::decode(const char* s, size_t len)
     {
-        conv<>::data build;
+        std::wstring build;
         build.reserve(len);
         for( ; len--; ) {
             build += wide(*s++ & 0xFF);
@@ -199,7 +199,7 @@ namespace charset {
             return "ASCII";
     }
 
-    template<> conv<>::data conv<local>::decode(const char* s, size_t len)
+    template<> std::wstring conv<local>::decode(const char* s, size_t len)
     {
 #   if fallback(1) && !defined(NO_ICONV)
         std::vector<char> build((len+1)*sizeof(wchar_t));
@@ -211,7 +211,7 @@ namespace charset {
         if(!wchar_unicode())
             return fallback(conv<_7bit>::decode(s, len));
 
-        conv<>::data build;
+        std::wstring build;
         build.reserve(len);
         wchar_t wc;
         s += len;

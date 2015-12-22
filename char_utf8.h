@@ -22,7 +22,7 @@ namespace charset {
 
     struct utf8;
 
-    template<> conv<>::data conv<utf8>::decode(const char*, std::size_t);
+    template<> std::wstring conv<utf8>::decode(const char*, std::size_t);
     template<> std::string  conv<utf8>::encode(const void*, std::size_t);
 
 }

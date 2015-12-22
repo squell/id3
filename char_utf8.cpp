@@ -18,9 +18,9 @@
 
 namespace charset {
 
-    template<> conv<>::data conv<utf8>::decode(const char* s, size_t len)
+    template<> std::wstring conv<utf8>::decode(const char* s, size_t len)
     {
-        conv<>::data build;
+        std::wstring build;
         build.reserve(len);
         ::utf8::decode(s, s+len, std::back_inserter(build));
         return build;
