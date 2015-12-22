@@ -65,8 +65,6 @@ namespace charset {
         template<class E>
           std::basic_string<typename conv<E>::char_type>
                    str()   const    { return conv<>::str<E>(); }
-        template<class E>
-          proxy<E> c_str() const    { return conv<>::c_str<E>(); }
 
         typedef char char_type;
     };

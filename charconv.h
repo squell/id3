@@ -16,7 +16,7 @@
 
   Example:
 
-  std::puts( conv<latin1>("ISO 8859-1 text").c_str<local>() );
+  std::puts( conv<latin1>("ISO 8859-1 text").str<local>().c_str() );
 
 */
 
@@ -50,14 +50,6 @@ namespace charset {
         typedef std::wstring data;
         static const int cellsize = sizeof(wchar_t) / sizeof(data::value_type);
 
-        template<class T> struct proxy {                // value wrapper
-            typedef typename conv<T>::char_type char_t;
-            operator const char_t*() const { return str.c_str(); }
-            proxy(const std::basic_string<char_t>& s) : str(s) { }
-        private:
-            const std::basic_string<char_t> str;
-        };
-
         data internal;
         explicit conv(const data& s) : internal(s) { }
     public:
@@ -84,8 +76,6 @@ namespace charset {
         template<class E>
           std::basic_string<typename conv<E>::char_type>
                    str()   const    { return conv<E>(*this); }
-        template<class E>
-          proxy<E> c_str() const    { return str<E>(); }
 
       // outside operations
         friend conv<> operator+ (const conv<>& lhs, const conv<>& rhs) { return conv<>(lhs.internal + rhs.internal); }
@@ -112,23 +102,15 @@ namespace charset {
         operator std::string() const
         { return encode(internal.data(), internal.size()/cellsize); }
 
-        std::string str() const     { return *this; }
-        inline proxy<char> c_str() const;  // conv is still incomplete...
-
         template<class E>     // some compilers dont like using conv<>::str?
           std::basic_string<typename conv<E>::char_type>
                    str()   const    { return conv<>::str<E>(); }
-        template<class E>
-          proxy<E> c_str() const    { return conv<>::c_str<E>(); }
 
         typedef char char_type;
     public:           // too many compilers crap on template friend templates
         static conv<>::data decode(const char*, std::size_t);
         static std::string  encode(const void*, std::size_t);
     };
-
-    template<class Encoding>
-      conv<>::proxy<char> conv<Encoding>::c_str() const { return str(); }
 
   /*
       Direct wide char interface
@@ -144,14 +126,10 @@ namespace charset {
         conv(std::size_t n, wchar_t c)        : conv<>(std::wstring(n,c)) { }
 
         operator std::wstring () const { return internal; }
-        std::wstring str()       const { return internal; }
-  //    const wchar_t* c_str()        const { return internal.c_str(); }
 
         template<class E>
           std::basic_string<typename conv<E>::char_type>
                    str()   const    { return conv<>::str<E>(); }
-        template<class E>
-          proxy<E> c_str() const    { return conv<>::c_str<E>(); }
 
         typedef wchar_t char_type;
     };

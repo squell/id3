@@ -217,7 +217,7 @@ function::result format::code(ptr& p, ptr end) const
                     subst = tmp;
                     break;
                 }
-            wstring s = conv<wchar_t>(subst).str();
+            wstring s = conv<wchar_t>(subst);
             if(!raw) {                          // remove gunk
                 replace_if(s.begin(), s.end(), filtered_char(), ' ');
                 compress(s);

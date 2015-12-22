@@ -99,7 +99,7 @@ ID3v2::array ID3v2::listing() const
         while(ID3_frame(f)) {
             charset::conv<local> desc;
             value_string val = unbinarize(f, desc);
-            vec.push_back( array::value_type(f->ID+desc.str(), val) );
+            vec.push_back( array::value_type(f->ID+string(desc), val) );
         }
     }
     return vec;

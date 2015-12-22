@@ -279,7 +279,7 @@ struct listtag : fileexp::find {
     static void content(const char* fmt, tag::metadata::value_string data)
     {
         if(data.good()) {
-            string str = data.str();
+            string str = data;
             for(string::iterator p = str.begin(); p != str.end(); ++p)
                 if(std::iscntrl(*p)) *p = ' ';
             printf(fmt, str.c_str());

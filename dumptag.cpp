@@ -1,5 +1,7 @@
 #include <cstdio>
 #include <cstring>
+#include <string>
+#include <utility>
 #include "dumptag.h"
 
 /*
@@ -22,9 +24,10 @@ using namespace std;
 
 void output(metadata::array::const_iterator begin, metadata::array::const_iterator end, FILE* out)
 {
-    for( ; begin < end; ++begin) {
-        const char* key   = begin->first.c_str();
-        const char* value = begin->second.c_str();
+    while(begin < end) {
+        const pair<string,string> line = *begin++;
+        const char* key   = line.first.c_str();
+        const char* value = line.second.c_str();
         const char* lnbrk = strchr(value, '\n');
         if(COMPACT && !lnbrk && !strchr(key, ':')) {
             // emit one a single line
@@ -51,9 +54,8 @@ void output(combined<reader> const& tags, const char* filename, FILE* out)
         std::auto_ptr<metadata> info( (*p++)->read(filename) );
         if(info.get() && *info) {
             metadata::array list = info->listing();
-            const char* key   = list[0].first.c_str();
-            const char* value = list[0].second.c_str();
-            fprintf(out, DIRECTIVE"tag\t%s %s\n", key, value);
+            const pair<string,string> hdr = list[0];
+            fprintf(out, DIRECTIVE"tag\t%s %s\n", hdr.first.c_str(), hdr.second.c_str());
             output(list.begin()+1, list.end(), out);
         }
     }

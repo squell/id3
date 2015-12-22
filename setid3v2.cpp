@@ -170,7 +170,7 @@ static const string binarize(string field, charset::conv<charset::latin1> conten
     const conv<char>& descr = split_field(field, lang) += '\0';
 
     if(field == "TCON" || field == "TCO") {                // genre by number
-        unsigned int x = atoi(content.c_str())-1;          // is portable
+        unsigned int x = atoi(string(content).c_str())-1;  // is portable
         if(x < ID3v1_numgenres) content = ID3v1_genre[x];
     }
 
@@ -178,7 +178,7 @@ static const string binarize(string field, charset::conv<charset::latin1> conten
     if(!ID3v2::is_valid(field))
         return data;
     if(ID3v2::is_counter(field)) {
-        unsigned long t = strtoul(content.c_str(), 0, 0);
+        unsigned long t = strtoul(string(content).c_str(), 0, 0);
         data.push_back(t >> 24 & 0xFF);
         data.push_back(t >> 16 & 0xFF);
         data.push_back(t >>  8 & 0xFF);
@@ -199,7 +199,7 @@ static const string binarize(string field, charset::conv<charset::latin1> conten
     }
 
     if(data.length() > 1 || ID3v2::is_text(field)) {
-        const string blob = ID3v2::is_url(field)? content.str() : encode(data[0], content);
+        const string blob = ID3v2::is_url(field)? string(content) : encode(data[0], content);
         return data.append(blob);
     } else if(ID3v2::is_url(field)) {
         return content;
@@ -308,7 +308,7 @@ bool ID3v2::vmodify(const char* fn, const function& edit) const
             if(read::ID3v2::has_desc(f->ID)) {
                 charset::conv<char> descr;
                 tag::unbinarize(f, descr);
-                field += descr.str();
+                field += descr;
             }
             db::iterator p = table.find(field);
             if(p == table.end()) {
