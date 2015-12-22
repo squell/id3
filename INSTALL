@@ -100,6 +100,7 @@ Successfully compiled with (non-exhaustive list):
  - Microsoft C/C++ 16.x/18.x
  - Borland/Embarcadero C++ 5.5/6.90
  - Oracle/Sun C++ 5.13, using STLport4
+ - Intel C++ 14.0.2
 
 This program is written to be portable, assuming at least a C90 and C++03
 compiler and a POSIX:2001 environment. Compilation shouldn't be hard.
