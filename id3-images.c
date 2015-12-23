@@ -51,7 +51,7 @@ static void Help(const char *name)
 {
     const char *base = strchr(name, '/');
     printf(
-        NAME " 0.1\n"
+        NAME " 0.2\n"
         "Extract embedded art from ID3v2 tags to current directory\n"
         "usage: %s filename.mp3\n"
         "\nReport bugs to <squell@alumina.nl>.\n",
@@ -113,7 +113,7 @@ const char *membrk0(const char *buf, size_t size, int wide)
     const int step = 1+wide;
     for( ; buf < end; buf += step) {
         if(!buf[0] && !buf[wide])
-            return buf+step;
+            return buf;
     }
     return 0;
 }
@@ -135,12 +135,12 @@ int main(int argc, char *argv[])
 
                     /* see ID3v2.3 4.15 -- 'Attached Picture' for reference */
 
-                    char wide = f->data[0] == 2 || f->data[0] == 3;
+                    char wide = f->data[0] == 1 || f->data[0] == 2;
                     const char *mime_type = f->data+1;
                     const char *type = memchr(mime_type, 0, f->size-(2+wide));
                     const char *descr, *blob;
 
-                    if(!type || (*type&0xFFu) > sizeof picture_types/sizeof *picture_types) {
+                    if(!type || (type[1]&0xFFu) > sizeof picture_types/sizeof *picture_types) {
                         eprintf("%s has an incorrect ID3v2 tag!\n", *argv);
                         continue;
                     } else {
@@ -148,7 +148,7 @@ int main(int argc, char *argv[])
                     }
 
                     descr = type+1;
-                    blob = memchr(descr, 0, f->size-(descr-f->data+wide));
+                    blob = membrk0(descr, f->size-(descr-f->data), wide);
                     if(!blob) {
                         eprintf("%s has an incorrect ID3v2 tag!\n", *argv);
                         continue;
