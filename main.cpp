@@ -21,7 +21,7 @@
 #    include <windows.h>
 #endif
 
-#define _version_ "0.80 (2015356)"
+#define _version_ "0.80 (2015364)"
 
 /*
 
@@ -265,6 +265,11 @@ namespace op {
         }
     };
 
+    inline tag::handler* operator|(tag::handler* x, tag_info& y)
+    {
+        return x? x : &y;
+    }
+
 }
 
 /* ====================================================== */
@@ -400,17 +405,26 @@ int main_(int argc, char *argv[])
                 break;
 
             case 's':                      // tag specific switches
-                if(chosen) {
-                    if(*opt == '\0')
-                        cmd = suggest_size;
-                    else {
-                        long n = argtol(opt);
-                        chosen->reserve(n);
-                        state |= w;
-                    }
-                    opt = none;
-                    break;
+                if(*opt == '\0')
+                    cmd = suggest_size;
+                else {
+                    long n = argtol(opt);
+                    (chosen | tag)->reserve(n);
+                    state |= w;
                 }
+                opt = none;
+                break;
+
+            case 'u':
+                for(int j = 0; j < FIELD_MAX; ++j)
+                    (chosen | tag)->set(ID3field(j), mass_tag::var(j));
+                state |= w;
+                break;
+
+            case 'E':
+                (chosen | tag)->create(false);
+                break;
+
             case 'w':
                 if(chosen) {
                     cmd = custom_field;
@@ -424,19 +438,6 @@ int main_(int argc, char *argv[])
                     }
                     state |= w;
                     opt = none;
-                    break;
-                }
-            case 'u':
-                if(chosen) {
-                    for(int i = 0; i < FIELD_MAX; ++i)
-                        chosen->set(ID3field(i), mass_tag::var(i));
-                    state |= w;
-                    break;
-                }
-
-            case 'E':
-                if(chosen) {
-                    chosen->create(false);
                     break;
                 }
 
@@ -488,7 +489,7 @@ int main_(int argc, char *argv[])
             break;
 
         case suggest_size:                     // v2 - suggest size
-            chosen->reserve( argtol(argv[i]) );
+            (chosen | tag)->reserve( argtol(argv[i]) );
             break;
 
         case set_rename:                       // specify rename format

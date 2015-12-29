@@ -1,5 +1,10 @@
 Changelog for 'id3'.
 
+2015-364 (W52:
+  main.cpp: [cli change] -s/-u/-E also work without preceding -1/-2/-3;
+    these switches will then apply to all tags (where relevant).
+    note that -E is already the default for ID3v2/Lyrics3 in this case.
+
 2015-352 (W51):                                ---------[v0.80]-----------
   dumptag.cpp: [CLI CHANGE] added a verbose tag viewing mode; if the
     -v/--verbose flag is added to the commandline, a full listing of

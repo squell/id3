@@ -74,6 +74,8 @@ public:
     { for(iterator p = begin(); p != end(); (*p++)->rewrite(b)); return *this; }
     combined& create(bool b = true)
     { for(iterator p = begin(); p != end(); (*p++)->create(b));  return *this; }
+    combined& reserve(std::size_t n = 0)
+    { for(iterator p = begin(); p != end(); (*p++)->reserve(n)); return *this; }
 
     bool from(const char* fn)
     {
