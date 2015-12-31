@@ -26,10 +26,10 @@ _id3mtag() {
 			break
 		fi
 	done
-	if [ $n = $COMP_CWORD -a "${cur::2}" = "--" ]; then
+	if [ $n -eq $COMP_CWORD -a "${cur::2}" = "--" ]; then
 		# generate options from --help
-		COMPREPLY=( $( compgen -W "$(${COMP_WORDS[0]} --help | grep -oe '--[-=a-zA-Z]\+' | sed '/TYPE/{p;s///}' )" -- "$cur" ) )
-	elif [ $n -le $COMP_CWORD ] || [ $((n-1)) = $COMP_CORD -a "$prev" = "-D" -o "$arg" = "--duplicate" ]; then
+		COMPREPLY=( $( compgen -W "$(${COMP_WORDS[0]} --help | grep -oe '--[-=a-zA-Z]\+' | sed '/TYPE/{p;s///;}' )" -- "$cur" ) )
+	elif [ $n -le $COMP_CWORD ] || [ $((n-1)) -eq $COMP_CWORD -a \( "$prev" = "-D" -o "$arg" = "--duplicate" \) ]; then
 		# generate quoted filenames
 		COMPREPLY=( $( compgen -f -X '!*.mp3' -- "$cur" | sed '/[^[:alnum:]./]/s/.*/"&"/' ) )
 	fi
