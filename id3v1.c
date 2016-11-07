@@ -2,7 +2,7 @@
 
   ID3v1.1 genres + Winamp extensions
 
-  copyright (c) 2003 squell <squell@alumina.nl>
+  copyright (c) 2003, 2015 squell <squell@alumina.nl>
 
   use, modification, copying and distribution of this software is permitted
   under the conditions described in the file 'COPYING'.
@@ -160,6 +160,50 @@ const char *const ID3v1_genre[] = {
 /*146*/ "Anime",
 /*147*/ "JPop",
 /*148*/ "Synthpop",
+/*149*/ "Abstract",                 /* Winamp 5.6 */
+/*150*/ "Art Rock",
+/*151*/ "Baroque",
+/*152*/ "Bhangra",
+/*153*/ "Big Beat",
+/*154*/ "Breakbeat",
+/*155*/ "Chillout",
+/*156*/ "Downtempo",
+/*157*/ "Dub",
+/*158*/ "EBM",
+/*159*/ "Eclectic",
+/*160*/ "Electro",
+/*161*/ "Electroclash",
+/*162*/ "Emo",
+/*163*/ "Experimental",
+/*164*/ "Garage",
+/*165*/ "Global",
+/*166*/ "IDM",
+/*167*/ "Illbient",
+/*168*/ "Industro-Goth",
+/*169*/ "Jam Band",
+/*170*/ "Krautrock",
+/*171*/ "Leftfield",
+/*172*/ "Lounge",
+/*173*/ "Math Rock",
+/*174*/ "New Romantic",
+/*175*/ "Nu-Breakz",
+/*176*/ "Post-Punk",
+/*177*/ "Post-Rock",
+/*178*/ "Psytrance",
+/*179*/ "Shoegaze",
+/*180*/ "Space Rock",
+/*181*/ "Trop Rock",
+/*182*/ "World Music",
+/*183*/ "Neoclassical",
+/*184*/ "Audiobook",
+/*185*/ "Audio Theatre",
+/*186*/ "Neue Deutsche Welle",
+/*187*/ "Podcast",
+/*188*/ "Indie Rock",
+/*189*/ "G-Funk",
+/*190*/ "Dubstep",
+/*191*/ "Garage Rock",
+/*192*/ "Psybient",
 };
 
 const unsigned char ID3v1_numgenres = sizeof ID3v1_genre / sizeof *ID3v1_genre;

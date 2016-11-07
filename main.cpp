@@ -17,11 +17,12 @@
 #include "mass_tag.h"
 #include "pattern.h"
 #include "dumptag.h"
+#include "id3v1.h"
 #ifdef _WIN32
 #    include <windows.h>
 #endif
 
-#define _version_ "0.80 (2015364)"
+#define _version_ "0.80 (2016005)"
 
 /*
 
@@ -79,6 +80,7 @@ static const char* const Options[] = {
     "m", "-match",
     "R", "-recursive",
     "M", "-keep-time",
+    "L", "-list-genres",
     "V", "-version",
     "s", "-size",
     "E", "-if-exists",
@@ -112,6 +114,7 @@ static void Help(bool long_opt=false)
         " -%s\t\t"          "match variables in filespec\n"
         " -%s\t\t"          "search recursively\n"
         " -%s\t\t"          "preserve modification time of files\n"
+        " -%s\t\t"          "list all recognized id3v1 genres\n"
         " -%s\t\t"          "print version info\n"
         "Only on last selected tag type:\n"
         " -%s <size>  \t"   "set tag size\n"
@@ -124,7 +127,7 @@ static void Help(bool long_opt=false)
         Name,
         flags[ 0], flags[ 2], flags[ 4], flags[ 6], flags[ 8], flags[10], flags[12], flags[14], flags[16], flags[18],
         flags[20], flags[22], flags[24], flags[26], flags[28], flags[30], flags[32], flags[34], flags[36], flags[38],
-        flags[40]
+        flags[40], flags[42]
     );
     exit(exitc=1);
 }
@@ -443,6 +446,12 @@ int main_(int argc, char *argv[])
 
                 eprintf("specify tag format before -%c\n", opt[-1]);
                 shelp();
+
+	    case 'L':
+		for(int j=0; j < ID3v1_numgenres; ++j) {
+		    printf("%3d: %s\n", j+1, ID3v1_genre[j]);
+		}
+		return 0;
 
             case '?': Help(1);
             case 'h': Help();

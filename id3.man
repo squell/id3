@@ -58,8 +58,10 @@ Order of the options is only important where specified.
 .B filespec ...
 specifies the file(s) to be affected by the command.
 
-If you use wildcards, it is necessary to enclose the specification
-in double quotes ("") for pattern matching to work.
+When using wildcards, enclose the specification
+in quotes in order for pattern matching to work; see
+.B SUBSTITUTION
+below.
 .TP
 .BR \-h ", " \-\-help
 show command line help
@@ -105,20 +107,20 @@ is to list the tags found. By using any of the following options, this behaviour
 do not re-use existing tag data. If no new tag information is specified in
 conjunction with this option, all selected tags will be removed.
 .PP
-.ta 1.4i
-.BR "\-t \fItitle\fP" ",\t" "\-\-title \fItitle\fP"
+.ta 1.2i 2.4i
+.BR "\-t \fItitle\fP" ",\t\t" "\-\-title \fItitle\fP"
 .br
-.BR "\-a \fIartist\fP" ",\t" "\-\-artist \fIartist\fP"
+.BR "\-a \fIartist\fP" ",\t\t" "\-\-artist \fIartist\fP"
 .br
-.BR "\-l \fIalbum\fP" ",\t" "\-\-album \fIalbum\fP"
+.BR "\-l \fIalbum\fP" ",\t" "\-A \fIalbum\fP" ",\t" "\-\-album \fIalbum\fP"
 .br
-.BR "\-n \fItracknr\fP" ",\t" "\-\-track \fItracknr\fP"
+.BR "\-n \fItracknr\fP" ",\t" "\-T \fItracknr\fP" ",\t" "\-\-track \fItracknr\fP"
 .br
-.BR "\-y \fIyear\fP" ",\t" "\-\-year \fIyear\fP"
+.BR "\-y \fIyear\fP" ",\t\t" "\-\-year \fIyear\fP"
 .br
-.BR "\-g \fIgenre\fP" ",\t" "\-\-genre \fIgenre\fP"
+.BR "\-g \fIgenre\fP" ",\t\t" "\-\-genre \fIgenre\fP"
 .br
-.BR "\-c \fIcomment\fP" ",\t" "\-\-comment \fIcomment\fP"
+.BR "\-c \fIcomment\fP" ",\t\t" "\-\-comment \fIcomment\fP"
 .IP
 add/replace the specified fields in all selected tags with the values
 given. Field values are scanned for substitution variables, see
@@ -126,7 +128,7 @@ given. Field values are scanned for substitution variables, see
 below. If a field value is a single variable, and its substitution fails, no
 operation is performed.
 
-Genres can be specified either directly or with their assigned number,
+Genres can be specified either verbatim or by using their assigned number,
 regardless of tag format.
 .TP
 .BR "\-f \fIfilename-template\fP" ", " "\-\-rename \fIfilename-template\fP"
@@ -156,6 +158,9 @@ been read, but before any fields are updated.
 Any original tag values not explicitly written to the new tag (for example, by
 using -u) are lost. If \fIfilename\fR does not have any tags, this option is
 identical to the -d option.
+.TP
+.BR \-L ", " \-\-list-genres
+produces a list of genres usable in ID3v1 tags, and their assigned numbers
 .PP
 The following options only apply on the tag most recently selected before
 them, and only have meaning where relevant.
@@ -197,7 +202,7 @@ is equivalent to:
 .I id3
 can perform \*(lqprintf-like\*(rq substitution on the values prior to
 writing them to a tag. Note that if you want to use pattern matching, you
-HAVE TO enclose the wildcard specification on the command line in double quotes
+HAVE TO enclose the wildcard specification on the command line in quotes
 to prevent your shell from expanding any wildcards.
 .TP
 .BI \(rs c
@@ -207,6 +212,7 @@ newline character, \(rs\(rs a single backslash.
 .TP
 .BI % <modifiers>N
 .SM where \fIN\fR <- [0..9]
+.br
 replaced with the portion of the file path matching the \fIn\fRth `*'
 (asterisk) wildcard in the file specification. 0 is taken to mean 10.
 .TP
@@ -358,20 +364,20 @@ Do NOT add ID3 tags to files for which it does not make sense, i.e, add them
 only to MP3 files. In particular, do not add ID3v2 tags to Ogg files, since
 ID3v2 tags start at the beginning of the file.
 .SH COMPATIBILITY
-id3 has a built-in genre list of 148 genres. If you pass the -g parameter a
+id3 has a built-in genre list of 192 genres. If you pass the \fB-g\fP parameter a
 string instead of a number when using ID3v1, id3 tries to find the specified
 genre in this list, and selects the closest possible match (if any). For the
-genre numbers and exact spelling, see \fIid3v1.c\fR in the source
-distribution. An empty or invalid genre is assigned the number 0.
+genre numbers and exact spelling, use the \fB--list-genres\fR option.
+An empty or invalid genre is assigned the number 0.
 
 The ID3v1 format only supports to the ISO-8859-1 (Latin 1) encoding. If you
 need other Unicode characters, you need to use ID3v2 tags.
 
-When using -2, id3 will write ID3v2.3 by default, unless a file is already
+When using \fB-2\fP, id3 will write ID3v2.3 by default, unless a file is already
 tagged with the older ID3v2.2. id3 can read ID3v2.4 tags, but
 these will be converted to ID3v2.3 when modified.
 
-Furthermore, with ID3v2 tags, the -w\fIFRAME\fR option and %{\fIFRAME\fR} substitution only support the following ID3v2.2 (3 letter)/ID3v2.3 (4 letter) frames:
+Furthermore, with ID3v2 tags, the \fB-w\fIFRAME\fR option and %{\fIFRAME\fR} substitution only support the following ID3v2.2 (3 letter)/ID3v2.3 (4 letter) frames:
 T??/T??? (text),
 W??/W??? (links),
 COM/COMM (comment),
@@ -382,10 +388,10 @@ USER (tos, v2.3 only).
 Attempts to write ID3v2.2 frames to ID3v2.3 or vice versa will be ignored.
 
 Several ID3v2 frames can be specialized with additional descriptors (TXXX, WXXX, COMM, USLT). These can be read or written using
-the extended syntax -w\fIFRAME\fP:\fIdescriptor\fP and %{\fIFRAME\fP:\fIdescriptor\fP}.
+the extended syntax \fB-w\fIFRAME\fR:\fIdescriptor\fR and %{\fIFRAME\fR:\fIdescriptor\fR}.
 Descriptors are case sensitive and may contain whitespace.
-For frames that are language-specific (COMM, USLT), the form \fIFRAME\fP:\fIdescriptor\fP:\fIxxx\fP may also be used, where \fIxxx\fP is a three letter ISO-639-2 language code.
-Which \fIdescriptors\fP are meaningful is application-specific.
+For frames that are language-specific (COMM, USLT), the form \fIFRAME\fR:\fIdescriptor\fR:\fIxxx\fR may also be used, where \fIxxx\fR is a three letter ISO-639-2 language code.
+Which \fIdescriptors\fR are meaningful is application-specific.
 
 id3 does not support unnecessary ID3v2 features such as compression, encryption, or embedding binary data (including image files).
 .SH AUTHOR
