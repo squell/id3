@@ -13,14 +13,18 @@ _id3mtag() {
 	prev="${COMP_WORDS[COMP_CWORD-1]}"
 
 	# don't complete filenames if argument matches an option of the following:
-	# -talnygc, -fq, -s, -wXXXX, -D; or if the -m or -R switch is being used
+	# -talnygc, -fq, -s, -wXXXX, -D; or if the -m switch is being used
 
 	for ((n=1; n<COMP_CWORD; n++)); do
 		arg="${COMP_WORDS[n]}"
 		if [ "${arg:0:1}" = "-" -a "$arg" != "--" ]; then
-			[ "${arg//[!mR]/}" != "" ] && { COMPREPLY=(); return; }
-			arg="${arg//[!talnygcDfqsw]/}"
-			n="$((n+${#arg}))"
+			[ "${arg//[!m]/}" != "" ] && { COMPREPLY=(); return; }
+			if [ "${arg::2}" = "--" ]; then
+				${COMP_WORDS[0]} --help | grep -qe "$arg <[a-z]*>" && let n++
+			else
+				arg="${arg//[!talnygcDfqsw]/}"
+				n="$((n+${#arg}))"
+			fi
 		else
 			n=0
 			break
