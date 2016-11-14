@@ -395,7 +395,6 @@ int main_(int argc, char *argv[])
                 cmd = std_field; break;
             case '3':
                 chosen = &tag.enable<out::Lyrics3>().create();
-                tag.with(use<out::ID3>(tag)).create();
                 break;
             case '1':
                 chosen = &tag.enable<out::ID3>().create();

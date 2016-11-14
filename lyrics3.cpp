@@ -5,6 +5,7 @@
 #include <string>
 #include <new>
 #include "lyrics3.h"
+#include "id3v1.h"
 
 /*
 
@@ -148,6 +149,19 @@ info read(const char* fn, void* id3)
 
 /* ====================================================== */
 
+  // copy extended Lyrics3 tags to a ID3v1 tag
+
+inline void override_id3(ID3v1& id3v1, const info& tag)
+{
+    const char extended_tag[][4] = { "ETT", "EAR", "EAL" };
+    char (*const tag_ptr[])[30] = { &id3v1.title, &id3v1.artist, &id3v1.album };
+    for(int i=0; i < 3; ++i) {
+        const string field = find(tag, extended_tag[i]);
+        if(!field.empty())
+            strncpy(*tag_ptr[i], field.c_str(), 30);
+    }
+}
+
   // write a lyrics3v2 string to a file
 
 int write(const char* fn, const info& tag, const void* newid3)
@@ -155,7 +169,10 @@ int write(const char* fn, const info& tag, const void* newid3)
     FILE* f = fopen(fn, "rb+");
     if( !f ) return 1;
 
-    char id3[128];
+    union {
+        ID3v1 id3_info;
+        char id3[128];
+    };
 
     int result;
 
@@ -166,15 +183,16 @@ int write(const char* fn, const info& tag, const void* newid3)
         result = fseek(f, id3[0]?-128:0, SEEK_END) == 0;
     }
 
-    newid3 || id3[0] && (newid3 = id3);
+    if(newid3) memcpy(id3, newid3, 128);
+    override_id3(id3_info, tag);
 
     if(result++) {
         const string& s = "LYRICSBEGIN"+tag+num(tag.size()+11,6)+"LYRICS200";
         if(s.size() == tag.size()+11+6+9) {
             if(tag.size() > 0)
                 fwrite(s.data(), 1,  s.size(), f);
-            if(newid3)
-                fwrite(newid3,   1,       128, f);
+            if(id3[0])
+                fwrite(id3,      1,       128, f);
             result = -(ferror(f) || ftrunc(f) != 0);
         }
     }

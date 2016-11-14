@@ -58,7 +58,7 @@ test -e $(cat $FILE)
 rm -f $FILE
 ./id3 -f `basename $FILE` ${FILE}2
 
-# file mod. presrve
+# file mod. preserve
 sleep 1
 cp $FILE /tmp/test1
 ./id3 -M -1u $FILE
@@ -92,5 +92,12 @@ test $(cat $FILE | wc -c) -eq $(cat ${FILE}2 | wc -c)
 test $(cat $FILE | wc -c) -lt $(cat ${FILE}2 | wc -c)
 ./id3 -2s5000 $FILE
 test $(cat $FILE | wc -c) -eq 5000
+
+# subtag - maintag interference
+./id3 -123a "0artist" $FILE
+./id3 -2wTPE1 "2artist" $FILE
+./id3 -2q "%a" $FILE | grep -q '^2artist$'
+./id3 -3wEAR "3artist" $FILE
+./id3 -3q "%a" $FILE | grep -q '^3artist$'
 
 # all okay
