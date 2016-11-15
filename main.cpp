@@ -597,7 +597,7 @@ int main(int argc, char *argv[])
         char codepage[12];
         sprintf(codepage, ".%d", GetACP() & 0xFFFF);
         setlocale(LC_CTYPE, codepage);
-        struct chcp {                         // fiddle with the console fonts
+        static struct chcp {                  // fiddle with the console fonts
             int const cp_in, cp_out;
             chcp(int cp_new = GetACP())
             : cp_in(GetConsoleCP()), cp_out(GetConsoleOutputCP())
