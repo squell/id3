@@ -171,7 +171,7 @@ bool filefind::nested(auto_dir dir, char* pathpos, char* filespec)
         if(match) {
             for(varexp::iterator i = match.begin(); i != match.end(); ++i)
                 var.push_back(*i);
-            w |= invoker->file(pathpos, *this);
+            w = true, (void)invoker->file(pathpos, *this);
             var.resize(prevlen);
         }
     }
@@ -185,7 +185,8 @@ bool filefind::nested(auto_dir dir, char* pathpos, char* filespec)
             w |= nested(newdir, pathcpy(wpos, "/"), filespec);
     }
 
-    return w;
+    pathcpy(pathpos, filespec);                 // try exact match a last resort
+    return w || access(path, F_OK) == 0 && invoker->file(pathpos, *this);
 }
 
 } // namespace

@@ -21,7 +21,7 @@
 
   dir() should return true or false, indicating whether to process the
   directory passed as an argument. file() should return true or false
-  depending on the result of the operation.
+  depending on the result of the operation (which is ignored by this class)
 
   The first argument to file() aliasses with the associated record::path,
   pointing to the start of the actual filename sans directory prefix.
