@@ -79,6 +79,7 @@ static const char* const Options[] = {
     "q", "-query",
     "m", "-match",
     "R", "-recursive",
+    "X", "-no-glob",
     "M", "-keep-time",
     "L", "-list-genres",
     "V", "-version",
@@ -113,6 +114,7 @@ static void Help(bool long_opt=false)
         " -%s <format>\t"   "print formatted string on standard output\n"
         " -%s\t\t"          "match variables in filespec\n"
         " -%s\t\t"          "search recursively\n"
+        " -%s\t\t"          "disable internal wildcard handling\n"
         " -%s\t\t"          "preserve modification time of files\n"
         " -%s\t\t"          "list all recognized id3v1 genres\n"
         " -%s\t\t"          "print version info\n"
@@ -127,7 +129,7 @@ static void Help(bool long_opt=false)
         Name,
         flags[ 0], flags[ 2], flags[ 4], flags[ 6], flags[ 8], flags[10], flags[12], flags[14], flags[16], flags[18],
         flags[20], flags[22], flags[24], flags[26], flags[28], flags[30], flags[32], flags[34], flags[36], flags[38],
-        flags[40], flags[42]
+        flags[40], flags[42], flags[44]
     );
     exit(exitc=1);
 }
@@ -187,6 +189,7 @@ public:
     verbose(const tag::writer& write, const tag::reader& read)
     : mass_tag(write, read) { }
     static bool enable;
+
 private:
     static clock_t time;
 
@@ -215,6 +218,14 @@ private:
             eprintf("could not edit tag in %s\n", f.path);
         return 1;
     }
+
+public:
+    void without_globbing(const char* name)
+    {
+        fileexp::record dummy = { };
+        strncpy(dummy.path, name, PATH_MAX-1);
+        file(dummy.path, dummy);
+    }
 };
 
 bool    verbose::enable;
@@ -225,13 +236,14 @@ clock_t verbose::time;
 namespace op {
 
     enum {                                     // state information bitset
-        no_op =  0x00,
-        recur =  0x01,                         // work recursively?
-        w     =  0x02,                         // write  requested?
-        ren   =  0x04,                         // rename requested?
-        rd    =  0x08,                         // read   requested?
-        clobr =  0x10,                         // clear  requested?
-        patrn =  0x20                          // match  requested?
+        no_op  =  0x00,
+        recur  =  0x01,                        // work recursively?
+        w      =  0x02,                        // write  requested?
+        ren    =  0x04,                        // rename requested?
+        rd     =  0x08,                        // read   requested?
+        clobr  =  0x10,                        // clear  requested?
+        patrn  =  0x20,                        // match  requested?
+        noglob =  0x40                         // disable wildcards?
     };
     typedef int oper_t;
 
@@ -368,14 +380,9 @@ int main_(int argc, char *argv[])
             case 'f': cmd = set_rename;   break;
             case 'q': cmd = set_query;    break;
 
-            case 'm': if(!(state & recur)) {
-                          state |= patrn; break;
-                      } else if(false)         // skip next statement
-            case 'R': if(!(state & patrn)) {
-                          state |= recur; break;
-                      }
-                eprintf("cannot use -R and -m at the same time\n");
-                shelp();
+            case 'm': state |= patrn;  break;
+            case 'R': state |= recur;  break;
+            case 'X': state |= noglob; break;
 
             case 'D': if(!(state&clobr)) {
                           cmd = set_copyfrom; break;
@@ -446,11 +453,11 @@ int main_(int argc, char *argv[])
                 eprintf("specify tag format before -%c\n", opt[-1]);
                 shelp();
 
-	    case 'L':
-		for(int j=0; j < ID3v1_numgenres; ++j) {
-		    printf("%3d: %s\n", j+1, ID3v1_genre[j]);
-		}
-		return 0;
+            case 'L':
+                for(int j=0; j < ID3v1_numgenres; ++j) {
+                    printf("%3d: %s\n", j+1, ID3v1_genre[j]);
+                }
+                return 0;
 
             case '?': Help(1);
             case 'h': Help();
@@ -533,6 +540,12 @@ int main_(int argc, char *argv[])
             if(state & clobr)
                 tag.rewrite();
 
+            #define is_combi(x) ((x) & (x)-1)  // test for pure powers of two
+            if(is_combi(state & (patrn|recur|noglob))) {
+                eprintf("can only use one of -R, -m and -X at the same time\n");
+                shelp();
+            }
+
             if(state & patrn) {
                 if(argv[i+1]) {
                     eprintf("-m %s: no file arguments are allowed\n", argv[i]);
@@ -565,7 +578,12 @@ int main_(int argc, char *argv[])
             }
 
             verbose tagger(*selected, *source);
-            return process_(tagger, &argv[i], state & recur);
+            if(state & noglob) {
+                tagger.without_globbing(argv[i]);
+                if(argv[i+1]) continue; else return exitc;
+            } else {
+                return process_(tagger, &argv[i], state & recur);
+            }
         }
 
         state |= w;                            // set operation done flag

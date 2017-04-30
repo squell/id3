@@ -94,6 +94,13 @@ directory separators. Normally, this is not the case.
 .BR \-M ", " \-\-keep\-time
 preserve last modification time of files operated on
 .TP
+.BR \-X ", " \-\-no-glob
+disable internal globbing; as a consequence, the pattern matching functionality will not be available.
+Use this switch to force
+the treatment of \fIfilespec\fR arguments as simple filenames, which might be useful if
+.I id3
+is being called by shell scripts or other programs
+.TP
 .B \-\-
 force the following argument to be interpreted as a filename. Use this for
 files that start with a `-' (dash).
