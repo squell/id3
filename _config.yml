@@ -1,0 +1,8 @@
+title: id3
+description: a portable command-line mass tagger
+google_analytics: 
+show_downloads: true
+theme: jekyll-theme-slate
+
+gems:
+  - jekyll-mentions
