@@ -158,9 +158,9 @@ namespace charset {
 
     // fallback conversion, 7bit ASCII <-> unicode
 
-    template<> conv<>::data conv<_7bit>::decode(const char* s, size_t len)
+    template<> std::wstring conv<_7bit>::decode(const char* s, size_t len)
     {
-        conv<>::data build;
+        std::wstring build;
         build.reserve(len);
         for( ; len--; ) {
             int c = *s++ & 0xFF;
@@ -206,7 +206,7 @@ namespace charset {
         wchar_unicode();
 
         size_t n = recode(build.data(), build.size(), s, len, UCS(), nl_langinfo(CODESET), true, 1);
-        return conv<>::data((wchar_t*)build.data(), n/sizeof(wchar_t));
+        return std::wstring((wchar_t*)build.data(), n/sizeof(wchar_t));
 #   else
         if(!wchar_unicode())
             return fallback(conv<_7bit>::decode(s, len));
@@ -340,10 +340,10 @@ namespace charset {
         };
     }
 
-    template<> conv<>::data conv<local>::decode(const char* s, size_t len)
+    template<> std::wstring conv<local>::decode(const char* s, size_t len)
     {
         static const wchar_t* const map = dos_to_uni();
-        conv<>::data build;
+        std::wstring build;
         build.reserve(len);
         for( ; len--; s++) {
             wide w = (*s & 0x80)? map[*s & 0x7F] : (*s & 0xFF);
