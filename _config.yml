@@ -1,8 +1,11 @@
-title: id3
+title: id3mtag
 description: a portable command-line mass tagger
 google_analytics: 
 show_downloads: true
 theme: jekyll-theme-slate
+
+zip_url: "#getting-it"
+tar_url: "#getting-it"
 
 gems:
   - jekyll-mentions

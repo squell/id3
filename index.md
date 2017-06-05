@@ -112,7 +112,7 @@ If you like this program, you can help by trying to build and test it on an unco
 
 ### Copyright
 
-&copy; Marc Schoolderman 2003-2015. All rights reserved.
+&copy; Marc Schoolderman 2003-2017. All rights reserved.
 
 This program may be used freely, and you are welcome to redistribute it under certain conditions.
 
