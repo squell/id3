@@ -390,7 +390,8 @@ W??/W??? (links),
 COM/COMM (comment),
 IPL/IPLS (involved  people),
 ULT/USLT (lyrics),
-CNT/PCNT (numeric play counter) and
+CNT/PCNT (numeric play counter),
+POP/POPM (popularimeter) and
 USER (tos, v2.3 only).
 Attempts to write ID3v2.2 frames to ID3v2.3 or vice versa will be ignored.
 

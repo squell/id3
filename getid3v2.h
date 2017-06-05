@@ -44,10 +44,12 @@ namespace tag {
             { return field == "TXXX" || field == "TXX" ||
                      field == "WXXX" || field == "WXX" ||
                      field == "COMM" || field == "COM" ||
-                     field == "USLT" || field == "ULT"; }
+                     field == "USLT" || field == "ULT" ||
+                     field == "POPM" || field == "POP"; }
 
             static bool is_counter(const std::string field)
-            { return field == "PCNT" || field == "CNT"; }
+            { return field == "PCNT" || field == "CNT" ||
+                     field == "POPM" || field == "POP"; }
 
             static bool is_url(const std::string field)
             { return field[0] == 'W'; }

@@ -3,6 +3,8 @@ Changelog for 'id3'.
 2017-156 (W23):
   id3-imges.c: prefix filenames of extract images with the path of the mp3
     file they orginated from ("file.mp3:cover.jp3")
+  [gs]etid3v2.h: add support for POPM frames; referenced as POPM:email,
+    using the syntax <rating>[:playcounter]
 
 2017-121 (W18):
   fileexp.cpp: [bugfix] files with [] in them were not being found

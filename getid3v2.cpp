@@ -144,11 +144,20 @@ extern ID3v2::value_string tag::unbinarize(ID3FRAME f, charset::conv<>& descript
         return ID3v2::value_string(cs("<compressed or encrypted>"),0);
 
     if(ID3v2::is_counter(field)) {
+        const char* data = f->data;
+        if(ID3v2::has_desc(field)) {
+            if(!(data = membrk0(data, f->size, 0))) return conv<>();
+            descriptor = conv<charset::latin1>(":") += conv<charset::latin1>(f->data, data - f->data);
+            data += 2;                         // data[-1] points to rating
+        }
         char buf[12];                          // enough for 32bits
         unsigned long t = 0;
-        for(size_t n = 0; n < f->size; ++n)
-            t = t << 8 | (f->data[n] & 0xFF);
-        sprintf(buf, "%lu", t & 0xFFFFFFFFul);
+        for(size_t n = 0; n < f->size - (data - f->data); ++n)
+            t = t << 8 | (data[n] & 0xFF);
+        if(ID3v2::has_desc(field)) {
+            sprintf(buf, "%u:%lu", data[-1]&0xFFu, t & 0xFFFFFFFFul);
+        } else
+            sprintf(buf, "%lu", t & 0xFFFFFFFFul);
         return conv<latin1>(buf);
     }
 
@@ -160,7 +169,7 @@ extern ID3v2::value_string tag::unbinarize(ID3FRAME f, charset::conv<>& descript
         p += 3;                                // skip-ignore language field
     }
     if(ID3v2::has_desc(field)) {
-        const char *q = membrk0(p, f->size - (p - f->data), wide);
+        const char* q = membrk0(p, f->size - (p - f->data), wide);
         if(!q) return conv<>();                // malformed frame
         descriptor = conv<charset::latin1>(":");
         switch(*f->data) {
