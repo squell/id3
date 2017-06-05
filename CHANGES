@@ -1,5 +1,9 @@
 Changelog for 'id3'.
 
+2017-156 (W23):
+  id3-imges.c: prefix filenames of extract images with the path of the mp3
+    file they orginated from ("file.mp3:cover.jp3")
+
 2017-121 (W18):
   fileexp.cpp: [bugfix] files with [] in them were not being found
   main.cpp: [cli change] added -X option for disabling wildcard handling
