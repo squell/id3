@@ -33,7 +33,8 @@ using tag::write::file;
     // checks if a character is a member of the portable set
 
 namespace {
-    const char allowed[] = " ._-()";
+    // \/?*":|<> are special char (fat)
+    const char allowed[] = " !#$%&'()+,-.;=@[]^_`{}~";
     bool portable_fn(char c)
     {
         return isalnum(c) || (c & 0x80) || strchr(allowed, c);
@@ -64,8 +65,14 @@ bool file::vmodify(const char* fname, const function& edit) const
     }
 
     string name = edited;
-    for(string::iterator p = name.begin(); p != name.end(); ++p) {
+    int dot = 1;
+    for(string::iterator p = name.end()-1; p != name.begin()-1; --p) {
         if(!portable_fn(*p)) *p = '_';             // replace ill. chars
+        if(*p == '.') {
+            if(dot-- <= 0) {
+                *p = '_'; 
+            }
+        }
     }
     if(const char* psep = strrchr(fname, '/')) {
         name.insert(0, fname, psep-fname+1);       // copy path prefix
