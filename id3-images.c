@@ -99,7 +99,7 @@ void write_blob(const char *basename, const char* ext, const void* blob, size_t 
     }
 
     f = fopen(image_fn, "wb");
-    if(fwrite(blob, 1, size, f) != size | fclose(f) != 0) {
+    if(!f || fwrite(blob, 1, size, f) != size | fclose(f) != 0) {
         eprintf("`%s' could not be written\n", image_fn);
         perror(0);
     } else {

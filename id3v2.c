@@ -428,9 +428,9 @@ int ID3_frame(ID3FRAME f)
         f->grouped    = !!( frame->v3.flags[1] & GRP  );
     } else if(version==4) {
         f->size       = ul4ss(frame->v3.size);
-        f->tag_volit  = !!( frame->v3.flags[0]>>1 & TAP  );
-        f->file_volit = !!( frame->v3.flags[0]>>1 & FAP  );
-        f->readonly   = !!( frame->v3.flags[0]>>1 & RO   );
+        f->tag_volit  = !!( frame->v3.flags[0] & TAP>>1 );
+        f->file_volit = !!( frame->v3.flags[0] & FAP>>1 );
+        f->readonly   = !!( frame->v3.flags[0] & RO >>1 );
 
         f->packed     = !!( frame->v3.flags[1] & PACK4 );
         f->encrypted  = !!( frame->v3.flags[1] & ENC4  );
