@@ -179,12 +179,12 @@ static const string binarize(string field, charset::conv<charset::latin1> conten
         return data;
     if(ID3v2::is_counter(field)) {
         string s = content;
-        unsigned long t = strtoul(s.c_str(), 0, 0);
+        unsigned long t = strtoul(s.c_str(), 0, 10);
         if(ID3v2::has_desc(field)) {
             data.append(encode(0,descr));
             data.push_back(t&0xFFu);
             string::size_type i = s.find(':');
-            t = i==string::npos? 0 : strtoul(s.substr(i+1).c_str(), 0, 0);
+            t = i==string::npos? 0 : strtoul(s.substr(i+1).c_str(), 0, 10);
         }
         data.push_back(t >> 24 & 0xFF);
         data.push_back(t >> 16 & 0xFF);

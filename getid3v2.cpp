@@ -150,7 +150,7 @@ extern ID3v2::value_string tag::unbinarize(ID3FRAME f, charset::conv<>& descript
             descriptor = conv<charset::latin1>(":") += conv<charset::latin1>(f->data, data - f->data);
             data += 2;                         // data[-1] points to rating
         }
-        char buf[12];                          // enough for 32bits
+        char buf[15];                          // enough for 32bits
         unsigned long t = 0;
         for(size_t n = 0; n < f->size - (data - f->data); ++n)
             t = t << 8 | (data[n] & 0xFF);

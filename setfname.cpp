@@ -70,7 +70,7 @@ bool file::vmodify(const char* fname, const function& edit) const
         if(!portable_fn(*p)) *p = '_';             // replace ill. chars
         if(*p == '.') {
             if(dot-- <= 0) {
-                *p = '_'; 
+                *p = '_';
             }
         }
     }
