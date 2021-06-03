@@ -413,10 +413,11 @@ int ID3_frame(ID3FRAME f)
     int version = f->_rev+2;
     int ID_siz = 3+(version>2);
 
+    if(!checkid(frame->ID, ID_siz)) return 0;
+
     f->data += f->size + raw_frm_sizeof[version>2];
 
     memcpy(f->ID, frame->ID, ID_siz);
-
     if(version==3) {                                    /* ID3v2.3 stuff */
         f->size       = ul4(frame->v3.size);          /* copy essentials */
         f->tag_volit  = !!( frame->v3.flags[0] & TAP  );
@@ -442,7 +443,7 @@ int ID3_frame(ID3FRAME f)
         f->size       = ul4(frame->v2.size) >> 8;
     }
 
-    return checkid(f->ID, ID_siz);
+    return 1;
 }
 
 /* ==================================================== */
