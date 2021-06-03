@@ -65,14 +65,8 @@ bool file::vmodify(const char* fname, const function& edit) const
     }
 
     string name = edited;
-    int dot = 1;
-    for(string::iterator p = name.end()-1; p != name.begin()-1; --p) {
+    for(string::iterator p = name.begin(); p != name.end(); ++p) {
         if(!portable_fn(*p)) *p = '_';             // replace ill. chars
-        if(*p == '.') {
-            if(dot-- <= 0) {
-                *p = '_';
-            }
-        }
     }
     if(const char* psep = strrchr(fname, '/')) {
         name.insert(0, fname, psep-fname+1);       // copy path prefix
