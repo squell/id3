@@ -140,27 +140,28 @@ static int checkid(const char *ID, size_t n)    /* check ID for A..Z0..9 */
     return 1;
 }
 
+static const size_t raw_frm_sizeof[2];
+
 static long calcsize(uchar *buf, ulong max)
 {
-    union raw_frm *frame;
-    ulong size = 0;
-    ulong step;
     int version = buf[-1];
     int ID_siz = 3+(version>2);
+    ulong frm_hdr_size = raw_frm_sizeof[version>2];
+    ID3FRAME f;
 
-    while(size < max && checkid((char*)buf, ID_siz)) {
-        frame = (union raw_frm*)buf;
-        switch(version) {
-            case  2: step = sizeof(frame->v2) + (ul4(frame->v2.size) >> 8); break;
-            case  3: step = sizeof(frame->v3) + ul4(frame->v3.size);        break;
-            case  4: step = sizeof(frame->v3) + ul4ss(frame->v3.size);      break;
-            default: return -1;
-        }
-        if(size+step <= size) return -1;
-        size += step;
-        buf  += step;
-    }
-    return size<=max? (long)size : -1;
+    ID3_start(f, buf-1);
+    do {
+	size_t curofs = f->data - (char*)buf;
+	/* check against unsigned wraparound by malicious tags */
+	if(f->size >= -frm_hdr_size) return -1;
+	if(curofs + f->size + frm_hdr_size <= curofs) return -2;
+	/* check if the next potential frame will fit in size requirement */
+	if(curofs + f->size > max) return -3;
+	/* we are near the end, check that the next ID3_frame invocation fails */
+	if(curofs + f->size + frm_hdr_size > max && checkid(f->data + f->size, ID_siz)) return -4;
+    } while(ID3_frame(f));
+
+    return f->data + f->size - (char*)buf;
 }
 
 /* in v2.4, unsync is per-frame for not adequately explained reasons.
