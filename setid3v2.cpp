@@ -38,13 +38,13 @@ namespace {
  // overkill, but i had to do a runtime check anyway, so.
 
     class writer {
-        size_t avail;
+        size_t capacity;
         char *base, *dest;
         ID3VER version;                     // writes ID3v2.3 per default
 
     public:
         void init(size_t len, ID3VER v = ID3_v2_3)
-                         { base = (char*) malloc(avail=len+!len);
+                         { base = (char*) malloc(capacity=len+!len);
                            if(!base) throw bad_alloc();
                            dest = (char*) ID3_put(base,version=v,0,0,0); }
 
@@ -63,17 +63,17 @@ namespace {
     void writer::put(const char* ID, const void* src, size_t len)
     {
         static size_t factor = 0x1000;      // start reallocing in 4k blocks
+        const size_t avail = capacity - (dest - base);
 
-        if(len+10 > avail) {
-            while(len+10 > factor) factor *= 2;
-            size_t size = dest - base;
-            base     = (char*) realloc(base, size+factor);
-            avail    = factor;
+        if(len+11 > avail) {
+            const size_t size = dest - base;
+            const size_t req  = size+len+11;
+            while(req > capacity) capacity = (factor *= 2);
+            base = (char*) realloc(base, capacity);
             if(!base) throw bad_alloc();
-            dest     = base + size;         // translate current pointer
+            dest  = base + size;         // translate current pointer
         }
 
-        avail -= (len+10);
         dest = (char*) ID3_put(dest, version, ID, src, len);
     }
 
