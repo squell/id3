@@ -42,20 +42,20 @@ namespace charset {
         build.reserve(len / sizeof(wchar_t));
         bool i = (ord == big_endian);
 
-        switch(wide( s[0^i] & 0xFF | s[1^i]<<8 & 0xFF00U ).code) {
+        switch(wide( s[0^i] & 0xFF | (s[1^i]&0xFFU)<<8 ).code) {
         default: break;
         case 0xFFFE: i = !i;
         case 0xFEFF: s += 2;
         }
 
         for( ; s < end; s+=2) {
-            wide ch( s[0^i] & 0xFF | s[1^i]<<8 & 0xFF00U );
+            wide ch( s[0^i] & 0xFF | (s[1^i]&0xFFU)<<8 );
             if(ch.code < 0xD800 || ch.code >= 0xE000)
                 build += ch;
             else if(ch.code < 0xDC00 && (s+=2) < end) { // UTF-16 surrogate
-                wide lo( s[0^i] & 0xFF | s[1^i]<<8 & 0xFF00U );
+                wide lo( s[0^i] & 0xFF | (s[1^i]&0xFFU) << 8 );
                 if(lo.code >= 0xDC00 && lo.code < 0xE000)
-                    build += wide((ch.code&0x3FF)<<10 | (lo.code&0x3FF) | 0x10000);
+                    build += wide((ch.code&0x3FFU)<<10 | (lo.code&0x3FF) | 0x10000);
             }
         }
         return build;
