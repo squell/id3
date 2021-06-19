@@ -25,7 +25,7 @@ static bool getframe(ID3FRAME f, const char* field, size_t n);
 
 // setid3v2 also needs the following function; but the outside world doesn't
 namespace tag {
-    extern ID3v2::value_string unbinarize(ID3FRAME, charset::conv<>& descriptor);
+    extern ID3v2::value_string unbinarize(const ID3FRAME, charset::conv<>& descriptor);
 }
 
 ID3v2::ID3v2(const char* fn) : tag(ID3_readf(fn,0))
@@ -132,9 +132,10 @@ static const char *membrk0(const char* buf, size_t size, bool wide)
     return 0;
 }
 
-extern ID3v2::value_string tag::unbinarize(ID3FRAME f, charset::conv<>& descriptor)
+extern ID3v2::value_string tag::unbinarize(const ID3FRAME f, charset::conv<>& descriptor)
 {
     typedef conv<latin1> cs;
+    const conv<latin1> error = cs("<bad frame>");
 
     const string field  = f->ID;
     const char*  p      = f->data + 1;
@@ -146,7 +147,7 @@ extern ID3v2::value_string tag::unbinarize(ID3FRAME f, charset::conv<>& descript
     if(ID3v2::is_counter(field)) {
         const char* data = f->data;
         if(ID3v2::has_desc(field)) {
-            if(!(data = membrk0(data, f->size, 0))) return conv<>();
+            if(!(data = membrk0(data, f->size, 0)) || (data - f->data)+2 > f->size) return error;
             descriptor = conv<charset::latin1>(":") += conv<charset::latin1>(f->data, data - f->data);
             data += 2;                         // data[-1] points to rating
         }
@@ -168,9 +169,11 @@ extern ID3v2::value_string tag::unbinarize(ID3FRAME f, charset::conv<>& descript
             lang = "xxx";
         p += 3;                                // skip-ignore language field
     }
+
     if(ID3v2::has_desc(field)) {
+        if(p - f->data >= f->size) return error; // malicious frame
         const char* q = membrk0(p, f->size - (p - f->data), wide);
-        if(!q) return conv<>();                // malformed frame
+        if(!q) return error;                     // malformed frame
         descriptor = conv<charset::latin1>(":");
         switch(*f->data) {
             case 0: descriptor += conv<charset::latin1> (p, q-p); break;
@@ -180,13 +183,14 @@ extern ID3v2::value_string tag::unbinarize(ID3FRAME f, charset::conv<>& descript
         }
         p = q+1+wide;
     } else if(lang) {
-        descriptor += ':';                     // only used by USER; enfore consistency in notation
+        descriptor += ':';                     // only used by USER; enforce consistency in notation
     }
     if(lang)
         (descriptor += ':') += conv<charset::latin1>(lang,3);
 
     size_t hdrsiz = p - f->data;
     if(hdrsiz > 1 || ID3v2::is_text(field)) {
+        if(hdrsiz > f->size) return error;     // malicious frame
         size_t txtsiz = f->size - hdrsiz;
         char encoding = *f->data;
         if(ID3v2::is_url(field)) {

@@ -282,7 +282,7 @@ tag::metadata* ID3v2::read(const char* fn) const
 }
 
 namespace tag {
-    extern read::ID3v2::value_string unbinarize(ID3FRAME, charset::conv<>& descriptor);
+    extern read::ID3v2::value_string unbinarize(const ID3FRAME, charset::conv<>& descriptor);
 }
 
 static inline bool has_enc(const char* ID)
