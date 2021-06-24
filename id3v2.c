@@ -99,7 +99,7 @@ static uchar *unsync_dec(uchar *dst, uchar *src, ulong size)
 
 /* ==================================================== */
 
-static ulong ul4(uchar n[4])
+static ulong ul4(const uchar n[4])
 {
     return (ulong)n[0]<<24
          | (ulong)n[1]<<16
@@ -115,7 +115,7 @@ static void nbo4(uchar h[4], ulong n)
     h[3] = (n      ) & 0xFF;
 }
 
-static ulong ul4ss(uchar h[4])                            /* "synch safe" */
+static ulong ul4ss(const uchar h[4])                      /* "synch safe" */
 {
     return (ulong)(h[0] & 0x7F) << 21
          | (ulong)(h[1] & 0x7F) << 14
@@ -142,7 +142,7 @@ static int checkid(const char *ID, size_t n)    /* check ID for A..Z0..9 */
 
 static const size_t raw_frm_sizeof[2];
 
-static long calcsize(uchar *buf, ulong max)
+static long calcsize(const uchar *buf, ulong max)
 {
     int version = buf[-1];
     int ID_siz = 3+(version>2);
@@ -151,14 +151,14 @@ static long calcsize(uchar *buf, ulong max)
 
     ID3_start(f, buf-1);
     do {
-	size_t curofs = f->data - (char*)buf;
-	/* check against unsigned wraparound by malicious tags */
-	if(f->size >= -frm_hdr_size) return -1;
-	if(curofs + f->size + frm_hdr_size <= curofs) return -2;
-	/* check if the next potential frame will fit in size requirement */
-	if(curofs + f->size > max) return -3;
-	/* we are near the end, check that the next ID3_frame invocation fails */
-	if(curofs + f->size + frm_hdr_size > max && checkid(f->data + f->size, ID_siz)) return -4;
+        size_t curofs = f->data - (char*)buf;
+        /* check against unsigned wraparound by malicious tags */
+        if(f->size >= -frm_hdr_size) return -1;
+        if(curofs + f->size + frm_hdr_size <= curofs) return -2;
+        /* check if the next potential frame will fit in size requirement */
+        if(curofs + f->size > max) return -3;
+        /* we are near the end, check that the next ID3_frame invocation fails */
+        if(curofs + f->size + frm_hdr_size > max && checkid(f->data + f->size, ID_siz)) return -4;
     } while(ID3_frame(f));
 
     return f->data + f->size - (char*)buf;
@@ -174,14 +174,16 @@ static ulong unsync_frames_v2_4(uchar *buf, ulong size)
 
     while(buf < end) {
         union raw_frm *frame = (union raw_frm*)buf;
-        ulong step = sizeof(frame->v3) + ul4ss(frame->v3.size);
+        ulong step = ul4ss(frame->v3.size);
         if( frame->v3.flags[1] & UNSYNC4 ) {
             frame = (union raw_frm*)out;
-            out = unsync_dec(out, buf, step);
+            memmove(out, buf, sizeof(frame->v3));
+            out = unsync_dec(out+sizeof(frame->v3), buf+sizeof(frame->v3), step);
             /* update frame size & clear UNSYNC4 bit */
-            nbo4ss(frame->v3.size, out-frame->ID - sizeof(*frame));
+            nbo4ss(frame->v3.size, out-frame->ID - sizeof(frame->v3));
             frame->v3.flags[1] &= ~UNSYNC4;
         } else {
+            step += sizeof(frame->v3);
             out = (uchar*)memmove(out, buf, step) + step;
         }
         buf += step;
@@ -282,7 +284,7 @@ int ID3_writef(const char *fname, const void *buf, size_t reqsize)
 {
     struct raw_hdr new_h = { "ID3", 0, 0, 0, { 0, } };
     struct raw_hdr rh    = { { 0 } };                       /* duct tape */
-    uchar* src;
+    const uchar* src;
     long size = 0;
 
     FILE *f = fopen(fname, "rb+");
@@ -410,7 +412,7 @@ ID3VER ID3_start(ID3FRAME f, const void *buf)
 
 int ID3_frame(ID3FRAME f)
 {
-    union raw_frm *frame = (union raw_frm*)(f->data + f->size);
+    const union raw_frm *frame = (union raw_frm*)(f->data + f->size);
     int version = f->_rev+2;
     int ID_siz = 3+(version>2);
 
