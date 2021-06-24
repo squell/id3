@@ -162,7 +162,7 @@ static const char* cmdalias(const char* arg)
     return shelp(), arg;
 }
 
-static long argtol(const char* arg)            // convert argument to long
+static unsigned long argtoul(const char* arg)  // convert argument to ulong
 {
     char* endp;
     long n = strtol(arg, &endp, 10);
@@ -417,7 +417,7 @@ int main_(int argc, char *argv[])
                 if(*opt == '\0')
                     cmd = suggest_size;
                 else {
-                    long n = argtol(opt);
+                    unsigned long n = argtoul(opt);
                     (chosen | tag)->reserve(n);
                     state |= w;
                 }
@@ -504,7 +504,7 @@ int main_(int argc, char *argv[])
             break;
 
         case suggest_size:                     // v2 - suggest size
-            (chosen | tag)->reserve( argtol(argv[i]) );
+            (chosen | tag)->reserve( argtoul(argv[i]) );
             break;
 
         case set_rename:                       // specify rename format

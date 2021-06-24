@@ -77,7 +77,7 @@ bool Lyrics3::vmodify(const char* fn, const function& edit) const
     } else
         return true;
 
-    for(long n, i = 0; n=lyrics3::find_next(src,i); i = n) {
+    for(size_t n, i = 0; n=lyrics3::find_next(src,i); i = n) {
         db::iterator p = table.find( src.id(i) );
         if(p == table.end())
             tag += lyrics3::field(src.id(i), src.content(i, n));

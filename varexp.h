@@ -76,7 +76,7 @@ public:
     iterator end() const;
 
 protected:
-    typedef std::vector< std::pair<const char*, int> > pairvec;
+    typedef std::vector< std::pair<const char*, std::size_t> > pairvec;
     pairvec var;
     bool result;
 
