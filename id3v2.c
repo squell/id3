@@ -174,16 +174,15 @@ static ulong unsync_frames_v2_4(uchar *buf, ulong size)
 
     while(buf < end) {
         union raw_frm *frame = (union raw_frm*)buf;
-        ulong step = ul4ss(frame->v3.size);
+        ulong step = ul4ss(frame->v3.size) + sizeof(frame->v3);
         if( frame->v3.flags[1] & UNSYNC4 ) {
             frame = (union raw_frm*)out;
             memmove(out, buf, sizeof(frame->v3));
-            out = unsync_dec(out+sizeof(frame->v3), buf+sizeof(frame->v3), step);
+            out = unsync_dec(out+sizeof(frame->v3), buf+sizeof(frame->v3), step-sizeof(frame->v3));
             /* update frame size & clear UNSYNC4 bit */
             nbo4ss(frame->v3.size, out-frame->ID - sizeof(frame->v3));
             frame->v3.flags[1] &= ~UNSYNC4;
         } else {
-            step += sizeof(frame->v3);
             out = (uchar*)memmove(out, buf, step) + step;
         }
         buf += step;
