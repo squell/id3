@@ -239,8 +239,10 @@ void *ID3_readf(const char *fname, size_t *tagsize)
     pad  = size;                                /* check semantics of tag */
     size = calcsize(buf, size);
 
-    if( rh.ver == 4 && size > 0 )  /* v2.4: just ignore the global UNSYNC */
+    if( rh.ver == 4 && size > 0 ) {     /* v2.4: ignore the global UNSYNC */
         size = unsync_frames_v2_4(buf, size);
+        size = calcsize(buf, size);
+    }
 
     if(tagsize) *tagsize = size;
 
