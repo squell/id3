@@ -44,19 +44,17 @@ int fcopy(FILE *dest, FILE *src)
 size_t fpadd(char c, size_t len, FILE *dest)
 {
     char buffer[0x4000];                              /* 16kb buffer */
-    size_t w;
+    size_t w = len;
 
     memset(buffer, c, sizeof buffer);
 
-    while(len > sizeof buffer) {
-        w = fwrite(buffer, sizeof buffer, 1, dest);
-        if(w!=1) return 0;
-        len -= sizeof buffer;
+    while(w > sizeof buffer) {
+        size_t n = fwrite(buffer, sizeof buffer, 1, dest);
+        if(n!=1) return 0;
+        w -= sizeof buffer;
     }
 
-    w = fwrite(buffer, 1, len, dest);
-
-    return w;
+    return (len - w) + fwrite(buffer, 1, w, dest);
 }
 
 FILE *ftemp(char *templ, const char *mode)

@@ -1,5 +1,13 @@
 Changelog for 'id3'.
 
+2023-180 (W26):                                ---------[v0.81]-----------
+  added test cases from a project to increase test coverage
+
+2021-292 (W42):
+  id3v2.c: make id3v2 code more resistant against malicious ID3v2.4 tags
+2021-170 (W24):
+  fix several bugs in ID3v2 handling found by @geeknik's fuzzing
+
 2017-156 (W23):
   id3-imges.c: prefix filenames of extract images with the path of the mp3
     file they orginated from ("file.mp3:cover.jp3")
