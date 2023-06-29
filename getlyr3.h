@@ -2,7 +2,7 @@
 
   tag::read::ID3_lyrics
 
-  copyright (c) 2006 squell <squell@alumina.nl>
+  copyright (c) 2006 squell <info@squell.net>
 
   use, modification, copying and distribution of this software is permitted
   under the conditions described in the file 'COPYING'.

@@ -1,7 +1,7 @@
 Source: id3mtag
 Section: sound
 Priority: optional
-Maintainer: Marc R. Schoolderman <squell@alumina.nl>
+Maintainer: Marc R. Schoolderman <info@squell.net>
 Standards-Version: 3.9.5
 Homepage: https://squell.github.io/id3
 Vcs-Git: https://github.com/squell/id3.git

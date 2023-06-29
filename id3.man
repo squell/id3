@@ -403,7 +403,7 @@ Which \fIdescriptors\fR are meaningful is application-specific.
 
 id3 does not support unnecessary ID3v2 features such as compression, encryption, or embedding binary data (including image files).
 .SH AUTHOR
-Written by Marc R. Schoolderman <squell@alumina.nl>.
+Written by Marc R. Schoolderman <info@squell.net>.
 .SH COPYRIGHT
 This is free software; see the source for copying conditions. There is NO
 warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.

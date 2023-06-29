@@ -2,7 +2,7 @@
 
   tag::write::ID3v2 applicative class
 
-  copyright (c) 2004, 2005, 2015 squell <squell@alumina.nl>
+  copyright (c) 2004, 2005, 2015 squell <info@squell.net>
 
   use, modification, copying and distribution of this software is permitted
   under the conditions described in the file 'COPYING'.

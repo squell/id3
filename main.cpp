@@ -26,7 +26,7 @@
 
 /*
 
-  copyright (c) 2004-2006, 2015 squell <squell@alumina.nl>
+  copyright (c) 2004-2006, 2015 squell <info@squell.net>
 
   use, modification, copying and distribution of this software is permitted
   under the conditions described in the file 'COPYING'.
@@ -124,7 +124,7 @@ static void Help(bool long_opt=false)
         " -%s\t\t"          "update all standard fields\n"
         " -%sTYPE\t\t"      "remove `TYPE' frames\n"
         " -%sTYPE <data>\t" "write a `TYPE' frame\n"
-        "\nReport bugs to <squell@alumina.nl>.\n",
+        "\nReport bugs to <id3@squell.net>.\n",
         Name,
         Name,
         flags[ 0], flags[ 2], flags[ 4], flags[ 6], flags[ 8], flags[10], flags[12], flags[14], flags[16], flags[18],

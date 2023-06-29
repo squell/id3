@@ -16,7 +16,7 @@
 
   minimalistic program to extract cover art situated in ID3v2 tags
 
-  copyright (c) 2015 Marc R. Schoolderman <squell@alumina.nl>
+  copyright (c) 2015 Marc R. Schoolderman <info@squell.net>
 
   use, modification, copying and distribution of this software is permitted
   under the conditions described in the file 'COPYING'.
@@ -54,7 +54,7 @@ static void Help(const char *name)
         NAME " 0.2\n"
         "Extract embedded art from ID3v2 tags to current directory\n"
         "usage: %s filename.mp3\n"
-        "\nReport bugs to <squell@alumina.nl>.\n",
+        "\nReport bugs to <info@squell.net>.\n",
         base? base+1 : name
     );
     exit(1);

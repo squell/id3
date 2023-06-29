@@ -4,7 +4,7 @@
   This file needs work. It will be included in `id3' in the future, and
   is provided only for completeness.
 
-  copyright (c) 2005 squell <squell@alumina.nl>
+  copyright (c) 2005 squell <info@squell.net>
 
   use, modification, copying and distribution of this software is permitted
   under the conditions described in the file 'COPYING'.

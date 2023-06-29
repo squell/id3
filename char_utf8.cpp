@@ -9,7 +9,7 @@
 
   character conversion (<-> utf-8 encoding)
 
-  copyright (c) 2015 squell <squell@alumina.nl>
+  copyright (c) 2015 squell <info@squell.net>
 
   use, modification, copying and distribution of this software is permitted
   under the conditions described in the file 'COPYING'.
