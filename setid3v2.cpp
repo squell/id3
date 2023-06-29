@@ -119,7 +119,12 @@ namespace {
 inline static bool needs_unicode(charset::conv<wchar_t> str)
 {
     const wstring& ws = str;
+#if __cplusplus < 201103L
     return ws.end() != find_if(ws.begin(), ws.end(), bind2nd(greater<wchar_t>(), 0xFF));
+#else
+    using namespace std::placeholders;
+    return ws.end() != find_if(ws.begin(), ws.end(), bind(greater<wchar_t>(), _1, 0xFF));
+#endif
 }
 
 static const string encode(int enc, const charset::conv<>& str)

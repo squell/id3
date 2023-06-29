@@ -419,7 +419,7 @@ int ID3_frame(ID3FRAME f)
     int version = f->_rev+2;
     int ID_siz = 3+(version>2);
 
-    if(!checkid(frame->ID, ID_siz)) return 0;
+    if(!checkid((const char*)frame->ID, ID_siz)) return 0;
 
     f->data += f->size + raw_frm_sizeof[version>2];
 

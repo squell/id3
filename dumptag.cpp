@@ -51,7 +51,11 @@ void output(combined<reader> const& tags, const char* filename, FILE* out)
     fprintf(out, DIRECTIVE"file\t%s\n", filename);
     combined<reader>::const_iterator p = tags.begin();
     while( p != tags.end() ) {
+#if __cplusplus < 201103L
         std::auto_ptr<metadata> info( (*p++)->read(filename) );
+#else
+        std::unique_ptr<metadata> info( (*p++)->read(filename) );
+#endif
         if(info.get() && *info) {
             metadata::array list = info->listing();
             const pair<string,string> hdr = list[0];
