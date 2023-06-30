@@ -29,6 +29,9 @@ clean:
 main.obj: main.cpp
 	$(CL) $(CFLAGS) /c main.cpp
 
+fileexp.obj: dirent\include\dirent.h
+	$(CL) $(CFLAGS) /I dirent\include /c fileexp.cpp
+
 .c.obj:
 	$(CL) $(CFLAGS) /c $<
 
@@ -69,5 +72,8 @@ getlyr3.obj: getlyr3.cpp lyrics3.h getid3.h set_base.h sedit.h charconv.h \
 fileops.obj: fileops.c fileops.h
 id3v1.obj: id3v1.c id3v1.h
 id3v2.obj: id3v2.c fileops.h id3v2.h
+
+dirent\include\dirent.h:
+	git clone https://github.com/tronkko/dirent
 
 ############################################################################
