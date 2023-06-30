@@ -16,6 +16,9 @@ id3.exe: main.obj varexp.obj fileexp.obj dumptag.obj \
 	 setfname.obj setquery.obj charconv.obj char_ucs.obj char_utf8.obj
 	$(LINK) /out:$@ $**
 
+id3-images.exe: id3-images.obj id3v2.obj fileops.obj
+	$(LINK) /out:$@ $**
+
 all  : id3.exe
 
 final: id3.exe

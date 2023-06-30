@@ -1,6 +1,6 @@
 Summary: Command line mass tagging utility for audio files
 Name: id3mtag
-Version: 0.80
+Version: 0.81
 Release: 1%{?dist}
 License: BSD
 Source: http://github.com/squell/id3/releases/download/%{version}/id3-%{version}.tar.gz
@@ -33,6 +33,9 @@ strip -s id3
 %doc README CHANGES COPYING
 
 %changelog
+* Fri Jun 30 2023 Marc Schoolderman <info@squell.net> 0.81-1
+- now edits all present tags by default rather than just ID3v1
+- bug fixes
 * Sun Dec 20 2015 Marc Schoolderman <squell@alumina.nl> 0.80-1
 - ID3v2.4 support (read/convert-to-ID3v2.3)
 - Detailed listing of tags

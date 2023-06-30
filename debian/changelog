@@ -1,3 +1,12 @@
+id3mtag (0.81-1) unstable; urgency=low
+
+  * All present tags are now updated by default (i.e. ID3v2, Lyrics3)
+  * Add support for POPM frames (popularity counters) in ID3v2
+  * Added support for --list-genres
+  * Bug fixes
+
+ -- Marc R. Schoolderman <info@squell.net>  Fri, 30 Jun 2023 16:30:12 +0100
+
 id3mtag (0.80-1) unstable; urgency=low
 
   * ID3v2.4 support added: upon writing, will be converted to ID3v2.3
