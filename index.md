@@ -92,13 +92,14 @@ On Windows, support for non-ASCII characters (e.g. Russian or Korean characters)
 
 Version  | Release date | Source | Pre-built binaries
 -------- | ------------ | ------ | ------
+0.81     | 30 Jun 2023  | [tarball](https://github.com/squell/id3/releases/download/0.81/id3-0.81.tar.gz)/[zip](https://github.com/squell/id3/releases/download/0.81/id3-081s.zip) | [Windows](https://github.com/squell/id3/releases/download/0.81/id3-081w.zip)<br> Debian/Ubuntu: [amd64](https://github.com/squell/id3/releases/download/0.81/id3mtag_0.81-1_amd64.deb)/[i386](https://github.com/squell/id3/releases/download/0.81/id3mtag_0.81-1_i386.deb)
 0.80     | 21 Dec 2015  | [tarball](https://github.com/squell/id3/releases/download/0.80/id3-0.80.tar.gz)/[zip](https://github.com/squell/id3/releases/download/0.80/id3-080s.zip) | [Windows](https://github.com/squell/id3/releases/download/0.80/id3-080w.zip)<br> Debian/Ubuntu: [amd64](https://github.com/squell/id3/releases/download/0.80/id3mtag_0.80-1_amd64.deb)/[i386](https://github.com/squell/id3/releases/download/0.80/id3mtag_0.80-1_i386.deb)
 0.79     | 30 Jan 2015  | [tarball](https://github.com/squell/id3/releases/download/0.79/id3-0.79.tar.gz)/[zip](https://github.com/squell/id3/releases/download/0.79/id3-079s.zip) | [Windows](https://github.com/squell/id3/releases/download/0.79/id3-079w.zip)<br> Debian/Ubuntu: [amd64](https://github.com/squell/id3/releases/download/0.79/id3mtag_0.79-1_amd64.deb)/[i386](https://github.com/squell/id3/releases/download/0.79/id3mtag_0.79-1_i386.deb)
 0.78     | 21 Mar 2006  | [tarball](https://github.com/squell/id3/releases/download/0.78/id3-0.78.tar.gz)/[zip](https://github.com/squell/id3/releases/download/0.78/id3-078s.zip) | [Windows](https://github.com/squell/id3/releases/download/0.78/id3-078w.zip)
 
 id3 mass tagger may also be a available on your system by default:
 
-**Arch Linux**: `pacman -S id3`
+**Arch Linux**: `pacman -S id3` (via the AUR)
 
 **FreeBSD**: `pkg install id3mtag`
 
@@ -112,7 +113,7 @@ If you like this program, you can help by trying to build and test it on an unco
 
 ### Copyright
 
-&copy; Marc Schoolderman 2003-2017. All rights reserved.
+&copy; Marc Schoolderman 2003-2023. All rights reserved.
 
 This program may be used freely, and you are welcome to redistribute it under certain conditions.
 
