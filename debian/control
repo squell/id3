@@ -9,7 +9,7 @@ Vcs-Git: https://github.com/squell/id3.git
 Package: id3mtag
 Architecture: any
 Section: sound
-Priority: extra
+Priority: optional
 Depends: ${shlibs:Depends}
 Conflicts: id3
 Replaces: id3

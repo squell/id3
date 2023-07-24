@@ -35,12 +35,12 @@ TMPPKGDOC=debian/tmp/usr/share/doc/$(package)
 binary-arch: checkroot build install
 	$(checkdir)
 	install -d debian/tmp/DEBIAN
-	gzip -9v debian/tmp/usr/share/man/man?/id3.?
+	gzip -9vn debian/tmp/usr/share/man/man?/id3.?
 	cp -a debian/copyright $(TMPPKGDOC)/.
 	cp -a debian/changelog $(TMPPKGDOC)/changelog.Debian
-	ln -s CHANGES.gz $(TMPPKGDOC)/changelog.gz
-	rm -f $(TMPPKGDOC)/COPYING
-	cd $(TMPPKGDOC) && gzip -9v CHANGES README changelog.Debian
+	cp -a CHANGES $(TMPPKGDOC)/changelog
+	rm -f $(TMPPKGDOC)/COPYING $(TMPPKGDOC)/CHANGES
+	cd $(TMPPKGDOC) && gzip -9vn README changelog changelog.Debian
 	cd debian/tmp && md5sum `\
 	  find -name DEBIAN -prune -or -type f -printf '%P\n'` > DEBIAN/md5sums
 	dpkg-shlibdeps debian/tmp/usr/bin/*
