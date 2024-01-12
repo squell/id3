@@ -126,10 +126,10 @@ rm -rf ${FILE}2
 ln -s ${FILE} ${FILE}2
 ./id3 -2 -s 20000 ${FILE}2
 test $(cat ${FILE}2 | wc -c) -eq 20000
-for x in `seq 200`; do
+for x in `seq 150`; do
 	./id3 -2 -wTXXX:$x "test$x" "${FILE}2"
-	n=$((RANDOM % 100))
-	test $x -gt $n || ./id3 -2 -q "%{TXXX:$n}" "${FILE}2" | grep -q '^test$n'
+	n=$((RANDOM % 100 + 12))
+	test "$n" -gt "$x" || ./id3 -2 -q "%{TXXX:$n}" "${FILE}2" | grep -q "^test$n"
 done
 
 # subtag - maintag interference
