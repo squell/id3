@@ -185,7 +185,7 @@ AWKCMD = "BEGIN { pretty = \"figlet -fsmall\" } \
 	!/^[A-Z]/ { print }"
 
 README: id3.man
-	@export MANWIDTH=80; man -l -E ascii id3.man | col -b | awk $(AWKCMD) | diff -u README -
+	@MANWIDTH=80 man -l -E ascii id3.man | col -b | awk $(AWKCMD) | diff -u README -
 
 ## build rules #############################################################
 
