@@ -1,5 +1,5 @@
 PORTNAME=	id3mtag
-PORTVERSION=	0.81
+DISTVERSION=	0.81
 CATEGORIES=	audio
 MASTER_SITES=	https://github.com/squell/id3/releases/download/${PORTVERSION}/
 DISTNAME=	id3-${PORTVERSION}
@@ -20,20 +20,17 @@ CFLAGS+=	-I${ICONV_INCLUDE_PATH}
 LDFLAGS+=	-L${ICONV_PREFIX}/lib ${ICONV_LIB}
 
 PLIST_FILES=	bin/id3 \
+		etc/bash_completion.d/id3mtag-completion.bash \
 		man/man1/id3.1.gz
 PORTDOCS=	CHANGES README
 
-OPTIONS_DEFINE=		BASH DOCS
-BASH_DESC=		Support for bash auto-completion
-BASH_PLIST_FILES=	share/bash-completion/completions/id3
+OPTIONS_DEFINE=	DOCS
 
 do-install:
 	${INSTALL_PROGRAM} ${WRKSRC}/id3 ${STAGEDIR}${PREFIX}/bin
 	${INSTALL_MAN} ${WRKSRC}/id3.man ${STAGEDIR}${MANPREFIX}/man/man1/id3.1
-
-post-install-BASH-on:
-	${MKDIR} ${STAGEDIR}${PREFIX}/share/bash-completion/completions
-	${INSTALL_DATA} ${WRKSRC}/bash/complete ${STAGEDIR}${PREFIX}/${BASH_PLIST_FILES}
+	${MKDIR} ${STAGEDIR}${PREFIX}/etc/bash_completion.d
+	${INSTALL_DATA} ${WRKSRC}/bash/complete ${STAGEDIR}${PREFIX}/etc/bash_completion.d/id3mtag-completion.bash
 
 post-install-DOCS-on:
 	${MKDIR} ${STAGEDIR}${DOCSDIR}
