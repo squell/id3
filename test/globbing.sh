@@ -13,6 +13,7 @@ while [ $iter -lt 50 ]; do
 	files="$(randstr | sed 'y:abcdef:./?*es:;s/8/[abc]/g;s/9/[a-c]/g;s/7/[!a-c]/g')*"
 	files="${files%.}"
 	files="${files%.}"
+	files="$(echo "$files" | sed 's://:/:g')"
 	if [ "$files" = "/${files#*/}" ]; then  # begins with /
 		files="${files#*/}"
 		base="."

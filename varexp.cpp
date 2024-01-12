@@ -27,6 +27,9 @@ bool varexp::match(const char *mask, const char *test)
         const char* resume[2] = { flag, };
         do {
 retry:      switch( c=*test++, m=*mask++ ) {
+            case '\\':
+                if(!*mask) goto fail;
+                m = *mask++;                          // fall thru
             default :
                 if( m != c ) goto fail;               // double break
                 continue;

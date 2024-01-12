@@ -22,6 +22,9 @@ test -z "`(./id3 -q %p%f "*/"; echo */) | sort | uniq -d`"
 ! ./id3 -q %p%f -X "*/"
 ./id3 --artist "" -- "$FILE"
 ./id3 -q %a $FILE | grep -q '^<empty>$'
+cp "$FILE" "$TESTP"/'['
+./id3 -q %a "$TESTP/\[" | grep -q '^<empty>$'
+rm "$TESTP"/'['
 
 # -m match
 ./id3 -a "" $FILE
