@@ -184,6 +184,15 @@ inline static char* argpath(char* arg)
 
 /* ====================================================== */
 
+void without_globbing(fileexp::find& work, const char* name)
+{
+    fileexp::record dummy = { };
+    strncpy(dummy.path, name, PATH_MAX-1);
+    work.file(dummy.path, dummy);
+}
+
+/* ====================================================== */
+
 class verbose : public mass_tag {
 public:
     verbose(const tag::writer& write, const tag::reader& read)
@@ -217,14 +226,6 @@ private:
         if(! mass_tag::file(name, f) )
             eprintf("could not edit tag in %s\n", f.path);
         return 1;
-    }
-
-public:
-    void without_globbing(const char* name)
-    {
-        fileexp::record dummy = { };
-        strncpy(dummy.path, name, PATH_MAX-1);
-        file(dummy.path, dummy);
     }
 };
 
@@ -571,15 +572,19 @@ int main_(int argc, char *argv[])
                 eprintf("cannot combine -q with any modifying operation\n");
                 shelp();
             case op::no_op:
-                if(verbose::enable)
-                    return process_(tag, &argv[i], state & recur);
                 listtag viewer(*source);
-                return process_(viewer, &argv[i], state & recur);
+                fileexp::find& work = verbose::enable? (fileexp::find&)tag : viewer;
+                if(state & noglob) {
+                    without_globbing(tag, argv[i]);
+                    if(argv[i+1]) continue; else return exitc;
+                } else {
+                    return process_(work, &argv[i], state & recur);
+                }
             }
 
             verbose tagger(*selected, *source);
             if(state & noglob) {
-                tagger.without_globbing(argv[i]);
+                without_globbing(tagger, argv[i]);
                 if(argv[i+1]) continue; else return exitc;
             } else {
                 return process_(tagger, &argv[i], state & recur);

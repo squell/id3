@@ -1,7 +1,8 @@
 Changelog for 'id3'.
 
 2024-012 (W02):
-  added ability to escape '[', '*' and '?' using a backslash in filenames
+  varexp.cpp: added ability to escape '[', '*' and '?' using a backslash in filenames
+  main.cpp: --no-glob also affects 'id3' and 'id3-v' commands
 
 2023-180 (W26):                                ---------[v0.81]-----------
   added test cases from a project to increase test coverage
