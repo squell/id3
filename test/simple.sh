@@ -11,7 +11,8 @@ FILE=$TESTP/nULL
 
 mkdir -p  /tmp/id3-test
 rm -f $FILE ${FILE}2
-cat /dev/null > $FILE
+cat /dev/null > ${FILE}
+cat /dev/null > ${FILE}2
 
 set -v
 # wildcard
