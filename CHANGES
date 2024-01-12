@@ -8,15 +8,22 @@ Changelog for 'id3'.
 2021-170 (W24):
   fix several bugs in ID3v2 handling found by @geeknik's fuzzing
 
+2021-155 (W22):
+  id3v2.c/[sg]etid3v2.cpp: fix issues that potentially trigger UB
+
+2018-187 (W26):
+  setfname.cpp: allow more characters when generating filenames
+
 2017-156 (W23):
-  id3-imges.c: prefix filenames of extract images with the path of the mp3
+  id3-images.c: prefix filenames of extract images with the path of the mp3
     file they orginated from ("file.mp3:cover.jp3")
   [gs]etid3v2.h: add support for POPM frames; referenced as POPM:email,
     using the syntax <rating>[:playcounter]
 
 2017-121 (W18):
   fileexp.cpp: [bugfix] files with [] in them were not being found
-  main.cpp: [cli change] added -X option for disabling wildcard handling
+  main.cpp: [cli change] added -X/--no-glob option for disabling internal
+    wildcard handling (e.g. for use as a back-end program)
 
 2016-312 (W45):
   main.cpp: [cli change] added --list-genres/-L switch (for ID3v1 genres)

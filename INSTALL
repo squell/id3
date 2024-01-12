@@ -115,6 +115,10 @@ Notes for building under Windows:
    the mingw32-make commandline if you want to execute the resulting binary
    on a machine without MinGW installed.
 
+Notes for building under MacOS:
+
+ * You will need to explicitly link with iconv; e.g. "make LDFLAGS=-liconv"
+
 ===
 Makefiles
 

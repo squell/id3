@@ -9,7 +9,7 @@
 
 /*
 
-  copyright (c) 2003-2006, 2015 squell <info@squell.net>
+  copyright (c) 2003-2006, 2015, 2020 squell <info@squell.net>
 
   use, modification, copying and distribution of this software is permitted
   under the conditions described in the file 'COPYING'.
