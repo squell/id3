@@ -17,7 +17,7 @@
 #ifndef __ZF_AUTO_DIR
 #define __ZF_AUTO_DIR
 
-#if __STDC_VERSION__ >= 199901L
+#if __STDC_VERSION__ >= 199901L || __cplusplus >= 201103L
 #  include <stdint.h>              // for some implementations of dirent.h
 #endif
 #include <dirent.h>

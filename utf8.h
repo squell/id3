@@ -69,7 +69,7 @@ namespace utf8 {
 
   // some definitions
 
-#if __STDC_VERSION__ >= 199901L
+#if __STDC_VERSION__ >= 199901L || __cplusplus >= 201103L
 typedef uint_fast32_t wchar;                 // ucs-4 symbol holder
 #else
 typedef unsigned long wchar;                 // ucs-4 symbol holder
