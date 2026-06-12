@@ -63,15 +63,17 @@ namespace {
     void writer::put(const char* ID, const void* src, size_t len)
     {
         static size_t factor = 0x1000;      // start reallocing in 4k blocks
-        const size_t avail = capacity - (dest - base);
+        const size_t size = dest - base;
 
-        if(len+11 > avail) {
-            const size_t size = dest - base;
-            const size_t req  = size+len+11;
-            while(req > capacity) capacity = (factor *= 2);
+        const size_t req  = size+len+11;
+
+        if(req > capacity) {
+            while(req > (capacity = factor))
+                factor *= 2;
+
             base = (char*) realloc(base, capacity);
             if(!base) throw bad_alloc();
-            dest  = base + size;         // translate current pointer
+            dest = base + size;             // translate current pointer
         }
 
         dest = (char*) ID3_put(dest, version, ID, src, len);
