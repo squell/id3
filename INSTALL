@@ -1,5 +1,5 @@
 ---------------------------------------------------------------
-| id3 mass tagger v0.81
+| id3 mass tagger v0.82
 -------------------------------------------------------------
 
 the contents of the source distribution:
@@ -50,7 +50,7 @@ the contents of the source distribution:
  bash/          - definitions for bash auto-completion
 
 ---------------------------------------------------------------
-| (c) squell 2003-2015 - copyright notice
+| (c) squell 2003-2026 - copyright notice
 -------------------------------------------------------------
 
 All files in this package are copyrighted. This is NOT public domain software.

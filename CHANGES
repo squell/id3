@@ -1,5 +1,13 @@
 Changelog for 'id3'.
 
+2026-163 (W24):                                ---------[v0.82]-----------
+  setid3v2.cpp: fix error causing bad_alloc() when many files with large
+    ID3v2 tags were being processed (esp. noticeable on 32-bit systems)
+  id3v2.c: do the decent thing and introduce ul3/nbo3 for ID3v2.2
+
+2026-126 (W19):
+  fileops.c: fix compilation with gcc15 (by Xiangyan Sun)
+
 2024-012 (W02):
   varexp.cpp: added ability to escape '[', '*' and '?' using a backslash in filenames
   main.cpp: --no-glob also affects 'id3' and 'id3-v' commands

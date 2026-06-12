@@ -1,3 +1,10 @@
+id3mtag (0.82-1) unstable; urgency=low
+
+  * Fix bug causing memory allocation errors when dealing with many ID3v2 tags
+  * Allow escaping of `[`, `*` and `?` in path specs
+
+ -- Marc R. Schoolderman <info@squell.net>  Fri, 12 Jun 2026 15:30:00 +0100
+
 id3mtag (0.81-1) unstable; urgency=low
 
   * All present tags are now updated by default (i.e. ID3v2, Lyrics3)
