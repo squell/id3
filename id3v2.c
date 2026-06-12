@@ -107,12 +107,26 @@ static ulong ul4(const uchar n[4])
          | (ulong)n[3]<< 0;
 }
 
+static ulong ul3(const uchar n[3])
+{
+    return (ulong)n[0]<<16
+         | (ulong)n[1]<< 8
+         | (ulong)n[2]<< 0;
+}
+
 static void nbo4(uchar h[4], ulong n)
 {
     h[0] = (n >> 24) & 0xFF;
     h[1] = (n >> 16) & 0xFF;
     h[2] = (n >>  8) & 0xFF;
     h[3] = (n      ) & 0xFF;
+}
+
+static void nbo3(uchar h[3], ulong n)
+{
+    h[0] = (n >> 16) & 0xFF;
+    h[1] = (n >>  8) & 0xFF;
+    h[2] = (n      ) & 0xFF;
 }
 
 static ulong ul4ss(const uchar h[4])                      /* "synch safe" */
@@ -446,7 +460,7 @@ int ID3_frame(ID3FRAME f)
         if( frame->v3.flags[1] & DLI4 )          /* id3v2.4 crufty stuff */
             f->data += 4, f->size -= 4;
     } else {
-        f->size       = ul4(frame->v2.size) >> 8;
+        f->size       = ul3(frame->v2.size);
     }
 
     return 1;
@@ -475,7 +489,7 @@ void *ID3_put(void *dest, ID3VER version, const char ID[4], const void *src, siz
         frame->v3.flags[0] = 0;
         frame->v3.flags[1] = 0;
     } else {
-        nbo4(frame->v2.size, len << 8);      /* extra byte doesn't matter */
+        nbo3(frame->v2.size, len);
     }
 
     cdest = memcpy(cdest + raw_frm_sizeof[version==3], src, len);
